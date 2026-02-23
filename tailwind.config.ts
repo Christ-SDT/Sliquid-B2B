@@ -9,14 +9,15 @@ const config: Config = {
     extend: {
       colors: {
         sliquid: {
-          blue: '#00AEEF',
-          'dark-blue': '#008cb9',
+          blue: '#0A84C0',
+          'dark-blue': '#0870a3',
+          teal: '#5c7676',
         },
         'text-dark': '#111111',
         'text-gray': '#4b5563',
         'text-light-gray': '#9ca3af',
         'bg-off-white': '#f9fafb',
-        'bg-light-blue': '#f0f9ff',
+        'bg-light-blue': '#e8f4fb',
         footer: '#1f2937',
       },
       borderRadius: {

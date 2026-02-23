@@ -13,7 +13,7 @@ export default function OurBrandsPage() {
             The brands behind Sliquid HQ
           </h1>
           <p className="text-text-gray text-lg mt-4 max-w-2xl leading-relaxed">
-            Two complementary brands united by one commitment — premium,
+            Three complementary brands united by one commitment — premium,
             body-safe intimacy products you can trust.
           </p>
         </div>
@@ -38,11 +38,16 @@ export default function OurBrandsPage() {
               />
             </div>
             <div className={`space-y-5 ${idx % 2 === 1 ? 'lg:[direction:ltr]' : ''}`}>
-              <h2 className="text-text-dark text-[32px] font-semibold">
-                {brand.name}
-              </h2>
-              <p className="text-text-gray text-lg leading-relaxed">
-                {brand.tagline}
+              <div>
+                <h2 className="text-text-dark text-[32px] font-semibold">
+                  {brand.name}
+                </h2>
+                <p className="text-sliquid-blue font-medium text-sm mt-1 uppercase tracking-wider">
+                  {brand.tagline}
+                </p>
+              </div>
+              <p className="text-text-gray text-base leading-relaxed">
+                {brand.description}
               </p>
               <a
                 href={brand.siteUrl}

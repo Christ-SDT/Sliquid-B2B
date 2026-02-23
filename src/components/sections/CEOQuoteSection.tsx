@@ -12,13 +12,27 @@ export default function CEOQuoteSection() {
               className="text-text-dark text-[32px] font-medium leading-[1.4]"
               style={{ fontStyle: 'normal' }}
             >
-              &ldquo;Sliquid has completely changed the conversation around
-              organic lubricants. We are more than just a manufacturer&mdash;we
-              are an innovation leader in body-safe intimacy.&rdquo;
+              &ldquo;Dean built something extraordinary — a company rooted in
+              integrity, inclusion, and the belief that clean products change
+              lives. It is our honor to carry that mission forward and bring
+              Sliquid&rsquo;s wellness vision to every partner and customer
+              around the world.&rdquo;
             </p>
-            <footer className="mt-5">
-              <cite className="not-italic font-semibold text-text-dark text-base">
-                Dean Elliott, Founder &amp; CEO
+            <footer className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <img
+                src="/images/team/cynthia-elliott.png"
+                alt="Cynthia Elliott"
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                className="w-14 h-14 rounded-full object-cover object-top bg-bg-off-white"
+              />
+              <cite className="not-italic text-left">
+                <span className="block font-semibold text-text-dark text-base">
+                  Cynthia Elliott
+                </span>
+                <span className="block text-text-gray text-sm">
+                  Co-Founder &amp; CEO, Sliquid
+                </span>
               </cite>
             </footer>
           </blockquote>

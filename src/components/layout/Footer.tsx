@@ -6,7 +6,7 @@ function DropletLogo() {
     <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
       <path
         d="M16 3C16 3 5 14.5 5 20.5a11 11 0 0022 0C27 14.5 16 3 16 3z"
-        fill="#00AEEF"
+        fill="#0A84C0"
       />
     </svg>
   )

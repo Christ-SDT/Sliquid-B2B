@@ -14,7 +14,7 @@ function DropletLogo() {
     >
       <path
         d="M16 3C16 3 5 14.5 5 20.5a11 11 0 0022 0C27 14.5 16 3 16 3z"
-        fill="#00AEEF"
+        fill="#0A84C0"
       />
       <path
         d="M16 8C16 8 10 16 10 20.5a6 6 0 0012 0C22 16 16 8 16 8z"

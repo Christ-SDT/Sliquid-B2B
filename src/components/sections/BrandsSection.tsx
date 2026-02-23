@@ -14,8 +14,8 @@ export default function BrandsSection() {
             Expanding the family with specialized lines
           </h2>
           <p className="text-text-gray text-base leading-relaxed mb-6">
-            See how we are broadening our catalog to include specialized
-            lubricants and men&apos;s wellness.
+            See how we are broadening our catalog to include RIDE Lube&apos;s
+            performance formulas and the Ride Rocco signature collection.
           </p>
           <Link
             to="/our-brands"
@@ -40,7 +40,7 @@ export default function BrandsSection() {
         <div className="relative rounded-img overflow-hidden">
           <img
             src={IMG_BRANDS_HERO}
-            alt="Sliquid and Ride BodyWorx product collection"
+            alt="Sliquid, RIDE Lube, and Ride Rocco product collection"
             loading="lazy"
             referrerPolicy="strict-origin-when-cross-origin"
             className="w-full h-[500px] object-cover"
@@ -54,10 +54,10 @@ export default function BrandsSection() {
                         px-7 py-5 text-left"
           >
             <strong className="block text-xl text-text-dark">
-              Ride BodyWorx &amp; Ride Rocco
+              RIDE Lube &amp; Ride Rocco
             </strong>
             <span className="text-sm text-text-gray">
-              Performance lubricants &amp; men&apos;s care
+              Performance lubricants &amp; signature collections
             </span>
           </div>
         </div>

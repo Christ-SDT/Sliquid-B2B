@@ -27,6 +27,7 @@ export interface Brand {
   readonly id: string
   readonly name: string
   readonly tagline: string
+  readonly description: string
   readonly imageUrl: string
   readonly imageAlt: string
   readonly siteUrl: string
@@ -42,6 +43,14 @@ export interface NewsArticle {
   readonly imageAlt: string
   readonly href: string
   readonly featured?: boolean
+}
+
+export interface Executive {
+  readonly id: string
+  readonly name: string
+  readonly title: string
+  readonly imageUrl: string
+  readonly imageAlt: string
 }
 
 export interface ContactFormData {

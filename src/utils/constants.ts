@@ -1,8 +1,8 @@
-import type { TopBarLink, NavLink, StrategyCard, StatItem, Brand, NewsArticle } from '@/types'
+import type { TopBarLink, NavLink, StrategyCard, StatItem, Brand, NewsArticle, Executive } from '@/types'
 
 export const TOP_BAR_LINKS: readonly TopBarLink[] = [
   { label: 'Sliquid Retail', href: 'https://sliquid.com', external: true },
-  { label: 'Ride BodyWorx', href: 'https://ridebodyworx.com', external: true },
+  { label: 'RIDE Lube', href: 'https://ridebodyworx.com', external: true },
   { label: 'Partner Login', href: '/partner-login', highlighted: true },
 ] as const
 
@@ -21,8 +21,8 @@ export const STRATEGY_CARDS: readonly StrategyCard[] = [
     description:
       'Get wholesale solutions and displays that deliver high sell-through rates and improved customer satisfaction.',
     imageUrl:
-      'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80',
-    imageAlt: 'Modern retail storefront with wellness products on display',
+      'https://sliquid.com/wp-content/uploads/2025/03/Organics-Natural-Group.png',
+    imageAlt: 'Sliquid Organics Natural lubricant collection on a clean surface',
     linkHref: '/contact?type=retailer',
     linkLabel: 'See our catalog',
   },
@@ -32,8 +32,8 @@ export const STRATEGY_CARDS: readonly StrategyCard[] = [
     description:
       'Recommend body-safe, glycerin-free lubricants that align with pelvic health and wellness plans.',
     imageUrl:
-      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=80',
-    imageAlt: 'Healthcare professional in a consultation setting',
+      'https://sliquid.com/wp-content/uploads/2025/03/Master-Soothe-Group-w-reflections.png',
+    imageAlt: 'Sliquid Soothe intimate wellness product group with reflections',
     linkHref: '/contact?type=practitioner',
     linkLabel: 'View formulations',
   },
@@ -43,8 +43,8 @@ export const STRATEGY_CARDS: readonly StrategyCard[] = [
     description:
       'Collaborate to develop logistics strategies that meet the goals of our mutual clients worldwide.',
     imageUrl:
-      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80',
-    imageAlt: 'Global warehouse and logistics distribution center',
+      'https://sliquid.com/wp-content/uploads/2025/03/RideRocco-WaterBased-Group.png',
+    imageAlt: 'RIDE Lube water-based lubricant product lineup',
     linkHref: '/contact?type=distributor',
     linkLabel: 'Partner with us',
   },
@@ -62,19 +62,34 @@ export const BRANDS: readonly Brand[] = [
     id: 'sliquid',
     name: 'Sliquid',
     tagline: 'The original body-safe intimacy brand',
+    description:
+      'Sliquid pioneered clean intimate wellness starting in 2002. Every formula is glycerin-free, paraben-free, and crafted with body-safe ingredients — from the bestselling H2O water-based lubricant to the USDA-certified Organics line. With 100+ SKUs spanning lubricants, cleansers, and massage oils, Sliquid is the trusted standard for retailers and healthcare practitioners worldwide.',
     imageUrl:
-      'https://images.unsplash.com/photo-1556228578-567ba127e37f?w=800&q=80',
-    imageAlt: 'Sliquid product collection on a clean white surface',
+      'https://sliquid.com/wp-content/uploads/2025/03/Silver-Studio-Collection.png',
+    imageAlt: 'Sliquid Silver studio collection of body-safe lubricants',
     siteUrl: 'https://sliquid.com',
   },
   {
-    id: 'ride-bodyworx',
-    name: 'Ride BodyWorx',
-    tagline: 'Performance lubricants & men\'s care',
+    id: 'ride-lube',
+    name: 'RIDE Lube',
+    tagline: 'High performance products for men',
+    description:
+      'RIDE Lube is built for performance. The lineup — water-based, silicone, hybrid, and specialty formulas — is engineered for thickness, slipperiness, and endurance with ingredients chosen for sensitive skin. Inclusive by design, RIDE Lube serves a broad audience including the LGBTQ+ community and features the Buck Angel T-Collection developed specifically for transgender individuals. A high-velocity SKU for adult retailers seeking a loyal, performance-driven customer base.',
     imageUrl:
-      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=800&q=80',
-    imageAlt: 'Ride BodyWorx masculine product lineup',
-    siteUrl: 'https://ridebodyworx.com',
+      'https://sliquid.com/wp-content/uploads/2025/03/Master_RIDE-LUBE-WATERBASEDGROUP-1000x1000-1.jpg',
+    imageAlt: 'RIDE Lube water-based lubricant product group',
+    siteUrl: 'https://ridelube.com',
+  },
+  {
+    id: 'ride-rocco',
+    name: 'Ride Rocco',
+    tagline: 'The gold standard of lube',
+    description:
+      'Developed in partnership with adult industry icon Rocco Steele, Ride Rocco is a premium lubricant collection that demands shelf presence. Water-based, silicone, and the unique Seed hybrid formula deliver the long-lasting endurance Rocco\'s audience expects, all manufactured to the same body-safe standards as RIDE Lube. The co-branded packaging drives impulse purchase and connects with a dedicated, passionate fan base that follows Rocco across platforms.',
+    imageUrl:
+      'https://sliquid.com/wp-content/uploads/2025/03/RideRocco-WaterBased-Group.png',
+    imageAlt: 'Ride Rocco signature water-based lubricant collection',
+    siteUrl: 'https://riderocco.com',
   },
 ] as const
 
@@ -83,12 +98,12 @@ export const FEATURED_NEWS: readonly NewsArticle[] = [
     id: 'news-1',
     title: 'Sliquid Expands European Distribution Network',
     excerpt:
-      'Sliquid HQ announces a major distribution partnership expanding access to premium intimacy wellness products across 12 new European markets.',
+      'Sliquid HQ announces a major distribution partnership expanding access to premium intimacy wellness products across 12 new European markets — bringing our body-safe formulas to thousands of new retail and clinical locations.',
     category: 'Distribution',
     date: '2025-11-20',
     imageUrl:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
-    imageAlt: 'Aerial view of a European city skyline at dusk',
+      'https://sliquid.com/wp-content/uploads/2025/03/Organics-Natural-Group.png',
+    imageAlt: 'Sliquid Organics Natural product collection',
     href: '/insights/european-distribution',
     featured: true,
   },
@@ -96,44 +111,99 @@ export const FEATURED_NEWS: readonly NewsArticle[] = [
     id: 'news-2',
     title: 'New pH-Balanced Formula Line Launches Q1',
     excerpt:
-      'Expanding the natural collection with six new pH-optimized personal care products.',
+      'Expanding the natural collection with six new pH-optimized personal care products formulated specifically for sensitive bodies and post-menopausal vaginal health.',
     category: 'Product News',
     date: '2025-10-15',
     imageUrl:
-      'https://images.unsplash.com/photo-1631390108073-f94e7b7bb69b?w=400&q=80',
-    imageAlt: 'Clean laboratory with glass bottles and formulation equipment',
+      'https://sliquid.com/wp-content/uploads/2025/03/8oz-Natural-Gel.png',
+    imageAlt: 'Sliquid Organics Natural Gel 8oz bottle',
     href: '/insights/ph-balanced-launch',
   },
   {
     id: 'news-3',
     title: 'Sliquid Named Top Wellness Brand 2025',
     excerpt:
-      'Independent industry survey places Sliquid in the top three intimacy wellness brands globally.',
+      'An independent industry survey places Sliquid in the top three intimacy wellness brands globally, citing ingredient transparency, inclusive formulation, and healthcare provider trust as key differentiators.',
     category: 'Awards',
     date: '2025-09-08',
     imageUrl:
-      'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&q=80',
-    imageAlt: 'Award trophy on a podium with soft lighting',
+      'https://sliquid.com/wp-content/uploads/2025/03/SilverGroupCloseUp.png',
+    imageAlt: 'Sliquid Silver product collection close-up',
     href: '/insights/top-wellness-brand',
   },
   {
     id: 'news-4',
     title: 'B2B Partner Portal Upgrade Goes Live',
     excerpt:
-      'The revamped partner portal brings real-time inventory, order tracking, and enhanced analytics.',
+      'The revamped partner portal brings real-time inventory visibility, streamlined order tracking, enhanced analytics dashboards, and a new merchandising asset library for retail partners.',
     category: 'Platform',
     date: '2025-08-22',
     imageUrl:
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80',
-    imageAlt: 'Analytics dashboard on a laptop screen',
+      'https://sliquid.com/wp-content/uploads/2025/10/Balance_Soak_Group_r.jpg',
+    imageAlt: 'Sliquid Balance Soak intimate wellness product group',
     href: '/insights/portal-upgrade',
+  },
+  {
+    id: 'news-5',
+    title: 'Cynthia Elliott on Leading Through Change',
+    excerpt:
+      "CEO Cynthia Elliott shares her vision for Sliquid's next chapter — a wellness-forward brand built on the foundation Dean created, designed for a world that is finally ready for honest conversations about intimate health.",
+    category: 'Leadership',
+    date: '2025-07-10',
+    imageUrl:
+      'https://sliquid.com/wp-content/uploads/2025/03/Master-Soothe-Group-w-reflections.png',
+    imageAlt: 'Sliquid Soothe product collection',
+    href: '/insights/cynthia-leadership',
+  },
+  {
+    id: 'news-6',
+    title: "Why Glycerin-Free Matters: A Retailer's Guide",
+    excerpt:
+      'As customers become more ingredient-aware, understanding why glycerin-free formulas outperform conventional lubricants is becoming a competitive advantage for retailers who carry Sliquid.',
+    category: 'Education',
+    date: '2025-06-03',
+    imageUrl:
+      'https://sliquid.com/wp-content/uploads/2025/03/Organics-Natural-Gel-group.png',
+    imageAlt: 'Sliquid Organics Natural Gel product group',
+    href: '/insights/glycerin-free-guide',
   },
 ] as const
 
-// Unsplash image constants used directly in section components
+export const EXECUTIVES: readonly Executive[] = [
+  {
+    id: 'cynthia-elliott',
+    name: 'Cynthia Elliott',
+    title: 'Co-Founder & CEO',
+    imageUrl: '/images/team/cynthia-elliott.png',
+    imageAlt: 'Cynthia Elliott, Co-Founder and CEO of Sliquid',
+  },
+  {
+    id: 'colin-roy',
+    name: 'Colin Roy',
+    title: 'Senior Vice President',
+    imageUrl: '/images/team/colin-roy.png',
+    imageAlt: 'Colin Roy, Senior Vice President of Sliquid',
+  },
+  {
+    id: 'michelle-marcus',
+    name: 'Michelle Marcus',
+    title: 'Vice President of Sales',
+    imageUrl: '/images/team/michelle-marcus.jpg',
+    imageAlt: 'Michelle Marcus, Vice President of Sales at Sliquid',
+  },
+  {
+    id: 'erik-vasquez',
+    name: 'Erik Vasquez',
+    title: 'Vice President of Marketing',
+    imageUrl: '/images/team/erik-vasquez.png',
+    imageAlt: 'Erik Vasquez, Vice President of Marketing at Sliquid',
+  },
+] as const
+
+// Sliquid product image constants used directly in section components
 export const IMG_HERO =
-  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1920&q=85'
+  'https://sliquid.com/wp-content/uploads/2025/05/Products-Banner-template-copy-1.jpg'
 export const IMG_BRANDS_HERO =
-  'https://images.unsplash.com/photo-1556228578-567ba127e37f?w=1600&q=80'
+  'https://sliquid.com/wp-content/uploads/2025/03/H2OGroup-850x850-1.webp'
 export const IMG_CEO =
-  'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80'
+  'https://sliquid.com/wp-content/uploads/2025/10/c4ocr69L_400x400.jpg'
