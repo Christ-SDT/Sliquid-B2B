@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply font-sans antialiased scroll-smooth;
+  }
+
+  body {
+    @apply text-text-dark bg-white;
+    line-height: 1.5;
+  }
+
+  img {
+    @apply max-w-full block;
+  }
+
+  a {
+    @apply transition-colors duration-150;
+  }
+}
