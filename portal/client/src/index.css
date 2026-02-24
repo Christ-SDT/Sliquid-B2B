@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 95%;
+    --card: 222 40% 12%;
+    --card-foreground: 210 40% 95%;
+    --border: 222 30% 18%;
+    --input: 222 30% 18%;
+    --ring: 199 86% 40%;
+    --primary: 199 86% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 30% 18%;
+    --secondary-foreground: 210 40% 80%;
+    --muted: 222 30% 15%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 222 30% 18%;
+    --accent-foreground: 210 40% 95%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * { @apply border-portal-border; }
+  body {
+    @apply bg-portal-bg text-slate-100 font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-portal-bg; }
+  ::-webkit-scrollbar-thumb { @apply bg-portal-border rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-slate-600; }
+}
