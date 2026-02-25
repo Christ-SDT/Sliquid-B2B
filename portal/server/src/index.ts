@@ -15,7 +15,11 @@ import creativesRouter from './routes/creatives.js'
 const app = express()
 const PORT = process.env.PORT || 3001
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:4173'] }))
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : ['http://localhost:5173', 'http://localhost:4173']
+
+app.use(cors({ origin: allowedOrigins }))
 app.use(express.json())
 
 app.use('/api/auth', authRouter)

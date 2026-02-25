@@ -5,100 +5,144 @@ import { fileURLToPath } from 'url'
 import fs from 'fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const DB_PATH = path.join(__dirname, '../../data/portal.db')
+const DB_PATH = process.env.DB_PATH ?? path.join(__dirname, '../../data/portal.db')
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true })
 
 export const db = new DatabaseSync(DB_PATH)
 
-function needsMigration(): boolean {
-  try { db.prepare('SELECT vendor_number FROM products LIMIT 1').get(); return false }
-  catch { return true }
+// ─── BACKUP ──────────────────────────────────────────────────────────────────
+// Called automatically before any pending migrations run.
+// Creates a timestamped copy of the database file alongside the original.
+function backup(): void {
+  if (!fs.existsSync(DB_PATH)) return
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const backupPath = `${DB_PATH}.${stamp}.bak`
+  fs.copyFileSync(DB_PATH, backupPath)
+  console.log(`[db] Backup saved → ${backupPath}`)
 }
 
-function init() {
-  if (needsMigration()) {
-    console.log('Migrating schema...')
-    db.exec(`
-      DROP TABLE IF EXISTS inventory;
-      DROP TABLE IF EXISTS creatives;
-      DROP TABLE IF EXISTS retailer_applications;
-      DROP TABLE IF EXISTS invoices;
-      DROP TABLE IF EXISTS assets;
-      DROP TABLE IF EXISTS distributors;
-      DROP TABLE IF EXISTS products;
-      DROP TABLE IF EXISTS users;
+// ─── MIGRATIONS ──────────────────────────────────────────────────────────────
+// Add a new entry here whenever the schema changes.
+// Never drop or rename existing columns — only add.
+// The version number must be unique and always increasing.
+type Migration = { version: number; name: string; up: () => void }
+
+const migrations: Migration[] = [
+  {
+    version: 1,
+    name: 'initial_tables',
+    up: () => db.exec(`
+      PRAGMA journal_mode = WAL;
+      PRAGMA foreign_keys = ON;
+
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL, email TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'partner', company TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS products (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL, brand TEXT NOT NULL, category TEXT NOT NULL,
+        sku TEXT UNIQUE NOT NULL, description TEXT,
+        price REAL NOT NULL, image_url TEXT, in_stock INTEGER DEFAULT 1,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS assets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL, brand TEXT NOT NULL, type TEXT NOT NULL,
+        file_url TEXT NOT NULL, thumbnail_url TEXT, file_size TEXT, dimensions TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS distributors (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL, region TEXT NOT NULL, state TEXT NOT NULL,
+        city TEXT, address TEXT, phone TEXT, email TEXT, website TEXT, contact_name TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS invoices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_number TEXT UNIQUE NOT NULL, partner_id INTEGER REFERENCES users(id),
+        amount REAL NOT NULL, status TEXT NOT NULL DEFAULT 'pending',
+        due_date TEXT NOT NULL, issued_date TEXT NOT NULL, items TEXT NOT NULL, notes TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS inventory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        product_id INTEGER REFERENCES products(id),
+        product_name TEXT NOT NULL, brand TEXT NOT NULL, sku TEXT NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 0, reorder_level INTEGER NOT NULL DEFAULT 20,
+        status TEXT NOT NULL DEFAULT 'in_stock',
+        last_updated TEXT DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS retailer_applications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER REFERENCES users(id),
+        business_name TEXT NOT NULL, business_type TEXT,
+        contact_name TEXT NOT NULL, email TEXT NOT NULL,
+        phone TEXT, address TEXT, city TEXT, state TEXT, zip TEXT,
+        website TEXT, annual_revenue TEXT, how_heard TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',
+        submitted_at TEXT DEFAULT (datetime('now')), reviewed_at TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS creatives (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL, brand TEXT NOT NULL, type TEXT NOT NULL,
+        campaign TEXT, thumbnail_url TEXT, file_url TEXT,
+        description TEXT, dimensions TEXT, file_size TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
     `)
+  },
+  {
+    version: 2,
+    name: 'products_extended_columns',
+    up: () => {
+      const cols = (
+        db.prepare("SELECT name FROM pragma_table_info('products')").all() as { name: string }[]
+      ).map(c => c.name)
+      const add = (col: string, def: string) => {
+        if (!cols.includes(col)) db.exec(`ALTER TABLE products ADD COLUMN ${col} ${def}`)
+      }
+      add('vendor_number',  'TEXT')
+      add('upc',            'TEXT')
+      add('unit_size',      'TEXT')
+      add('case_pack',      'INTEGER')
+      add('case_cost',      'REAL')
+      add('unit_msrp',      'REAL')
+      add('case_weight',    'TEXT')
+      add('unit_dimensions','TEXT')
+      add('case_dimensions','TEXT')
+    }
   }
-  db.exec(`
-    PRAGMA journal_mode = WAL;
-    PRAGMA foreign_keys = ON;
+]
 
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL, email TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'partner', company TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    );
+function runMigrations(): void {
+  db.exec(`CREATE TABLE IF NOT EXISTS _migrations (
+    version INTEGER PRIMARY KEY,
+    name    TEXT NOT NULL,
+    run_at  TEXT DEFAULT (datetime('now'))
+  )`)
 
-    CREATE TABLE IF NOT EXISTS products (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL, brand TEXT NOT NULL, category TEXT NOT NULL,
-      sku TEXT UNIQUE NOT NULL, description TEXT,
-      price REAL NOT NULL, image_url TEXT, in_stock INTEGER DEFAULT 1,
-      vendor_number TEXT, upc TEXT, unit_size TEXT,
-      case_pack INTEGER, case_cost REAL, unit_msrp REAL,
-      case_weight TEXT, unit_dimensions TEXT, case_dimensions TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    );
+  const applied = new Set(
+    (db.prepare('SELECT version FROM _migrations').all() as { version: number }[]).map(r => r.version)
+  )
 
-    CREATE TABLE IF NOT EXISTS assets (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL, brand TEXT NOT NULL, type TEXT NOT NULL,
-      file_url TEXT NOT NULL, thumbnail_url TEXT, file_size TEXT, dimensions TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    );
+  const pending = migrations.filter(m => !applied.has(m.version))
+  if (pending.length === 0) return
 
-    CREATE TABLE IF NOT EXISTS distributors (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL, region TEXT NOT NULL, state TEXT NOT NULL,
-      city TEXT, address TEXT, phone TEXT, email TEXT, website TEXT, contact_name TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS invoices (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      invoice_number TEXT UNIQUE NOT NULL, partner_id INTEGER REFERENCES users(id),
-      amount REAL NOT NULL, status TEXT NOT NULL DEFAULT 'pending',
-      due_date TEXT NOT NULL, issued_date TEXT NOT NULL, items TEXT NOT NULL, notes TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS inventory (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      product_id INTEGER REFERENCES products(id),
-      product_name TEXT NOT NULL, brand TEXT NOT NULL, sku TEXT NOT NULL,
-      quantity INTEGER NOT NULL DEFAULT 0, reorder_level INTEGER NOT NULL DEFAULT 20,
-      status TEXT NOT NULL DEFAULT 'in_stock',
-      last_updated TEXT DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS retailer_applications (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER REFERENCES users(id),
-      business_name TEXT NOT NULL, business_type TEXT,
-      contact_name TEXT NOT NULL, email TEXT NOT NULL,
-      phone TEXT, address TEXT, city TEXT, state TEXT, zip TEXT,
-      website TEXT, annual_revenue TEXT, how_heard TEXT,
-      status TEXT NOT NULL DEFAULT 'pending',
-      submitted_at TEXT DEFAULT (datetime('now')), reviewed_at TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS creatives (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL, brand TEXT NOT NULL, type TEXT NOT NULL,
-      campaign TEXT, thumbnail_url TEXT, file_url TEXT,
-      description TEXT, dimensions TEXT, file_size TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    );
-  `)
+  backup()
+  for (const m of pending) {
+    console.log(`[db] Applying migration v${m.version}: ${m.name}`)
+    m.up()
+    db.prepare('INSERT INTO _migrations (version, name) VALUES (?, ?)').run(m.version, m.name)
+    console.log(`[db] Migration v${m.version} done.`)
+  }
 }
 
 // ─── SEED ───────────────────────────────────────────────────────────────────
@@ -433,6 +477,6 @@ function seed() {
   console.log('Database seeded successfully.')
 }
 
-init()
+runMigrations()
 seed()
 export default db
