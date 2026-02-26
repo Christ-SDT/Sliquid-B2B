@@ -11,6 +11,7 @@ import inventoryRouter from './routes/inventory.js'
 import statsRouter from './routes/stats.js'
 import retailerRouter from './routes/retailer.js'
 import creativesRouter from './routes/creatives.js'
+import quizRouter from './routes/quiz.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -32,6 +33,7 @@ app.use('/api/inventory', inventoryRouter)
 app.use('/api/stats', statsRouter)
 app.use('/api/retailer', retailerRouter)
 app.use('/api/creatives', creativesRouter)
+app.use('/api/quiz', quizRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))
 

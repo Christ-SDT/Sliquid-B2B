@@ -98,6 +98,21 @@ const migrations: Migration[] = [
     `)
   },
   {
+    version: 3,
+    name: 'quiz_results',
+    up: () => db.exec(`
+      CREATE TABLE IF NOT EXISTS quiz_results (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id      INTEGER NOT NULL REFERENCES users(id),
+        quiz_id      TEXT    NOT NULL,
+        score        REAL    NOT NULL,
+        passed       INTEGER NOT NULL DEFAULT 0,
+        completed_at TEXT    DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_quiz_results_user ON quiz_results(user_id);
+    `)
+  },
+  {
     version: 2,
     name: 'products_extended_columns',
     up: () => {

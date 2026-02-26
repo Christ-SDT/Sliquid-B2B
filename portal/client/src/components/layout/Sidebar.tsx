@@ -3,7 +3,7 @@ import { useAuth } from '@/context/AuthContext'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, Package, FolderOpen, Archive,
-  Receipt, BarChart3, MapPin, Store, Megaphone, LogOut, X,
+  Receipt, BarChart3, MapPin, Store, Megaphone, GraduationCap, LogOut, X,
 } from 'lucide-react'
 
 const NAV = [
@@ -16,6 +16,7 @@ const NAV = [
   { to: '/distributors', icon: MapPin,         label: 'Distributors' },
   { to: '/retailer',  icon: Store,             label: 'Become a Retailer' },
   { to: '/creatives', icon: Megaphone,         label: 'Creatives' },
+  { to: '/trainings', icon: GraduationCap,     label: 'Trainings' },
 ]
 
 interface Props {

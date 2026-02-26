@@ -11,6 +11,8 @@ import StatsPage from '@/pages/StatsPage'
 import DistributorsPage from '@/pages/DistributorsPage'
 import RetailerPage from '@/pages/RetailerPage'
 import CreativesPage from '@/pages/CreativesPage'
+import TrainingsPage from '@/pages/TrainingsPage'
+import QuizPage from '@/pages/QuizPage'
 
 export default function App() {
   return (
@@ -29,6 +31,8 @@ export default function App() {
             <Route path="distributors" element={<DistributorsPage />} />
             <Route path="retailer" element={<RetailerPage />} />
             <Route path="creatives" element={<CreativesPage />} />
+            <Route path="trainings" element={<TrainingsPage />} />
+            <Route path="quiz/:id" element={<QuizPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
