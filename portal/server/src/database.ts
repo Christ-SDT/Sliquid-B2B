@@ -1,4 +1,4 @@
-import { DatabaseSync } from 'node:sqlite'
+import Database from 'better-sqlite3'
 import bcrypt from 'bcryptjs'
 import path from 'path'
 import fs from 'fs'
@@ -6,7 +6,7 @@ import fs from 'fs'
 const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), 'data', 'portal.db')
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true })
 
-export const db = new DatabaseSync(DB_PATH)
+export const db = new Database(DB_PATH)
 
 // ─── BACKUP ──────────────────────────────────────────────────────────────────
 // Called automatically before any pending migrations run.
@@ -131,7 +131,9 @@ function runMigrations(): void {
     (db.prepare('SELECT version FROM _migrations').all() as { version: number }[]).map(r => r.version)
   )
 
-  const pending = migrations.filter(m => !applied.has(m.version))
+  const pending = migrations
+    .filter(m => !applied.has(m.version))
+    .sort((a, b) => a.version - b.version)
   if (pending.length === 0) return
 
   backup()
