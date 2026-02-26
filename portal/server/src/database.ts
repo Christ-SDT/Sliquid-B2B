@@ -1,11 +1,9 @@
 import { DatabaseSync } from 'node:sqlite'
 import bcrypt from 'bcryptjs'
 import path from 'path'
-import { fileURLToPath } from 'url'
 import fs from 'fs'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const DB_PATH = process.env.DB_PATH ?? path.join(__dirname, '../../data/portal.db')
+const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), 'data', 'portal.db')
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true })
 
 export const db = new DatabaseSync(DB_PATH)
