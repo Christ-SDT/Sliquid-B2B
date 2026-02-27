@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '@/api/client'
+import { useAuth } from '@/context/AuthContext'
 import { QUIZZES } from '@/quizzes'
-import { ArrowLeft, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, XCircle, Loader2, User, CalendarDays } from 'lucide-react'
 
 // Extend window to hold the SCORM 1.2 API object
 declare global {
@@ -16,17 +17,50 @@ type FinishState = {
   score: number
   passed: boolean
   submitted: boolean
+  completedAt: string
   error?: string
 }
 
 export default function QuizPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const quiz = QUIZZES.find(q => q.id === id)
 
   const scormData = useRef<Record<string, string>>({})
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const hasFinished = useRef(false)
   const [iframeReady, setIframeReady] = useState(false)
   const [finish, setFinish] = useState<FinishState | null>(null)
+
+  // Extracted so both LMSFinish and goodbye.html detection can trigger it.
+  // Uses a ref so the SCORM shim (set up in useEffect) always calls the latest version.
+  const handleFinishRef = useRef<() => void>(() => {})
+
+  useEffect(() => {
+    handleFinishRef.current = () => {
+      if (hasFinished.current || !quiz) return
+      hasFinished.current = true
+
+      const raw = parseFloat(scormData.current['cmi.core.score.raw'] ?? '0')
+      const score = isNaN(raw) ? 0 : Math.max(0, Math.min(100, raw))
+      const passed = score >= quiz.passingScore
+      const completedAt = new Date().toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric',
+      })
+
+      setFinish({ score, passed, submitted: false, completedAt })
+
+      api
+        .post<{ ok: boolean; score: number; passed: boolean }>('/quiz/complete', {
+          quizId: quiz.id,
+          quizTitle: quiz.title,
+          score,
+        })
+        .then(() => setFinish(prev => prev ? { ...prev, submitted: true } : prev))
+        .catch(err => setFinish(prev => prev ? { ...prev, submitted: true, error: err.message } : prev))
+    }
+  })
 
   // Install SCORM 1.2 window.API shim before the iframe loads
   useEffect(() => {
@@ -34,7 +68,12 @@ export default function QuizPage() {
 
     window.API = {
       LMSInitialize: (_: string) => {
+        hasFinished.current = false
         scormData.current = {
+          // Learner identity — Captivate uses these to display the student name
+          'cmi.core.student_name': user?.name ?? '',
+          'cmi.core.student_id':   user?.email ?? '',
+          // Standard SCORM 1.2 defaults
           'cmi.core.lesson_status':   'not attempted',
           'cmi.core.entry':           'ab-initio',
           'cmi.core.lesson_mode':     'normal',
@@ -53,23 +92,7 @@ export default function QuizPage() {
         return 'true'
       },
       LMSFinish: (_: string) => {
-        const raw = parseFloat(scormData.current['cmi.core.score.raw'] ?? '0')
-        const score = isNaN(raw) ? 0 : Math.max(0, Math.min(100, raw))
-        const passed = score >= quiz.passingScore
-
-        // Show overlay immediately
-        setFinish({ score, passed, submitted: false })
-
-        // Post result to backend
-        api
-          .post<{ ok: boolean; score: number; passed: boolean }>('/quiz/complete', {
-            quizId: quiz.id,
-            quizTitle: quiz.title,
-            score,
-          })
-          .then(() => setFinish(prev => prev ? { ...prev, submitted: true } : prev))
-          .catch(err => setFinish(prev => prev ? { ...prev, submitted: true, error: err.message } : prev))
-
+        handleFinishRef.current()
         return 'true'
       },
       LMSGetValue: (key: string) => scormData.current[key] ?? '',
@@ -88,7 +111,22 @@ export default function QuizPage() {
     return () => {
       delete window.API
     }
-  }, [quiz])
+  }, [quiz, user?.name, user?.email])
+
+  // Detect when Captivate navigates the iframe to goodbye.html (course complete).
+  // This is a safety net: LMSFinish fires via onbeforeunload in the iframe, but if
+  // it doesn't, the navigation to goodbye.html still triggers our overlay.
+  function handleIframeLoad() {
+    try {
+      const href = iframeRef.current?.contentWindow?.location?.href ?? ''
+      if (href.includes('goodbye.html')) {
+        // Give onbeforeunload (LMSFinish) a moment to fire first
+        setTimeout(() => handleFinishRef.current(), 300)
+      }
+    } catch {
+      // cross-origin guard — won't happen since both are same-origin, but just in case
+    }
+  }
 
   if (!quiz) {
     return (
@@ -117,19 +155,22 @@ export default function QuizPage() {
         <span className="ml-auto text-slate-500 text-xs">Pass: {quiz.passingScore}%</span>
       </div>
 
-      {/* SCORM iframe */}
+      {/* SCORM iframe — no sandbox so window.parent.API is reachable;
+          encrypted-media + picture-in-picture help YouTube embeds inside the course */}
       {iframeReady && (
         <iframe
+          ref={iframeRef}
           src={quiz.path}
           title={quiz.title}
           className="flex-1 w-full border-none"
-          allow="autoplay"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          onLoad={handleIframeLoad}
         />
       )}
 
-      {/* Result overlay */}
+      {/* Completion overlay */}
       {finish && (
-        <div className="absolute inset-0 bg-portal-bg/90 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="absolute inset-0 bg-portal-bg/95 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-surface border border-portal-border rounded-2xl p-8 w-full max-w-sm mx-4 text-center shadow-2xl">
             {finish.passed ? (
               <CheckCircle2 className="w-14 h-14 text-emerald-400 mx-auto mb-4" />
@@ -138,19 +179,30 @@ export default function QuizPage() {
             )}
 
             <h2 className="text-white text-xl font-bold mb-1">
-              {finish.passed ? 'Congratulations!' : 'Keep Practicing'}
+              {finish.passed ? 'Training Complete!' : 'Keep Practicing'}
             </h2>
-            <p className="text-slate-400 text-sm mb-4">
+            <p className="text-slate-400 text-sm mb-5">
               {finish.passed
-                ? 'You passed this training.'
-                : `You need ${quiz.passingScore}% to pass. Give it another try!`}
+                ? 'You passed this training. Great work!'
+                : `A score of ${quiz.passingScore}% is required to pass. Give it another try!`}
             </p>
 
-            <div className="py-3 px-5 bg-portal-bg rounded-xl mb-6">
-              <p className="text-slate-500 text-xs mb-1">Your Score</p>
-              <p className={`text-3xl font-bold ${finish.passed ? 'text-emerald-400' : 'text-amber-400'}`}>
-                {finish.score}%
-              </p>
+            {/* Completion summary card */}
+            <div className="bg-portal-bg rounded-xl p-4 mb-5 text-left space-y-3">
+              <div className="flex items-center gap-2.5">
+                <User className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                <span className="text-slate-300 text-sm truncate">{user?.name ?? '—'}</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <CalendarDays className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                <span className="text-slate-300 text-sm">{finish.completedAt}</span>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-portal-border">
+                <span className="text-slate-500 text-xs uppercase tracking-wide">Score</span>
+                <span className={`text-3xl font-bold ${finish.passed ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {finish.score}%
+                </span>
+              </div>
             </div>
 
             {!finish.submitted && (
@@ -162,7 +214,7 @@ export default function QuizPage() {
 
             {finish.passed && finish.submitted && (
               <p className="text-emerald-400 text-xs mb-4">
-                A confirmation email has been sent to you.
+                A confirmation email has been sent to {user?.email}.
               </p>
             )}
 
@@ -171,14 +223,14 @@ export default function QuizPage() {
                 onClick={() => navigate('/trainings')}
                 className="w-full py-2.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
               >
-                Back to Trainings
+                {finish.passed ? 'Done' : 'Back to Trainings'}
               </button>
               {!finish.passed && (
                 <button
                   onClick={() => {
+                    hasFinished.current = false
                     setFinish(null)
                     scormData.current = {}
-                    // Force iframe reload by toggling iframeReady
                     setIframeReady(false)
                     setTimeout(() => setIframeReady(true), 50)
                   }}
