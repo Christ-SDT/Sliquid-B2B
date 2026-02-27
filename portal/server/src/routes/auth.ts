@@ -25,6 +25,33 @@ router.post('/login', (req, res) => {
   })
 })
 
+router.post('/register', async (req, res) => {
+  const { name, email, company, password } = req.body
+  if (!name || !email || !company || !password) {
+    res.status(400).json({ message: 'All fields are required' })
+    return
+  }
+  if (password.length < 8) {
+    res.status(400).json({ message: 'Password must be at least 8 characters' })
+    return
+  }
+  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email)
+  if (existing) {
+    res.status(409).json({ message: 'Email already in use' })
+    return
+  }
+  const password_hash = await bcrypt.hash(password, 10)
+  const result = db.prepare(
+    'INSERT INTO users (name, email, company, password_hash, role) VALUES (?, ?, ?, ?, ?)'
+  ).run(name, email, company, password_hash, 'tier1')
+  const userId = result.lastInsertRowid as number
+  const token = jwt.sign({ userId, role: 'tier1' }, JWT_SECRET, { expiresIn: '7d' })
+  res.status(201).json({
+    token,
+    user: { id: userId, name, email, role: 'tier1', company },
+  })
+})
+
 router.get('/me', requireAuth, (req, res) => {
   res.json(req.user)
 })

@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Outlet, Navigate } from 'react-router-dom'
+import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
+
+const TIER1_ALLOWED = ['/dashboard', '/assets', '/creatives', '/trainings', '/quiz']
 
 function Skeleton() {
   return (
@@ -14,10 +16,15 @@ function Skeleton() {
 
 export default function Shell() {
   const { user, loading } = useAuth()
+  const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   if (loading) return <Skeleton />
   if (!user) return <Navigate to="/login" replace />
+
+  if (user.role === 'tier1' && !TIER1_ALLOWED.some(p => location.pathname.startsWith(p))) {
+    return <Navigate to="/dashboard" replace />
+  }
 
   return (
     <div className="flex h-screen bg-portal-bg overflow-hidden">

@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react'
-import { useNavigate, Navigate } from 'react-router-dom'
+import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Loader2 } from 'lucide-react'
 
@@ -89,13 +89,19 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-slate-600 text-xs mt-6">
-            Need access?{' '}
-            <a href="https://sliquid.com/contact" target="_blank" rel="noopener noreferrer"
-               className="text-portal-accent hover:underline">
-              Contact your Sliquid rep
-            </a>
-          </p>
+          <div className="mt-6 space-y-2 text-center">
+            <p className="text-slate-500 text-xs">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-portal-accent hover:underline">
+                Create one
+              </Link>
+            </p>
+            <p className="text-slate-600 text-xs">
+              <Link to="/forgot-password" className="text-slate-500 hover:text-slate-400">
+                Forgot your password?
+              </Link>
+            </p>
+          </div>
         </div>
 
         {/* Demo hint */}

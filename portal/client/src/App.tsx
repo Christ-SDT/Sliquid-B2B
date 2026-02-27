@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '@/context/AuthContext'
 import Shell from '@/components/layout/Shell'
 import LoginPage from '@/pages/LoginPage'
+import RegisterPage from '@/pages/RegisterPage'
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import DashboardPage from '@/pages/DashboardPage'
 import ProductsPage from '@/pages/ProductsPage'
 import AssetsPage from '@/pages/AssetsPage'
@@ -20,6 +22,8 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/" element={<Shell />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
