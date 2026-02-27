@@ -42,8 +42,17 @@ export default function QuizPage() {
       if (hasFinished.current || !quiz) return
       hasFinished.current = true
 
+      // Normalize the score to 0-100 using score.raw / score.max
+      // (SCORM 1.2 SetPointBasedScore passes raw point values, not percentages)
       const raw = parseFloat(scormData.current['cmi.core.score.raw'] ?? '0')
-      const score = isNaN(raw) ? 0 : Math.max(0, Math.min(100, raw))
+      const max = parseFloat(scormData.current['cmi.core.score.max'] ?? '100')
+      const min = parseFloat(scormData.current['cmi.core.score.min'] ?? '0')
+      const range = max - min
+      const score = isNaN(raw)
+        ? 0
+        : range > 0 && max !== 100
+          ? Math.round(((raw - min) / range) * 100)
+          : Math.max(0, Math.min(100, raw))
       const passed = score >= quiz.passingScore
       const completedAt = new Date().toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric',
@@ -98,6 +107,13 @@ export default function QuizPage() {
       LMSGetValue: (key: string) => scormData.current[key] ?? '',
       LMSSetValue: (key: string, value: string) => {
         scormData.current[key] = value
+        // Captivate 13 calls SetPassed()/SetFailed() → LMSSetValue(lesson_status)
+        // then window.close() (no-op in iframe). LMSFinish is never called.
+        // Trigger our overlay here as soon as the terminal status is written.
+        if (key === 'cmi.core.lesson_status' &&
+            (value === 'passed' || value === 'failed' || value === 'completed')) {
+          setTimeout(() => handleFinishRef.current(), 100)
+        }
         return 'true'
       },
       LMSCommit: (_: string) => 'true',
