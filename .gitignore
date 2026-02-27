@@ -5,6 +5,10 @@ node_modules/
 dist/
 dist-ssr/
 
+# SCORM training packages contain pre-built dist/ bundles — track them
+!portal/client/public/training/**/dist/
+!portal/client/public/training/**/dist/**
+
 # Vite cache
 .vite/
 
