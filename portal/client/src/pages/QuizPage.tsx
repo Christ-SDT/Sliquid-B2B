@@ -34,7 +34,22 @@ export default function QuizPage() {
 
     window.API = {
       LMSInitialize: (_: string) => {
-        scormData.current = {}
+        scormData.current = {
+          'cmi.core.lesson_status':   'not attempted',
+          'cmi.core.entry':           'ab-initio',
+          'cmi.core.lesson_mode':     'normal',
+          'cmi.core.credit':          'credit',
+          'cmi.core.exit':            '',
+          'cmi.core.lesson_location': '',
+          'cmi.core.score.raw':       '',
+          'cmi.core.score.min':       '',
+          'cmi.core.score.max':       '',
+          'cmi.core.total_time':      '0000:00:00.00',
+          'cmi.suspend_data':         '',
+          'cmi.launch_data':          '',
+          'cmi.interactions._count':  '0',
+          'cmi.objectives._count':    '0',
+        }
         return 'true'
       },
       LMSFinish: (_: string) => {
@@ -109,7 +124,6 @@ export default function QuizPage() {
           title={quiz.title}
           className="flex-1 w-full border-none"
           allow="autoplay"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
         />
       )}
 
