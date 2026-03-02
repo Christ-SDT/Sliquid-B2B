@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api } from '@/api/client'
 import { InventoryItem } from '@/types'
-import { Search, Archive, RefreshCw } from 'lucide-react'
+import { Search, Archive, RefreshCw, X } from 'lucide-react'
 
 const BRANDS = ['All', 'Sliquid', 'RIDE', 'Ride Rocco']
 const STATUSES = ['All', 'in_stock', 'low_stock', 'out_of_stock']
@@ -18,6 +18,120 @@ const STATUS_STYLES: Record<string, string> = {
   out_of_stock: 'bg-red-500/20 text-red-400',
 }
 
+// ─── Stock Edit Modal ─────────────────────────────────────────────────────────
+
+function StockEditModal({
+  item,
+  onClose,
+  onSaved,
+}: {
+  item: InventoryItem
+  onClose: () => void
+  onSaved: (id: number, newQty: number, prevQty: number) => void
+}) {
+  const [qty, setQty] = useState(item.quantity)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSave() {
+    setSaving(true)
+    setError('')
+    try {
+      await api.put(`/inventory/${item.id}/quantity`, { quantity: qty })
+      onSaved(item.id, qty, item.quantity)
+      onClose()
+    } catch (e: any) {
+      setError(e.message ?? 'Failed to save')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70" />
+      <div
+        className="relative bg-surface border border-portal-border rounded-2xl w-full max-w-sm z-10 p-6"
+        onClick={e => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        <h3 className="text-white font-bold text-lg mb-1">Edit Stock</h3>
+        <p className="text-slate-400 text-sm mb-0.5">{item.product_name}</p>
+        <p className="text-slate-600 text-xs font-mono mb-5">SKU: {item.sku}</p>
+
+        <label className="text-slate-400 text-sm mb-2 block">Quantity</label>
+        <input
+          type="number"
+          min="0"
+          value={qty}
+          onChange={e => setQty(Math.max(0, Number(e.target.value)))}
+          onKeyDown={e => e.key === 'Enter' && handleSave()}
+          autoFocus
+          className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
+                     focus:outline-none focus:border-portal-accent transition-colors mb-4"
+        />
+
+        {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 border border-portal-border text-slate-400 hover:text-white
+                       rounded-lg text-sm transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex-1 px-4 py-2.5 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
+                       text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            {saving ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── WooCommerce Sync Toast ───────────────────────────────────────────────────
+
+function WooSyncToast({ countdown, onCancel }: { countdown: number; onCancel: () => void }) {
+  return (
+    <div className="fixed bottom-6 right-6 z-50 bg-surface border border-portal-border rounded-xl
+                    p-4 shadow-xl flex items-center gap-4 min-w-[300px]">
+      <div className="flex-1 min-w-0">
+        <p className="text-white text-sm font-medium">
+          Syncing to WooCommerce in {countdown}s
+        </p>
+        <p className="text-slate-500 text-xs mt-0.5">Stock update will be pushed to your store</p>
+      </div>
+      <button
+        onClick={onCancel}
+        className="px-3 py-1.5 border border-portal-border text-slate-400 hover:text-white
+                   rounded-lg text-xs font-medium transition-colors flex-shrink-0"
+      >
+        Cancel
+      </button>
+    </div>
+  )
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
+interface PendingSync {
+  itemId: number
+  sku: string
+  prevQty: number
+}
+
 export default function InventoryPage() {
   const [items, setItems] = useState<InventoryItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -25,6 +139,10 @@ export default function InventoryPage() {
   const [status, setStatus] = useState('All')
   const [search, setSearch] = useState('')
   const [restocking, setRestocking] = useState<number | null>(null)
+  const [editing, setEditing] = useState<InventoryItem | null>(null)
+  const [pendingSync, setPendingSync] = useState<PendingSync | null>(null)
+  const [syncCountdown, setSyncCountdown] = useState(0)
+  const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   function fetchInventory() {
     setLoading(true)
@@ -40,6 +158,11 @@ export default function InventoryPage() {
 
   useEffect(fetchInventory, [brand, status, search])
 
+  // Cleanup interval on unmount
+  useEffect(() => () => {
+    if (syncIntervalRef.current) clearInterval(syncIntervalRef.current)
+  }, [])
+
   async function handleRestock(id: number) {
     setRestocking(id)
     try {
@@ -49,6 +172,71 @@ export default function InventoryPage() {
       console.error(e)
     } finally {
       setRestocking(null)
+    }
+  }
+
+  function startSyncTimer(itemId: number, sku: string, prevQty: number) {
+    // Clear any prior pending sync
+    if (syncIntervalRef.current) clearInterval(syncIntervalRef.current)
+    setSyncCountdown(20)
+    setPendingSync({ itemId, sku, prevQty })
+
+    syncIntervalRef.current = setInterval(() => {
+      setSyncCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(syncIntervalRef.current!)
+          syncIntervalRef.current = null
+          // Push stock to WooCommerce
+          api.post('/woo/sync-product', { sku }).catch(console.error)
+          setPendingSync(null)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  async function cancelSync() {
+    if (syncIntervalRef.current) {
+      clearInterval(syncIntervalRef.current)
+      syncIntervalRef.current = null
+    }
+    setSyncCountdown(0)
+    if (pendingSync) {
+      // Revert the quantity in portal
+      const { itemId, prevQty } = pendingSync
+      setPendingSync(null)
+      try {
+        await api.put(`/inventory/${itemId}/quantity`, { quantity: prevQty })
+        setItems(prev => prev.map(i => {
+          if (i.id !== itemId) return i
+          const s = prevQty === 0 ? 'out_of_stock' : prevQty <= i.reorder_level ? 'low_stock' : 'in_stock'
+          return { ...i, quantity: prevQty, status: s }
+        }))
+      } catch (e) {
+        console.error('Failed to revert quantity:', e)
+      }
+    }
+  }
+
+  async function handleSaved(id: number, newQty: number, prevQty: number) {
+    // Optimistic update
+    setItems(prev => prev.map(i => {
+      if (i.id !== id) return i
+      const s = newQty === 0 ? 'out_of_stock' : newQty <= i.reorder_level ? 'low_stock' : 'in_stock'
+      return { ...i, quantity: newQty, status: s }
+    }))
+
+    // Check if WooCommerce is configured — show sync toast if so
+    const item = items.find(i => i.id === id)
+    if (!item) return
+    try {
+      const wooStatus = await api.get<{ configured: boolean }>('/woo/status')
+      if (wooStatus.configured) {
+        startSyncTimer(id, item.sku, prevQty)
+      }
+    } catch {
+      // WC not configured or endpoint unavailable — skip toast
     }
   }
 
@@ -123,7 +311,11 @@ export default function InventoryPage() {
                     </tr>
                   ))
                 : items.map(item => (
-                    <tr key={item.id} className="border-b border-portal-border/50 hover:bg-surface-elevated/50 transition-colors">
+                    <tr
+                      key={item.id}
+                      onClick={() => setEditing(item)}
+                      className="border-b border-portal-border/50 hover:bg-surface-elevated/50 transition-colors cursor-pointer"
+                    >
                       <td className="px-4 py-3 text-white font-medium">{item.product_name}</td>
                       <td className="px-4 py-3 text-slate-400">{item.brand}</td>
                       <td className="px-4 py-3 text-slate-500 font-mono text-xs hidden sm:table-cell">{item.sku}</td>
@@ -137,7 +329,7 @@ export default function InventoryPage() {
                       <td className="px-4 py-3 text-right">
                         {item.status !== 'in_stock' && (
                           <button
-                            onClick={() => handleRestock(item.id)}
+                            onClick={e => { e.stopPropagation(); handleRestock(item.id) }}
                             disabled={restocking === item.id}
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-portal-accent/10 hover:bg-portal-accent/20
                                        text-portal-accent rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ml-auto"
@@ -160,6 +352,18 @@ export default function InventoryPage() {
           </div>
         )}
       </div>
+
+      {editing && (
+        <StockEditModal
+          item={editing}
+          onClose={() => setEditing(null)}
+          onSaved={handleSaved}
+        />
+      )}
+
+      {pendingSync && syncCountdown > 0 && (
+        <WooSyncToast countdown={syncCountdown} onCancel={cancelSync} />
+      )}
     </div>
   )
 }

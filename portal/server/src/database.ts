@@ -122,6 +122,24 @@ const migrations: Migration[] = [
     }
   },
   {
+    version: 5,
+    name: 'woocommerce_tables',
+    up: () => db.exec(`
+      CREATE TABLE IF NOT EXISTS woo_settings (
+        key   TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS woo_sync_log (
+        id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        synced_at        TEXT    DEFAULT (datetime('now')),
+        direction        TEXT    NOT NULL,
+        status           TEXT    NOT NULL,
+        products_updated INTEGER DEFAULT 0,
+        message          TEXT
+      );
+    `)
+  },
+  {
     version: 2,
     name: 'products_extended_columns',
     up: () => {

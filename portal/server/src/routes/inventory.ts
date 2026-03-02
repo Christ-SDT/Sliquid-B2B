@@ -15,6 +15,20 @@ router.get('/', requireAuth, (req, res) => {
   res.json(db.prepare(sql).all(...params))
 })
 
+router.put('/:id/quantity', requireAuth, (req, res) => {
+  const { quantity } = req.body as { quantity?: unknown }
+  if (typeof quantity !== 'number' || quantity < 0) {
+    res.status(400).json({ message: 'quantity must be a non-negative number' })
+    return
+  }
+  const item = db.prepare('SELECT * FROM inventory WHERE id = ?').get(req.params.id) as any
+  if (!item) { res.status(404).json({ message: 'Inventory item not found' }); return }
+  const newStatus = quantity === 0 ? 'out_of_stock' : quantity <= item.reorder_level ? 'low_stock' : 'in_stock'
+  db.prepare("UPDATE inventory SET quantity = ?, status = ?, last_updated = datetime('now') WHERE id = ?")
+    .run(quantity, newStatus, req.params.id)
+  res.json({ ...item, quantity, status: newStatus })
+})
+
 router.post('/restock', requireAuth, (req, res) => {
   const { inventory_id, quantity } = req.body
   if (!inventory_id || !quantity || quantity <= 0) {

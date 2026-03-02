@@ -28,7 +28,8 @@ interface Props {
 export default function Sidebar({ onClose }: Props) {
   const { user, logout } = useAuth()
   const isRestricted = ['tier1', 'tier2', 'tier3'].includes(user?.role ?? '')
-  const isAdmin = user?.role === 'tier4'
+  const role: string | undefined = user?.role
+  const isAdmin = role === 'tier4' || role === 'admin'
   const visibleNav = NAV.filter(item => {
     if (item.adminOnly) return isAdmin
     if (isRestricted) return item.restricted

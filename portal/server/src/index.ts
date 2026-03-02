@@ -13,6 +13,8 @@ import retailerRouter from './routes/retailer.js'
 import creativesRouter from './routes/creatives.js'
 import quizRouter from './routes/quiz.js'
 import adminRouter from './routes/admin.js'
+import wooRouter from './routes/woo.js'
+import { woo, runWooSync } from './woocommerce.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -36,9 +38,18 @@ app.use('/api/retailer', retailerRouter)
 app.use('/api/creatives', creativesRouter)
 app.use('/api/quiz', quizRouter)
 app.use('/api/admin', adminRouter)
+app.use('/api/woo', wooRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))
 
 app.listen(PORT, () => {
   console.log(`Portal server running on http://localhost:${PORT}`)
+
+  // Poll WooCommerce for stock updates every 10 minutes (if configured)
+  setInterval(() => {
+    if (woo.isConfigured()) {
+      console.log('[woo] Running scheduled stock pull…')
+      runWooSync().catch(console.error)
+    }
+  }, 10 * 60 * 1000)
 })

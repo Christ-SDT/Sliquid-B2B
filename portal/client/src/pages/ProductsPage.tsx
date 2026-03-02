@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api } from '@/api/client'
+import { useAuth } from '@/context/AuthContext'
 import { Product } from '@/types'
-import { Search, Package, X } from 'lucide-react'
+import { Search, Package, X, Download, Upload } from 'lucide-react'
+
+const API_BASE = (import.meta.env.VITE_API_URL ?? '') + '/api'
 
 const BRANDS = ['All', 'Sliquid', 'RIDE', 'Ride Rocco']
 const CATEGORIES = [
@@ -132,13 +135,49 @@ function ProductCard({ product, onClick }: { product: Product; onClick: () => vo
   )
 }
 
+function parseCSV(text: string): Record<string, string>[] {
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim())
+  if (lines.length < 2) return []
+
+  function parseLine(line: string): string[] {
+    const fields: string[] = []
+    let cur = ''
+    let inQuote = false
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i]
+      if (ch === '"') {
+        if (inQuote && line[i + 1] === '"') { cur += '"'; i++ }
+        else inQuote = !inQuote
+      } else if (ch === ',' && !inQuote) {
+        fields.push(cur); cur = ''
+      } else {
+        cur += ch
+      }
+    }
+    fields.push(cur)
+    return fields
+  }
+
+  const headers = parseLine(lines[0])
+  return lines.slice(1).map(line => {
+    const vals = parseLine(line)
+    const row: Record<string, string> = {}
+    headers.forEach((h, i) => { row[h] = vals[i] ?? '' })
+    return row
+  })
+}
+
 export default function ProductsPage() {
+  const { user } = useAuth()
+  const isAdmin = (user?.role as string) === 'tier4' || (user?.role as string) === 'admin'
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [brand, setBrand] = useState('All')
   const [category, setCategory] = useState('All')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Product | null>(null)
+  const [importMsg, setImportMsg] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -152,12 +191,84 @@ export default function ProductsPage() {
       .finally(() => setLoading(false))
   }, [brand, category, search])
 
+  async function handleExport() {
+    const token = localStorage.getItem('portal_token')
+    const res = await fetch(`${API_BASE}/products/export`, {
+      headers: { Authorization: `Bearer ${token ?? ''}` },
+    })
+    if (!res.ok) return
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'sliquid-products.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    const text = await file.text()
+    const rows = parseCSV(text)
+    if (rows.length === 0) { setImportMsg('No data rows found in CSV'); return }
+    try {
+      const result = await api.post<{ inserted: number; updated: number; errors: string[] }>(
+        '/products/import', { rows }
+      )
+      setImportMsg(
+        `Imported: ${result.updated} updated, ${result.inserted} new` +
+        (result.errors.length ? ` (${result.errors.length} errors)` : '')
+      )
+      setTimeout(() => setImportMsg(''), 5000)
+    } catch (err: any) {
+      setImportMsg(err.message ?? 'Import failed')
+      setTimeout(() => setImportMsg(''), 5000)
+    }
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="text-white text-2xl font-bold">Products</h1>
-        <span className="text-slate-500 text-sm">{products.length} items</span>
+        <div className="flex items-center gap-3">
+          {isAdmin && (
+            <>
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-2 px-3 py-2 border border-portal-border text-slate-400
+                           hover:text-white hover:border-slate-500 rounded-lg text-sm transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Export CSV
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-2 px-3 py-2 bg-portal-accent/10 hover:bg-portal-accent/20
+                           text-portal-accent rounded-lg text-sm font-medium transition-colors"
+              >
+                <Upload className="w-4 h-4" />
+                Import CSV
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={handleImport}
+              />
+            </>
+          )}
+          <span className="text-slate-500 text-sm">{products.length} items</span>
+        </div>
       </div>
+
+      {importMsg && (
+        <div className="bg-surface border border-portal-border rounded-lg px-4 py-3 text-slate-300 text-sm">
+          {importMsg}
+        </div>
+      )}
 
       {/* Search + category filter */}
       <div className="flex flex-col sm:flex-row gap-3">
