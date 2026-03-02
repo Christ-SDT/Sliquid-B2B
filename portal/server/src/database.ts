@@ -113,6 +113,15 @@ const migrations: Migration[] = [
     `)
   },
   {
+    version: 4,
+    name: 'rename_roles_to_tier_system',
+    up: () => {
+      db.prepare("UPDATE users SET role = 'tier4' WHERE role = 'admin'").run()
+      db.prepare("UPDATE users SET role = 'tier2' WHERE role = 'partner'").run()
+      db.prepare("UPDATE users SET role = 'tier3' WHERE role = 'distributor'").run()
+    }
+  },
+  {
     version: 2,
     name: 'products_extended_columns',
     up: () => {
@@ -169,9 +178,9 @@ function seed() {
   // Users
   const hash = (p: string) => bcrypt.hashSync(p, 10)
   const addUser = db.prepare('INSERT INTO users (name, email, password_hash, role, company) VALUES (?, ?, ?, ?, ?)')
-  addUser.run('Admin User',       'admin@sliquid.com',      hash('admin123'),   'admin',       'Sliquid')
-  addUser.run('Demo Partner',     'partner@demo.com',       hash('partner123'), 'partner',     'Demo Retail Co.')
-  addUser.run('Demo Distributor', 'distributor@demo.com',   hash('dist123'),    'distributor', 'Demo Distribution LLC')
+  addUser.run('Admin User',       'admin@sliquid.com',      hash('admin123'),   'tier4', 'Sliquid')
+  addUser.run('Demo Partner',     'partner@demo.com',       hash('partner123'), 'tier2', 'Demo Retail Co.')
+  addUser.run('Demo Distributor', 'distributor@demo.com',   hash('dist123'),    'tier3', 'Demo Distribution LLC')
 
   // Products
   // Columns: name, brand, category, sku, description, price, image_url, in_stock,

@@ -22,7 +22,7 @@ router.get('/:id', requireAuth, (req, res) => {
   res.json(item)
 })
 
-router.post('/', requireAuth, requireRole('admin'), (req, res) => {
+router.post('/', requireAuth, requireRole('tier4'), (req, res) => {
   const { title, brand, type, campaign, thumbnail_url, file_url, description, dimensions, file_size } = req.body
   if (!title || !brand || !type || !file_url) {
     res.status(400).json({ message: 'Missing required fields' })

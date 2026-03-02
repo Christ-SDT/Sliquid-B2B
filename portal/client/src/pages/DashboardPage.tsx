@@ -3,12 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { TIER_LABEL } from '@/types'
-import type { Asset, Creative } from '@/types'
+import type { Asset, Distributor } from '@/types'
 import { QUIZZES } from '@/quizzes'
 import {
   Package, FolderOpen, Receipt, Archive,
   TrendingUp, AlertTriangle, ChevronRight, DollarSign,
-  Star, GraduationCap, Award, Clock, CheckCircle2, Megaphone,
+  Star, GraduationCap, Award, Clock, CheckCircle2, MapPin,
 } from 'lucide-react'
 
 interface Overview {
@@ -111,13 +111,13 @@ function MiniAssetsWidget() {
   )
 }
 
-function MiniCreativesWidget() {
-  const [creatives, setCreatives] = useState<Creative[]>([])
+function MiniDistributorsWidget() {
+  const [distributors, setDistributors] = useState<Distributor[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get<Creative[]>('/creatives')
-      .then(data => setCreatives(data.slice(0, 3)))
+    api.get<Distributor[]>('/distributors')
+      .then(data => setDistributors(data.slice(0, 4)))
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
@@ -126,36 +126,35 @@ function MiniCreativesWidget() {
     <div className="bg-surface border border-portal-border rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Megaphone className="w-4 h-4 text-portal-accent" />
-          <h3 className="text-white font-semibold text-sm">Creatives</h3>
+          <MapPin className="w-4 h-4 text-portal-accent" />
+          <h3 className="text-white font-semibold text-sm">Distributors</h3>
         </div>
-        <Link to="/creatives" className="text-portal-accent text-xs hover:underline flex items-center gap-1">
+        <Link to="/distributors" className="text-portal-accent text-xs hover:underline flex items-center gap-1">
           View All <ChevronRight className="w-3 h-3" />
         </Link>
       </div>
       {loading ? (
         <div className="space-y-2">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-14 rounded-lg bg-portal-bg animate-pulse" />
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-12 rounded-lg bg-portal-bg animate-pulse" />
           ))}
         </div>
-      ) : creatives.length === 0 ? (
-        <p className="text-slate-500 text-sm text-center py-4">No creatives available</p>
+      ) : distributors.length === 0 ? (
+        <p className="text-slate-500 text-sm text-center py-4">No distributors available</p>
       ) : (
         <div className="space-y-2">
-          {creatives.map(creative => (
-            <div key={creative.id} className="flex items-center gap-3 p-2 rounded-lg bg-portal-bg border border-portal-border">
-              {creative.thumbnail_url ? (
-                <img src={creative.thumbnail_url} alt={creative.title} className="w-12 h-10 object-cover rounded flex-shrink-0" />
-              ) : (
-                <div className="w-12 h-10 rounded bg-portal-accent/10 flex items-center justify-center flex-shrink-0">
-                  <Megaphone className="w-4 h-4 text-portal-accent opacity-50" />
-                </div>
-              )}
-              <div className="min-w-0">
-                <p className="text-white text-xs font-medium truncate">{creative.title}</p>
-                <span className="text-portal-accent text-[10px] font-medium uppercase tracking-wide">{creative.type}</span>
+          {distributors.map(dist => (
+            <div key={dist.id} className="flex items-center gap-3 p-2 rounded-lg bg-portal-bg border border-portal-border">
+              <div className="w-8 h-8 rounded-md bg-portal-accent/10 flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-4 h-4 text-portal-accent opacity-60" />
               </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-white text-xs font-medium truncate">{dist.name}</p>
+                <p className="text-slate-500 text-[10px] truncate">{dist.city ? `${dist.city}, ` : ''}{dist.state}</p>
+              </div>
+              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-portal-accent/10 text-portal-accent flex-shrink-0">
+                {dist.region}
+              </span>
             </div>
           ))}
         </div>
@@ -281,16 +280,16 @@ export default function DashboardPage() {
   const [overview, setOverview] = useState<Overview | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const isTier1 = user?.role === 'tier1'
-  const showBanner = user?.role === 'tier1' || user?.role === 'partner' || user?.role === 'distributor'
+  const isRestricted = ['tier1', 'tier2', 'tier3'].includes(user?.role ?? '')
+  const showBanner = isRestricted
 
   useEffect(() => {
-    if (isTier1) { setLoading(false); return }
+    if (isRestricted) { setLoading(false); return }
     api.get<Overview>('/stats/overview')
       .then(setOverview)
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [isTier1])
+  }, [isRestricted])
 
   const greeting = () => {
     const h = new Date().getHours()
@@ -314,17 +313,17 @@ export default function DashboardPage() {
       {/* Upgrade banner for non-admin roles */}
       {showBanner && <UpgradeBanner role={user!.role} />}
 
-      {isTier1 ? (
-        /* --- Tier 1 dashboard --- */
+      {isRestricted ? (
+        /* --- Restricted dashboard (tier1 / tier2 / tier3) --- */
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <MiniAssetsWidget />
-            <MiniCreativesWidget />
+            <MiniDistributorsWidget />
           </div>
           <MiniTrainingsWidget />
         </div>
       ) : (
-        /* --- Full dashboard (partner / distributor / admin) --- */
+        /* --- Full dashboard (tier4 / admin) --- */
         <>
           {/* Stats */}
           {loading ? (

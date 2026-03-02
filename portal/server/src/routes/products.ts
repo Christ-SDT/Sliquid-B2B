@@ -21,7 +21,7 @@ router.get('/:id', requireAuth, (req, res) => {
   res.json(product)
 })
 
-router.post('/', requireAuth, requireRole('admin'), (req, res) => {
+router.post('/', requireAuth, requireRole('tier4'), (req, res) => {
   const { name, brand, category, sku, description, price, image_url, in_stock } = req.body
   if (!name || !brand || !category || !sku || !price) {
     res.status(400).json({ message: 'Missing required fields' })

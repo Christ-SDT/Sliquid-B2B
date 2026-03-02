@@ -4,20 +4,21 @@ import { cn } from '@/lib/utils'
 import { TIER_LABEL } from '@/types'
 import {
   LayoutDashboard, Package, FolderOpen, Archive,
-  Receipt, BarChart3, MapPin, Store, Megaphone, GraduationCap, LogOut, X,
+  Receipt, BarChart3, MapPin, Store, Megaphone, GraduationCap, LogOut, X, Users,
 } from 'lucide-react'
 
 const NAV = [
-  { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard',        tier1: true },
-  { to: '/products',     icon: Package,         label: 'Products',         tier1: false },
-  { to: '/assets',       icon: FolderOpen,      label: 'Digital Assets',   tier1: true },
-  { to: '/inventory',    icon: Archive,         label: 'Inventory',        tier1: false },
-  { to: '/invoices',     icon: Receipt,         label: 'Invoices',         tier1: false },
-  { to: '/stats',        icon: BarChart3,       label: 'Analytics',        tier1: false },
-  { to: '/distributors', icon: MapPin,          label: 'Distributors',     tier1: false },
-  { to: '/retailer',     icon: Store,           label: 'Become a Retailer',tier1: false },
-  { to: '/creatives',    icon: Megaphone,       label: 'Creatives',        tier1: true },
-  { to: '/trainings',    icon: GraduationCap,   label: 'Trainings',        tier1: true },
+  { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard',          restricted: true,  adminOnly: false },
+  { to: '/assets',       icon: FolderOpen,      label: 'Digital Assets',     restricted: true,  adminOnly: false },
+  { to: '/distributors', icon: MapPin,          label: 'Distributors',       restricted: true,  adminOnly: false },
+  { to: '/trainings',    icon: GraduationCap,   label: 'Trainings',          restricted: true,  adminOnly: false },
+  { to: '/creatives',    icon: Megaphone,       label: 'Creatives',          restricted: false, adminOnly: false },
+  { to: '/products',     icon: Package,         label: 'Products',           restricted: false, adminOnly: false },
+  { to: '/inventory',    icon: Archive,         label: 'Inventory',          restricted: false, adminOnly: false },
+  { to: '/invoices',     icon: Receipt,         label: 'Invoices',           restricted: false, adminOnly: false },
+  { to: '/stats',        icon: BarChart3,       label: 'Analytics',          restricted: false, adminOnly: false },
+  { to: '/retailer',     icon: Store,           label: 'Become a Retailer',  restricted: false, adminOnly: false },
+  { to: '/users',        icon: Users,           label: 'User Management',    restricted: false, adminOnly: true  },
 ]
 
 interface Props {
@@ -26,8 +27,13 @@ interface Props {
 
 export default function Sidebar({ onClose }: Props) {
   const { user, logout } = useAuth()
-  const isTier1 = user?.role === 'tier1'
-  const visibleNav = NAV.filter(item => !isTier1 || item.tier1)
+  const isRestricted = ['tier1', 'tier2', 'tier3'].includes(user?.role ?? '')
+  const isAdmin = user?.role === 'tier4'
+  const visibleNav = NAV.filter(item => {
+    if (item.adminOnly) return isAdmin
+    if (isRestricted) return item.restricted
+    return true
+  })
 
   return (
     <aside className="flex flex-col h-full bg-surface border-r border-portal-border w-64 flex-shrink-0">

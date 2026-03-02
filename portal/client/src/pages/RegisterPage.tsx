@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
+  const [role, setRole] = useState('tier1')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -30,7 +31,7 @@ export default function RegisterPage() {
     }
     setLoading(true)
     try {
-      await register(name, email, company, password)
+      await register(name, email, company, password, role)
       navigate('/dashboard', { replace: true })
     } catch (err: any) {
       setError(err.message === 'Email already in use' ? 'Email already in use' : (err.message ?? 'Registration failed'))
@@ -56,7 +57,7 @@ export default function RegisterPage() {
         {/* Card */}
         <div className="bg-surface border border-portal-border rounded-2xl p-8">
           <h2 className="text-white text-xl font-semibold mb-1">Create an account</h2>
-          <p className="text-slate-500 text-sm mb-6">Get Tier 1 access to digital assets, creatives, and trainings.</p>
+          <p className="text-slate-500 text-sm mb-6">Access digital assets, distributors, and product trainings for your account type.</p>
 
           {error && (
             <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
@@ -88,6 +89,19 @@ export default function RegisterPage() {
                 className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
                            placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
               />
+            </div>
+            <div>
+              <label className="block text-slate-400 text-sm font-medium mb-1.5">Account Type</label>
+              <select
+                value={role}
+                onChange={e => setRole(e.target.value)}
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
+                           focus:outline-none focus:border-portal-accent transition-colors"
+              >
+                <option value="tier1">Tier 1 – Retail Store Employee</option>
+                <option value="tier2">Tier 2 – Ecommerce</option>
+                <option value="tier3">Tier 3 – Distributor</option>
+              </select>
             </div>
             <div>
               <label className="block text-slate-400 text-sm font-medium mb-1.5">Email</label>

@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 
-const TIER1_ALLOWED = ['/dashboard', '/assets', '/creatives', '/trainings', '/quiz']
+const RESTRICTED_ALLOWED = ['/dashboard', '/assets', '/distributors', '/trainings', '/quiz']
 
 function Skeleton() {
   return (
@@ -22,7 +22,8 @@ export default function Shell() {
   if (loading) return <Skeleton />
   if (!user) return <Navigate to="/login" replace />
 
-  if (user.role === 'tier1' && !TIER1_ALLOWED.some(p => location.pathname.startsWith(p))) {
+  const isRestricted = ['tier1', 'tier2', 'tier3'].includes(user.role)
+  if (isRestricted && !RESTRICTED_ALLOWED.some(p => location.pathname.startsWith(p))) {
     return <Navigate to="/dashboard" replace />
   }
 

@@ -2,19 +2,19 @@ export interface User {
   id: number
   email: string
   name: string
-  role: 'admin' | 'partner' | 'distributor' | 'tier1'
+  role: 'tier1' | 'tier2' | 'tier3' | 'tier4'
   company?: string
 }
 
 export const TIER_LABEL: Record<string, string> = {
-  tier1: 'Tier 1',
-  partner: 'Tier 2',
-  distributor: 'Tier 3',
-  admin: 'Admin',
+  tier1: 'Tier 1 (Retail Store Employee)',
+  tier2: 'Tier 2 (Ecommerce)',
+  tier3: 'Tier 3 (Distributor)',
+  tier4: 'Admin',
 }
 
 export function isLimitedTier(role: string): boolean {
-  return role === 'tier1'
+  return role === 'tier1' || role === 'tier2' || role === 'tier3'
 }
 
 export interface Product {

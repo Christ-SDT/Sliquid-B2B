@@ -15,6 +15,7 @@ import RetailerPage from '@/pages/RetailerPage'
 import CreativesPage from '@/pages/CreativesPage'
 import TrainingsPage from '@/pages/TrainingsPage'
 import QuizPage from '@/pages/QuizPage'
+import UsersPage from '@/pages/UsersPage'
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="creatives" element={<CreativesPage />} />
             <Route path="trainings" element={<TrainingsPage />} />
             <Route path="quiz/:id" element={<QuizPage />} />
+            <Route path="users" element={<UsersPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
