@@ -201,7 +201,7 @@ export const EXECUTIVES: readonly Executive[] = [
 ] as const
 
 // Sliquid product image constants used directly in section components
-export const IMG_HERO = '/images/Semi-final-sliquidb2b.png'
+export const IMG_HERO = '/images/semi-finalv2-sliquidb2b.png'
 export const IMG_BRANDS_HERO =
   'https://sliquid.com/wp-content/uploads/2025/03/H2OGroup-850x850-1.webp'
 export const IMG_CEO =
