@@ -7,6 +7,10 @@ The project has two top-level parts:
 - **Main marketing site** — React/Vite/TypeScript at the repo root (Cloudflare Pages)
 - **Partner portal** — full-stack app inside `portal/` (client + server)
 
+### Main Site — Key Assets
+- **Hero/header image:** `public/images/b2b-header-banner.png` — custom B2B Portal banner ("SLIQUID.com | B2B Portal"). Referenced via `IMG_HERO` in `src/utils/constants.ts`. Used as the full-width background in `HeroSection.tsx`.
+- Static images live in `public/images/` (served at `/images/filename`).
+
 ---
 
 ## Architecture
@@ -246,9 +250,41 @@ All endpoints require `requireAuth + requireRole('tier4', 'admin')`.
 - **Quiz registry:** `portal/client/src/quizzes/index.ts` — add entries here when adding new quizzes
 - **Pass threshold:** score ≥ 70 triggers a completion email (if SMTP configured)
 
+### Registered Quizzes
+| ID | Title | Video |
+|---|---|---|
+| `sliquiz` | Customer Service Skills | — |
+| `sea-vs-tsunami` | Sea vs Tsunami | YouTube `https://youtu.be/lFVvtQfOb8Y` |
+
 ### Adding a New Quiz
 1. Drop the SCORM package into `portal/client/public/training/<new-id>/`
 2. Add an entry to `portal/client/src/quizzes/index.ts`
+3. Optionally set `videoPath` to a YouTube URL or CDN URL to enable the video-first flow (see below)
+
+### Video-First Quiz Flow (`videoPath` field)
+When a quiz has `videoPath` set, `QuizPage.tsx` renders a two-phase experience:
+
+**Phase 1 — Video:**
+- Full-screen video player (YouTube embed via IFrame API, or native `<video>` for direct file URLs)
+- "Skip to Quiz" button in the top bar; "Start Quiz" CTA at the bottom
+- Auto-advances to quiz when the video ends (YouTube IFrame API `onStateChange: ENDED`)
+
+**Phase 2 — Quiz:**
+- Existing SCORM iframe loads as normal
+- **Watch Video** button added to the top bar — opens a modal overlay
+- The SCORM iframe stays mounted (state preserved) while the modal is open
+- Modal seeks to the last saved playback position on reopen (`videoPositionRef`)
+- Closing the modal saves the current position back; Escape key also closes it
+- Completion screen has a **Rewatch Video** button
+
+**YouTube IFrame API implementation (`QuizPage.tsx`):**
+- `getYouTubeId(url)` — extracts video ID from `youtu.be/` or `youtube.com/watch?v=` URLs
+- `loadYouTubeScript(onReady)` — loads `youtube.com/iframe_api` once; safe to call multiple times
+- `ytMainRef` / `ytModalRef` — hold `YT.Player` instances for main and modal players
+- `modalKey` state increments on each modal open to give YT API a fresh DOM target
+- `videoPositionRef` — shared `number` ref tracking playback position across both players
+
+**Video hosting note:** Video files (`.mp4`, etc.) are in `.gitignore` — never commit them (GitHub 100 MB limit, Cloudflare Pages 25 MB limit). Always use a CDN URL or YouTube link for `videoPath` in production.
 
 ---
 
@@ -319,3 +355,4 @@ Credentials can be set two ways (env takes precedence):
 - **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **6**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
+- **Video files:** `.mp4`, `.mov`, `.webm`, `.avi`, `.m4v` are in `.gitignore` — never commit large video files. Use YouTube or a CDN URL instead.

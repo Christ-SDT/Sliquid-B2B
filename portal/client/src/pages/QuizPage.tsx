@@ -112,6 +112,9 @@ export default function QuizPage() {
   const [iframeReady, setIframeReady] = useState(false)
   const [finish, setFinish] = useState<FinishState | null>(null)
   const handleFinishRef = useRef<() => void>(() => {})
+  // True when the user arrived at the quiz phase via video completion/skip
+  // so we can auto-click the Captivate stage to start the course immediately
+  const autoStartRef = useRef(false)
 
   // ─── Advance from video → quiz ──────────────────────────────────────────────
   const enterQuiz = useCallback(() => {
@@ -123,6 +126,7 @@ export default function QuizPage() {
       videoPositionRef.current = mainVideoRef.current.currentTime
       mainVideoRef.current.pause()
     }
+    autoStartRef.current = true  // signal: auto-click the course stage on load
     setPhase('quiz')
   }, [isYouTube])
 
@@ -298,7 +302,31 @@ export default function QuizPage() {
   function handleIframeLoad() {
     try {
       const href = iframeRef.current?.contentWindow?.location?.href ?? ''
-      if (href.includes('goodbye.html')) setTimeout(() => handleFinishRef.current(), 300)
+      if (href.includes('goodbye.html')) {
+        setTimeout(() => handleFinishRef.current(), 300)
+        return
+      }
+
+      // Auto-start the Captivate course when arriving from the video phase.
+      // Captivate initialises its React app asynchronously after the iframe
+      // loads, so we wait 1.5 s then dispatch a full pointer+click sequence
+      // on the app root — this satisfies both browser autoplay policy and any
+      // Captivate "click to start" overlay.
+      if (autoStartRef.current) {
+        autoStartRef.current = false
+        setTimeout(() => {
+          try {
+            const doc = iframeRef.current?.contentDocument
+            if (!doc) return
+            const target = doc.getElementById('app') ?? doc.body
+            ;['pointerdown', 'pointerup', 'click'].forEach(type =>
+              target.dispatchEvent(
+                new MouseEvent(type, { bubbles: true, cancelable: true })
+              )
+            )
+          } catch { /* guard */ }
+        }, 1500)
+      }
     } catch { /* cross-origin guard */ }
   }
 
