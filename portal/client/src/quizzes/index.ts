@@ -17,13 +17,14 @@ export type Quiz = {
 
 export const QUIZZES: Quiz[] = [
   {
-    id: 'sliquiz',
-    title: 'Customer Service Skills',
+    id: 'h2o-vs-sassy',
+    title: 'H2O vs Sassy',
     description:
-      'Master the essentials of customer service and product knowledge for Sliquid partners. Covers communication, product positioning, and retail best practices.',
-    path: '/training/sliquiz/index.html',
+      'Discover the differences between H2O and Sassy product lines — formulations, ingredients, and how to match customers to the right product.',
+    path: '/training/h2o-vs-sassy/index.html',
     passingScore: 70,
     estimatedMinutes: 15,
+    videoPath: 'https://youtu.be/r9ttBy_WlfA',
   },
   {
     id: 'sea-vs-tsunami',

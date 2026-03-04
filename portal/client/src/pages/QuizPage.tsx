@@ -85,6 +85,7 @@ export default function QuizPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const quiz = QUIZZES.find(q => q.id === id)
+  const nextQuiz = quiz ? QUIZZES[QUIZZES.indexOf(quiz) + 1] ?? null : null
 
   const ytId = quiz?.videoPath ? getYouTubeId(quiz.videoPath) : null
   const isYouTube = !!ytId
@@ -309,23 +310,29 @@ export default function QuizPage() {
 
       // Auto-start the Captivate course when arriving from the video phase.
       // Captivate initialises its React app asynchronously after the iframe
-      // loads, so we wait 1.5 s then dispatch a full pointer+click sequence
-      // on the app root — this satisfies both browser autoplay policy and any
-      // Captivate "click to start" overlay.
+      // loads — poll every 300 ms until a clickable target appears, then
+      // dispatch a full pointer+click sequence to satisfy autoplay policy and
+      // any "click to start" overlay. Hard-stop after 15 s as a safety net.
       if (autoStartRef.current) {
         autoStartRef.current = false
-        setTimeout(() => {
+        const deadline = Date.now() + 15_000
+        const poll = setInterval(() => {
           try {
             const doc = iframeRef.current?.contentDocument
-            if (!doc) return
-            const target = doc.getElementById('app') ?? doc.body
+            if (!doc || Date.now() > deadline) { clearInterval(poll); return }
+            // Priority selector chain — find the Captivate play button
+            const target =
+              doc.querySelector<HTMLElement>('button') ??
+              doc.querySelector<HTMLElement>('[class*="play" i]') ??
+              doc.querySelector<HTMLElement>('[class*="start" i]') ??
+              doc.getElementById('app')
+            if (!target) return  // not rendered yet — try again next tick
+            clearInterval(poll)
             ;['pointerdown', 'pointerup', 'click'].forEach(type =>
-              target.dispatchEvent(
-                new MouseEvent(type, { bubbles: true, cancelable: true })
-              )
+              target.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true }))
             )
-          } catch { /* guard */ }
-        }, 1500)
+          } catch { clearInterval(poll) }
+        }, 300)
       }
     } catch { /* cross-origin guard */ }
   }
@@ -527,9 +534,17 @@ export default function QuizPage() {
             )}
 
             <div className="flex flex-col gap-2">
+              {finish.passed && nextQuiz && (
+                <button
+                  onClick={() => navigate(`/quiz/${nextQuiz.id}`)}
+                  className="w-full py-2.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  Go to Next Module
+                </button>
+              )}
               <button
                 onClick={() => navigate('/trainings')}
-                className="w-full py-2.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
+                className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors ${finish.passed ? 'bg-surface-elevated hover:bg-portal-border text-slate-300' : 'bg-portal-accent hover:bg-portal-accent/90 text-white'}`}
               >
                 {finish.passed ? 'Done' : 'Back to Trainings'}
               </button>
