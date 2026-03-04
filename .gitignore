@@ -35,3 +35,9 @@ portal/data/*.db
 portal/data/*.db-shm
 portal/data/*.db-wal
 portal/data/*.bak
+# Large video files — host on CDN, not in git
+*.mp4
+*.mov
+*.webm
+*.avi
+*.m4v

@@ -7,6 +7,12 @@ export type Quiz = {
   passingScore: number
   estimatedMinutes: number
   thumbnail?: string
+  /**
+   * Optional video to show before the SCORM quiz loads.
+   * Can be a relative public path (/training/…) or an absolute URL (CDN/Vimeo/etc).
+   * When set, QuizPage shows a video player phase first with a Skip button.
+   */
+  videoPath?: string
 }
 
 export const QUIZZES: Quiz[] = [
@@ -18,6 +24,16 @@ export const QUIZZES: Quiz[] = [
     path: '/training/sliquiz/index.html',
     passingScore: 70,
     estimatedMinutes: 15,
+  },
+  {
+    id: 'sea-vs-tsunami',
+    title: 'Sea vs Tsunami',
+    description:
+      'Learn the differences between Sea and Tsunami product lines — formulations, positioning, and how to guide customers to the right choice.',
+    path: '/training/sea-vs-tsunami/index.html',
+    passingScore: 70,
+    estimatedMinutes: 15,
+    videoPath: 'https://youtu.be/lFVvtQfOb8Y',
   },
   // Add future quizzes here — each SCORM package goes in:
   // portal/client/public/training/<quiz-id>/index.html
