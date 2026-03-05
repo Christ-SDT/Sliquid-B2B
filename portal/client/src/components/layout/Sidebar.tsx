@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { useTheme } from '@/context/ThemeContext'
 import { cn } from '@/lib/utils'
 import { TIER_LABEL } from '@/types'
 import {
   LayoutDashboard, Package, FolderOpen, Archive,
-  Receipt, BarChart3, MapPin, Store, Megaphone, GraduationCap, LogOut, X, Users,
+  Receipt, BarChart3, MapPin, Store, Megaphone, GraduationCap, LogOut, X, Users, Moon, Sun,
 } from 'lucide-react'
 
 const NAV = [
@@ -27,6 +28,7 @@ interface Props {
 
 export default function Sidebar({ onClose }: Props) {
   const { user, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const isRestricted = ['tier1', 'tier2', 'tier3'].includes(user?.role ?? '')
   const role: string | undefined = user?.role
   const isAdmin = role === 'tier4' || role === 'admin'
@@ -47,12 +49,12 @@ export default function Sidebar({ onClose }: Props) {
             </svg>
           </div>
           <div>
-            <p className="text-white font-bold text-sm leading-none tracking-wider">SLIQUID</p>
-            <p className="text-slate-500 text-[10px] font-medium tracking-widest mt-0.5">PARTNER PORTAL</p>
+            <p className="text-on-canvas font-bold text-sm leading-none tracking-wider">SLIQUID</p>
+            <p className="text-on-canvas-muted text-[10px] font-medium tracking-widest mt-0.5">PARTNER PORTAL</p>
           </div>
         </div>
         {onClose && (
-          <button onClick={onClose} className="text-slate-500 hover:text-white md:hidden">
+          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas md:hidden">
             <X className="w-4 h-4" />
           </button>
         )}
@@ -71,7 +73,7 @@ export default function Sidebar({ onClose }: Props) {
                     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
                     isActive
                       ? 'bg-portal-accent text-white'
-                      : 'text-slate-400 hover:text-white hover:bg-surface-elevated',
+                      : 'text-on-canvas-subtle hover:text-on-canvas hover:bg-surface-elevated',
                   )
                 }
               >
@@ -83,6 +85,29 @@ export default function Sidebar({ onClose }: Props) {
         </ul>
       </nav>
 
+      {/* Theme toggle */}
+      <div className="border-t border-portal-border px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-on-canvas-subtle">
+          {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+          <span>Wellness Mode</span>
+        </div>
+        <button
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          className={cn(
+            'relative w-10 h-5 rounded-full transition-colors duration-200 flex-shrink-0',
+            theme === 'dark' ? 'bg-portal-accent' : 'bg-slate-300',
+          )}
+        >
+          <span
+            className={cn(
+              'absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#f7efe3] shadow transition-transform duration-200',
+              theme === 'dark' ? 'translate-x-5' : 'translate-x-0',
+            )}
+          />
+        </button>
+      </div>
+
       {/* User footer */}
       <div className="border-t border-portal-border p-4">
         <div className="flex items-center gap-3 mb-3">
@@ -91,14 +116,14 @@ export default function Sidebar({ onClose }: Props) {
             {user?.name?.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="text-white text-sm font-medium truncate">{user?.name}</p>
-            <p className="text-slate-500 text-xs truncate">{user?.role ? (TIER_LABEL[user.role] ?? user.role) : ''}</p>
+            <p className="text-on-canvas text-sm font-medium truncate">{user?.name}</p>
+            <p className="text-on-canvas-muted text-xs truncate">{user?.role ? (TIER_LABEL[user.role] ?? user.role) : ''}</p>
           </div>
         </div>
         <button
           onClick={logout}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400
-                     hover:text-white hover:bg-surface-elevated text-sm transition-colors duration-150"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-on-canvas-subtle
+                     hover:text-on-canvas hover:bg-surface-elevated text-sm transition-colors duration-150"
         >
           <LogOut className="w-4 h-4" />
           Sign out

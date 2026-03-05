@@ -36,12 +36,12 @@ function StatCard({ title, value, sub, icon: Icon, accent = false, warn = false 
     <div className="bg-surface border border-portal-border rounded-xl p-5">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">{title}</p>
-          <p className={`text-2xl font-bold mt-1 ${warn ? 'text-amber-400' : 'text-white'}`}>{value}</p>
-          {sub && <p className="text-slate-500 text-xs mt-1">{sub}</p>}
+          <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider">{title}</p>
+          <p className={`text-2xl font-bold mt-1 ${warn ? 'text-amber-400' : 'text-on-canvas'}`}>{value}</p>
+          {sub && <p className="text-on-canvas-muted text-xs mt-1">{sub}</p>}
         </div>
         <div className={`w-10 h-10 rounded-lg flex items-center justify-center
-          ${accent ? 'bg-portal-accent/20 text-portal-accent' : warn ? 'bg-amber-400/10 text-amber-400' : 'bg-surface-elevated text-slate-400'}`}>
+          ${accent ? 'bg-portal-accent/20 text-portal-accent' : warn ? 'bg-amber-400/10 text-amber-400' : 'bg-surface-elevated text-on-canvas-subtle'}`}>
           <Icon className="w-5 h-5" />
         </div>
       </div>
@@ -74,7 +74,7 @@ function MiniAssetsWidget() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <FolderOpen className="w-4 h-4 text-portal-accent" />
-          <h3 className="text-white font-semibold text-sm">Digital Assets</h3>
+          <h3 className="text-on-canvas font-semibold text-sm">Digital Assets</h3>
         </div>
         <Link to="/assets" className="text-portal-accent text-xs hover:underline flex items-center gap-1">
           View All <ChevronRight className="w-3 h-3" />
@@ -87,7 +87,7 @@ function MiniAssetsWidget() {
           ))}
         </div>
       ) : assets.length === 0 ? (
-        <p className="text-slate-500 text-sm text-center py-4">No assets available</p>
+        <p className="text-on-canvas-muted text-sm text-center py-4">No assets available</p>
       ) : (
         <div className="grid grid-cols-2 gap-2">
           {assets.map(asset => (
@@ -100,7 +100,7 @@ function MiniAssetsWidget() {
                 </div>
               )}
               <div className="px-2 py-1.5">
-                <p className="text-white text-xs font-medium truncate">{asset.name}</p>
+                <p className="text-on-canvas text-xs font-medium truncate">{asset.name}</p>
                 <span className="text-portal-accent text-[10px] font-medium uppercase tracking-wide">{asset.type}</span>
               </div>
             </div>
@@ -127,7 +127,7 @@ function MiniDistributorsWidget() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-portal-accent" />
-          <h3 className="text-white font-semibold text-sm">Distributors</h3>
+          <h3 className="text-on-canvas font-semibold text-sm">Distributors</h3>
         </div>
         <Link to="/distributors" className="text-portal-accent text-xs hover:underline flex items-center gap-1">
           View All <ChevronRight className="w-3 h-3" />
@@ -140,7 +140,7 @@ function MiniDistributorsWidget() {
           ))}
         </div>
       ) : distributors.length === 0 ? (
-        <p className="text-slate-500 text-sm text-center py-4">No distributors available</p>
+        <p className="text-on-canvas-muted text-sm text-center py-4">No distributors available</p>
       ) : (
         <div className="space-y-2">
           {distributors.map(dist => (
@@ -149,8 +149,8 @@ function MiniDistributorsWidget() {
                 <MapPin className="w-4 h-4 text-portal-accent opacity-60" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-white text-xs font-medium truncate">{dist.name}</p>
-                <p className="text-slate-500 text-[10px] truncate">{dist.city ? `${dist.city}, ` : ''}{dist.state}</p>
+                <p className="text-on-canvas text-xs font-medium truncate">{dist.name}</p>
+                <p className="text-on-canvas-muted text-[10px] truncate">{dist.city ? `${dist.city}, ` : ''}{dist.state}</p>
               </div>
               <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-portal-accent/10 text-portal-accent flex-shrink-0">
                 {dist.region}
@@ -188,7 +188,7 @@ function MiniTrainingsWidget() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <GraduationCap className="w-4 h-4 text-portal-accent" />
-          <h3 className="text-white font-semibold text-sm">Trainings</h3>
+          <h3 className="text-on-canvas font-semibold text-sm">Trainings</h3>
         </div>
         <Link to="/trainings" className="text-portal-accent text-xs hover:underline flex items-center gap-1">
           View All <ChevronRight className="w-3 h-3" />
@@ -200,7 +200,7 @@ function MiniTrainingsWidget() {
         <div className="flex items-center gap-3 mb-4">
           <Award className="w-4 h-4 text-portal-accent flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-white text-xs font-medium mb-1">{passedCount} / {QUIZZES.length} completed</p>
+            <p className="text-on-canvas text-xs font-medium mb-1">{passedCount} / {QUIZZES.length} completed</p>
             <div className="w-full h-1.5 bg-surface-elevated rounded-full overflow-hidden">
               <div
                 className="h-full bg-portal-accent rounded-full transition-all"
@@ -226,9 +226,9 @@ function MiniTrainingsWidget() {
                   <GraduationCap className="w-3.5 h-3.5 text-portal-accent" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-white text-xs font-medium leading-snug truncate">{quiz.title}</p>
+                  <p className="text-on-canvas text-xs font-medium leading-snug truncate">{quiz.title}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="flex items-center gap-0.5 text-slate-500 text-[10px]">
+                    <span className="flex items-center gap-0.5 text-on-canvas-muted text-[10px]">
                       <Clock className="w-2.5 h-2.5" />{quiz.estimatedMinutes}m
                     </span>
                     {hasPassed && (
@@ -264,8 +264,8 @@ function UpgradeBanner({ role }: { role: string }) {
     <div className="flex items-center gap-4 px-5 py-4 bg-portal-accent/10 border border-portal-accent/30 rounded-xl">
       <Star className="w-5 h-5 text-portal-accent flex-shrink-0" />
       <div>
-        <p className="text-white text-sm font-medium">{tierLabel} Access</p>
-        <p className="text-slate-400 text-xs mt-0.5">
+        <p className="text-on-canvas text-sm font-medium">{tierLabel} Access</p>
+        <p className="text-on-canvas-subtle text-xs mt-0.5">
           Want full portal access? Contact your Sliquid sales representative to upgrade.
         </p>
       </div>
@@ -302,10 +302,10 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-white text-2xl font-bold">
+        <h1 className="text-on-canvas text-2xl font-bold">
           {greeting()}, {user?.name?.split(' ')[0]} 👋
         </h1>
-        <p className="text-slate-500 text-sm mt-1">
+        <p className="text-on-canvas-muted text-sm mt-1">
           {user?.company ? `${user.company} — ` : ''}{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </p>
       </div>
@@ -355,7 +355,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Quick Links */}
             <div className="lg:col-span-2 bg-surface border border-portal-border rounded-xl p-5">
-              <h2 className="text-white font-semibold mb-4">Quick Access</h2>
+              <h2 className="text-on-canvas font-semibold mb-4">Quick Access</h2>
               <div className="grid grid-cols-2 gap-3">
                 {QUICK_LINKS.map(({ to, label, icon: Icon, desc }) => (
                   <Link
@@ -368,10 +368,10 @@ export default function DashboardPage() {
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-white text-sm font-medium">{label}</p>
-                      <p className="text-slate-500 text-xs">{desc}</p>
+                      <p className="text-on-canvas text-sm font-medium">{label}</p>
+                      <p className="text-on-canvas-muted text-xs">{desc}</p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-portal-accent ml-auto flex-shrink-0 transition-colors" />
+                    <ChevronRight className="w-4 h-4 text-on-canvas-muted group-hover:text-portal-accent ml-auto flex-shrink-0 transition-colors" />
                   </Link>
                 ))}
               </div>
@@ -379,7 +379,7 @@ export default function DashboardPage() {
 
             {/* Inventory alerts */}
             <div className="bg-surface border border-portal-border rounded-xl p-5">
-              <h2 className="text-white font-semibold mb-4">Inventory Alerts</h2>
+              <h2 className="text-on-canvas font-semibold mb-4">Inventory Alerts</h2>
               {overview && (overview.lowStock > 0 || overview.outOfStock > 0) ? (
                 <div className="space-y-3">
                   {overview.outOfStock > 0 && (
@@ -387,7 +387,7 @@ export default function DashboardPage() {
                       <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
                       <div>
                         <p className="text-red-300 text-sm font-medium">{overview.outOfStock} Out of Stock</p>
-                        <p className="text-slate-500 text-xs">Needs immediate reorder</p>
+                        <p className="text-on-canvas-muted text-xs">Needs immediate reorder</p>
                       </div>
                     </div>
                   )}
@@ -396,7 +396,7 @@ export default function DashboardPage() {
                       <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
                       <div>
                         <p className="text-amber-300 text-sm font-medium">{overview.lowStock} Low Stock</p>
-                        <p className="text-slate-500 text-xs">Below reorder threshold</p>
+                        <p className="text-on-canvas-muted text-xs">Below reorder threshold</p>
                       </div>
                     </div>
                   )}
@@ -405,7 +405,7 @@ export default function DashboardPage() {
                   </Link>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-24 text-slate-600">
+                <div className="flex flex-col items-center justify-center h-24 text-on-canvas-muted">
                   <Archive className="w-8 h-8 mb-2 opacity-40" />
                   <p className="text-sm">All stock levels normal</p>
                 </div>

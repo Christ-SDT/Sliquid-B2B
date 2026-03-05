@@ -35,7 +35,7 @@ const EMPTY: FormData = {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-slate-400 text-sm font-medium mb-1.5">{label}</label>
+      <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">{label}</label>
       {children}
     </div>
   )
@@ -50,8 +50,8 @@ function Input({ value, onChange, placeholder, type = 'text', required = false }
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       required={required}
-      className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
-                 placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+      className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                 placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
     />
   )
 }
@@ -86,19 +86,19 @@ export default function RetailerPage() {
         <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-8 h-8 text-emerald-400" />
         </div>
-        <h2 className="text-white text-2xl font-bold mb-3">Application Submitted!</h2>
-        <p className="text-slate-400 mb-6">
-          Thanks! We received your application for <strong className="text-white">{form.business_name}</strong>.
+        <h2 className="text-on-canvas text-2xl font-bold mb-3">Application Submitted!</h2>
+        <p className="text-on-canvas-subtle mb-6">
+          Thanks! We received your application for <strong className="text-on-canvas">{form.business_name}</strong>.
           A member of our team will reach out within 3–5 business days.
         </p>
         <div className="bg-surface border border-portal-border rounded-xl p-5 text-left space-y-2">
-          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-3">What happens next</p>
+          <p className="text-on-canvas-muted text-xs font-semibold uppercase tracking-wider mb-3">What happens next</p>
           {['Application review by our partner team', 'Email confirmation with next steps', 'Account setup + onboarding call', 'First order placement'].map((s, i) => (
             <div key={i} className="flex items-center gap-3">
               <div className="w-6 h-6 rounded-full bg-portal-accent/20 text-portal-accent text-xs font-bold flex items-center justify-center flex-shrink-0">
                 {i + 1}
               </div>
-              <p className="text-slate-300 text-sm">{s}</p>
+              <p className="text-on-canvas-subtle text-sm">{s}</p>
             </div>
           ))}
         </div>
@@ -111,9 +111,9 @@ export default function RetailerPage() {
       <div>
         <div className="flex items-center gap-3 mb-1">
           <Store className="w-5 h-5 text-portal-accent" />
-          <h1 className="text-white text-2xl font-bold">Become a Retailer</h1>
+          <h1 className="text-on-canvas text-2xl font-bold">Become a Retailer</h1>
         </div>
-        <p className="text-slate-500 text-sm">Apply to carry Sliquid, RIDE, and Ride Rocco products in your store.</p>
+        <p className="text-on-canvas-muted text-sm">Apply to carry Sliquid, RIDE, and Ride Rocco products in your store.</p>
       </div>
 
       {/* Step indicator */}
@@ -121,25 +121,25 @@ export default function RetailerPage() {
         {STEPS.map((label, i) => (
           <div key={i} className="flex items-center gap-2 flex-1 last:flex-none">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-              ${i < step ? 'bg-emerald-500 text-white' : i === step ? 'bg-portal-accent text-white' : 'bg-surface-elevated text-slate-500'}`}>
+              ${i < step ? 'bg-emerald-500 text-white' : i === step ? 'bg-portal-accent text-white' : 'bg-surface-elevated text-on-canvas-muted'}`}>
               {i < step ? '✓' : i + 1}
             </div>
-            <span className={`text-xs font-medium hidden sm:block flex-1 ${i === step ? 'text-white' : 'text-slate-600'}`}>{label}</span>
-            {i < STEPS.length - 1 && <ChevronRight className="w-4 h-4 text-slate-700 flex-shrink-0" />}
+            <span className={`text-xs font-medium hidden sm:block flex-1 ${i === step ? 'text-on-canvas' : 'text-on-canvas-muted'}`}>{label}</span>
+            {i < STEPS.length - 1 && <ChevronRight className="w-4 h-4 text-on-canvas flex-shrink-0" />}
           </div>
         ))}
       </div>
 
       <form onSubmit={handleSubmit}>
         <div className="bg-surface border border-portal-border rounded-xl p-6 space-y-4">
-          <h2 className="text-white font-semibold text-lg">{STEPS[step]}</h2>
+          <h2 className="text-on-canvas font-semibold text-lg">{STEPS[step]}</h2>
 
           {step === 0 && (
             <>
               <Field label="Business Name *"><Input value={form.business_name} onChange={set('business_name')} placeholder="Your store name" required /></Field>
               <Field label="Business Type">
                 <select value={form.business_type} onChange={e => set('business_type')(e.target.value)}
-                  className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-portal-accent transition-colors">
+                  className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors">
                   <option value="">Select type…</option>
                   {['Adult Boutique', 'Spa / Wellness', 'Medical / Clinical', 'Pharmacy', 'Online Retailer', 'General Retail', 'Other'].map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
@@ -168,14 +168,14 @@ export default function RetailerPage() {
             <>
               <Field label="Annual Revenue (approximate)">
                 <select value={form.annual_revenue} onChange={e => set('annual_revenue')(e.target.value)}
-                  className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-portal-accent transition-colors">
+                  className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors">
                   <option value="">Select range…</option>
                   {['Under $100K', '$100K – $500K', '$500K – $1M', '$1M – $5M', 'Over $5M'].map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </Field>
               <Field label="How did you hear about Sliquid?">
                 <select value={form.how_heard} onChange={e => set('how_heard')(e.target.value)}
-                  className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-portal-accent transition-colors">
+                  className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors">
                   <option value="">Select…</option>
                   {['Trade Show', 'Distributor', 'Existing Partner', 'Online Search', 'Social Media', 'Word of Mouth', 'Other'].map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
@@ -185,7 +185,7 @@ export default function RetailerPage() {
 
           {step === 3 && (
             <div className="space-y-3">
-              <p className="text-slate-400 text-sm">Please review your application before submitting:</p>
+              <p className="text-on-canvas-subtle text-sm">Please review your application before submitting:</p>
               {[
                 ['Business', form.business_name, form.business_type],
                 ['Location', [form.city, form.state, form.zip].filter(Boolean).join(', ')],
@@ -194,8 +194,8 @@ export default function RetailerPage() {
                 ['Annual Revenue', form.annual_revenue],
               ].map(([label, ...vals]) => (
                 <div key={String(label)} className="flex justify-between py-2 border-b border-portal-border/50">
-                  <span className="text-slate-500 text-sm">{label}</span>
-                  <span className="text-white text-sm text-right">{vals.filter(Boolean).join(' · ') || '—'}</span>
+                  <span className="text-on-canvas-muted text-sm">{label}</span>
+                  <span className="text-on-canvas text-sm text-right">{vals.filter(Boolean).join(' · ') || '—'}</span>
                 </div>
               ))}
             </div>
@@ -206,7 +206,7 @@ export default function RetailerPage() {
           <div className="flex gap-3 pt-2">
             {step > 0 && (
               <button type="button" onClick={() => setStep(s => s - 1)}
-                className="px-5 py-2.5 rounded-lg border border-portal-border text-slate-400 hover:text-white text-sm font-medium transition-colors">
+                className="px-5 py-2.5 rounded-lg border border-portal-border text-on-canvas-subtle hover:text-on-canvas text-sm font-medium transition-colors">
                 Back
               </button>
             )}
@@ -222,14 +222,14 @@ export default function RetailerPage() {
       {/* FAQ */}
       <div className="bg-surface border border-portal-border rounded-xl p-6">
         <div className="flex items-center gap-2 mb-4">
-          <HelpCircle className="w-4 h-4 text-slate-500" />
-          <h3 className="text-white font-semibold">Frequently Asked Questions</h3>
+          <HelpCircle className="w-4 h-4 text-on-canvas-muted" />
+          <h3 className="text-on-canvas font-semibold">Frequently Asked Questions</h3>
         </div>
         <div className="space-y-4">
           {FAQS.map(({ q, a }) => (
             <div key={q}>
-              <p className="text-white text-sm font-medium mb-1">{q}</p>
-              <p className="text-slate-500 text-sm">{a}</p>
+              <p className="text-on-canvas text-sm font-medium mb-1">{q}</p>
+              <p className="text-on-canvas-muted text-sm">{a}</p>
             </div>
           ))}
         </div>

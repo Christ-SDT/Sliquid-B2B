@@ -24,14 +24,14 @@ function QuizCard({ quiz, bestResult }: { quiz: Quiz; bestResult?: QuizResult })
           <GraduationCap className="w-5 h-5 text-portal-accent" />
         </div>
         <div className="min-w-0">
-          <h3 className="text-white font-semibold text-sm leading-snug">{quiz.title}</h3>
+          <h3 className="text-on-canvas font-semibold text-sm leading-snug">{quiz.title}</h3>
           <div className="flex items-center gap-3 mt-1.5">
-            <span className="flex items-center gap-1 text-slate-500 text-xs">
+            <span className="flex items-center gap-1 text-on-canvas-muted text-xs">
               <Clock className="w-3 h-3" />
               {quiz.estimatedMinutes} min
             </span>
-            <span className="text-slate-700 text-xs">·</span>
-            <span className="text-slate-500 text-xs">Pass: {quiz.passingScore}%</span>
+            <span className="text-on-canvas text-xs">·</span>
+            <span className="text-on-canvas-muted text-xs">Pass: {quiz.passingScore}%</span>
           </div>
         </div>
         {hasPassed && (
@@ -46,12 +46,12 @@ function QuizCard({ quiz, bestResult }: { quiz: Quiz; bestResult?: QuizResult })
 
       {/* Body */}
       <div className="px-5 pb-5 flex-1 flex flex-col">
-        <p className="text-slate-400 text-sm leading-relaxed flex-1">{quiz.description}</p>
+        <p className="text-on-canvas-subtle text-sm leading-relaxed flex-1">{quiz.description}</p>
 
         {bestResult && (
           <div className="mt-4 flex items-center gap-2 py-2.5 px-3 bg-portal-bg rounded-lg">
             <Award className="w-4 h-4 text-portal-accent flex-shrink-0" />
-            <span className="text-slate-400 text-xs">
+            <span className="text-on-canvas-subtle text-xs">
               Best score: <span className={`font-semibold ${hasPassed ? 'text-emerald-400' : 'text-amber-400'}`}>{bestResult.score}%</span>
             </span>
           </div>
@@ -93,8 +93,8 @@ export default function TrainingsPage() {
     <div className="p-6 max-w-5xl mx-auto">
       {/* Page header */}
       <div className="mb-6">
-        <h1 className="text-white text-2xl font-bold">Trainings</h1>
-        <p className="text-slate-400 text-sm mt-1">
+        <h1 className="text-on-canvas text-2xl font-bold">Trainings</h1>
+        <p className="text-on-canvas-subtle text-sm mt-1">
           Complete the courses below to sharpen your product knowledge and customer service skills.
         </p>
       </div>
@@ -106,7 +106,7 @@ export default function TrainingsPage() {
             <Award className="w-5 h-5 text-portal-accent" />
           </div>
           <div>
-            <p className="text-white text-sm font-medium">{passedCount} / {QUIZZES.length} completed</p>
+            <p className="text-on-canvas text-sm font-medium">{passedCount} / {QUIZZES.length} completed</p>
             <div className="flex items-center gap-2 mt-1">
               <div className="w-32 h-1.5 bg-surface-elevated rounded-full overflow-hidden">
                 <div
@@ -114,7 +114,7 @@ export default function TrainingsPage() {
                   style={{ width: QUIZZES.length ? `${(passedCount / QUIZZES.length) * 100}%` : '0%' }}
                 />
               </div>
-              <span className="text-slate-500 text-xs">{QUIZZES.length ? Math.round((passedCount / QUIZZES.length) * 100) : 0}%</span>
+              <span className="text-on-canvas-muted text-xs">{QUIZZES.length ? Math.round((passedCount / QUIZZES.length) * 100) : 0}%</span>
             </div>
           </div>
         </div>

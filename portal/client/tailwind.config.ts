@@ -6,17 +6,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Portal dark theme
+        // Portal theme tokens (light/dark via CSS vars)
         surface: {
-          DEFAULT: '#1a1d27',
-          elevated: '#22263a',
+          DEFAULT: 'var(--surface)',
+          elevated: 'var(--surface-elevated)',
         },
         portal: {
-          bg: '#0f1117',
-          border: '#2a2d3a',
+          bg: 'var(--portal-bg)',
+          border: 'var(--portal-border)',
           accent: '#0A84C0',
           'accent-hover': '#0870a3',
         },
+        // Text tokens
+        'on-canvas': 'var(--text-primary)',
+        'on-canvas-subtle': 'var(--text-secondary)',
+        'on-canvas-muted': 'var(--text-muted)',
         // shadcn CSS variable bridge
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

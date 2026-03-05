@@ -11,14 +11,14 @@ export default function ForgotPasswordPage() {
               <path d="M16 3C16 3 5 14.5 5 20.5a11 11 0 0022 0C27 14.5 16 3 16 3z" fill="white"/>
             </svg>
           </div>
-          <h1 className="text-white font-bold text-2xl tracking-wider">SLIQUID</h1>
-          <p className="text-slate-500 text-xs font-medium tracking-widest mt-1">PARTNER PORTAL</p>
+          <h1 className="text-on-canvas font-bold text-2xl tracking-wider">SLIQUID</h1>
+          <p className="text-on-canvas-muted text-xs font-medium tracking-widest mt-1">PARTNER PORTAL</p>
         </div>
 
         {/* Card */}
         <div className="bg-surface border border-portal-border rounded-2xl p-8 text-center">
-          <h2 className="text-white text-xl font-semibold mb-3">Reset your password</h2>
-          <p className="text-slate-400 text-sm leading-relaxed mb-2">
+          <h2 className="text-on-canvas text-xl font-semibold mb-3">Reset your password</h2>
+          <p className="text-on-canvas-subtle text-sm leading-relaxed mb-2">
             To reset your password, please contact your Sliquid administrator at
           </p>
           <a
@@ -31,7 +31,7 @@ export default function ForgotPasswordPage() {
           <div className="mt-8">
             <Link
               to="/login"
-              className="text-slate-500 hover:text-slate-300 text-sm transition-colors"
+              className="text-on-canvas-muted hover:text-on-canvas-subtle text-sm transition-colors"
             >
               ← Back to sign in
             </Link>

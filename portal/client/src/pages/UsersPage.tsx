@@ -53,17 +53,17 @@ function UserRow({ user, onRoleChange }: { user: PortalUser; onRoleChange: (id: 
                           flex items-center justify-center text-portal-accent text-xs font-bold flex-shrink-0">
             {user.name?.charAt(0).toUpperCase()}
           </div>
-          <span className="text-white text-sm font-medium">{user.name}</span>
+          <span className="text-on-canvas text-sm font-medium">{user.name}</span>
         </div>
       </td>
-      <td className="px-4 py-3 text-slate-400 text-sm">{user.email}</td>
-      <td className="px-4 py-3 text-slate-400 text-sm">{user.company ?? '—'}</td>
+      <td className="px-4 py-3 text-on-canvas-subtle text-sm">{user.email}</td>
+      <td className="px-4 py-3 text-on-canvas-subtle text-sm">{user.company ?? '—'}</td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
           <select
             value={selectedRole}
             onChange={e => { setSelectedRole(e.target.value); setSaveState('idle'); setErrorMsg('') }}
-            className="bg-portal-bg border border-portal-border rounded-lg px-3 py-1.5 text-white text-xs
+            className="bg-portal-bg border border-portal-border rounded-lg px-3 py-1.5 text-on-canvas text-xs
                        focus:outline-none focus:border-portal-accent transition-colors"
           >
             <option value="tier1">Tier 1 (Retail Store Employee)</option>
@@ -85,7 +85,7 @@ function UserRow({ user, onRoleChange }: { user: PortalUser; onRoleChange: (id: 
           {saveState === 'error' && <span className="text-red-400 text-xs">{errorMsg}</span>}
         </div>
       </td>
-      <td className="px-4 py-3 text-slate-500 text-xs">{joined}</td>
+      <td className="px-4 py-3 text-on-canvas-muted text-xs">{joined}</td>
     </tr>
   )
 }
@@ -179,8 +179,8 @@ function WooPanel() {
     <div className="bg-surface border border-portal-border rounded-xl p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-white font-bold text-lg">WooCommerce Sync</h2>
-          <p className="text-slate-500 text-sm mt-0.5">Connect your WooCommerce store to sync inventory</p>
+          <h2 className="text-on-canvas font-bold text-lg">WooCommerce Sync</h2>
+          <p className="text-on-canvas-muted text-sm mt-0.5">Connect your WooCommerce store to sync inventory</p>
         </div>
         {!wooLoading && wooStatus && (
           <div className="flex items-center gap-2">
@@ -190,7 +190,7 @@ function WooPanel() {
                 Connected
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 text-slate-500 text-sm">
+              <span className="flex items-center gap-1.5 text-on-canvas-muted text-sm">
                 <XCircle className="w-4 h-4" />
                 Not Configured
               </span>
@@ -203,15 +203,15 @@ function WooPanel() {
       {wooStatus?.lastPull && (
         <div className="bg-portal-bg rounded-lg px-4 py-3 flex items-center justify-between">
           <div>
-            <p className="text-slate-400 text-xs">Last pull</p>
-            <p className="text-white text-sm font-medium mt-0.5">
+            <p className="text-on-canvas-subtle text-xs">Last pull</p>
+            <p className="text-on-canvas text-sm font-medium mt-0.5">
               {relativeTime(wooStatus.lastPull.synced_at)}
               {' · '}
               <span className={wooStatus.lastPull.status === 'ok' ? 'text-emerald-400' : 'text-red-400'}>
                 {wooStatus.lastPull.status}
               </span>
               {' · '}
-              <span className="text-slate-400">{wooStatus.lastPull.products_updated} updated</span>
+              <span className="text-on-canvas-subtle">{wooStatus.lastPull.products_updated} updated</span>
             </p>
           </div>
         </div>
@@ -222,8 +222,8 @@ function WooPanel() {
         <button
           onClick={handleTest}
           disabled={testing || !wooStatus?.configured}
-          className="flex items-center gap-2 px-4 py-2 border border-portal-border text-slate-300
-                     hover:text-white hover:border-slate-500 disabled:opacity-40 rounded-lg text-sm transition-colors"
+          className="flex items-center gap-2 px-4 py-2 border border-portal-border text-on-canvas-subtle
+                     hover:text-on-canvas hover:border-slate-500 disabled:opacity-40 rounded-lg text-sm transition-colors"
         >
           {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
           Test Connection
@@ -237,7 +237,7 @@ function WooPanel() {
           {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
           {syncing ? 'Syncing…' : 'Sync Now'}
         </button>
-        {syncMsg && <p className="text-slate-400 text-sm self-center">{syncMsg}</p>}
+        {syncMsg && <p className="text-on-canvas-subtle text-sm self-center">{syncMsg}</p>}
       </div>
 
       {testResult && (
@@ -248,41 +248,41 @@ function WooPanel() {
 
       {/* Credentials form */}
       <div className="border-t border-portal-border pt-5 space-y-4">
-        <p className="text-slate-400 text-sm font-medium">
+        <p className="text-on-canvas-subtle text-sm font-medium">
           {wooStatus?.configured ? 'Update Credentials' : 'Enter Credentials'}
         </p>
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="text-slate-500 text-xs mb-1.5 block">WooCommerce Store URL</label>
+            <label className="text-on-canvas-muted text-xs mb-1.5 block">WooCommerce Store URL</label>
             <input
               type="url"
               value={url}
               onChange={e => setUrl(e.target.value)}
               placeholder="https://your-store.com"
-              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
-                         placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
             />
           </div>
           <div>
-            <label className="text-slate-500 text-xs mb-1.5 block">Consumer Key</label>
+            <label className="text-on-canvas-muted text-xs mb-1.5 block">Consumer Key</label>
             <input
               type="text"
               value={consumerKey}
               onChange={e => setConsumerKey(e.target.value)}
               placeholder="ck_xxxxxxxxxxxxxxxxxxxx"
-              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
-                         placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors font-mono"
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono"
             />
           </div>
           <div>
-            <label className="text-slate-500 text-xs mb-1.5 block">Consumer Secret</label>
+            <label className="text-on-canvas-muted text-xs mb-1.5 block">Consumer Secret</label>
             <input
               type="password"
               value={consumerSecret}
               onChange={e => setConsumerSecret(e.target.value)}
               placeholder="cs_xxxxxxxxxxxxxxxxxxxx"
-              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
-                         placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors font-mono"
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono"
             />
           </div>
         </div>
@@ -340,23 +340,23 @@ export default function UsersPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-white text-2xl font-bold flex items-center gap-3">
+        <h1 className="text-on-canvas text-2xl font-bold flex items-center gap-3">
           <Users className="w-6 h-6 text-portal-accent" />
           User Management
         </h1>
-        <p className="text-slate-500 text-sm mt-1">View and manage all registered portal users.</p>
+        <p className="text-on-canvas-muted text-sm mt-1">View and manage all registered portal users.</p>
       </div>
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted" />
         <input
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search by name, email or company…"
-          className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-white text-sm
-                     placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+          className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
+                     placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
         />
       </div>
 
@@ -369,7 +369,7 @@ export default function UsersPage() {
         ) : error ? (
           <div className="p-8 text-center text-red-400 text-sm">{error}</div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 text-sm">
+          <div className="p-8 text-center text-on-canvas-muted text-sm">
             {search ? 'No users match your search.' : 'No users found.'}
           </div>
         ) : (
@@ -377,11 +377,11 @@ export default function UsersPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-portal-border">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Email</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Company</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Account Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Joined</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Email</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Company</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Account Type</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Joined</th>
                 </tr>
               </thead>
               <tbody>
@@ -394,7 +394,7 @@ export default function UsersPage() {
         )}
       </div>
 
-      <p className="text-slate-600 text-xs">{filtered.length} of {users.length} user{users.length !== 1 ? 's' : ''}</p>
+      <p className="text-on-canvas-muted text-xs">{filtered.length} of {users.length} user{users.length !== 1 ? 's' : ''}</p>
 
       {/* WooCommerce Panel */}
       <WooPanel />

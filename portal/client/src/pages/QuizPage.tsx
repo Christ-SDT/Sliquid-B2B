@@ -340,7 +340,7 @@ export default function QuizPage() {
   // ─── Not found ───────────────────────────────────────────────────────────────
   if (!quiz) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
+      <div className="flex flex-col items-center justify-center h-full text-on-canvas-subtle gap-3">
         <p>Quiz not found.</p>
         <button onClick={() => navigate('/trainings')} className="text-portal-accent text-sm hover:underline">
           ← Back to Trainings
@@ -357,16 +357,16 @@ export default function QuizPage() {
         <div className="flex items-center gap-3 px-4 py-2.5 bg-surface border-b border-portal-border flex-shrink-0">
           <button
             onClick={() => navigate('/trainings')}
-            className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm transition-colors"
+            className="flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Trainings
           </button>
-          <span className="text-slate-700 text-sm">/</span>
-          <span className="text-white text-sm font-medium truncate">{quiz.title}</span>
+          <span className="text-on-canvas text-sm">/</span>
+          <span className="text-on-canvas text-sm font-medium truncate">{quiz.title}</span>
           <button
             onClick={enterQuiz}
-            className="ml-auto flex items-center gap-1.5 text-slate-400 hover:text-white text-sm transition-colors"
+            className="ml-auto flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
           >
             <SkipForward className="w-4 h-4" />
             Skip to Quiz
@@ -392,7 +392,7 @@ export default function QuizPage() {
 
         {/* Bottom CTA */}
         <div className="flex items-center justify-center gap-3 px-4 py-3 bg-surface border-t border-portal-border flex-shrink-0">
-          <span className="text-slate-400 text-sm">Watch the full video, or</span>
+          <span className="text-on-canvas-subtle text-sm">Watch the full video, or</span>
           <button
             onClick={enterQuiz}
             className="flex items-center gap-1.5 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white text-sm font-medium rounded-lg transition-colors"
@@ -412,25 +412,25 @@ export default function QuizPage() {
       <div className="flex items-center gap-3 px-4 py-2.5 bg-surface border-b border-portal-border flex-shrink-0">
         <button
           onClick={() => navigate('/trainings')}
-          className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm transition-colors"
+          className="flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Trainings
         </button>
-        <span className="text-slate-700 text-sm">/</span>
-        <span className="text-white text-sm font-medium truncate">{quiz.title}</span>
+        <span className="text-on-canvas text-sm">/</span>
+        <span className="text-on-canvas text-sm font-medium truncate">{quiz.title}</span>
 
         <div className="ml-auto flex items-center gap-3">
           {quiz.videoPath && (
             <button
               onClick={openVideoModal}
-              className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm transition-colors"
+              className="flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
             >
               <Video className="w-4 h-4" />
               Watch Video
             </button>
           )}
-          <span className="text-slate-500 text-xs">Pass: {quiz.passingScore}%</span>
+          <span className="text-on-canvas-muted text-xs">Pass: {quiz.passingScore}%</span>
         </div>
       </div>
 
@@ -455,10 +455,10 @@ export default function QuizPage() {
           <div className="relative w-full max-w-4xl mx-4 bg-black rounded-xl overflow-hidden shadow-2xl border border-portal-border">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-2.5 bg-surface border-b border-portal-border">
-              <span className="text-white text-sm font-medium">{quiz.title} — Training Video</span>
+              <span className="text-on-canvas text-sm font-medium">{quiz.title} — Training Video</span>
               <button
                 onClick={closeVideoModal}
-                className="text-slate-400 hover:text-white transition-colors"
+                className="text-on-canvas-subtle hover:text-on-canvas transition-colors"
                 aria-label="Close video"
               >
                 <X className="w-4 h-4" />
@@ -495,10 +495,10 @@ export default function QuizPage() {
               : <XCircle className="w-14 h-14 text-amber-400 mx-auto mb-4" />
             }
 
-            <h2 className="text-white text-xl font-bold mb-1">
+            <h2 className="text-on-canvas text-xl font-bold mb-1">
               {finish.passed ? 'Training Complete!' : 'Keep Practicing'}
             </h2>
-            <p className="text-slate-400 text-sm mb-5">
+            <p className="text-on-canvas-subtle text-sm mb-5">
               {finish.passed
                 ? 'You passed this training. Great work!'
                 : `A score of ${quiz.passingScore}% is required to pass. Give it another try!`}
@@ -506,15 +506,15 @@ export default function QuizPage() {
 
             <div className="bg-portal-bg rounded-xl p-4 mb-5 text-left space-y-3">
               <div className="flex items-center gap-2.5">
-                <User className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                <span className="text-slate-300 text-sm truncate">{user?.name ?? '—'}</span>
+                <User className="w-4 h-4 text-on-canvas-muted flex-shrink-0" />
+                <span className="text-on-canvas-subtle text-sm truncate">{user?.name ?? '—'}</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <CalendarDays className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                <span className="text-slate-300 text-sm">{finish.completedAt}</span>
+                <CalendarDays className="w-4 h-4 text-on-canvas-muted flex-shrink-0" />
+                <span className="text-on-canvas-subtle text-sm">{finish.completedAt}</span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-portal-border">
-                <span className="text-slate-500 text-xs uppercase tracking-wide">Score</span>
+                <span className="text-on-canvas-muted text-xs uppercase tracking-wide">Score</span>
                 <span className={`text-3xl font-bold ${finish.passed ? 'text-emerald-400' : 'text-amber-400'}`}>
                   {finish.score}%
                 </span>
@@ -522,7 +522,7 @@ export default function QuizPage() {
             </div>
 
             {!finish.submitted && (
-              <div className="flex items-center justify-center gap-2 text-slate-500 text-xs mb-4">
+              <div className="flex items-center justify-center gap-2 text-on-canvas-muted text-xs mb-4">
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 Saving result…
               </div>
@@ -544,7 +544,7 @@ export default function QuizPage() {
               )}
               <button
                 onClick={() => navigate('/trainings')}
-                className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors ${finish.passed ? 'bg-surface-elevated hover:bg-portal-border text-slate-300' : 'bg-portal-accent hover:bg-portal-accent/90 text-white'}`}
+                className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors ${finish.passed ? 'bg-surface-elevated hover:bg-portal-border text-on-canvas-subtle' : 'bg-portal-accent hover:bg-portal-accent/90 text-white'}`}
               >
                 {finish.passed ? 'Done' : 'Back to Trainings'}
               </button>
@@ -557,7 +557,7 @@ export default function QuizPage() {
                     setIframeReady(false)
                     setTimeout(() => setIframeReady(true), 50)
                   }}
-                  className="w-full py-2.5 bg-surface-elevated hover:bg-portal-border text-slate-300 rounded-lg text-sm font-medium transition-colors"
+                  className="w-full py-2.5 bg-surface-elevated hover:bg-portal-border text-on-canvas-subtle rounded-lg text-sm font-medium transition-colors"
                 >
                   Try Again
                 </button>
@@ -565,7 +565,7 @@ export default function QuizPage() {
               {quiz.videoPath && (
                 <button
                   onClick={openVideoModal}
-                  className="w-full py-2.5 bg-surface-elevated hover:bg-portal-border text-slate-400 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 bg-surface-elevated hover:bg-portal-border text-on-canvas-subtle rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Video className="w-3.5 h-3.5" />
                   Rewatch Video

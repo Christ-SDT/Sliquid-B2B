@@ -56,16 +56,16 @@ function StockEditModal({
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-on-canvas-muted hover:text-on-canvas transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
 
-        <h3 className="text-white font-bold text-lg mb-1">Edit Stock</h3>
-        <p className="text-slate-400 text-sm mb-0.5">{item.product_name}</p>
-        <p className="text-slate-600 text-xs font-mono mb-5">SKU: {item.sku}</p>
+        <h3 className="text-on-canvas font-bold text-lg mb-1">Edit Stock</h3>
+        <p className="text-on-canvas-subtle text-sm mb-0.5">{item.product_name}</p>
+        <p className="text-on-canvas-muted text-xs font-mono mb-5">SKU: {item.sku}</p>
 
-        <label className="text-slate-400 text-sm mb-2 block">Quantity</label>
+        <label className="text-on-canvas-subtle text-sm mb-2 block">Quantity</label>
         <input
           type="number"
           min="0"
@@ -73,7 +73,7 @@ function StockEditModal({
           onChange={e => setQty(Math.max(0, Number(e.target.value)))}
           onKeyDown={e => e.key === 'Enter' && handleSave()}
           autoFocus
-          className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
+          className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
                      focus:outline-none focus:border-portal-accent transition-colors mb-4"
         />
 
@@ -82,7 +82,7 @@ function StockEditModal({
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2.5 border border-portal-border text-slate-400 hover:text-white
+            className="flex-1 px-4 py-2.5 border border-portal-border text-on-canvas-subtle hover:text-on-canvas
                        rounded-lg text-sm transition-colors"
           >
             Cancel
@@ -108,14 +108,14 @@ function WooSyncToast({ countdown, onCancel }: { countdown: number; onCancel: ()
     <div className="fixed bottom-6 right-6 z-50 bg-surface border border-portal-border rounded-xl
                     p-4 shadow-xl flex items-center gap-4 min-w-[300px]">
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-medium">
+        <p className="text-on-canvas text-sm font-medium">
           Syncing to WooCommerce in {countdown}s
         </p>
-        <p className="text-slate-500 text-xs mt-0.5">Stock update will be pushed to your store</p>
+        <p className="text-on-canvas-muted text-xs mt-0.5">Stock update will be pushed to your store</p>
       </div>
       <button
         onClick={onCancel}
-        className="px-3 py-1.5 border border-portal-border text-slate-400 hover:text-white
+        className="px-3 py-1.5 border border-portal-border text-on-canvas-subtle hover:text-on-canvas
                    rounded-lg text-xs font-medium transition-colors flex-shrink-0"
       >
         Cancel
@@ -243,26 +243,26 @@ export default function InventoryPage() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-white text-2xl font-bold">Inventory</h1>
-        <span className="text-slate-500 text-sm">{items.length} SKUs</span>
+        <h1 className="text-on-canvas text-2xl font-bold">Inventory</h1>
+        <span className="text-on-canvas-muted text-sm">{items.length} SKUs</span>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search products or SKU…"
-            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-white text-sm
-                       placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
+                       placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
           />
         </div>
         <select
           value={status}
           onChange={e => setStatus(e.target.value)}
-          className="bg-surface border border-portal-border rounded-lg px-3 py-2.5 text-white text-sm
+          className="bg-surface border border-portal-border rounded-lg px-3 py-2.5 text-on-canvas text-sm
                      focus:outline-none focus:border-portal-accent transition-colors"
         >
           {STATUSES.map(s => <option key={s} value={s}>{s === 'All' ? 'All Statuses' : STATUS_LABELS[s]}</option>)}
@@ -277,7 +277,7 @@ export default function InventoryPage() {
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors
               ${brand === b
                 ? 'bg-portal-accent text-white'
-                : 'bg-surface border border-portal-border text-slate-400 hover:text-white'
+                : 'bg-surface border border-portal-border text-on-canvas-subtle hover:text-on-canvas'
               }`}
           >
             {b}
@@ -290,12 +290,12 @@ export default function InventoryPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-portal-border">
-                <th className="text-left text-slate-500 font-medium px-4 py-3">Product</th>
-                <th className="text-left text-slate-500 font-medium px-4 py-3">Brand</th>
-                <th className="text-left text-slate-500 font-medium px-4 py-3 hidden sm:table-cell">SKU</th>
-                <th className="text-right text-slate-500 font-medium px-4 py-3">Qty</th>
-                <th className="text-right text-slate-500 font-medium px-4 py-3 hidden md:table-cell">Reorder At</th>
-                <th className="text-left text-slate-500 font-medium px-4 py-3">Status</th>
+                <th className="text-left text-on-canvas-muted font-medium px-4 py-3">Product</th>
+                <th className="text-left text-on-canvas-muted font-medium px-4 py-3">Brand</th>
+                <th className="text-left text-on-canvas-muted font-medium px-4 py-3 hidden sm:table-cell">SKU</th>
+                <th className="text-right text-on-canvas-muted font-medium px-4 py-3">Qty</th>
+                <th className="text-right text-on-canvas-muted font-medium px-4 py-3 hidden md:table-cell">Reorder At</th>
+                <th className="text-left text-on-canvas-muted font-medium px-4 py-3">Status</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -316,11 +316,11 @@ export default function InventoryPage() {
                       onClick={() => setEditing(item)}
                       className="border-b border-portal-border/50 hover:bg-surface-elevated/50 transition-colors cursor-pointer"
                     >
-                      <td className="px-4 py-3 text-white font-medium">{item.product_name}</td>
-                      <td className="px-4 py-3 text-slate-400">{item.brand}</td>
-                      <td className="px-4 py-3 text-slate-500 font-mono text-xs hidden sm:table-cell">{item.sku}</td>
-                      <td className="px-4 py-3 text-right text-white font-semibold">{item.quantity}</td>
-                      <td className="px-4 py-3 text-right text-slate-500 hidden md:table-cell">{item.reorder_level}</td>
+                      <td className="px-4 py-3 text-on-canvas font-medium">{item.product_name}</td>
+                      <td className="px-4 py-3 text-on-canvas-subtle">{item.brand}</td>
+                      <td className="px-4 py-3 text-on-canvas-muted font-mono text-xs hidden sm:table-cell">{item.sku}</td>
+                      <td className="px-4 py-3 text-right text-on-canvas font-semibold">{item.quantity}</td>
+                      <td className="px-4 py-3 text-right text-on-canvas-muted hidden md:table-cell">{item.reorder_level}</td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-1 rounded-md text-xs font-medium ${STATUS_STYLES[item.status]}`}>
                           {STATUS_LABELS[item.status]}
@@ -346,7 +346,7 @@ export default function InventoryPage() {
           </table>
         </div>
         {!loading && items.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-slate-600">
+          <div className="flex flex-col items-center justify-center py-16 text-on-canvas-muted">
             <Archive className="w-10 h-10 mb-2 opacity-40" />
             <p>No items found</p>
           </div>

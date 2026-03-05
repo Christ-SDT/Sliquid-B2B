@@ -28,19 +28,19 @@ function AssetCard({ asset }: { asset: Asset }) {
       <div className="aspect-video bg-portal-bg flex items-center justify-center relative overflow-hidden">
         {asset.thumbnail_url
           ? <img src={asset.thumbnail_url} alt={asset.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-          : <Icon className="w-12 h-12 text-slate-700" />
+          : <Icon className="w-12 h-12 text-on-canvas" />
         }
         <div className="absolute top-2 right-2">
-          <span className="px-2 py-1 bg-black/60 rounded text-[10px] text-slate-300 font-medium">{asset.type}</span>
+          <span className="px-2 py-1 bg-black/60 rounded text-[10px] text-on-canvas-subtle font-medium">{asset.type}</span>
         </div>
       </div>
       <div className="p-4">
         <span className="text-[10px] font-semibold text-portal-accent uppercase tracking-wider">{asset.brand}</span>
-        <h3 className="text-white text-sm font-medium mt-0.5 line-clamp-2">{asset.name}</h3>
+        <h3 className="text-on-canvas text-sm font-medium mt-0.5 line-clamp-2">{asset.name}</h3>
         <div className="flex items-center gap-2 mt-1">
-          {asset.dimensions && <span className="text-slate-600 text-xs">{asset.dimensions}</span>}
-          {asset.dimensions && asset.file_size && <span className="text-slate-700 text-xs">·</span>}
-          {asset.file_size && <span className="text-slate-600 text-xs">{asset.file_size}</span>}
+          {asset.dimensions && <span className="text-on-canvas-muted text-xs">{asset.dimensions}</span>}
+          {asset.dimensions && asset.file_size && <span className="text-on-canvas text-xs">·</span>}
+          {asset.file_size && <span className="text-on-canvas-muted text-xs">{asset.file_size}</span>}
         </div>
         <div className="flex gap-2 mt-3">
           <a
@@ -55,7 +55,7 @@ function AssetCard({ asset }: { asset: Asset }) {
           <button
             onClick={copyUrl}
             className="flex items-center justify-center gap-1.5 px-3 py-2 bg-surface-elevated hover:bg-portal-border
-                       text-slate-400 hover:text-white rounded-lg text-xs font-medium transition-colors"
+                       text-on-canvas-subtle hover:text-on-canvas rounded-lg text-xs font-medium transition-colors"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
@@ -87,26 +87,26 @@ export default function AssetsPage() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-white text-2xl font-bold">Digital Assets</h1>
-        <span className="text-slate-500 text-sm">{assets.length} assets</span>
+        <h1 className="text-on-canvas text-2xl font-bold">Digital Assets</h1>
+        <span className="text-on-canvas-muted text-sm">{assets.length} assets</span>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search assets…"
-            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-white text-sm
-                       placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
+                       placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
           />
         </div>
         <select
           value={type}
           onChange={e => setType(e.target.value)}
-          className="bg-surface border border-portal-border rounded-lg px-3 py-2.5 text-white text-sm
+          className="bg-surface border border-portal-border rounded-lg px-3 py-2.5 text-on-canvas text-sm
                      focus:outline-none focus:border-portal-accent transition-colors"
         >
           {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
@@ -121,7 +121,7 @@ export default function AssetsPage() {
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors
               ${brand === b
                 ? 'bg-portal-accent text-white'
-                : 'bg-surface border border-portal-border text-slate-400 hover:text-white'
+                : 'bg-surface border border-portal-border text-on-canvas-subtle hover:text-on-canvas'
               }`}
           >
             {b}
@@ -136,7 +136,7 @@ export default function AssetsPage() {
           ))}
         </div>
       ) : assets.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-slate-600">
+        <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <FolderOpen className="w-12 h-12 mb-3 opacity-40" />
           <p>No assets found</p>
         </div>

@@ -18,7 +18,7 @@ const PIE_COLORS = ['#0A84C0', '#34d399', '#f59e0b', '#a78bfa', '#fb923c']
 function Card({ children, title }: { children: React.ReactNode; title: string }) {
   return (
     <div className="bg-surface border border-portal-border rounded-xl p-5">
-      <h3 className="text-slate-400 text-sm font-medium mb-4">{title}</h3>
+      <h3 className="text-on-canvas-subtle text-sm font-medium mb-4">{title}</h3>
       {children}
     </div>
   )
@@ -44,7 +44,7 @@ export default function StatsPage() {
   if (loading) {
     return (
       <div className="space-y-5">
-        <h1 className="text-white text-2xl font-bold">Analytics</h1>
+        <h1 className="text-on-canvas text-2xl font-bold">Analytics</h1>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <div key={i} className="bg-surface border border-portal-border rounded-xl h-24 animate-pulse" />)}
         </div>
@@ -61,7 +61,7 @@ export default function StatsPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-white text-2xl font-bold">Analytics</h1>
+      <h1 className="text-on-canvas text-2xl font-bold">Analytics</h1>
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -74,8 +74,8 @@ export default function StatsPage() {
           <div key={label} className="bg-surface border border-portal-border rounded-xl p-5">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">{label}</p>
-                <p className="text-white text-2xl font-bold mt-1">{value}</p>
+                <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider">{label}</p>
+                <p className="text-on-canvas text-2xl font-bold mt-1">{value}</p>
               </div>
               <div className="w-10 h-10 rounded-lg bg-portal-accent/20 flex items-center justify-center text-portal-accent">
                 <Icon className="w-5 h-5" />
@@ -149,9 +149,9 @@ export default function StatsPage() {
                 <div key={c.category} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
-                    <span className="text-slate-400 text-xs">{c.category}</span>
+                    <span className="text-on-canvas-subtle text-xs">{c.category}</span>
                   </div>
-                  <span className="text-white text-xs font-medium">{c.value}%</span>
+                  <span className="text-on-canvas text-xs font-medium">{c.value}%</span>
                 </div>
               ))}
             </div>

@@ -19,14 +19,14 @@ function InvoiceModal({ invoice, onClose }: { invoice: Invoice; onClose: () => v
            onClick={e => e.stopPropagation()}>
         <div className="flex items-start justify-between mb-5">
           <div>
-            <p className="text-slate-500 text-xs uppercase tracking-wider">Invoice</p>
-            <h3 className="text-white font-bold text-lg">{invoice.invoice_number}</h3>
+            <p className="text-on-canvas-muted text-xs uppercase tracking-wider">Invoice</p>
+            <h3 className="text-on-canvas font-bold text-lg">{invoice.invoice_number}</h3>
           </div>
           <div className="flex items-center gap-3">
             <span className={`px-2.5 py-1 rounded-md text-xs font-medium capitalize ${STATUS_STYLES[invoice.status]}`}>
               {invoice.status}
             </span>
-            <button onClick={onClose} className="text-slate-500 hover:text-white">
+            <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -34,33 +34,33 @@ function InvoiceModal({ invoice, onClose }: { invoice: Invoice; onClose: () => v
 
         <div className="grid grid-cols-2 gap-4 mb-5">
           <div>
-            <p className="text-slate-500 text-xs mb-1">Issued</p>
-            <p className="text-white text-sm">{new Date(invoice.issued_date).toLocaleDateString()}</p>
+            <p className="text-on-canvas-muted text-xs mb-1">Issued</p>
+            <p className="text-on-canvas text-sm">{new Date(invoice.issued_date).toLocaleDateString()}</p>
           </div>
           <div>
-            <p className="text-slate-500 text-xs mb-1">Due</p>
-            <p className="text-white text-sm">{new Date(invoice.due_date).toLocaleDateString()}</p>
+            <p className="text-on-canvas-muted text-xs mb-1">Due</p>
+            <p className="text-on-canvas text-sm">{new Date(invoice.due_date).toLocaleDateString()}</p>
           </div>
         </div>
 
         <div className="bg-portal-bg rounded-xl p-4 mb-5">
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-3">Line Items</p>
+          <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-3">Line Items</p>
           <div className="space-y-2">
             {invoice.items.map((item, i) => (
               <div key={i} className="flex items-center justify-between text-sm">
-                <span className="text-slate-300">{item.product} <span className="text-slate-600">× {item.qty}</span></span>
-                <span className="text-white">${(item.qty * item.unit_price).toFixed(2)}</span>
+                <span className="text-on-canvas-subtle">{item.product} <span className="text-on-canvas-muted">× {item.qty}</span></span>
+                <span className="text-on-canvas">${(item.qty * item.unit_price).toFixed(2)}</span>
               </div>
             ))}
           </div>
           <div className="border-t border-portal-border mt-3 pt-3 flex items-center justify-between">
-            <span className="text-white font-semibold">Total</span>
-            <span className="text-white font-bold text-lg">${invoice.amount.toFixed(2)}</span>
+            <span className="text-on-canvas font-semibold">Total</span>
+            <span className="text-on-canvas font-bold text-lg">${invoice.amount.toFixed(2)}</span>
           </div>
         </div>
 
         {invoice.notes && (
-          <p className="text-slate-500 text-sm">{invoice.notes}</p>
+          <p className="text-on-canvas-muted text-sm">{invoice.notes}</p>
         )}
       </div>
     </div>
@@ -92,20 +92,20 @@ export default function InvoicesPage() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-white text-2xl font-bold">Invoices</h1>
-        <span className="text-slate-500 text-sm">{invoices.length} total</span>
+        <h1 className="text-on-canvas text-2xl font-bold">Invoices</h1>
+        <span className="text-on-canvas-muted text-sm">{invoices.length} total</span>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search invoice number…"
-            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-white text-sm
-                       placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
+                       placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
           />
         </div>
         <div className="flex gap-2">
@@ -116,7 +116,7 @@ export default function InvoicesPage() {
               className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-colors
                 ${status === s
                   ? 'bg-portal-accent text-white'
-                  : 'bg-surface border border-portal-border text-slate-400 hover:text-white'
+                  : 'bg-surface border border-portal-border text-on-canvas-subtle hover:text-on-canvas'
                 }`}
             >
               {s}
@@ -130,11 +130,11 @@ export default function InvoicesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-portal-border">
-                <th className="text-left text-slate-500 font-medium px-4 py-3">Invoice #</th>
-                <th className="text-left text-slate-500 font-medium px-4 py-3 hidden sm:table-cell">Issued</th>
-                <th className="text-left text-slate-500 font-medium px-4 py-3 hidden md:table-cell">Due</th>
-                <th className="text-right text-slate-500 font-medium px-4 py-3">Amount</th>
-                <th className="text-left text-slate-500 font-medium px-4 py-3">Status</th>
+                <th className="text-left text-on-canvas-muted font-medium px-4 py-3">Invoice #</th>
+                <th className="text-left text-on-canvas-muted font-medium px-4 py-3 hidden sm:table-cell">Issued</th>
+                <th className="text-left text-on-canvas-muted font-medium px-4 py-3 hidden md:table-cell">Due</th>
+                <th className="text-right text-on-canvas-muted font-medium px-4 py-3">Amount</th>
+                <th className="text-left text-on-canvas-muted font-medium px-4 py-3">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -153,13 +153,13 @@ export default function InvoicesPage() {
                       className="border-b border-portal-border/50 hover:bg-surface-elevated/50 cursor-pointer transition-colors"
                     >
                       <td className="px-4 py-3 text-portal-accent font-medium font-mono">{inv.invoice_number}</td>
-                      <td className="px-4 py-3 text-slate-400 hidden sm:table-cell">
+                      <td className="px-4 py-3 text-on-canvas-subtle hidden sm:table-cell">
                         {new Date(inv.issued_date).toLocaleDateString()}
                       </td>
-                      <td className="px-4 py-3 text-slate-400 hidden md:table-cell">
+                      <td className="px-4 py-3 text-on-canvas-subtle hidden md:table-cell">
                         {new Date(inv.due_date).toLocaleDateString()}
                       </td>
-                      <td className="px-4 py-3 text-right text-white font-semibold">${inv.amount.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right text-on-canvas font-semibold">${inv.amount.toFixed(2)}</td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-1 rounded-md text-xs font-medium capitalize ${STATUS_STYLES[inv.status]}`}>
                           {inv.status}
@@ -173,7 +173,7 @@ export default function InvoicesPage() {
         </div>
 
         {!loading && invoices.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-slate-600">
+          <div className="flex flex-col items-center justify-center py-16 text-on-canvas-muted">
             <Receipt className="w-10 h-10 mb-2 opacity-40" />
             <p>No invoices found</p>
           </div>
@@ -181,21 +181,21 @@ export default function InvoicesPage() {
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-portal-border">
-            <p className="text-slate-500 text-xs">
+            <p className="text-on-canvas-muted text-xs">
               Page {page} of {totalPages} — {invoices.length} invoices
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-1.5 rounded-lg bg-surface-elevated text-slate-400 hover:text-white disabled:opacity-40 transition-colors"
+                className="p-1.5 rounded-lg bg-surface-elevated text-on-canvas-subtle hover:text-on-canvas disabled:opacity-40 transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-1.5 rounded-lg bg-surface-elevated text-slate-400 hover:text-white disabled:opacity-40 transition-colors"
+                className="p-1.5 rounded-lg bg-surface-elevated text-on-canvas-subtle hover:text-on-canvas disabled:opacity-40 transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

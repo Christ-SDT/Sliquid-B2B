@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    /* shadcn CSS variable bridge */
     --background: 222 47% 7%;
     --foreground: 210 40% 95%;
     --card: 222 40% 12%;
@@ -20,13 +21,32 @@
     --accent: 222 30% 18%;
     --accent-foreground: 210 40% 95%;
     --radius: 0.5rem;
+
+    /* Portal theme tokens — light (wellness) defaults */
+    --surface:           #fefaf4;   /* warm near-white — sidebar, topbar, cards */
+    --surface-elevated:  #f0e5d4;   /* deeper cream — hover states */
+    --portal-bg:         #f7efe3;   /* main cream background */
+    --portal-border:     #ddc9ae;   /* warm tan border */
+    --text-primary:      #2c1a0a;   /* deep warm brown */
+    --text-secondary:    #6b4c30;   /* medium warm brown */
+    --text-muted:        #a08060;   /* muted tan */
+  }
+
+  .dark {
+    --surface:           #1a1d27;
+    --surface-elevated:  #22263a;
+    --portal-bg:         #0f1117;
+    --portal-border:     #2a2d3a;
+    --text-primary:      #ffffff;
+    --text-secondary:    #94a3b8;
+    --text-muted:        #64748b;
   }
 }
 
 @layer base {
   * { @apply border-portal-border; }
   body {
-    @apply bg-portal-bg text-slate-100 font-sans antialiased;
+    @apply bg-portal-bg text-on-canvas font-sans antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   ::-webkit-scrollbar { width: 6px; height: 6px; }

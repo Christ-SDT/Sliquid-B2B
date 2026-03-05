@@ -29,7 +29,7 @@ function CreativeCard({ item }: { item: Creative }) {
       <div className="aspect-video bg-portal-bg flex items-center justify-center relative">
         {item.thumbnail_url
           ? <img src={item.thumbnail_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-          : <Icon className="w-12 h-12 text-slate-700" />
+          : <Icon className="w-12 h-12 text-on-canvas" />
         }
         <div className="absolute top-2 left-2">
           <span className="px-2 py-1 bg-portal-accent/90 rounded text-[10px] text-white font-medium">{item.type}</span>
@@ -37,11 +37,11 @@ function CreativeCard({ item }: { item: Creative }) {
       </div>
       <div className="p-4">
         <span className="text-[10px] font-semibold text-portal-accent uppercase tracking-wider">{item.brand}</span>
-        <h3 className="text-white text-sm font-medium mt-0.5 leading-snug">{item.title}</h3>
-        {item.description && <p className="text-slate-500 text-xs mt-1 line-clamp-2">{item.description}</p>}
+        <h3 className="text-on-canvas text-sm font-medium mt-0.5 leading-snug">{item.title}</h3>
+        {item.description && <p className="text-on-canvas-muted text-xs mt-1 line-clamp-2">{item.description}</p>}
         <div className="flex items-center gap-3 mt-2">
-          {item.dimensions && <span className="text-slate-600 text-xs">{item.dimensions}</span>}
-          {item.file_size && <span className="text-slate-600 text-xs">{item.file_size}</span>}
+          {item.dimensions && <span className="text-on-canvas-muted text-xs">{item.dimensions}</span>}
+          {item.file_size && <span className="text-on-canvas-muted text-xs">{item.file_size}</span>}
         </div>
         <a
           href={item.file_url}
@@ -85,8 +85,8 @@ export default function CreativesPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-white text-2xl font-bold">Creatives</h1>
-        <p className="text-slate-500 text-sm mt-1">Campaign materials, social assets, and marketing collateral.</p>
+        <h1 className="text-on-canvas text-2xl font-bold">Creatives</h1>
+        <p className="text-on-canvas-muted text-sm mt-1">Campaign materials, social assets, and marketing collateral.</p>
       </div>
 
       {/* Sub-section tabs */}
@@ -98,7 +98,7 @@ export default function CreativesPage() {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
               ${activeSection === s.key
                 ? 'bg-portal-accent text-white'
-                : 'bg-surface border border-portal-border text-slate-400 hover:text-white hover:border-slate-500'
+                : 'bg-surface border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500'
               }`}
           >
             {s.label}
@@ -108,14 +108,14 @@ export default function CreativesPage() {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search creatives…"
-            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-white text-sm
-                       placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
+                       placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -126,7 +126,7 @@ export default function CreativesPage() {
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
                 ${brand === b
                   ? 'bg-portal-accent text-white'
-                  : 'bg-surface border border-portal-border text-slate-400 hover:text-white'
+                  : 'bg-surface border border-portal-border text-on-canvas-subtle hover:text-on-canvas'
                 }`}
             >
               {b}
@@ -142,7 +142,7 @@ export default function CreativesPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-slate-600">
+        <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <Megaphone className="w-12 h-12 mb-3 opacity-40" />
           <p>No creatives found in this section</p>
           <p className="text-xs mt-1">Check back as new campaigns are added regularly.</p>

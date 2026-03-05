@@ -251,15 +251,42 @@ All endpoints require `requireAuth + requireRole('tier4', 'admin')`.
 - **Pass threshold:** score ≥ 70 triggers a completion email (if SMTP configured)
 
 ### Registered Quizzes
-| ID | Title | Video |
-|---|---|---|
-| `sliquiz` | Customer Service Skills | — |
-| `sea-vs-tsunami` | Sea vs Tsunami | YouTube `https://youtu.be/lFVvtQfOb8Y` |
+| Order | ID | Title | Video |
+|---|---|---|---|
+| 1 | `h2o-vs-sassy` | H2O vs Sassy | YouTube `https://youtu.be/r9ttBy_WlfA` |
+| 2 | `sea-vs-tsunami` | Sea vs Tsunami | YouTube `https://youtu.be/lFVvtQfOb8Y` |
+
+**Notes:**
+- `sliquiz` (Customer Service Skills) was replaced by `h2o-vs-sassy` — do not re-add it.
+- Quiz order in `QUIZZES` array determines "Go to Next Module" navigation on the pass screen.
+- Source files for H2O vs Sassy are at `/Users/dropingtons/Desktop/Sliquid/Sliquiz H2o vs Sassy /` (original export was incomplete — only `assets/js/project.js` was unique; all engine files were copied from sea-vs-tsunami).
+
+### SCORM Package Structure
+All quizzes share the same Captivate engine (verified identical MD5s). The only quiz-specific files are:
+- `assets/js/project.js` — the compiled quiz content (unique per quiz)
+- `dr/` — quiz-specific images/resources
+- `pools/` — question pool JS files
+- `imsmanifest.xml` — update `<title>` for each new quiz
+
+Shared boilerplate (copy from any existing quiz): `dist/`, `scormdriver.js`, `SCORM_utilities.js`, `Utilities.js`, `browsersniff.js`, `goodbye.html`, `ar/`, `assets/htmlimages/`, all XSD files.
+
+**First-slide removal is NOT feasible** — slides are compiled into `assets/js/project.js`. Would require re-exporting from the original Captivate `.cptx` source file.
+
+### Auto-Start (QuizPage.tsx)
+After the video phase, the SCORM iframe auto-starts via a **DOM polling loop** (not a fixed timeout):
+- Polls every **300ms** for a clickable element: `button` → `[class*="play"]` → `[class*="start"]` → `#app`
+- Fires `pointerdown → pointerup → click` on first match found
+- Hard-stops after **15 seconds** as a safety net
+
+### Go to Next Module
+On the pass screen, a **"Go to Next Module"** button appears if there is a next quiz in the `QUIZZES` array. Navigates to `/quiz/<next-id>`. "Done" is shown as secondary when a next module exists.
 
 ### Adding a New Quiz
 1. Drop the SCORM package into `portal/client/public/training/<new-id>/`
-2. Add an entry to `portal/client/src/quizzes/index.ts`
-3. Optionally set `videoPath` to a YouTube URL or CDN URL to enable the video-first flow (see below)
+   - If the export is incomplete, copy engine files from `sea-vs-tsunami` and replace `assets/js/project.js`
+   - Update `imsmanifest.xml` `<title>` to match the new quiz name
+2. Add an entry to `portal/client/src/quizzes/index.ts` (position in array = module order)
+3. Optionally set `videoPath` to a YouTube URL to enable the video-first flow (see below)
 
 ### Video-First Quiz Flow (`videoPath` field)
 When a quiz has `videoPath` set, `QuizPage.tsx` renders a two-phase experience:

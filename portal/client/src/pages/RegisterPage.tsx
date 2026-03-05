@@ -50,14 +50,14 @@ export default function RegisterPage() {
               <path d="M16 3C16 3 5 14.5 5 20.5a11 11 0 0022 0C27 14.5 16 3 16 3z" fill="white"/>
             </svg>
           </div>
-          <h1 className="text-white font-bold text-2xl tracking-wider">SLIQUID</h1>
-          <p className="text-slate-500 text-xs font-medium tracking-widest mt-1">PARTNER PORTAL</p>
+          <h1 className="text-on-canvas font-bold text-2xl tracking-wider">SLIQUID</h1>
+          <p className="text-on-canvas-muted text-xs font-medium tracking-widest mt-1">PARTNER PORTAL</p>
         </div>
 
         {/* Card */}
         <div className="bg-surface border border-portal-border rounded-2xl p-8">
-          <h2 className="text-white text-xl font-semibold mb-1">Create an account</h2>
-          <p className="text-slate-500 text-sm mb-6">Access digital assets, distributors, and product trainings for your account type.</p>
+          <h2 className="text-on-canvas text-xl font-semibold mb-1">Create an account</h2>
+          <p className="text-on-canvas-muted text-sm mb-6">Access digital assets, distributors, and product trainings for your account type.</p>
 
           {error && (
             <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
@@ -67,35 +67,35 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-slate-400 text-sm font-medium mb-1.5">Full Name</label>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Jane Smith"
                 required
-                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
-                           placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
               />
             </div>
             <div>
-              <label className="block text-slate-400 text-sm font-medium mb-1.5">Company Name</label>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Company Name</label>
               <input
                 type="text"
                 value={company}
                 onChange={e => setCompany(e.target.value)}
                 placeholder="Acme Corp"
                 required
-                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
-                           placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
               />
             </div>
             <div>
-              <label className="block text-slate-400 text-sm font-medium mb-1.5">Account Type</label>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Account Type</label>
               <select
                 value={role}
                 onChange={e => setRole(e.target.value)}
-                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
                            focus:outline-none focus:border-portal-accent transition-colors"
               >
                 <option value="tier1">Tier 1 – Retail Store Employee</option>
@@ -104,19 +104,19 @@ export default function RegisterPage() {
               </select>
             </div>
             <div>
-              <label className="block text-slate-400 text-sm font-medium mb-1.5">Email</label>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="you@company.com"
                 required
-                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
-                           placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
               />
             </div>
             <div>
-              <label className="block text-slate-400 text-sm font-medium mb-1.5">Password</label>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -124,28 +124,28 @@ export default function RegisterPage() {
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Min. 8 characters"
                   required
-                  className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 pr-10 text-white text-sm
-                             placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+                  className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 pr-10 text-on-canvas text-sm
+                             placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-on-canvas-muted hover:text-on-canvas-subtle"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
             <div>
-              <label className="block text-slate-400 text-sm font-medium mb-1.5">Confirm Password</label>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Confirm Password</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={confirm}
                 onChange={e => setConfirm(e.target.value)}
                 placeholder="Re-enter password"
                 required
-                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-white text-sm
-                           placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
               />
             </div>
 
@@ -160,7 +160,7 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="text-center text-slate-500 text-xs mt-6">
+          <p className="text-center text-on-canvas-muted text-xs mt-6">
             Already have an account?{' '}
             <Link to="/login" className="text-portal-accent hover:underline">
               Sign in

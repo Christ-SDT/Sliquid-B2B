@@ -30,33 +30,33 @@ export default function DistributorsPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-white text-2xl font-bold">Distributors</h1>
-        <p className="text-slate-500 text-sm mt-1">Find authorized Sliquid distribution partners in your area.</p>
+        <h1 className="text-on-canvas text-2xl font-bold">Distributors</h1>
+        <p className="text-on-canvas-muted text-sm mt-1">Find authorized Sliquid distribution partners in your area.</p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name, city, or state…"
-            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-white text-sm
-                       placeholder:text-slate-600 focus:outline-none focus:border-portal-accent transition-colors"
+            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
+                       placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
           />
         </div>
         <select
           value={region}
           onChange={e => setRegion(e.target.value)}
-          className="bg-surface border border-portal-border rounded-lg px-3 py-2.5 text-white text-sm
+          className="bg-surface border border-portal-border rounded-lg px-3 py-2.5 text-on-canvas text-sm
                      focus:outline-none focus:border-portal-accent transition-colors"
         >
           {REGIONS.map(r => <option key={r} value={r}>{r === 'All' ? 'All Regions' : r}</option>)}
         </select>
       </div>
 
-      <div className="text-slate-500 text-sm">{distributors.length} distributors found</div>
+      <div className="text-on-canvas-muted text-sm">{distributors.length} distributors found</div>
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -65,7 +65,7 @@ export default function DistributorsPage() {
           ))}
         </div>
       ) : distributors.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-slate-600">
+        <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <MapPin className="w-12 h-12 mb-3 opacity-40" />
           <p>No distributors found for this region</p>
         </div>
@@ -75,10 +75,10 @@ export default function DistributorsPage() {
             <div key={d.id} className="bg-surface border border-portal-border rounded-xl p-5 hover:border-portal-accent/30 transition-all">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="text-white font-semibold">{d.name}</h3>
+                  <h3 className="text-on-canvas font-semibold">{d.name}</h3>
                   <div className="flex items-center gap-1.5 mt-1">
-                    <MapPin className="w-3.5 h-3.5 text-slate-500" />
-                    <span className="text-slate-500 text-xs">{d.city ? `${d.city}, ` : ''}{d.state}</span>
+                    <MapPin className="w-3.5 h-3.5 text-on-canvas-muted" />
+                    <span className="text-on-canvas-muted text-xs">{d.city ? `${d.city}, ` : ''}{d.state}</span>
                   </div>
                 </div>
                 <span className="px-2.5 py-1 bg-portal-accent/10 text-portal-accent rounded-full text-xs font-medium">
@@ -87,25 +87,25 @@ export default function DistributorsPage() {
               </div>
 
               {d.contact_name && (
-                <p className="text-slate-400 text-sm mb-3">Contact: <span className="text-white">{d.contact_name}</span></p>
+                <p className="text-on-canvas-subtle text-sm mb-3">Contact: <span className="text-on-canvas">{d.contact_name}</span></p>
               )}
 
               <div className="space-y-1.5 mb-4">
                 {d.phone && (
-                  <a href={`tel:${d.phone}`} className="flex items-center gap-2 text-slate-400 hover:text-white text-xs transition-colors">
+                  <a href={`tel:${d.phone}`} className="flex items-center gap-2 text-on-canvas-subtle hover:text-on-canvas text-xs transition-colors">
                     <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                     {d.phone}
                   </a>
                 )}
                 {d.email && (
-                  <a href={`mailto:${d.email}`} className="flex items-center gap-2 text-slate-400 hover:text-white text-xs transition-colors">
+                  <a href={`mailto:${d.email}`} className="flex items-center gap-2 text-on-canvas-subtle hover:text-on-canvas text-xs transition-colors">
                     <Mail className="w-3.5 h-3.5 flex-shrink-0" />
                     {d.email}
                   </a>
                 )}
                 {d.website && (
                   <a href={d.website} target="_blank" rel="noopener noreferrer"
-                     className="flex items-center gap-2 text-slate-400 hover:text-portal-accent text-xs transition-colors">
+                     className="flex items-center gap-2 text-on-canvas-subtle hover:text-portal-accent text-xs transition-colors">
                     <Globe className="w-3.5 h-3.5 flex-shrink-0" />
                     {d.website.replace(/^https?:\/\//, '')}
                   </a>
