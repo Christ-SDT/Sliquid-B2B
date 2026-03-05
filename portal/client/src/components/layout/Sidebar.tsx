@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { TIER_LABEL } from '@/types'
 import {
   LayoutDashboard, Package, BookOpen, Archive,
-  Receipt, BarChart3, MapPin, Store, GraduationCap, LogOut, X, Users, Users2, Moon, Sun,
+  Receipt, BarChart3, MapPin, Megaphone, GraduationCap, LogOut, X, Users, Users2, Moon, Sun,
 } from 'lucide-react'
 
 // restricted: tier1/2/3  |  prospectVisible: tier4  |  managerOnly: tier2 only  |  adminOnly: tier5 only
@@ -19,7 +19,7 @@ const NAV = [
   { to: '/inventory',    icon: Archive,         label: 'Inventory',         restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
   { to: '/invoices',     icon: Receipt,         label: 'Invoices',          restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
   { to: '/stats',        icon: BarChart3,       label: 'Analytics',         restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
-  { to: '/retailer',     icon: Store,           label: 'Become a Retailer', restricted: false, prospectVisible: true,  managerOnly: false, adminOnly: false },
+  { to: '/retailer',     icon: Megaphone,       label: 'Marketing Materials', restricted: false, prospectVisible: true,  managerOnly: false, adminOnly: false },
   { to: '/users',        icon: Users,           label: 'User Management',   restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
 ]
 

@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
+import { notifyUsers } from '../notifications.js'
 
 const router = Router()
 
@@ -42,6 +43,7 @@ router.post('/', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const result = db.prepare(
     'INSERT INTO assets (name, brand, type, file_url, thumbnail_url, file_size, dimensions) VALUES (?, ?, ?, ?, ?, ?, ?)'
   ).run(name, brand, type, file_url, thumbnail_url ?? null, file_size ?? null, dimensions ?? null)
+  notifyUsers('new_asset', 'New in Product Library', `${name} (${brand}) has been added to the Product Library.`, '/assets')
   res.status(201).json({ id: result.lastInsertRowid })
 })
 

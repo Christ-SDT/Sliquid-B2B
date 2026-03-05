@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { NotificationProvider } from '@/context/NotificationContext'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 
@@ -36,6 +37,7 @@ export default function Shell() {
   }
 
   return (
+    <NotificationProvider>
     <div className="flex h-screen bg-portal-bg overflow-hidden">
       {/* Desktop sidebar */}
       <div className="hidden md:flex">
@@ -63,5 +65,6 @@ export default function Shell() {
         </main>
       </div>
     </div>
+    </NotificationProvider>
   )
 }

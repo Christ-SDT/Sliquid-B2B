@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth } from '../middleware/auth.js'
+import { notifyAdmins } from '../notifications.js'
 
 const router = Router()
 
@@ -23,9 +24,21 @@ router.put('/:id/quantity', requireAuth, (req, res) => {
   }
   const item = db.prepare('SELECT * FROM inventory WHERE id = ?').get(req.params.id) as any
   if (!item) { res.status(404).json({ message: 'Inventory item not found' }); return }
+
+  const oldStatus = item.status
   const newStatus = quantity === 0 ? 'out_of_stock' : quantity <= item.reorder_level ? 'low_stock' : 'in_stock'
   db.prepare("UPDATE inventory SET quantity = ?, status = ?, last_updated = datetime('now') WHERE id = ?")
     .run(quantity, newStatus, req.params.id)
+
+  // Notify admins only when status worsens (new alert)
+  if (newStatus !== oldStatus) {
+    if (newStatus === 'out_of_stock') {
+      notifyAdmins('out_of_stock', 'Out of Stock', `${item.product_name} (${item.brand}) is now out of stock.`, '/inventory')
+    } else if (newStatus === 'low_stock') {
+      notifyAdmins('low_stock', 'Low Stock Alert', `${item.product_name} (${item.brand}) is running low — ${quantity} units remaining.`, '/inventory')
+    }
+  }
+
   res.json({ ...item, quantity, status: newStatus })
 })
 
@@ -41,18 +54,35 @@ router.post('/bulk', requireAuth, (req, res) => {
       return
     }
   }
+
   const results: Array<{ id: number; quantity: number; status: string }> = []
+  // Collect status change alerts outside the transaction to avoid nested DB writes
+  const alerts: Array<{ type: string; name: string; brand: string; qty: number }> = []
+
   const bulkUpdate = db.transaction((rows: Array<{ id: number; quantity: number }>) => {
     for (const { id, quantity } of rows) {
       const row = db.prepare('SELECT * FROM inventory WHERE id = ?').get(id) as any
       if (!row) continue
+      const oldStatus = row.status
       const newStatus = quantity === 0 ? 'out_of_stock' : quantity <= row.reorder_level ? 'low_stock' : 'in_stock'
       db.prepare("UPDATE inventory SET quantity = ?, status = ?, last_updated = datetime('now') WHERE id = ?")
         .run(quantity, newStatus, id)
       results.push({ id, quantity, status: newStatus })
+      if (newStatus !== oldStatus && (newStatus === 'out_of_stock' || newStatus === 'low_stock')) {
+        alerts.push({ type: newStatus, name: row.product_name, brand: row.brand, qty: quantity })
+      }
     }
   })
   bulkUpdate(items as Array<{ id: number; quantity: number }>)
+
+  for (const { type, name, brand, qty } of alerts) {
+    if (type === 'out_of_stock') {
+      notifyAdmins('out_of_stock', 'Out of Stock', `${name} (${brand}) is now out of stock.`, '/inventory')
+    } else {
+      notifyAdmins('low_stock', 'Low Stock Alert', `${name} (${brand}) is running low — ${qty} units remaining.`, '/inventory')
+    }
+  }
+
   res.json({ updated: results.length, results })
 })
 
@@ -67,7 +97,7 @@ router.post('/restock', requireAuth, (req, res) => {
 
   const newQty = item.quantity + quantity
   const newStatus = newQty === 0 ? 'out_of_stock' : newQty <= item.reorder_level ? 'low_stock' : 'in_stock'
-  db.prepare('UPDATE inventory SET quantity = ?, status = ?, last_updated = datetime(\'now\') WHERE id = ?')
+  db.prepare("UPDATE inventory SET quantity = ?, status = ?, last_updated = datetime('now') WHERE id = ?")
     .run(newQty, newStatus, inventory_id)
 
   res.json({ success: true, new_quantity: newQty, status: newStatus })

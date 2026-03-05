@@ -16,6 +16,7 @@ import adminRouter from './routes/admin.js'
 import wooRouter from './routes/woo.js'
 import storesRouter from './routes/stores.js'
 import storeRouter from './routes/store.js'
+import notificationsRouter from './routes/notifications.js'
 import { woo, runWooSync } from './woocommerce.js'
 
 const app = express()
@@ -43,6 +44,7 @@ app.use('/api/admin', adminRouter)
 app.use('/api/woo', wooRouter)
 app.use('/api/stores', storesRouter)
 app.use('/api/store', storeRouter)
+app.use('/api/notifications', notificationsRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))
 

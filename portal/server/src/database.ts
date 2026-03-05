@@ -122,6 +122,31 @@ const migrations: Migration[] = [
     }
   },
   {
+    version: 9,
+    name: 'notifications_table',
+    up: () => db.exec(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type       TEXT NOT NULL,
+        title      TEXT NOT NULL,
+        message    TEXT NOT NULL,
+        link       TEXT,
+        read       INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+    `)
+  },
+  {
+    version: 8,
+    name: 'marketing_request_fields',
+    up: () => db.exec(`
+      ALTER TABLE retailer_applications ADD COLUMN requested_items TEXT;
+      ALTER TABLE retailer_applications ADD COLUMN request_notes TEXT;
+    `)
+  },
+  {
     version: 7,
     name: 'stores_table',
     up: () => {
