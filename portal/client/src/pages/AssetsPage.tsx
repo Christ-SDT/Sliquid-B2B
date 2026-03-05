@@ -6,7 +6,7 @@ import { Asset, Creative } from '@/types'
 import {
   Search, FolderOpen, Download, Copy, Check,
   FileImage, FileText, Share2, Image, Video, Mail, Printer, Megaphone, BookOpen,
-  Plus, Trash2, X, Loader2,
+  Plus, Trash2, X, Loader2, Pencil,
 } from 'lucide-react'
 
 const BRANDS = ['All', 'Sliquid', 'RIDE', 'Ride Rocco']
@@ -328,9 +328,249 @@ function AddItemModal({ activeTab, onClose, onAdded }: AddItemModalProps) {
   )
 }
 
+// All type options for editing (source is fixed on existing items)
+const ALL_ASSET_TYPES = ['Logo', 'Banner', 'Social', 'Document']
+const ALL_CREATIVE_TYPES = ['Print', 'Banner', 'Social Media', 'Email', 'Multi', 'Video']
+
+// ─── Edit Item Modal ──────────────────────────────────────────────────────────
+
+interface EditItemModalProps {
+  item: LibraryItem
+  onClose: () => void
+  onSaved: (updated: LibraryItem) => void
+}
+
+function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
+  const isCreative = item._source === 'creative'
+  const typeList = isCreative ? ALL_CREATIVE_TYPES : ALL_ASSET_TYPES
+
+  const [nameTitle, setNameTitle] = useState(item.displayName)
+  const [brand, setBrand] = useState(item.brand)
+  const [type, setType] = useState(item.type)
+  const [fileUrl, setFileUrl] = useState(item.file_url)
+  const [thumbnailUrl, setThumbnailUrl] = useState(item.thumbnail_url ?? '')
+  const [fileSize, setFileSize] = useState(item.file_size ?? '')
+  const [dimensions, setDimensions] = useState(item.dimensions ?? '')
+  const [description, setDescription] = useState(
+    'description' in item ? (item.description ?? '') : ''
+  )
+  const [campaign, setCampaign] = useState(
+    'campaign' in item ? (item.campaign ?? '') : ''
+  )
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setError('')
+    setSaving(true)
+    try {
+      if (item._source === 'asset') {
+        const updated = await api.put<Asset>(`/assets/${item.id}`, {
+          name: nameTitle, brand, type,
+          file_url: fileUrl,
+          thumbnail_url: thumbnailUrl || null,
+          file_size: fileSize || null,
+          dimensions: dimensions || null,
+        })
+        onSaved({ ...updated, _source: 'asset', displayName: updated.name })
+      } else {
+        const updated = await api.put<Creative>(`/creatives/${item.id}`, {
+          title: nameTitle, brand, type,
+          file_url: fileUrl,
+          thumbnail_url: thumbnailUrl || null,
+          file_size: fileSize || null,
+          dimensions: dimensions || null,
+          description: description || null,
+          campaign: campaign || null,
+        })
+        onSaved({ ...updated, _source: 'creative', displayName: updated.title })
+      }
+      onClose()
+    } catch (err: any) {
+      setError(err.message ?? 'Failed to save changes')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative bg-surface border border-portal-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-portal-border sticky top-0 bg-surface z-10">
+          <h2 className="text-on-canvas font-semibold">Edit Item</h2>
+          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">{error}</div>
+          )}
+
+          {/* Type */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Item Type</label>
+            <select
+              value={type}
+              onChange={e => setType(e.target.value)}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
+            >
+              {typeList.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+
+          {/* Name / Title */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+              {isCreative ? 'Title' : 'Name'}
+            </label>
+            <input
+              type="text"
+              value={nameTitle}
+              onChange={e => setNameTitle(e.target.value)}
+              required
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+            />
+          </div>
+
+          {/* Brand */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Brand</label>
+            <input
+              type="text"
+              list="brand-options-edit"
+              value={brand}
+              onChange={e => setBrand(e.target.value)}
+              required
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+            />
+            <datalist id="brand-options-edit">
+              {BRAND_OPTIONS.map(b => <option key={b} value={b} />)}
+            </datalist>
+          </div>
+
+          {/* File URL */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">File URL</label>
+            <input
+              type="url"
+              value={fileUrl}
+              onChange={e => setFileUrl(e.target.value)}
+              required
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+            />
+          </div>
+
+          {/* Thumbnail URL */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+              Thumbnail URL <span className="text-on-canvas-muted font-normal">(optional)</span>
+            </label>
+            <input
+              type="url"
+              value={thumbnailUrl}
+              onChange={e => setThumbnailUrl(e.target.value)}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+            />
+          </div>
+
+          {/* Description — creatives only */}
+          {isCreative && (
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                Description <span className="text-on-canvas-muted font-normal">(optional)</span>
+              </label>
+              <textarea
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                rows={2}
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors resize-none"
+              />
+            </div>
+          )}
+
+          {/* Campaign — creatives only */}
+          {isCreative && (
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                Campaign <span className="text-on-canvas-muted font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={campaign}
+                onChange={e => setCampaign(e.target.value)}
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+              />
+            </div>
+          )}
+
+          {/* File size + dimensions */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                File Size <span className="text-on-canvas-muted font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={fileSize}
+                onChange={e => setFileSize(e.target.value)}
+                placeholder="e.g. 2.4 MB"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                Dimensions <span className="text-on-canvas-muted font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={dimensions}
+                onChange={e => setDimensions(e.target.value)}
+                placeholder="e.g. 1920×1080"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2.5 bg-surface-elevated border border-portal-border text-on-canvas-subtle
+                         hover:text-on-canvas rounded-lg text-sm font-medium transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-portal-accent
+                         hover:bg-portal-accent/90 disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {saving ? 'Saving…' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 // ─── LibraryCard ─────────────────────────────────────────────────────────────
 
-function LibraryCard({ item, onDelete }: { item: LibraryItem; onDelete?: () => void }) {
+function LibraryCard({ item, onDelete, onEdit }: { item: LibraryItem; onDelete?: () => void; onEdit?: () => void }) {
   const [copied, setCopied] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const Icon = TYPE_ICONS[item.type] ?? FolderOpen
@@ -415,6 +655,16 @@ function LibraryCard({ item, onDelete }: { item: LibraryItem; onDelete?: () => v
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
           )}
+          {onEdit && (
+            <button
+              onClick={onEdit}
+              title="Edit"
+              className="flex items-center justify-center px-3 py-2 bg-surface-elevated hover:bg-portal-border
+                         text-on-canvas-subtle hover:text-on-canvas rounded-lg text-xs font-medium transition-colors"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -432,6 +682,7 @@ export default function AssetsPage() {
   const [brand, setBrand] = useState('All')
   const [search, setSearch] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingItem, setEditingItem] = useState<LibraryItem | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -454,6 +705,12 @@ export default function AssetsPage() {
 
   function handleAdded(item: LibraryItem) {
     setAllItems(prev => [item, ...prev])
+  }
+
+  function handleSaved(updated: LibraryItem) {
+    setAllItems(prev => prev.map(i =>
+      i._source === updated._source && i.id === updated.id ? updated : i
+    ))
   }
 
   async function handleDelete(item: LibraryItem) {
@@ -576,6 +833,7 @@ export default function AssetsPage() {
               key={`${item._source}-${item.id}`}
               item={item}
               onDelete={adminUser ? () => handleDelete(item) : undefined}
+              onEdit={adminUser ? () => setEditingItem(item) : undefined}
             />
           ))}
         </div>
@@ -586,6 +844,14 @@ export default function AssetsPage() {
           activeTab={activeTab}
           onClose={() => setShowAddModal(false)}
           onAdded={handleAdded}
+        />
+      )}
+
+      {editingItem && (
+        <EditItemModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSaved={updated => { handleSaved(updated); setEditingItem(null) }}
         />
       )}
     </div>
