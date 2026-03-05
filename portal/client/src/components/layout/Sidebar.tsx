@@ -19,7 +19,7 @@ const NAV = [
   { to: '/inventory',    icon: Archive,         label: 'Inventory',         restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
   { to: '/invoices',     icon: Receipt,         label: 'Invoices',          restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
   { to: '/stats',        icon: BarChart3,       label: 'Analytics',         restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
-  { to: '/retailer',     icon: Megaphone,       label: 'Marketing Materials', restricted: false, prospectVisible: true,  managerOnly: false, adminOnly: false },
+  { to: '/retailer',     icon: Megaphone,       label: 'In-store Marketing', restricted: false, prospectVisible: true,  managerOnly: false, adminOnly: false },
   { to: '/users',        icon: Users,           label: 'User Management',   restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
 ]
 

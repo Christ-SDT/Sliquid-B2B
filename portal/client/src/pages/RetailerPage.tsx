@@ -31,6 +31,7 @@ const MARKETING_ITEMS: MarketingItem[] = [
       'Swirl Collection',
       'Ride Lube Collection',
       'Sliquid Naturals Satin',
+      'Sliquid Naturals Tsunami',
       'SliqPick Infographic',
     ],
     imageUrl: null, // Add WordPress image URL here
@@ -304,10 +305,10 @@ export default function RetailerPage() {
       <div>
         <div className="flex items-center gap-3 mb-1">
           <Package className="w-5 h-5 text-portal-accent" />
-          <h1 className="text-on-canvas text-2xl font-bold">Request Marketing Materials</h1>
+          <h1 className="text-on-canvas text-2xl font-bold">Request Physical Marketing Assets</h1>
         </div>
         <p className="text-on-canvas-muted text-sm">
-          Browse our in-store display items below. Select the ones you'd like for your location, then fill out your details and submit.
+          Browse our in-store display items below. Select the ones you'd like for your physical location, then fill out your details and submit.
         </p>
       </div>
 
