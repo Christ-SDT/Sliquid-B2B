@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, FormEvent } from 'react'
 import { api } from '@/api/client'
+import { useAuth } from '@/context/AuthContext'
+import { isAdmin } from '@/types'
 import { Asset, Creative } from '@/types'
 import {
   Search, FolderOpen, Download, Copy, Check,
   FileImage, FileText, Share2, Image, Video, Mail, Printer, Megaphone, BookOpen,
+  Plus, Trash2, X, Loader2,
 } from 'lucide-react'
 
 const BRANDS = ['All', 'Sliquid', 'RIDE', 'Ride Rocco']
+const BRAND_OPTIONS = ['Sliquid', 'RIDE', 'Ride Rocco', 'Sliquid Science']
 
 // ─── Unified library item ─────────────────────────────────────────────────────
 
@@ -31,27 +35,309 @@ const TAB_FILTER: Record<TabKey, { source: 'asset' | 'creative' | 'both'; types?
   video:    { source: 'creative', types: ['Video'] },
 }
 
+// Type options available when adding an item, per tab
+interface TypeOption { label: string; value: string; source: 'asset' | 'creative' }
+const TAB_TYPE_OPTIONS: Record<TabKey, TypeOption[]> = {
+  sheets: [
+    { label: 'Info Sheet',      value: 'Document', source: 'asset'    },
+    { label: 'Print Material',  value: 'Print',    source: 'creative' },
+  ],
+  assets: [
+    { label: 'Logo',                   value: 'Logo',   source: 'asset' },
+    { label: 'Banner',                 value: 'Banner', source: 'asset' },
+    { label: 'Social Media Graphic',   value: 'Social', source: 'asset' },
+  ],
+  campaign: [
+    { label: 'Banner',       value: 'Banner',       source: 'creative' },
+    { label: 'Social Media', value: 'Social Media', source: 'creative' },
+    { label: 'Email',        value: 'Email',        source: 'creative' },
+    { label: 'Multi-Use',    value: 'Multi',        source: 'creative' },
+  ],
+  video: [
+    { label: 'Video', value: 'Video', source: 'creative' },
+  ],
+}
+
 const TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  Logo:         Image,
-  Banner:       FileImage,
-  Social:       Share2,
-  Document:     FileText,
+  Logo:           Image,
+  Banner:         FileImage,
+  Social:         Share2,
+  Document:       FileText,
   'Social Media': Megaphone,
-  Email:        Mail,
-  Print:        Printer,
-  Multi:        Megaphone,
-  Video:        Video,
+  Email:          Mail,
+  Print:          Printer,
+  Multi:          Megaphone,
+  Video:          Video,
+}
+
+// ─── Add Item Modal ───────────────────────────────────────────────────────────
+
+interface AddItemModalProps {
+  activeTab: TabKey
+  onClose: () => void
+  onAdded: (item: LibraryItem) => void
+}
+
+function AddItemModal({ activeTab, onClose, onAdded }: AddItemModalProps) {
+  const typeOptions = TAB_TYPE_OPTIONS[activeTab]
+  const [typeOpt, setTypeOpt] = useState<TypeOption>(typeOptions[0])
+  const [nameTitle, setNameTitle] = useState('')
+  const [brand, setBrand] = useState('')
+  const [fileUrl, setFileUrl] = useState('')
+  const [thumbnailUrl, setThumbnailUrl] = useState('')
+  const [fileSize, setFileSize] = useState('')
+  const [dimensions, setDimensions] = useState('')
+  const [description, setDescription] = useState('')
+  const [campaign, setCampaign] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  const isCreative = typeOpt.source === 'creative'
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setError('')
+    setSaving(true)
+    try {
+      if (typeOpt.source === 'asset') {
+        const result = await api.post<{ id: number }>('/assets', {
+          name: nameTitle, brand, type: typeOpt.value,
+          file_url: fileUrl,
+          thumbnail_url: thumbnailUrl || null,
+          file_size: fileSize || null,
+          dimensions: dimensions || null,
+        })
+        onAdded({
+          id: result.id, name: nameTitle, brand, type: typeOpt.value,
+          file_url: fileUrl,
+          thumbnail_url: thumbnailUrl || null,
+          file_size: fileSize || null,
+          dimensions: dimensions || null,
+          _source: 'asset', displayName: nameTitle,
+        })
+      } else {
+        const result = await api.post<{ id: number }>('/creatives', {
+          title: nameTitle, brand, type: typeOpt.value,
+          file_url: fileUrl,
+          thumbnail_url: thumbnailUrl || null,
+          file_size: fileSize || null,
+          dimensions: dimensions || null,
+          description: description || null,
+          campaign: campaign || null,
+        })
+        onAdded({
+          id: result.id, title: nameTitle, brand, type: typeOpt.value,
+          file_url: fileUrl,
+          thumbnail_url: thumbnailUrl || null,
+          file_size: fileSize || null,
+          dimensions: dimensions || null,
+          description: description || null,
+          campaign: campaign || null,
+          _source: 'creative', displayName: nameTitle,
+        })
+      }
+      onClose()
+    } catch (err: any) {
+      setError(err.message ?? 'Failed to add item')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative bg-surface border border-portal-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-portal-border sticky top-0 bg-surface z-10">
+          <h2 className="text-on-canvas font-semibold">Add to Product Library</h2>
+          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">{error}</div>
+          )}
+
+          {/* Item Type */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Item Type</label>
+            <select
+              value={typeOpt.value}
+              onChange={e => setTypeOpt(typeOptions.find(t => t.value === e.target.value)!)}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
+            >
+              {typeOptions.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Name / Title */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+              {isCreative ? 'Title' : 'Name'}
+            </label>
+            <input
+              type="text"
+              value={nameTitle}
+              onChange={e => setNameTitle(e.target.value)}
+              placeholder={isCreative ? 'e.g. Summer Campaign Banner' : 'e.g. H2O 4oz Info Sheet'}
+              required
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+            />
+          </div>
+
+          {/* Brand */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Brand</label>
+            <input
+              type="text"
+              list="brand-options"
+              value={brand}
+              onChange={e => setBrand(e.target.value)}
+              placeholder="e.g. Sliquid"
+              required
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+            />
+            <datalist id="brand-options">
+              {BRAND_OPTIONS.map(b => <option key={b} value={b} />)}
+            </datalist>
+          </div>
+
+          {/* File URL */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">File URL</label>
+            <input
+              type="url"
+              value={fileUrl}
+              onChange={e => setFileUrl(e.target.value)}
+              placeholder="https://yoursite.com/wp-content/uploads/file.pdf"
+              required
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+            />
+          </div>
+
+          {/* Thumbnail URL */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+              Thumbnail URL <span className="text-on-canvas-muted font-normal">(optional)</span>
+            </label>
+            <input
+              type="url"
+              value={thumbnailUrl}
+              onChange={e => setThumbnailUrl(e.target.value)}
+              placeholder="https://yoursite.com/wp-content/uploads/thumb.jpg"
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+            />
+          </div>
+
+          {/* Description — creatives only */}
+          {isCreative && (
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                Description <span className="text-on-canvas-muted font-normal">(optional)</span>
+              </label>
+              <textarea
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Brief description of this asset…"
+                rows={2}
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors resize-none"
+              />
+            </div>
+          )}
+
+          {/* Campaign — campaign tab only */}
+          {activeTab === 'campaign' && (
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                Campaign <span className="text-on-canvas-muted font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={campaign}
+                onChange={e => setCampaign(e.target.value)}
+                placeholder="e.g. Summer 2025"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+              />
+            </div>
+          )}
+
+          {/* File size + dimensions */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                File Size <span className="text-on-canvas-muted font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={fileSize}
+                onChange={e => setFileSize(e.target.value)}
+                placeholder="e.g. 2.4 MB"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                Dimensions <span className="text-on-canvas-muted font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={dimensions}
+                onChange={e => setDimensions(e.target.value)}
+                placeholder="e.g. 1920×1080"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2.5 bg-surface-elevated border border-portal-border text-on-canvas-subtle
+                         hover:text-on-canvas rounded-lg text-sm font-medium transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-portal-accent
+                         hover:bg-portal-accent/90 disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {saving ? 'Adding…' : 'Add Item'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
 }
 
 // ─── LibraryCard ─────────────────────────────────────────────────────────────
 
-function LibraryCard({ item }: { item: LibraryItem }) {
+function LibraryCard({ item, onDelete }: { item: LibraryItem; onDelete?: () => void }) {
   const [copied, setCopied] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const Icon = TYPE_ICONS[item.type] ?? FolderOpen
   const isAsset = item._source === 'asset'
 
   async function copyUrl() {
-    await navigator.clipboard.writeText(window.location.origin + item.file_url)
+    await navigator.clipboard.writeText(item.file_url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -66,7 +352,37 @@ function LibraryCard({ item }: { item: LibraryItem }) {
         <div className="absolute top-2 right-2">
           <span className="px-2 py-1 bg-black/60 rounded text-[10px] text-on-canvas-subtle font-medium">{item.type}</span>
         </div>
+
+        {/* Admin delete control */}
+        {onDelete && (
+          <div className="absolute top-2 left-2">
+            {confirmDelete ? (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={onDelete}
+                  className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-[10px] text-white font-medium transition-colors"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="px-2 py-1 bg-black/70 hover:bg-black/90 rounded text-[10px] text-white font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="p-1.5 bg-black/60 hover:bg-red-600/80 rounded text-on-canvas-subtle hover:text-white transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
+
       <div className="p-4">
         <span className="text-[10px] font-semibold text-portal-accent uppercase tracking-wider">{item.brand}</span>
         <h3 className="text-on-canvas text-sm font-medium mt-0.5 line-clamp-2">{item.displayName}</h3>
@@ -81,7 +397,8 @@ function LibraryCard({ item }: { item: LibraryItem }) {
         <div className="flex gap-2 mt-3">
           <a
             href={item.file_url}
-            download
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-portal-accent/10 hover:bg-portal-accent/20
                        text-portal-accent rounded-lg text-xs font-medium transition-colors"
           >
@@ -91,6 +408,7 @@ function LibraryCard({ item }: { item: LibraryItem }) {
           {isAsset && (
             <button
               onClick={copyUrl}
+              title="Copy URL"
               className="flex items-center justify-center gap-1.5 px-3 py-2 bg-surface-elevated hover:bg-portal-border
                          text-on-canvas-subtle hover:text-on-canvas rounded-lg text-xs font-medium transition-colors"
             >
@@ -106,11 +424,14 @@ function LibraryCard({ item }: { item: LibraryItem }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AssetsPage() {
+  const { user } = useAuth()
+  const adminUser = isAdmin(user?.role ?? '')
   const [allItems, setAllItems] = useState<LibraryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabKey>('sheets')
   const [brand, setBrand] = useState('All')
   const [search, setSearch] = useState('')
+  const [showAddModal, setShowAddModal] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -120,14 +441,10 @@ export default function AssetsPage() {
     ])
       .then(([assets, creatives]) => {
         const assetItems: LibraryItem[] = assets.map(a => ({
-          ...a,
-          _source: 'asset' as const,
-          displayName: a.name,
+          ...a, _source: 'asset' as const, displayName: a.name,
         }))
         const creativeItems: LibraryItem[] = creatives.map(c => ({
-          ...c,
-          _source: 'creative' as const,
-          displayName: c.title,
+          ...c, _source: 'creative' as const, displayName: c.title,
         }))
         setAllItems([...assetItems, ...creativeItems])
       })
@@ -135,16 +452,26 @@ export default function AssetsPage() {
       .finally(() => setLoading(false))
   }, [])
 
+  function handleAdded(item: LibraryItem) {
+    setAllItems(prev => [item, ...prev])
+  }
+
+  async function handleDelete(item: LibraryItem) {
+    const endpoint = item._source === 'asset' ? `/assets/${item.id}` : `/creatives/${item.id}`
+    try {
+      await api.delete(endpoint)
+      setAllItems(prev => prev.filter(i => !(i._source === item._source && i.id === item.id)))
+    } catch (err: any) {
+      alert(err.message ?? 'Failed to delete item')
+    }
+  }
+
   const tabFilter = TAB_FILTER[activeTab]
   const filtered = allItems.filter(item => {
-    // Source filter
     if (tabFilter.source === 'asset' && item._source !== 'asset') return false
     if (tabFilter.source === 'creative' && item._source !== 'creative') return false
-    // Type filter
     if (tabFilter.types && !tabFilter.types.includes(item.type)) return false
-    // Brand filter
     if (brand !== 'All' && item.brand !== brand) return false
-    // Search
     if (search) {
       const q = search.toLowerCase()
       if (!item.displayName.toLowerCase().includes(q) && !item.brand.toLowerCase().includes(q)) return false
@@ -159,7 +486,19 @@ export default function AssetsPage() {
           <BookOpen className="w-6 h-6 text-portal-accent" />
           <h1 className="text-on-canvas text-2xl font-bold">Product Library</h1>
         </div>
-        <span className="text-on-canvas-muted text-sm">{filtered.length} items</span>
+        <div className="flex items-center gap-3">
+          {adminUser && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90
+                         text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Add Item
+            </button>
+          )}
+          <span className="text-on-canvas-muted text-sm">{filtered.length} items</span>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -219,13 +558,35 @@ export default function AssetsPage() {
         <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <FolderOpen className="w-12 h-12 mb-3 opacity-40" />
           <p>No items found in this section</p>
+          {adminUser && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="mt-4 flex items-center gap-2 px-4 py-2 bg-portal-accent/10 hover:bg-portal-accent/20
+                         text-portal-accent rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Add the first item
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filtered.map(item => (
-            <LibraryCard key={`${item._source}-${item.id}`} item={item} />
+            <LibraryCard
+              key={`${item._source}-${item.id}`}
+              item={item}
+              onDelete={adminUser ? () => handleDelete(item) : undefined}
+            />
           ))}
         </div>
+      )}
+
+      {showAddModal && (
+        <AddItemModal
+          activeTab={activeTab}
+          onClose={() => setShowAddModal(false)}
+          onAdded={handleAdded}
+        />
       )}
     </div>
   )

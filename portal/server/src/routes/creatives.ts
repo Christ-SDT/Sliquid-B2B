@@ -35,4 +35,10 @@ router.post('/', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   res.status(201).json({ id: result.lastInsertRowid })
 })
 
+router.delete('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const result = db.prepare('DELETE FROM creatives WHERE id = ?').run(req.params.id)
+  if (result.changes === 0) { res.status(404).json({ message: 'Not found' }); return }
+  res.json({ ok: true })
+})
+
 export default router
