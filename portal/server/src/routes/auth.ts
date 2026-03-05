@@ -35,7 +35,7 @@ router.post('/register', async (req, res) => {
     res.status(400).json({ message: 'Password must be at least 8 characters' })
     return
   }
-  const validRoles = ['tier1', 'tier2', 'tier3']
+  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4']
   const role = validRoles.includes(requestedRole) ? requestedRole : 'tier1'
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email)
   if (existing) {

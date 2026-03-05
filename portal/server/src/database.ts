@@ -122,6 +122,42 @@ const migrations: Migration[] = [
     }
   },
   {
+    version: 7,
+    name: 'stores_table',
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS stores (
+          id         INTEGER PRIMARY KEY AUTOINCREMENT,
+          name       TEXT UNIQUE NOT NULL,
+          created_at TEXT DEFAULT (datetime('now'))
+        );
+      `)
+      // Seed from existing tier2 user companies so no data is lost
+      const companies = db.prepare(
+        "SELECT DISTINCT company FROM users WHERE company IS NOT NULL AND company != ''"
+      ).all() as { company: string }[]
+      for (const { company } of companies) {
+        db.prepare('INSERT OR IGNORE INTO stores (name) VALUES (?)').run(company)
+      }
+      // Always ensure at least one default store
+      db.prepare("INSERT OR IGNORE INTO stores (name) VALUES ('Demo Retail Store')").run()
+    }
+  },
+  {
+    version: 6,
+    name: 'add_prospect_tier',
+    up: () => {
+      // Rename existing admin tier4 → tier5
+      db.prepare("UPDATE users SET role = 'tier5' WHERE role = 'tier4'").run()
+      // Add prospect demo account if it doesn't exist yet
+      const existing = db.prepare("SELECT id FROM users WHERE email = 'prospect@demo.com'").get()
+      if (!existing) {
+        db.prepare('INSERT INTO users (name, email, password_hash, role, company) VALUES (?, ?, ?, ?, ?)')
+          .run('Demo Prospect', 'prospect@demo.com', bcrypt.hashSync('prospect123', 10), 'tier4', 'Prospect Co.')
+      }
+    }
+  },
+  {
     version: 5,
     name: 'woocommerce_tables',
     up: () => db.exec(`
@@ -196,7 +232,8 @@ function seed() {
   // Users
   const hash = (p: string) => bcrypt.hashSync(p, 10)
   const addUser = db.prepare('INSERT INTO users (name, email, password_hash, role, company) VALUES (?, ?, ?, ?, ?)')
-  addUser.run('Admin User',       'admin@sliquid.com',      hash('admin123'),   'tier4', 'Sliquid')
+  addUser.run('Admin User',       'admin@sliquid.com',      hash('admin123'),   'tier5', 'Sliquid')
+  addUser.run('Demo Prospect',    'prospect@demo.com',      hash('prospect123'),'tier4', 'Prospect Co.')
   addUser.run('Demo Partner',     'partner@demo.com',       hash('partner123'), 'tier2', 'Demo Retail Co.')
   addUser.run('Demo Distributor', 'distributor@demo.com',   hash('dist123'),    'tier3', 'Demo Distribution LLC')
 

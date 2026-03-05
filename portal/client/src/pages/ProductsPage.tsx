@@ -169,7 +169,7 @@ function parseCSV(text: string): Record<string, string>[] {
 
 export default function ProductsPage() {
   const { user } = useAuth()
-  const isAdmin = (user?.role as string) === 'tier4' || (user?.role as string) === 'admin'
+  const isAdmin = (user?.role as string) === 'tier5' || (user?.role as string) === 'admin'
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [brand, setBrand] = useState('All')

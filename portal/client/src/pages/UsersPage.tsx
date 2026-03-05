@@ -19,31 +19,64 @@ interface WooStatus {
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
+interface Store { id: number; name: string }
+
 // ─── User Row ─────────────────────────────────────────────────────────────────
 
-function UserRow({ user, onRoleChange }: { user: PortalUser; onRoleChange: (id: number, role: string) => void }) {
+function UserRow({
+  user,
+  stores,
+  onRoleChange,
+  onCompanyChange,
+}: {
+  user: PortalUser
+  stores: Store[]
+  onRoleChange: (id: number, role: string) => void
+  onCompanyChange: (id: number, company: string) => void
+}) {
   const [selectedRole, setSelectedRole] = useState(user.role)
-  const [saveState, setSaveState] = useState<SaveState>('idle')
-  const [errorMsg, setErrorMsg] = useState('')
+  const [roleSaveState, setRoleSaveState] = useState<SaveState>('idle')
+  const [roleError, setRoleError] = useState('')
 
-  async function handleSave() {
+  const [selectedCompany, setSelectedCompany] = useState(user.company ?? '')
+  const [companySaveState, setCompanySaveState] = useState<SaveState>('idle')
+  const [companyError, setCompanyError] = useState('')
+
+  async function handleRoleSave() {
     if (selectedRole === user.role) return
-    setSaveState('saving')
-    setErrorMsg('')
+    setRoleSaveState('saving')
+    setRoleError('')
     try {
       await api.put<PortalUser>(`/admin/users/${user.id}/role`, { role: selectedRole })
       onRoleChange(user.id, selectedRole)
-      setSaveState('saved')
-      setTimeout(() => setSaveState('idle'), 2000)
+      setRoleSaveState('saved')
+      setTimeout(() => setRoleSaveState('idle'), 2000)
     } catch (err: any) {
-      setErrorMsg(err.message ?? 'Failed to save')
-      setSaveState('error')
+      setRoleError(err.message ?? 'Failed to save')
+      setRoleSaveState('error')
+    }
+  }
+
+  async function handleCompanySave() {
+    if (selectedCompany === (user.company ?? '')) return
+    setCompanySaveState('saving')
+    setCompanyError('')
+    try {
+      await api.put(`/admin/users/${user.id}/company`, { company: selectedCompany })
+      onCompanyChange(user.id, selectedCompany)
+      setCompanySaveState('saved')
+      setTimeout(() => setCompanySaveState('idle'), 2000)
+    } catch (err: any) {
+      setCompanyError(err.message ?? 'Failed to save')
+      setCompanySaveState('error')
     }
   }
 
   const joined = user.created_at
     ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : '—'
+
+  const companyChanged = selectedCompany !== (user.company ?? '')
 
   return (
     <tr className="border-b border-portal-border hover:bg-surface-elevated transition-colors">
@@ -57,32 +90,59 @@ function UserRow({ user, onRoleChange }: { user: PortalUser; onRoleChange: (id: 
         </div>
       </td>
       <td className="px-4 py-3 text-on-canvas-subtle text-sm">{user.email}</td>
-      <td className="px-4 py-3 text-on-canvas-subtle text-sm">{user.company ?? '—'}</td>
+      {/* Editable company */}
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-2">
+          <select
+            value={selectedCompany}
+            onChange={e => { setSelectedCompany(e.target.value); setCompanySaveState('idle'); setCompanyError('') }}
+            className="bg-portal-bg border border-portal-border rounded-lg px-3 py-1.5 text-on-canvas text-xs
+                       focus:outline-none focus:border-portal-accent transition-colors max-w-[160px]"
+          >
+            <option value="">— no company —</option>
+            {stores.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+          </select>
+          {companyChanged && (
+            <button
+              onClick={handleCompanySave}
+              disabled={companySaveState === 'saving'}
+              className="px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
+                         text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0"
+            >
+              {companySaveState === 'saving' ? 'Saving…' : 'Save'}
+            </button>
+          )}
+          {companySaveState === 'saved' && <span className="text-emerald-400 text-xs font-medium flex-shrink-0">Saved</span>}
+          {companySaveState === 'error' && <span className="text-red-400 text-xs flex-shrink-0">{companyError}</span>}
+        </div>
+      </td>
+      {/* Editable role */}
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
           <select
             value={selectedRole}
-            onChange={e => { setSelectedRole(e.target.value); setSaveState('idle'); setErrorMsg('') }}
+            onChange={e => { setSelectedRole(e.target.value); setRoleSaveState('idle'); setRoleError('') }}
             className="bg-portal-bg border border-portal-border rounded-lg px-3 py-1.5 text-on-canvas text-xs
                        focus:outline-none focus:border-portal-accent transition-colors"
           >
-            <option value="tier1">Tier 1 (Retail Store Employee)</option>
-            <option value="tier2">Tier 2 (Ecommerce)</option>
-            <option value="tier3">Tier 3 (Distributor)</option>
-            <option value="tier4">Admin</option>
+            <option value="tier1">Retail Store Employee</option>
+            <option value="tier2">Retail Management</option>
+            <option value="tier3">Distributor</option>
+            <option value="tier4">Prospect</option>
+            <option value="tier5">Admin</option>
           </select>
           {selectedRole !== user.role && (
             <button
-              onClick={handleSave}
-              disabled={saveState === 'saving'}
+              onClick={handleRoleSave}
+              disabled={roleSaveState === 'saving'}
               className="px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
-                         text-white text-xs font-medium rounded-lg transition-colors"
+                         text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0"
             >
-              {saveState === 'saving' ? 'Saving…' : 'Save'}
+              {roleSaveState === 'saving' ? 'Saving…' : 'Save'}
             </button>
           )}
-          {saveState === 'saved' && <span className="text-emerald-400 text-xs font-medium">Saved</span>}
-          {saveState === 'error' && <span className="text-red-400 text-xs">{errorMsg}</span>}
+          {roleSaveState === 'saved' && <span className="text-emerald-400 text-xs font-medium">Saved</span>}
+          {roleSaveState === 'error' && <span className="text-red-400 text-xs">{roleError}</span>}
         </div>
       </td>
       <td className="px-4 py-3 text-on-canvas-muted text-xs">{joined}</td>
@@ -311,19 +371,27 @@ function WooPanel() {
 
 export default function UsersPage() {
   const [users, setUsers] = useState<PortalUser[]>([])
+  const [stores, setStores] = useState<Store[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    api.get<PortalUser[]>('/admin/users')
-      .then(setUsers)
+    Promise.all([
+      api.get<PortalUser[]>('/admin/users'),
+      api.get<Store[]>('/stores'),
+    ])
+      .then(([u, s]) => { setUsers(u); setStores(s) })
       .catch(err => setError(err.message ?? 'Failed to load users'))
       .finally(() => setLoading(false))
   }, [])
 
   function handleRoleChange(id: number, role: string) {
     setUsers(prev => prev.map(u => u.id === id ? { ...u, role } : u))
+  }
+
+  function handleCompanyChange(id: number, company: string) {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, company } : u))
   }
 
   const filtered = users.filter(u => {
@@ -379,14 +447,20 @@ export default function UsersPage() {
                 <tr className="border-b border-portal-border">
                   <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Name</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Email</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Company</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Store / Company</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Account Type</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Joined</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(user => (
-                  <UserRow key={user.id} user={user} onRoleChange={handleRoleChange} />
+                  <UserRow
+                    key={user.id}
+                    user={user}
+                    stores={stores}
+                    onRoleChange={handleRoleChange}
+                    onCompanyChange={handleCompanyChange}
+                  />
                 ))}
               </tbody>
             </table>

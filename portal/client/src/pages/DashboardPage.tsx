@@ -281,10 +281,12 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   const isRestricted = ['tier1', 'tier2', 'tier3'].includes(user?.role ?? '')
-  const showBanner = isRestricted
+  const isProspectRole = user?.role === 'tier4'
+  const isLimitedDashboard = isRestricted || isProspectRole
+  const showBanner = isRestricted // upgrade banner only for tier1/2/3, not prospects
 
   useEffect(() => {
-    if (isRestricted) { setLoading(false); return }
+    if (isLimitedDashboard) { setLoading(false); return }
     api.get<Overview>('/stats/overview')
       .then(setOverview)
       .catch(console.error)
@@ -313,8 +315,8 @@ export default function DashboardPage() {
       {/* Upgrade banner for non-admin roles */}
       {showBanner && <UpgradeBanner role={user!.role} />}
 
-      {isRestricted ? (
-        /* --- Restricted dashboard (tier1 / tier2 / tier3) --- */
+      {isLimitedDashboard ? (
+        /* --- Limited dashboard (tier1/2/3 + prospect) --- */
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <MiniAssetsWidget />

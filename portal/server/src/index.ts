@@ -14,6 +14,8 @@ import creativesRouter from './routes/creatives.js'
 import quizRouter from './routes/quiz.js'
 import adminRouter from './routes/admin.js'
 import wooRouter from './routes/woo.js'
+import storesRouter from './routes/stores.js'
+import storeRouter from './routes/store.js'
 import { woo, runWooSync } from './woocommerce.js'
 
 const app = express()
@@ -39,6 +41,8 @@ app.use('/api/creatives', creativesRouter)
 app.use('/api/quiz', quizRouter)
 app.use('/api/admin', adminRouter)
 app.use('/api/woo', wooRouter)
+app.use('/api/stores', storesRouter)
+app.use('/api/store', storeRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))
 

@@ -5,20 +5,22 @@ import { cn } from '@/lib/utils'
 import { TIER_LABEL } from '@/types'
 import {
   LayoutDashboard, Package, BookOpen, Archive,
-  Receipt, BarChart3, MapPin, Store, GraduationCap, LogOut, X, Users, Moon, Sun,
+  Receipt, BarChart3, MapPin, Store, GraduationCap, LogOut, X, Users, Users2, Moon, Sun,
 } from 'lucide-react'
 
+// restricted: tier1/2/3  |  prospectVisible: tier4  |  managerOnly: tier2 only  |  adminOnly: tier5 only
 const NAV = [
-  { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard',          restricted: true,  adminOnly: false },
-  { to: '/assets',       icon: BookOpen,        label: 'Product Library',    restricted: true,  adminOnly: false },
-  { to: '/distributors', icon: MapPin,          label: 'Distributors',       restricted: true,  adminOnly: false },
-  { to: '/trainings',    icon: GraduationCap,   label: 'Trainings',          restricted: true,  adminOnly: false },
-  { to: '/products',     icon: Package,         label: 'Products',           restricted: false, adminOnly: false },
-  { to: '/inventory',    icon: Archive,         label: 'Inventory',          restricted: false, adminOnly: false },
-  { to: '/invoices',     icon: Receipt,         label: 'Invoices',           restricted: false, adminOnly: false },
-  { to: '/stats',        icon: BarChart3,       label: 'Analytics',          restricted: false, adminOnly: false },
-  { to: '/retailer',     icon: Store,           label: 'Become a Retailer',  restricted: false, adminOnly: false },
-  { to: '/users',        icon: Users,           label: 'User Management',    restricted: false, adminOnly: true  },
+  { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard',         restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
+  { to: '/assets',       icon: BookOpen,        label: 'Product Library',   restricted: true,  prospectVisible: false, managerOnly: false, adminOnly: false },
+  { to: '/distributors', icon: MapPin,          label: 'Distributors',      restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
+  { to: '/trainings',    icon: GraduationCap,   label: 'Trainings',         restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
+  { to: '/store-users',  icon: Users2,          label: 'My Store',          restricted: false, prospectVisible: false, managerOnly: true,  adminOnly: false },
+  { to: '/products',     icon: Package,         label: 'Products',          restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
+  { to: '/inventory',    icon: Archive,         label: 'Inventory',         restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
+  { to: '/invoices',     icon: Receipt,         label: 'Invoices',          restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
+  { to: '/stats',        icon: BarChart3,       label: 'Analytics',         restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
+  { to: '/retailer',     icon: Store,           label: 'Become a Retailer', restricted: false, prospectVisible: true,  managerOnly: false, adminOnly: false },
+  { to: '/users',        icon: Users,           label: 'User Management',   restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
 ]
 
 interface Props {
@@ -30,9 +32,12 @@ export default function Sidebar({ onClose }: Props) {
   const { theme, toggleTheme } = useTheme()
   const isRestricted = ['tier1', 'tier2', 'tier3'].includes(user?.role ?? '')
   const role: string | undefined = user?.role
-  const isAdmin = role === 'tier4' || role === 'admin'
+  const isAdminRole = role === 'tier5' || role === 'admin'
+  const isProspectRole = role === 'tier4'
   const visibleNav = NAV.filter(item => {
-    if (item.adminOnly) return isAdmin
+    if (item.adminOnly) return isAdminRole
+    if (item.managerOnly) return role === 'tier2' || isAdminRole
+    if (isProspectRole) return item.prospectVisible
     if (isRestricted) return item.restricted
     return true
   })

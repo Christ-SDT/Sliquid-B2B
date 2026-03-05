@@ -5,8 +5,8 @@ import { woo, runWooSync } from '../woocommerce.js'
 
 const router = Router()
 
-// All woo routes require tier4 or legacy 'admin' role
-const adminOnly = requireRole('tier4', 'admin')
+// All woo routes require tier5 (admin) or legacy 'admin' role
+const adminOnly = requireRole('tier5', 'admin')
 
 // GET /api/woo/status
 router.get('/status', requireAuth, adminOnly, (_req, res) => {

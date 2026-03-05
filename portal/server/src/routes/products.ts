@@ -32,7 +32,7 @@ router.get('/export', requireAuth, (_req, res) => {
   res.send(lines.join('\r\n'))
 })
 
-router.post('/import', requireAuth, requireRole('tier4', 'admin'), (req, res) => {
+router.post('/import', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const { rows } = req.body as { rows?: Record<string, any>[] }
   if (!Array.isArray(rows) || rows.length === 0) {
     res.status(400).json({ message: 'rows array is required' })
@@ -99,7 +99,7 @@ router.get('/:id', requireAuth, (req, res) => {
   res.json(product)
 })
 
-router.post('/', requireAuth, requireRole('tier4'), (req, res) => {
+router.post('/', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const { name, brand, category, sku, description, price, image_url, in_stock } = req.body
   if (!name || !brand || !category || !sku || !price) {
     res.status(400).json({ message: 'Missing required fields' })

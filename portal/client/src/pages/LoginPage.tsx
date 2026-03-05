@@ -104,12 +104,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Demo hint */}
-        <div className="mt-4 p-4 rounded-xl border border-portal-border bg-surface/50 text-xs text-on-canvas-muted">
-          <p className="font-semibold text-on-canvas-muted mb-1">Demo accounts</p>
-          <p>admin@sliquid.com / admin123</p>
-          <p>partner@demo.com / partner123</p>
-        </div>
       </div>
     </div>
   )
