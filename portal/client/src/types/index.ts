@@ -8,7 +8,7 @@ export interface User {
 
 export const TIER_LABEL: Record<string, string> = {
   tier1: 'Tier 1 (Retail Store Employee)',
-  tier2: 'Tier 2 (Ecommerce)',
+  tier2: 'Retail Management',
   tier3: 'Tier 3 (Distributor)',
   tier4: 'Admin',
 }
