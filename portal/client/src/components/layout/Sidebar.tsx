@@ -4,16 +4,15 @@ import { useTheme } from '@/context/ThemeContext'
 import { cn } from '@/lib/utils'
 import { TIER_LABEL } from '@/types'
 import {
-  LayoutDashboard, Package, FolderOpen, Archive,
-  Receipt, BarChart3, MapPin, Store, Megaphone, GraduationCap, LogOut, X, Users, Moon, Sun,
+  LayoutDashboard, Package, BookOpen, Archive,
+  Receipt, BarChart3, MapPin, Store, GraduationCap, LogOut, X, Users, Moon, Sun,
 } from 'lucide-react'
 
 const NAV = [
   { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard',          restricted: true,  adminOnly: false },
-  { to: '/assets',       icon: FolderOpen,      label: 'Digital Assets',     restricted: true,  adminOnly: false },
+  { to: '/assets',       icon: BookOpen,        label: 'Product Library',    restricted: true,  adminOnly: false },
   { to: '/distributors', icon: MapPin,          label: 'Distributors',       restricted: true,  adminOnly: false },
   { to: '/trainings',    icon: GraduationCap,   label: 'Trainings',          restricted: true,  adminOnly: false },
-  { to: '/creatives',    icon: Megaphone,       label: 'Creatives',          restricted: false, adminOnly: false },
   { to: '/products',     icon: Package,         label: 'Products',           restricted: false, adminOnly: false },
   { to: '/inventory',    icon: Archive,         label: 'Inventory',          restricted: false, adminOnly: false },
   { to: '/invoices',     icon: Receipt,         label: 'Invoices',           restricted: false, adminOnly: false },
