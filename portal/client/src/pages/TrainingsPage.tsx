@@ -347,9 +347,9 @@ export default function TrainingsPage() {
       {/* Page header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-on-canvas text-2xl font-bold">Sliquid Certified Training</h1>
+          <h1 className="text-on-canvas text-2xl font-bold">Become a Sliquid Certified Expert</h1>
           <p className="text-on-canvas-subtle text-sm mt-1 max-w-2xl">
-            Earn your Sliquid Certified badge by completing our official product training modules. Each course covers a core Sliquid product line — watch the video, take the quiz, and pass at 70% or higher to become certified.
+            Earn your Sliquid Certified badge by completing our official product training modules. Each section covers atleast one product in the Sliquid product line. Watch the video, take the quiz, and pass at 80% or higher. Once all sections are complete, you'll recive a digital certificate as well as be sent a certified expert pin and tshirt. As a bonus you get to select a sliquid product of your choice. 
           </p>
         </div>
         {adminMode && (
