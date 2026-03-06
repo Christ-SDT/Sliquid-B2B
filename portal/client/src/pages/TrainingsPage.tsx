@@ -349,7 +349,7 @@ export default function TrainingsPage() {
         <div>
           <h1 className="text-on-canvas text-2xl font-bold">Become a Sliquid Certified Expert</h1>
           <p className="text-on-canvas-subtle text-sm mt-1 max-w-2xl">
-            Earn your official Sliquid Certification by completing this digital training course. For each section, watch the video, take the quiz, and pass at 80% or higher. Once all sections are complete, you will receive a digital certificate and be sent a Sliquid Certified Expert pin and t-shirt. As a bonus for completing the course, you will also receive a Sliquid product of your choice. You Sliquid product knowledge journey begins here. Good luck!
+            Earn your official Sliquid Certification by completing this digital training course. For each section, watch the video, take the quiz, and pass at 80% or higher. Once all sections are complete, you will receive a digital certificate and be sent a Sliquid Certified Expert pin and t-shirt. As a bonus for completing the course, you will also receive a Sliquid product of your choice. Your Sliquid product knowledge journey begins here. Good luck!
           </p>
         </div>
         {adminMode && (
