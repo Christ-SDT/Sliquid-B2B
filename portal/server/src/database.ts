@@ -220,6 +220,89 @@ const migrations: Migration[] = [
       add('unit_dimensions','TEXT')
       add('case_dimensions','TEXT')
     }
+  },
+  {
+    version: 10,
+    name: 'marketing_items_table',
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS marketing_items (
+          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+          name        TEXT NOT NULL,
+          subtitle    TEXT,
+          description TEXT,
+          specs       TEXT DEFAULT '[]',
+          variants    TEXT DEFAULT '[]',
+          image_url   TEXT,
+          icon_name   TEXT DEFAULT 'Package',
+          sort_order  INTEGER DEFAULT 0,
+          created_at  TEXT DEFAULT (datetime('now'))
+        );
+      `)
+      const mi = db.prepare(
+        'INSERT INTO marketing_items (name, subtitle, description, specs, variants, image_url, icon_name, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+      )
+      mi.run(
+        'Counter Cards', '5" × 7" Easel Back',
+        'Eye-catching point-of-sale counter cards with an easel back stand. Perfect for checkout counters, product shelves, and display tables to educate customers about Sliquid product lines.',
+        JSON.stringify(['5" × 7" format', 'Easel back stand', 'Full-color print', 'Multiple designs available']),
+        JSON.stringify(['Naturals Collection', 'Organics Collection', 'Swirl Collection', 'Ride Lube Collection', 'Sliquid Naturals Satin', 'Sliquid Naturals Tsunami', 'SliqPick Infographic']),
+        null, 'LayoutGrid', 0
+      )
+      mi.run(
+        'Retractable Banner', "2' × 5' Display Banner",
+        'A professional full-color retractable banner ideal for events, trade shows, and in-store promotions. Lightweight and quick to set up — comes with a zippered nylon carry bag.',
+        JSON.stringify(["2' × 5' size", 'Lightweight design', 'Zippered nylon carry bag', 'Full-color print', 'Indoor use only']),
+        JSON.stringify([]),
+        null, 'Flag', 1
+      )
+      mi.run(
+        'Sliquid Neon Sign', 'LED Neon Display',
+        'Illuminate your store with the iconic Sliquid logo in vibrant LED neon. Creates an unforgettable display for windows, feature walls, and behind-the-counter setups.',
+        JSON.stringify(['Neon size: 18.6" × 22"', 'Base size: 18.04" × 5.91"', '2 hooks + hanging chain', 'Transparent base', 'Indoor use only', 'Box: 21.7" × 25.2" × 2.8"']),
+        JSON.stringify([]),
+        null, 'Zap', 2
+      )
+      mi.run(
+        'Ride Lube Neon Sign', 'LED Neon Display',
+        'Draw attention with the bold Ride Lube LED neon sign. Perfect for showcasing the Ride Lube brand in an eye-catching way anywhere in your store.',
+        JSON.stringify(['Neon size: 22" × 11.67"', 'Base size: 22" × 5.12"', '2 hooks + hanging chain', 'Transparent base', 'Indoor use only', 'Box: 25.2" × 14.8" × 2.8"']),
+        JSON.stringify([]),
+        null, 'Zap', 3
+      )
+    }
+  },
+  {
+    version: 11,
+    name: 'trainings_table',
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS trainings (
+          id                INTEGER PRIMARY KEY AUTOINCREMENT,
+          quiz_id           TEXT NOT NULL UNIQUE,
+          title             TEXT NOT NULL,
+          description       TEXT,
+          video_path        TEXT,
+          passing_score     INTEGER DEFAULT 70,
+          estimated_minutes INTEGER DEFAULT 15,
+          sort_order        INTEGER DEFAULT 0,
+          created_at        TEXT DEFAULT (datetime('now'))
+        );
+      `)
+      const tr = db.prepare(
+        'INSERT INTO trainings (quiz_id, title, description, video_path, passing_score, estimated_minutes, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      )
+      tr.run(
+        'h2o-vs-sassy', 'H2O vs Sassy',
+        'Discover the differences between H2O and Sassy product lines — formulations, ingredients, and how to match customers to the right product.',
+        'https://youtu.be/r9ttBy_WlfA', 70, 15, 0
+      )
+      tr.run(
+        'sea-vs-tsunami', 'Sea vs Tsunami',
+        'Learn the differences between Sea and Tsunami product lines — formulations, positioning, and how to guide customers to the right choice.',
+        'https://youtu.be/lFVvtQfOb8Y', 70, 15, 1
+      )
+    }
   }
 ]
 

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
-import { QUIZZES } from '@/quizzes'
 import {
   ArrowLeft,
   CheckCircle2,
@@ -15,6 +14,19 @@ import {
   Video,
   X,
 } from 'lucide-react'
+
+// ─── Training type ────────────────────────────────────────────────────────────
+
+type Training = {
+  id: number
+  quiz_id: string
+  title: string
+  description: string | null
+  video_path: string | null
+  passing_score: number
+  estimated_minutes: number
+  sort_order: number
+}
 
 // ─── YouTube IFrame API types ─────────────────────────────────────────────────
 type YTPlayer = {
@@ -84,26 +96,42 @@ export default function QuizPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const quiz = QUIZZES.find(q => q.id === id)
-  const nextQuiz = quiz ? QUIZZES[QUIZZES.indexOf(quiz) + 1] ?? null : null
 
-  const ytId = quiz?.videoPath ? getYouTubeId(quiz.videoPath) : null
+  // ─── Load trainings from API ────────────────────────────────────────────────
+  const [trainings, setTrainings] = useState<Training[]>([])
+  const [trainingsLoading, setTrainingsLoading] = useState(true)
+
+  useEffect(() => {
+    api.get<Training[]>('/trainings')
+      .then(setTrainings)
+      .catch(() => {})
+      .finally(() => setTrainingsLoading(false))
+  }, [])
+
+  const quiz = trainings.find(t => t.quiz_id === id)
+  const quizIdx = trainings.findIndex(t => t.quiz_id === id)
+  const nextQuiz = quiz ? (trainings[quizIdx + 1] ?? null) : null
+
+  const ytId = quiz?.video_path ? getYouTubeId(quiz.video_path) : null
   const isYouTube = !!ytId
 
-  // ─── Phase ─────────────────────────────────────────────────────────────────
-  const [phase, setPhase] = useState<Phase>(quiz?.videoPath ? 'video' : 'quiz')
+  // ─── Phase (defaults 'quiz'; corrected to 'video' once quiz loads) ──────────
+  const [phase, setPhase] = useState<Phase>('quiz')
+  const phaseInitialized = useRef(false)
+  useEffect(() => {
+    if (quiz && !phaseInitialized.current) {
+      phaseInitialized.current = true
+      if (quiz.video_path) setPhase('video')
+    }
+  }, [quiz])
 
   // ─── Video state ────────────────────────────────────────────────────────────
-  // For direct <video> files
   const mainVideoRef = useRef<HTMLVideoElement>(null)
-  // Playback position shared between main player and modal
   const videoPositionRef = useRef(0)
-  // YouTube player instances
   const ytMainRef = useRef<YTPlayer | null>(null)
   const ytModalRef = useRef<YTPlayer | null>(null)
 
   const [videoModalOpen, setVideoModalOpen] = useState(false)
-  // Re-mount the modal player div when reopened so YT API gets a fresh target
   const [modalKey, setModalKey] = useState(0)
 
   // ─── SCORM state ────────────────────────────────────────────────────────────
@@ -113,13 +141,10 @@ export default function QuizPage() {
   const [iframeReady, setIframeReady] = useState(false)
   const [finish, setFinish] = useState<FinishState | null>(null)
   const handleFinishRef = useRef<() => void>(() => {})
-  // True when the user arrived at the quiz phase via video completion/skip
-  // so we can auto-click the Captivate stage to start the course immediately
   const autoStartRef = useRef(false)
 
   // ─── Advance from video → quiz ──────────────────────────────────────────────
   const enterQuiz = useCallback(() => {
-    // Save position before leaving
     if (isYouTube && ytMainRef.current) {
       videoPositionRef.current = ytMainRef.current.getCurrentTime()
       ytMainRef.current.pauseVideo()
@@ -127,19 +152,18 @@ export default function QuizPage() {
       videoPositionRef.current = mainVideoRef.current.currentTime
       mainVideoRef.current.pause()
     }
-    autoStartRef.current = true  // signal: auto-click the course stage on load
+    autoStartRef.current = true
     setPhase('quiz')
   }, [isYouTube])
 
   // ─── Modal open / close ─────────────────────────────────────────────────────
   const openVideoModal = useCallback(() => {
-    // Snapshot position from active player
     if (isYouTube && ytMainRef.current) {
       videoPositionRef.current = ytMainRef.current.getCurrentTime()
     } else if (mainVideoRef.current) {
       videoPositionRef.current = mainVideoRef.current.currentTime
     }
-    setModalKey(k => k + 1) // fresh mount → YT API gets new div id
+    setModalKey(k => k + 1)
     setVideoModalOpen(true)
   }, [isYouTube])
 
@@ -147,8 +171,6 @@ export default function QuizPage() {
     if (isYouTube && ytModalRef.current) {
       videoPositionRef.current = ytModalRef.current.getCurrentTime()
       ytModalRef.current.pauseVideo()
-    } else if (mainVideoRef.current) {
-      // modal video element shares the same ref pattern; handled separately below
     }
     setVideoModalOpen(false)
   }, [isYouTube])
@@ -236,7 +258,7 @@ export default function QuizPage() {
         : range > 0 && max !== 100
           ? Math.round(((raw - min) / range) * 100)
           : Math.max(0, Math.min(100, raw))
-      const passed = score >= quiz.passingScore
+      const passed = score >= quiz.passing_score
       const completedAt = new Date().toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric',
       })
@@ -245,7 +267,7 @@ export default function QuizPage() {
 
       api
         .post<{ ok: boolean; score: number; passed: boolean }>('/quiz/complete', {
-          quizId: quiz.id,
+          quizId: quiz.quiz_id,
           quizTitle: quiz.title,
           score,
         })
@@ -308,11 +330,6 @@ export default function QuizPage() {
         return
       }
 
-      // Auto-start the Captivate course when arriving from the video phase.
-      // Captivate initialises its React app asynchronously after the iframe
-      // loads — poll every 300 ms until a clickable target appears, then
-      // dispatch a full pointer+click sequence to satisfy autoplay policy and
-      // any "click to start" overlay. Hard-stop after 15 s as a safety net.
       if (autoStartRef.current) {
         autoStartRef.current = false
         const deadline = Date.now() + 15_000
@@ -320,13 +337,12 @@ export default function QuizPage() {
           try {
             const doc = iframeRef.current?.contentDocument
             if (!doc || Date.now() > deadline) { clearInterval(poll); return }
-            // Priority selector chain — find the Captivate play button
             const target =
               doc.querySelector<HTMLElement>('button') ??
               doc.querySelector<HTMLElement>('[class*="play" i]') ??
               doc.querySelector<HTMLElement>('[class*="start" i]') ??
               doc.getElementById('app')
-            if (!target) return  // not rendered yet — try again next tick
+            if (!target) return
             clearInterval(poll)
             ;['pointerdown', 'pointerup', 'click'].forEach(type =>
               target.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true }))
@@ -337,20 +353,31 @@ export default function QuizPage() {
     } catch { /* cross-origin guard */ }
   }
 
+  // ─── Loading state ────────────────────────────────────────────────────────────
+  if (trainingsLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-6 h-6 text-portal-accent animate-spin" />
+      </div>
+    )
+  }
+
   // ─── Not found ───────────────────────────────────────────────────────────────
   if (!quiz) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-on-canvas-subtle gap-3">
         <p>Quiz not found.</p>
         <button onClick={() => navigate('/trainings')} className="text-portal-accent text-sm hover:underline">
-          ← Back to Trainings
+          ← Back to Digital Training
         </button>
       </div>
     )
   }
 
+  const scormSrc = `/training/${quiz.quiz_id}/index.html`
+
   // ─── Video phase ─────────────────────────────────────────────────────────────
-  if (phase === 'video' && quiz.videoPath) {
+  if (phase === 'video' && quiz.video_path) {
     return (
       <div className="relative flex flex-col h-full bg-black">
         {/* Top bar */}
@@ -360,7 +387,7 @@ export default function QuizPage() {
             className="flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Trainings
+            Digital Training
           </button>
           <span className="text-on-canvas text-sm">/</span>
           <span className="text-on-canvas text-sm font-medium truncate">{quiz.title}</span>
@@ -376,12 +403,11 @@ export default function QuizPage() {
         {/* Player */}
         <div className="flex-1 flex items-center justify-center bg-black">
           {isYouTube ? (
-            /* YouTube: div replaced by YT IFrame API */
             <div id="yt-main-player" className="w-full h-full" />
           ) : (
             <video
               ref={mainVideoRef}
-              src={quiz.videoPath}
+              src={quiz.video_path}
               className="max-h-full max-w-full w-full h-full object-contain"
               controls
               autoPlay
@@ -415,13 +441,13 @@ export default function QuizPage() {
           className="flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Trainings
+          Digital Training
         </button>
         <span className="text-on-canvas text-sm">/</span>
         <span className="text-on-canvas text-sm font-medium truncate">{quiz.title}</span>
 
         <div className="ml-auto flex items-center gap-3">
-          {quiz.videoPath && (
+          {quiz.video_path && (
             <button
               onClick={openVideoModal}
               className="flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
@@ -430,7 +456,7 @@ export default function QuizPage() {
               Watch Video
             </button>
           )}
-          <span className="text-on-canvas-muted text-xs">Pass: {quiz.passingScore}%</span>
+          <span className="text-on-canvas-muted text-xs">Pass: {quiz.passing_score}%</span>
         </div>
       </div>
 
@@ -438,7 +464,7 @@ export default function QuizPage() {
       {iframeReady && (
         <iframe
           ref={iframeRef}
-          src={quiz.path}
+          src={scormSrc}
           title={quiz.title}
           className="flex-1 w-full border-none"
           allow="autoplay; encrypted-media; picture-in-picture"
@@ -447,7 +473,7 @@ export default function QuizPage() {
       )}
 
       {/* ── Video modal ─────────────────────────────────────────────────────── */}
-      {videoModalOpen && quiz.videoPath && (
+      {videoModalOpen && quiz.video_path && (
         <div
           className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-40"
           onClick={e => { if (e.target === e.currentTarget) closeVideoModal() }}
@@ -466,12 +492,11 @@ export default function QuizPage() {
             </div>
             {/* Player */}
             {isYouTube ? (
-              /* key prop forces fresh div on each open so YT API mounts cleanly */
               <div key={modalKey} id="yt-modal-player" className="w-full aspect-video" />
             ) : (
               <video
                 ref={modalVideoRef}
-                src={quiz.videoPath}
+                src={quiz.video_path}
                 className="w-full aspect-video"
                 controls
                 autoPlay
@@ -501,7 +526,7 @@ export default function QuizPage() {
             <p className="text-on-canvas-subtle text-sm mb-5">
               {finish.passed
                 ? 'You passed this training. Great work!'
-                : `A score of ${quiz.passingScore}% is required to pass. Give it another try!`}
+                : `A score of ${quiz.passing_score}% is required to pass. Give it another try!`}
             </p>
 
             <div className="bg-portal-bg rounded-xl p-4 mb-5 text-left space-y-3">
@@ -536,7 +561,7 @@ export default function QuizPage() {
             <div className="flex flex-col gap-2">
               {finish.passed && nextQuiz && (
                 <button
-                  onClick={() => navigate(`/quiz/${nextQuiz.id}`)}
+                  onClick={() => navigate(`/quiz/${nextQuiz.quiz_id}`)}
                   className="w-full py-2.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
                 >
                   Go to Next Module
@@ -562,7 +587,7 @@ export default function QuizPage() {
                   Try Again
                 </button>
               )}
-              {quiz.videoPath && (
+              {quiz.video_path && (
                 <button
                   onClick={openVideoModal}
                   className="w-full py-2.5 bg-surface-elevated hover:bg-portal-border text-on-canvas-subtle rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"

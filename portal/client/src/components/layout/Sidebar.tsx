@@ -13,7 +13,7 @@ const NAV = [
   { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard',         restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
   { to: '/assets',       icon: BookOpen,        label: 'Product Library',   restricted: true,  prospectVisible: false, managerOnly: false, adminOnly: false },
   { to: '/distributors', icon: MapPin,          label: 'Distributors',      restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
-  { to: '/trainings',    icon: GraduationCap,   label: 'Trainings',         restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
+  { to: '/trainings',    icon: GraduationCap,   label: 'Digital Training',  restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
   { to: '/store-users',  icon: Users2,          label: 'My Store',          restricted: false, prospectVisible: false, managerOnly: true,  adminOnly: false },
   { to: '/products',     icon: Package,         label: 'Products',          restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
   { to: '/inventory',    icon: Archive,         label: 'Inventory',         restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },

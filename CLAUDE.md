@@ -42,8 +42,12 @@ The project has two top-level parts:
 | `portal/client/src/components/layout/Sidebar.tsx` | Navigation with role-based filtering (`managerOnly`, `prospectVisible`, `adminOnly` flags) |
 | `portal/client/src/quizzes/index.ts` | Quiz registry |
 | `portal/client/public/training/<id>/index.html` | SCORM packages |
-| `portal/client/src/pages/AssetsPage.tsx` | Merged "Product Library" (Info Sheets, Digital Assets, Campaign Materials, Video tabs) |
+| `portal/client/src/pages/AssetsPage.tsx` | Merged "Product Library" with admin add/edit/delete; 4 tabs (Info Sheets, Digital Assets, Campaign Materials, Video) |
+| `portal/client/src/pages/RetailerPage.tsx` | "Request Physical Marketing Assets" — catalog + request form for Counter Cards, Banner, Neon Signs |
 | `portal/client/src/pages/StoreUsersPage.tsx` | "My Store" page for tier2 — read-only member list with quiz stats |
+| `portal/client/src/context/NotificationContext.tsx` | Notification state — polls `/api/notifications` every 60s; provides `markRead`, `markAllRead` |
+| `portal/server/src/notifications.ts` | `notifyAdmins(type, title, message, link?)` + `notifyUsers(...)` helpers |
+| `portal/server/src/routes/notifications.ts` | GET `/`, PUT `/read-all`, PUT `/:id/read` |
 | `portal/server/src/index.ts` | Express app + route mounting + WC polling interval |
 | `portal/server/src/database.ts` | DB init, migrations, seed |
 | `portal/server/src/middleware/auth.ts` | `requireAuth` + `requireRole(...roles)` |
@@ -159,7 +163,7 @@ Restricted tiers redirected to `/dashboard` for any disallowed route (enforced i
 ### Self-Registration
 `POST /api/auth/register` accepts an optional `role` field. Valid values: `tier1`, `tier2`, `tier3`, `tier4` (Prospect). Defaults to `tier1`. `tier5` cannot be self-registered.
 
-The `company` field on registration is populated via a **dropdown** from `GET /api/stores` (public endpoint, no auth required). If no stores exist, falls back to a free-text input.
+The `company` field on registration is populated via an **incremental search combobox** backed by `GET /api/stores` (public endpoint, no auth required). Typing filters the list in real-time; selecting commits the value to a hidden input for form validation. If no stores exist, falls back to a free-text input.
 
 ---
 
@@ -181,8 +185,10 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 5 | `woocommerce_tables` | Adds woo_settings (key/value credential store) and woo_sync_log (pull/push audit log) |
 | 6 | `add_prospect_tier` | Renames existing tier4→tier5; inserts `prospect@demo.com` (tier4) if not exists |
 | 7 | `stores_table` | Creates `stores` table; seeds from distinct existing user companies; ensures 'Demo Retail Store' exists |
+| 8 | `marketing_request_fields` | Adds `requested_items TEXT` and `request_notes TEXT` to `retailer_applications` |
+| 9 | `notifications_table` | Creates `notifications` table: `user_id, type, title, message, link, read (0/1), created_at`; index on `user_id` |
 
-**Next migration version: 8**
+**Next migration version: 10**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -217,7 +223,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 |---|---|---|---|
 | GET | `/` | requireAuth | List assets (filters: brand, type, search) |
 | GET | `/:id` | requireAuth | Get single asset |
-| POST | `/` | tier5/admin only | Create asset |
+| POST | `/` | tier5/admin only | Create asset; triggers `notifyUsers('new_asset', ...)` to all non-admin users |
+| PUT | `/:id` | tier5/admin only | Update asset fields |
+| DELETE | `/:id` | tier5/admin only | Delete asset |
 
 ### Distributors — `/api/distributors`
 | Method | Path | Auth | Description |
@@ -246,7 +254,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | GET | `/` | requireAuth | List creatives |
-| POST | `/` | tier5/admin only | Create creative |
+| POST | `/` | tier5/admin only | Create creative; triggers `notifyUsers('new_asset', ...)` |
+| PUT | `/:id` | tier5/admin only | Update creative fields |
+| DELETE | `/:id` | tier5/admin only | Delete creative |
 
 ### Quiz — `/api/quiz`
 | Method | Path | Auth | Description |
@@ -260,6 +270,22 @@ Managed in `portal/server/src/database.ts`. Rules:
 | GET | `/users` | tier5/admin only | List all users (id, name, email, company, role, created_at) |
 | PUT | `/users/:id/role` | tier5/admin only | Update a user's role; valid values: tier1–tier5 |
 | PUT | `/users/:id/company` | tier5/admin only | Update a user's company to a store name from the stores table |
+
+### Notifications — `/api/notifications`
+All endpoints require `requireAuth`. Notifications are per-user rows.
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/` | Latest 30 notifications for current user, unread first; returns `{ notifications, unreadCount }` |
+| PUT | `/read-all` | Mark all as read (registered BEFORE `/:id/read` to avoid Express routing conflict) |
+| PUT | `/:id/read` | Mark single notification read (checks `user_id` ownership) |
+
+### Retailer / Physical Marketing Assets — `/api/retailer`
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/apply` | requireAuth | Submit marketing asset request; fields: `contact_name`, `business_name`, `address`, `requested_items`, `request_notes?` |
+| GET | `/status` | requireAuth | Returns current user's latest request status (includes `requested_items`) |
+| GET | `/applications` | tier5/admin only | List all requests |
 
 ### Stores — `/api/stores`
 | Method | Path | Auth | Description |
@@ -387,6 +413,7 @@ When a quiz has `videoPath` set, `QuizPage.tsx` renders a two-phase experience:
   - Optimistic update in table
   - `WooSyncToast` per changed SKU (20s each)
   - **Undo toast** (bottom-center, 10s countdown) — clicking Undo calls `POST /api/inventory/bulk` with original values and cancels all pending WooCommerce sync timers
+  - Server fires `notifyAdmins()` for any item whose status transitions to `low_stock` or `out_of_stock`
 - `notes` field accepted by server (stored for future warehouse accounts, currently ignored in DB)
 
 ---
@@ -410,6 +437,80 @@ Both APIs fetched in parallel via `Promise.all` on mount. Results merged client-
 - Download button works for both sources
 - Copy-URL button shown only for assets (has `file_url` field)
 - Brand filter and search work across all tabs
+
+### Admin CRUD (tier5/admin only)
+- **Add** button in page header → `AddItemModal`: adapts form fields per active tab; type dropdown changes based on tab; POSTs to `/api/assets` or `/api/creatives`
+- **Edit** (pencil icon in card footer) → `EditItemModal`: pre-filled with existing data; updates via `PUT /api/assets/:id` or `PUT /api/creatives/:id`; updates item in-place via `onSaved` callback
+- **Delete** (trash icon on card image) → inline confirm/cancel before calling `DELETE /api/assets/:id` or `DELETE /api/creatives/:id`
+- Brand field in add/edit modals uses `<datalist>` for suggestions (`BRAND_OPTIONS` constant)
+
+### Image Sizes
+- **Product Library cards:** 600×338px (16:9 `aspect-video`)
+- Images placed at any CDN URL; paste into `thumbnail_url` field when adding/editing items
+
+---
+
+## Physical Marketing Assets (`/retailer`)
+
+`RetailerPage.tsx` — catalog-style page for requesting physical Sliquid marketing materials (for physical retail locations only; accessible to tier4 Prospect + tier5 Admin).
+
+### Catalog Items (from `MARKETING_ITEMS` constant)
+| ID | Name | Variants |
+|---|---|---|
+| `counter-cards` | Counter Cards | Naturals Collection, Organics Collection, Swirl Collection, Ride Lube Collection, Sliquid Naturals Satin, Sliquid Naturals Tsunami, SliqPick Infographic |
+| `retractable-banner` | Retractable Banner | _(no variants)_ |
+| `neon-sliquid` | Sliquid Neon Sign | _(no variants)_ |
+| `neon-ride` | Ride Lube Neon Sign | _(no variants)_ |
+
+### UX Flow
+- **ItemCard** per catalog item: `aspect-[16/7]` image area; Select/Selected toggle button; variant checkboxes expand when item is selected
+- Counter Cards require at least one variant selected before submit
+- Form fields: Full Name, Company/Business Name, Physical Location/Storefront (textarea), Notes (optional)
+- `buildRequestedItems()` formats selections as `"Counter Cards (Naturals, Swirl); Retractable Banner"` before POSTing
+- Submits to `POST /api/retailer/apply`
+
+### Image Sizes
+- **In-store Marketing cards:** 860×376px (16:7 `aspect-[16/7]`)
+- `imageUrl` field per item — set to `null` placeholder by default; replace with WordPress/CDN URL when available
+
+---
+
+## Notification System
+
+Notifications are per-user rows in the `notifications` table (migration v9).
+
+### Server Side — `portal/server/src/notifications.ts`
+- `notifyAdmins(type, title, message, link?)` — inserts one row per admin (role `tier5` or `admin`)
+- `notifyUsers(type, title, message, link?)` — inserts one row per non-admin user
+
+### When Notifications Are Created
+| Trigger | Type | Recipients |
+|---|---|---|
+| Inventory status transitions to `low_stock` | `low_stock` | Admins only |
+| Inventory status transitions to `out_of_stock` | `out_of_stock` | Admins only |
+| New asset added (`POST /api/assets`) | `new_asset` | All non-admin users |
+| New creative added (`POST /api/creatives`) | `new_asset` | All non-admin users |
+
+**Status-change-only rule:** Inventory notifications fire only when `oldStatus !== newStatus`. Prevents spam when admins repeatedly update already-low items.
+
+**Bulk inventory + notifications:** `notifyAdmins()` calls happen AFTER the SQLite transaction commits (not inside it) to avoid nested DB write conflicts. Alerts are collected in an `alerts[]` array during the transaction loop.
+
+### Client Side — `NotificationContext.tsx`
+- `NotificationProvider` wraps the entire `Shell` content (inside `NotificationProvider` in `Shell.tsx`)
+- Polls `GET /api/notifications` every **60 seconds**
+- `markRead(id)` — optimistic local update + `PUT /api/notifications/:id/read`
+- `markAllRead()` — optimistic local update + `PUT /api/notifications/read-all`
+
+### TopBar Bell Dropdown
+- Shows red badge with unread count (hidden at 0)
+- Dropdown header: "X new" chip + "Mark all read" button
+- Scrollable list (max-h-80); empty state with Bell icon
+- Each row: colored icon by type (`AlertTriangle` amber / `PackageX` red / `BookOpen` accent), title, message, relative time (`timeAgo()`), blue dot for unread
+- Clicking a notification: marks read + navigates to `n.link` if present
+- `NOTIF_ICONS` and `NOTIF_COLORS` maps keyed by notification `type`
+
+### Route Ordering Note
+`PUT /read-all` is registered BEFORE `PUT /:id/read` in `routes/notifications.ts` — Express would otherwise match `read-all` as the `:id` parameter.
 
 ---
 
@@ -467,7 +568,7 @@ Credentials can be set two ways (env takes precedence):
 - **Icons:** `lucide-react` exclusively.
 - **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export) and public pre-auth calls (e.g., `/api/stores` from RegisterPage) use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **8**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **10**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
 - **Video files:** `.mp4`, `.mov`, `.webm`, `.avi`, `.m4v` are in `.gitignore` — never commit large video files. Use YouTube or a CDN URL instead.

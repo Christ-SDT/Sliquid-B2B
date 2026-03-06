@@ -1,96 +1,234 @@
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { api } from '@/api/client'
-import { CheckCircle, LayoutGrid, Flag, Zap, Check, Loader2, Package } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
+import { isAdmin } from '@/types'
+import {
+  CheckCircle, LayoutGrid, Flag, Zap, Check, Loader2, Package,
+  Star, Megaphone, Plus, Pencil, Trash2, X,
+  type LucideIcon,
+} from 'lucide-react'
 
-// ─── Marketing Items Catalog ──────────────────────────────────────────────────
-// To add images: set imageUrl to the WordPress media URL for each item.
-// e.g. imageUrl: 'https://yoursite.com/wp-content/uploads/counter-cards.jpg'
+// ─── Icon map ─────────────────────────────────────────────────────────────────
 
-interface MarketingItem {
-  id: string
-  name: string
-  subtitle: string
-  description: string
-  specs: string[]
-  variants: string[]
-  imageUrl: string | null
-  Icon: React.ComponentType<{ className?: string }>
+const ICON_MAP: Record<string, LucideIcon> = {
+  LayoutGrid,
+  Flag,
+  Zap,
+  Package,
+  Star,
+  Megaphone,
 }
-
-const MARKETING_ITEMS: MarketingItem[] = [
-  {
-    id: 'counter-cards',
-    name: 'Counter Cards',
-    subtitle: '5" × 7" Easel Back',
-    description:
-      'Eye-catching point-of-sale counter cards with an easel back stand. Perfect for checkout counters, product shelves, and display tables to educate customers about Sliquid product lines.',
-    specs: ['5" × 7" format', 'Easel back stand', 'Full-color print', 'Multiple designs available'],
-    variants: [
-      'Naturals Collection',
-      'Organics Collection',
-      'Swirl Collection',
-      'Ride Lube Collection',
-      'Sliquid Naturals Satin',
-      'Sliquid Naturals Tsunami',
-      'SliqPick Infographic',
-    ],
-    imageUrl: null, // Add WordPress image URL here
-    Icon: LayoutGrid,
-  },
-  {
-    id: 'retractable-banner',
-    name: 'Retractable Banner',
-    subtitle: "2' × 5' Display Banner",
-    description:
-      'A professional full-color retractable banner ideal for events, trade shows, and in-store promotions. Lightweight and quick to set up — comes with a zippered nylon carry bag.',
-    specs: ["2' × 5' size", 'Lightweight design', 'Zippered nylon carry bag', 'Full-color print', 'Indoor use only'],
-    variants: [],
-    imageUrl: null, // Add WordPress image URL here
-    Icon: Flag,
-  },
-  {
-    id: 'neon-sliquid',
-    name: 'Sliquid Neon Sign',
-    subtitle: 'LED Neon Display',
-    description:
-      'Illuminate your store with the iconic Sliquid logo in vibrant LED neon. Creates an unforgettable display for windows, feature walls, and behind-the-counter setups.',
-    specs: [
-      'Neon size: 18.6" × 22"',
-      'Base size: 18.04" × 5.91"',
-      '2 hooks + hanging chain',
-      'Transparent base',
-      'Indoor use only',
-      'Box: 21.7" × 25.2" × 2.8"',
-    ],
-    variants: [],
-    imageUrl: null, // Add WordPress image URL here
-    Icon: Zap,
-  },
-  {
-    id: 'neon-ride',
-    name: 'Ride Lube Neon Sign',
-    subtitle: 'LED Neon Display',
-    description:
-      'Draw attention with the bold Ride Lube LED neon sign. Perfect for showcasing the Ride Lube brand in an eye-catching way anywhere in your store.',
-    specs: [
-      'Neon size: 22" × 11.67"',
-      'Base size: 22" × 5.12"',
-      '2 hooks + hanging chain',
-      'Transparent base',
-      'Indoor use only',
-      'Box: 25.2" × 14.8" × 2.8"',
-    ],
-    variants: [],
-    imageUrl: null, // Add WordPress image URL here
-    Icon: Zap,
-  },
-]
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface SelectedItem {
-  id: string
+type MarketingItem = {
+  id: number
+  name: string
+  subtitle: string | null
+  description: string | null
+  specs: string[]
   variants: string[]
+  image_url: string | null
+  icon_name: string
+  sort_order: number
+}
+
+interface SelectedItem {
+  id: number
+  name: string
+  variants: string[]
+}
+
+// ─── Add Item Modal ───────────────────────────────────────────────────────────
+
+function AddItemModal({ onClose, onAdded }: { onClose: () => void; onAdded: (item: MarketingItem) => void }) {
+  const [name, setName] = useState('')
+  const [subtitle, setSubtitle] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
+  const [description, setDescription] = useState('')
+  const [specsText, setSpecsText] = useState('')
+  const [variantsText, setVariantsText] = useState('')
+  const [iconName, setIconName] = useState('Package')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const item = await api.post<MarketingItem>('/marketing-items', {
+        name: name.trim(),
+        subtitle: subtitle.trim() || null,
+        image_url: imageUrl.trim() || null,
+        description: description.trim() || null,
+        specs: specsText.split('\n').map(s => s.trim()).filter(Boolean),
+        variants: variantsText.split('\n').map(s => s.trim()).filter(Boolean),
+        icon_name: iconName,
+        sort_order: 0,
+      })
+      onAdded(item)
+      onClose()
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to add item')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-surface border border-portal-border rounded-xl w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
+          <h2 className="text-on-canvas font-semibold">Add Marketing Item</h2>
+          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas"><X className="w-4 h-4" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Name *</label>
+            <input value={name} onChange={e => setName(e.target.value)} required placeholder="e.g. Counter Cards"
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Subtitle</label>
+            <input value={subtitle} onChange={e => setSubtitle(e.target.value)} placeholder='e.g. 5" × 7" Easel Back'
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Image URL</label>
+            <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://…"
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Description</label>
+            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent resize-none" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Specs (one per line)</label>
+            <textarea value={specsText} onChange={e => setSpecsText(e.target.value)} rows={3} placeholder={'5" × 7" format\nEasel back stand'}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent resize-none" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Variants (one per line)</label>
+            <textarea value={variantsText} onChange={e => setVariantsText(e.target.value)} rows={3} placeholder={'Naturals Collection\nOrganics Collection'}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent resize-none" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Icon</label>
+            <select value={iconName} onChange={e => setIconName(e.target.value)}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent">
+              {Object.keys(ICON_MAP).map(k => <option key={k} value={k}>{k}</option>)}
+            </select>
+          </div>
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onClose} className="flex-1 py-2 rounded-lg border border-portal-border text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors">Cancel</button>
+            <button type="submit" disabled={loading} className="flex-1 py-2 rounded-lg bg-portal-accent hover:bg-portal-accent/90 text-white text-sm font-medium transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              Add Item
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// ─── Edit Item Modal ──────────────────────────────────────────────────────────
+
+function EditItemModal({ item, onClose, onSaved }: { item: MarketingItem; onClose: () => void; onSaved: (item: MarketingItem) => void }) {
+  const [name, setName] = useState(item.name)
+  const [subtitle, setSubtitle] = useState(item.subtitle ?? '')
+  const [imageUrl, setImageUrl] = useState(item.image_url ?? '')
+  const [description, setDescription] = useState(item.description ?? '')
+  const [specsText, setSpecsText] = useState(item.specs.join('\n'))
+  const [variantsText, setVariantsText] = useState(item.variants.join('\n'))
+  const [iconName, setIconName] = useState(item.icon_name)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const updated = await api.put<MarketingItem>(`/marketing-items/${item.id}`, {
+        name: name.trim(),
+        subtitle: subtitle.trim() || null,
+        image_url: imageUrl.trim() || null,
+        description: description.trim() || null,
+        specs: specsText.split('\n').map(s => s.trim()).filter(Boolean),
+        variants: variantsText.split('\n').map(s => s.trim()).filter(Boolean),
+        icon_name: iconName,
+        sort_order: item.sort_order,
+      })
+      onSaved(updated)
+      onClose()
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to save changes')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-surface border border-portal-border rounded-xl w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
+          <h2 className="text-on-canvas font-semibold">Edit Item</h2>
+          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas"><X className="w-4 h-4" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Name *</label>
+            <input value={name} onChange={e => setName(e.target.value)} required
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Subtitle</label>
+            <input value={subtitle} onChange={e => setSubtitle(e.target.value)}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Image URL</label>
+            <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://…"
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Description</label>
+            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent resize-none" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Specs (one per line)</label>
+            <textarea value={specsText} onChange={e => setSpecsText(e.target.value)} rows={3}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent resize-none" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Variants (one per line)</label>
+            <textarea value={variantsText} onChange={e => setVariantsText(e.target.value)} rows={3}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent resize-none" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Icon</label>
+            <select value={iconName} onChange={e => setIconName(e.target.value)}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent">
+              {Object.keys(ICON_MAP).map(k => <option key={k} value={k}>{k}</option>)}
+            </select>
+          </div>
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onClose} className="flex-1 py-2 rounded-lg border border-portal-border text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors">Cancel</button>
+            <button type="submit" disabled={loading} className="flex-1 py-2 rounded-lg bg-portal-accent hover:bg-portal-accent/90 text-white text-sm font-medium transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
 }
 
 // ─── Item Card ────────────────────────────────────────────────────────────────
@@ -100,11 +238,15 @@ interface ItemCardProps {
   selected: SelectedItem | undefined
   onToggle: () => void
   onToggleVariant: (v: string) => void
+  adminMode: boolean
+  onEdit: () => void
+  onDelete: () => void
 }
 
-function ItemCard({ item, selected, onToggle, onToggleVariant }: ItemCardProps) {
+function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit, onDelete }: ItemCardProps) {
   const isSelected = !!selected
-  const { Icon } = item
+  const Icon = ICON_MAP[item.icon_name] ?? Package
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   return (
     <div
@@ -113,8 +255,8 @@ function ItemCard({ item, selected, onToggle, onToggleVariant }: ItemCardProps) 
     >
       {/* Image / Placeholder */}
       <div className="aspect-[16/7] relative overflow-hidden bg-portal-bg flex items-center justify-center">
-        {item.imageUrl ? (
-          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+        {item.image_url ? (
+          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
         ) : (
           <div className="flex flex-col items-center gap-2 text-on-canvas-muted/40">
             <Icon className="w-10 h-10" />
@@ -125,13 +267,47 @@ function ItemCard({ item, selected, onToggle, onToggleVariant }: ItemCardProps) 
             <Check className="w-3.5 h-3.5 text-white" />
           </div>
         )}
+        {/* Admin controls on image */}
+        {adminMode && (
+          <div className="absolute top-2 left-2 flex gap-1.5">
+            <button
+              onClick={e => { e.stopPropagation(); onEdit() }}
+              className="w-7 h-7 rounded-lg bg-surface/80 backdrop-blur-sm border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors"
+            >
+              <Pencil className="w-3 h-3" />
+            </button>
+            {confirmDelete ? (
+              <>
+                <button
+                  onClick={e => { e.stopPropagation(); setConfirmDelete(false); onDelete() }}
+                  className="px-2 h-7 rounded-lg bg-red-500/80 backdrop-blur-sm text-white text-xs font-medium"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={e => { e.stopPropagation(); setConfirmDelete(false) }}
+                  className="w-7 h-7 rounded-lg bg-surface/80 backdrop-blur-sm border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={e => { e.stopPropagation(); setConfirmDelete(true) }}
+                className="w-7 h-7 rounded-lg bg-surface/80 backdrop-blur-sm border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-red-400 transition-colors"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="text-on-canvas font-semibold text-base">{item.name}</h3>
-            <p className="text-portal-accent text-xs font-medium mt-0.5">{item.subtitle}</p>
+            {item.subtitle && <p className="text-portal-accent text-xs font-medium mt-0.5">{item.subtitle}</p>}
           </div>
           <button
             type="button"
@@ -146,17 +322,21 @@ function ItemCard({ item, selected, onToggle, onToggleVariant }: ItemCardProps) 
           </button>
         </div>
 
-        <p className="text-on-canvas-muted text-sm mt-3 leading-relaxed">{item.description}</p>
+        {item.description && (
+          <p className="text-on-canvas-muted text-sm mt-3 leading-relaxed">{item.description}</p>
+        )}
 
         {/* Specs */}
-        <ul className="mt-3 space-y-1">
-          {item.specs.map(spec => (
-            <li key={spec} className="flex items-center gap-2 text-xs text-on-canvas-subtle">
-              <span className="w-1 h-1 rounded-full bg-portal-accent flex-shrink-0" />
-              {spec}
-            </li>
-          ))}
-        </ul>
+        {item.specs.length > 0 && (
+          <ul className="mt-3 space-y-1">
+            {item.specs.map(spec => (
+              <li key={spec} className="flex items-center gap-2 text-xs text-on-canvas-subtle">
+                <span className="w-1 h-1 rounded-full bg-portal-accent flex-shrink-0" />
+                {spec}
+              </li>
+            ))}
+          </ul>
+        )}
 
         {/* Variant picker — only when item is selected and has variants */}
         {isSelected && item.variants.length > 0 && (
@@ -194,6 +374,11 @@ function ItemCard({ item, selected, onToggle, onToggleVariant }: ItemCardProps) 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function RetailerPage() {
+  const { user } = useAuth()
+  const adminMode = isAdmin(user?.role ?? '')
+
+  const [items, setItems] = useState<MarketingItem[]>([])
+  const [itemsLoading, setItemsLoading] = useState(true)
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([])
   const [name, setName] = useState('')
   const [company, setCompany] = useState('')
@@ -202,16 +387,25 @@ export default function RetailerPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [editTarget, setEditTarget] = useState<MarketingItem | null>(null)
 
-  function toggleItem(id: string) {
+  useEffect(() => {
+    api.get<MarketingItem[]>('/marketing-items')
+      .then(setItems)
+      .catch(console.error)
+      .finally(() => setItemsLoading(false))
+  }, [])
+
+  function toggleItem(item: MarketingItem) {
     setSelectedItems(prev =>
-      prev.find(i => i.id === id)
-        ? prev.filter(i => i.id !== id)
-        : [...prev, { id, variants: [] }]
+      prev.find(i => i.id === item.id)
+        ? prev.filter(i => i.id !== item.id)
+        : [...prev, { id: item.id, name: item.name, variants: [] }]
     )
   }
 
-  function toggleVariant(itemId: string, variant: string) {
+  function toggleVariant(itemId: number, variant: string) {
     setSelectedItems(prev => prev.map(item => {
       if (item.id !== itemId) return item
       return {
@@ -225,9 +419,8 @@ export default function RetailerPage() {
 
   function buildRequestedItems() {
     return selectedItems.map(sel => {
-      const def = MARKETING_ITEMS.find(m => m.id === sel.id)!
-      if (sel.variants.length > 0) return `${def.name} (${sel.variants.join(', ')})`
-      return def.name
+      if (sel.variants.length > 0) return `${sel.name} (${sel.variants.join(', ')})`
+      return sel.name
     }).join('; ')
   }
 
@@ -239,10 +432,14 @@ export default function RetailerPage() {
       setError('Please select at least one item above before submitting.')
       return
     }
-    const ccSel = selectedItems.find(i => i.id === 'counter-cards')
-    if (ccSel && ccSel.variants.length === 0) {
-      setError('Please select at least one Counter Card design.')
-      return
+    // Validate: any selected item with variants must have at least one variant chosen
+    const itemsWithVariants = items.filter(i => i.variants.length > 0)
+    for (const mi of itemsWithVariants) {
+      const sel = selectedItems.find(s => s.id === mi.id)
+      if (sel && sel.variants.length === 0) {
+        setError(`Please select at least one design for "${mi.name}".`)
+        return
+      }
     }
 
     setLoading(true)
@@ -255,11 +452,20 @@ export default function RetailerPage() {
         request_notes: notes || null,
       })
       setSubmitted(true)
-    } catch (err: any) {
-      setError(err.message ?? 'Submission failed. Please try again.')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Submission failed. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  function handleDeleteItem(id: number) {
+    api.delete(`/marketing-items/${id}`)
+      .then(() => {
+        setItems(prev => prev.filter(i => i.id !== id))
+        setSelectedItems(prev => prev.filter(s => s.id !== id))
+      })
+      .catch(console.error)
   }
 
   // ─── Success state ─────────────────────────────────────────────────────────
@@ -278,20 +484,17 @@ export default function RetailerPage() {
         </p>
         <div className="bg-surface border border-portal-border rounded-xl p-5 text-left">
           <p className="text-on-canvas-muted text-xs font-semibold uppercase tracking-wider mb-3">Items Requested</p>
-          {selectedItems.map(sel => {
-            const def = MARKETING_ITEMS.find(m => m.id === sel.id)!
-            return (
-              <div key={sel.id} className="flex items-start gap-3 py-2 border-b border-portal-border/50 last:border-0">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-on-canvas text-sm font-medium">{def.name}</p>
-                  {sel.variants.length > 0 && (
-                    <p className="text-on-canvas-muted text-xs mt-0.5">{sel.variants.join(', ')}</p>
-                  )}
-                </div>
+          {selectedItems.map(sel => (
+            <div key={sel.id} className="flex items-start gap-3 py-2 border-b border-portal-border/50 last:border-0">
+              <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-on-canvas text-sm font-medium">{sel.name}</p>
+                {sel.variants.length > 0 && (
+                  <p className="text-on-canvas-muted text-xs mt-0.5">{sel.variants.join(', ')}</p>
+                )}
               </div>
-            )
-          })}
+            </div>
+          ))}
         </div>
       </div>
     )
@@ -302,31 +505,52 @@ export default function RetailerPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <Package className="w-5 h-5 text-portal-accent" />
-          <h1 className="text-on-canvas text-2xl font-bold">Request Physical Marketing Assets</h1>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-1">
+            <Package className="w-5 h-5 text-portal-accent" />
+            <h1 className="text-on-canvas text-2xl font-bold">Request Physical Marketing Assets</h1>
+          </div>
+          <p className="text-on-canvas-muted text-sm">
+            Browse our in-store display items below. Select the ones you'd like for your physical location, then fill out your details and submit.
+          </p>
         </div>
-        <p className="text-on-canvas-muted text-sm">
-          Browse our in-store display items below. Select the ones you'd like for your physical location, then fill out your details and submit.
-        </p>
+        {adminMode && (
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add Item
+          </button>
+        )}
       </div>
 
       {/* Catalog */}
       <div>
         <h2 className="text-on-canvas font-semibold text-base mb-1">Available Items</h2>
         <p className="text-on-canvas-muted text-sm mb-4">Click <span className="font-medium text-on-canvas-subtle">Select</span> on any item to add it to your request.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {MARKETING_ITEMS.map(item => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              selected={selectedItems.find(s => s.id === item.id)}
-              onToggle={() => toggleItem(item.id)}
-              onToggleVariant={v => toggleVariant(item.id, v)}
-            />
-          ))}
-        </div>
+
+        {itemsLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 text-portal-accent animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {items.map(item => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                selected={selectedItems.find(s => s.id === item.id)}
+                onToggle={() => toggleItem(item)}
+                onToggleVariant={v => toggleVariant(item.id, v)}
+                adminMode={adminMode}
+                onEdit={() => setEditTarget(item)}
+                onDelete={() => handleDeleteItem(item.id)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Request Form */}
@@ -341,16 +565,13 @@ export default function RetailerPage() {
               Selected ({selectedItems.length})
             </p>
             <div className="flex flex-wrap gap-2">
-              {selectedItems.map(sel => {
-                const def = MARKETING_ITEMS.find(m => m.id === sel.id)!
-                return (
-                  <span key={sel.id} className="flex items-center gap-1 px-2.5 py-1 bg-portal-accent/15 text-portal-accent rounded-full text-xs font-medium">
-                    <Check className="w-3 h-3" />
-                    {def.name}
-                    {sel.variants.length > 0 && ` (${sel.variants.length})`}
-                  </span>
-                )
-              })}
+              {selectedItems.map(sel => (
+                <span key={sel.id} className="flex items-center gap-1 px-2.5 py-1 bg-portal-accent/15 text-portal-accent rounded-full text-xs font-medium">
+                  <Check className="w-3 h-3" />
+                  {sel.name}
+                  {sel.variants.length > 0 && ` (${sel.variants.length})`}
+                </span>
+              ))}
             </div>
           </div>
         )}
@@ -424,6 +645,23 @@ export default function RetailerPage() {
           </button>
         </form>
       </div>
+
+      {showAddModal && (
+        <AddItemModal
+          onClose={() => setShowAddModal(false)}
+          onAdded={item => setItems(prev => [...prev, item])}
+        />
+      )}
+      {editTarget && (
+        <EditItemModal
+          item={editTarget}
+          onClose={() => setEditTarget(null)}
+          onSaved={updated => {
+            setItems(prev => prev.map(i => i.id === updated.id ? updated : i))
+            setEditTarget(null)
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -1,3 +1,7 @@
+// NOTE: The `trainings` DB table is now the source of truth for quizzes (migration v11).
+// QuizPage and TrainingsPage both fetch from GET /api/trainings.
+// This file is kept for reference only — do not import QUIZZES in new code.
+
 export type Quiz = {
   id: string
   title: string
