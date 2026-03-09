@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check } from 'lucide-react'
+import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { useNotifications } from '@/context/NotificationContext'
@@ -24,15 +24,17 @@ function timeAgo(dateStr: string): string {
 }
 
 const NOTIF_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  low_stock:   AlertTriangle,
-  out_of_stock: PackageX,
-  new_asset:   BookOpen,
+  low_stock:        AlertTriangle,
+  out_of_stock:     PackageX,
+  new_asset:        BookOpen,
+  marketing_request: Megaphone,
 }
 
 const NOTIF_COLORS: Record<string, string> = {
-  low_stock:    'text-amber-400',
-  out_of_stock: 'text-red-400',
-  new_asset:    'text-portal-accent',
+  low_stock:         'text-amber-400',
+  out_of_stock:      'text-red-400',
+  new_asset:         'text-portal-accent',
+  marketing_request: 'text-violet-400',
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────

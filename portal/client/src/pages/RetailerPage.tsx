@@ -4,7 +4,8 @@ import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
 import {
   CheckCircle, LayoutGrid, Flag, Zap, Check, Loader2, Package,
-  Star, Megaphone, Plus, Pencil, Trash2, X,
+  Star, Megaphone, Plus, Pencil, Trash2, X, Users, Clock, ThumbsUp, ThumbsDown,
+  Monitor, AlertCircle,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -377,9 +378,19 @@ export default function RetailerPage() {
   const { user } = useAuth()
   const adminMode = isAdmin(user?.role ?? '')
 
+  type PriorRequest = {
+    id: number
+    business_name: string
+    requested_items: string
+    status: string
+    submitted_at: string
+  }
+
   const [items, setItems] = useState<MarketingItem[]>([])
   const [itemsLoading, setItemsLoading] = useState(true)
+  const [priorRequest, setPriorRequest] = useState<PriorRequest | null>(null)
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([])
+  const [trainingType, setTrainingType] = useState('')
   const [name, setName] = useState('')
   const [company, setCompany] = useState('')
   const [location, setLocation] = useState('')
@@ -391,8 +402,11 @@ export default function RetailerPage() {
   const [editTarget, setEditTarget] = useState<MarketingItem | null>(null)
 
   useEffect(() => {
-    api.get<MarketingItem[]>('/marketing-items')
-      .then(setItems)
+    Promise.all([
+      api.get<MarketingItem[]>('/marketing-items'),
+      api.get<PriorRequest | null>('/retailer/status'),
+    ])
+      .then(([mi, status]) => { setItems(mi); setPriorRequest(status) })
       .catch(console.error)
       .finally(() => setItemsLoading(false))
   }, [])
@@ -418,18 +432,20 @@ export default function RetailerPage() {
   }
 
   function buildRequestedItems() {
-    return selectedItems.map(sel => {
+    const parts = selectedItems.map(sel => {
       if (sel.variants.length > 0) return `${sel.name} (${sel.variants.join(', ')})`
       return sel.name
-    }).join('; ')
+    })
+    if (trainingType) parts.push(trainingType)
+    return parts.join('; ')
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
 
-    if (selectedItems.length === 0) {
-      setError('Please select at least one item above before submitting.')
+    if (selectedItems.length === 0 && !trainingType) {
+      setError('Please select at least one item or service above before submitting.')
       return
     }
     // Validate: any selected item with variants must have at least one variant chosen
@@ -495,6 +511,15 @@ export default function RetailerPage() {
               </div>
             </div>
           ))}
+          {trainingType && (
+            <div className="flex items-start gap-3 py-2 border-t border-portal-border/50">
+              <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-on-canvas text-sm font-medium">{trainingType}</p>
+                <p className="text-on-canvas-muted text-xs mt-0.5">Hosted by Team Sliquid</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -526,6 +551,41 @@ export default function RetailerPage() {
         )}
       </div>
 
+      {/* Prior request status banner */}
+      {priorRequest && (
+        <div className={`flex items-start gap-3 p-4 rounded-xl border text-sm
+          ${priorRequest.status === 'approved'
+            ? 'bg-emerald-500/10 border-emerald-500/30'
+            : priorRequest.status === 'declined'
+              ? 'bg-red-500/10 border-red-500/30'
+              : 'bg-portal-accent/5 border-portal-accent/20'
+          }`}>
+          {priorRequest.status === 'approved'
+            ? <ThumbsUp className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+            : priorRequest.status === 'declined'
+              ? <ThumbsDown className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+              : <Clock className="w-4 h-4 text-portal-accent flex-shrink-0 mt-0.5" />
+          }
+          <div>
+            <p className={`font-medium
+              ${priorRequest.status === 'approved' ? 'text-emerald-400' : priorRequest.status === 'declined' ? 'text-red-400' : 'text-on-canvas'}`}>
+              {priorRequest.status === 'approved' ? 'Request Approved'
+                : priorRequest.status === 'declined' ? 'Request Declined'
+                : 'Request Pending Review'}
+            </p>
+            <p className="text-on-canvas-muted mt-0.5">
+              {priorRequest.status === 'declined'
+                ? 'Your previous request was not fulfilled. You can submit a new one below.'
+                : `Your request for ${priorRequest.business_name} is ${priorRequest.status === 'approved' ? 'approved and being processed.' : 'being reviewed by the Sliquid team.'}`
+              }
+            </p>
+            <p className="text-on-canvas-muted/60 text-xs mt-1">
+              Requested: <span className="text-on-canvas-muted">{priorRequest.requested_items}</span>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Catalog */}
       <div>
         <h2 className="text-on-canvas font-semibold text-base mb-1">Available Items</h2>
@@ -553,16 +613,91 @@ export default function RetailerPage() {
         )}
       </div>
 
+      {/* Training */}
+      <div>
+        <h2 className="text-on-canvas font-semibold text-base mb-1">Training Request</h2>
+        <p className="text-on-canvas-muted text-sm mb-4">Request a training session with a Sliquid brand representative. Choose the format that works best for your team.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {([
+            {
+              type: 'Virtual Training',
+              Icon: Monitor,
+              subtitle: 'Live video session',
+              description: 'A Sliquid brand representative joins your team over video call to walk through product lines, answer questions, and coach your staff on how to confidently guide customers.',
+              specs: ['Flexible scheduling from anywhere', 'Product line walkthroughs & Q&A', 'Screen-share demos & selling tips', 'Recording available on request'],
+            },
+            {
+              type: 'In-Person Training',
+              Icon: Users,
+              subtitle: 'On-site at your location',
+              description: 'A Sliquid brand representative comes directly to your store to train your team on the floor — hands-on product knowledge, merchandising tips, and real-time customer coaching.',
+              specs: ['Live in-store session with your team', 'Hands-on product demonstrations', 'Merchandising & display guidance', 'Customer Q&A coaching on the floor'],
+            },
+          ] as const).map(({ type, Icon, subtitle, description, specs }) => {
+            const active = trainingType === type
+            return (
+              <div
+                key={type}
+                className={`bg-surface border rounded-xl overflow-hidden transition-all duration-150 flex flex-col
+                  ${active ? 'border-portal-accent shadow-[0_0_0_1px] shadow-portal-accent/30' : 'border-portal-border'}`}
+              >
+                <div className="flex items-start gap-4 p-5 flex-1">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors
+                    ${active ? 'bg-portal-accent/20' : 'bg-portal-bg'}`}>
+                    <Icon className={`w-5 h-5 transition-colors ${active ? 'text-portal-accent' : 'text-on-canvas-muted/50'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-on-canvas font-semibold text-sm">{type}</h3>
+                        <p className="text-portal-accent text-xs font-medium mt-0.5">{subtitle}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setTrainingType(active ? '' : type)}
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
+                          ${active
+                            ? 'bg-portal-accent text-white hover:bg-portal-accent/80'
+                            : 'bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500'
+                          }`}
+                      >
+                        {active ? '✓ Selected' : 'Select'}
+                      </button>
+                    </div>
+                    <p className="text-on-canvas-muted text-xs mt-2 leading-relaxed">{description}</p>
+                    <ul className="mt-3 space-y-1">
+                      {specs.map(s => (
+                        <li key={s} className="flex items-center gap-2 text-xs text-on-canvas-subtle">
+                          <span className="w-1 h-1 rounded-full bg-portal-accent flex-shrink-0" />
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                {/* Disclaimer */}
+                <div className="flex items-start gap-2 px-5 py-3 bg-portal-bg border-t border-portal-border/60">
+                  <AlertCircle className="w-3.5 h-3.5 text-on-canvas-muted/60 flex-shrink-0 mt-0.5" />
+                  <p className="text-on-canvas-muted/60 text-xs leading-relaxed">
+                    Availability is not guaranteed, as our sales team's schedule is subject to change. We will reach out to confirm availability after your request is received.
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
       {/* Request Form */}
       <div className="bg-surface border border-portal-border rounded-xl p-6">
         <h2 className="text-on-canvas font-semibold text-lg mb-1">Your Information</h2>
         <p className="text-on-canvas-muted text-sm mb-5">Tell us where to send the materials.</p>
 
         {/* Selected items summary */}
-        {selectedItems.length > 0 && (
+        {(selectedItems.length > 0 || trainingType) && (
           <div className="mb-5 p-4 bg-portal-accent/5 border border-portal-accent/20 rounded-lg">
             <p className="text-on-canvas text-xs font-semibold uppercase tracking-wider mb-2">
-              Selected ({selectedItems.length})
+              Selected ({selectedItems.length + (trainingType ? 1 : 0)})
             </p>
             <div className="flex flex-wrap gap-2">
               {selectedItems.map(sel => (
@@ -572,6 +707,12 @@ export default function RetailerPage() {
                   {sel.variants.length > 0 && ` (${sel.variants.length})`}
                 </span>
               ))}
+              {trainingType && (
+                <span className="flex items-center gap-1 px-2.5 py-1 bg-portal-accent/15 text-portal-accent rounded-full text-xs font-medium">
+                  <Check className="w-3 h-3" />
+                  {trainingType}
+                </span>
+              )}
             </div>
           </div>
         )}

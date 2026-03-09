@@ -3,7 +3,6 @@ import StrategySection from '@/components/sections/StrategySection'
 import StatsSection from '@/components/sections/StatsSection'
 import BrandsSection from '@/components/sections/BrandsSection'
 import CEOQuoteSection from '@/components/sections/CEOQuoteSection'
-import NewsSection from '@/components/sections/NewsSection'
 import CTASection from '@/components/sections/CTASection'
 
 export default function HomePage() {
@@ -14,7 +13,6 @@ export default function HomePage() {
       <StatsSection />
       <BrandsSection />
       <CEOQuoteSection />
-      <NewsSection />
       <CTASection />
     </>
   )

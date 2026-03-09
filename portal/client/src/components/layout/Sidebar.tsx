@@ -20,6 +20,7 @@ const NAV = [
   { to: '/invoices',     icon: Receipt,         label: 'Invoices',          restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
   { to: '/stats',        icon: BarChart3,       label: 'Analytics',         restricted: false, prospectVisible: false, managerOnly: false, adminOnly: false },
   { to: '/retailer',     icon: Megaphone,       label: 'In-store Marketing', restricted: false, prospectVisible: true,  managerOnly: false, adminOnly: false },
+  { to: '/requests',     icon: Megaphone,       label: 'Partner Requests',  restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
   { to: '/users',        icon: Users,           label: 'User Management',   restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
 ]
 
