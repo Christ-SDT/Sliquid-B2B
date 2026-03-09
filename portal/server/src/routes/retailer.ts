@@ -15,10 +15,10 @@ router.post('/apply', requireAuth, (req, res) => {
 
   const result = db.prepare(`
     INSERT INTO retailer_applications
-      (user_id, contact_name, business_name, address, requested_items, request_notes)
-    VALUES (?, ?, ?, ?, ?, ?)
+      (user_id, contact_name, email, business_name, address, requested_items, request_notes)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `).run(
-    req.user!.id, contact_name, business_name, address,
+    req.user!.id, contact_name, req.user!.email, business_name, address,
     requested_items, request_notes ?? null,
   )
 

@@ -1,12 +1,21 @@
 import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import rateLimit from 'express-rate-limit'
 import { db } from '../database.js'
 import { requireAuth, JWT_SECRET } from '../middleware/auth.js'
 
 const router = Router()
 
-router.post('/login', (req, res) => {
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many login attempts. Please try again in 15 minutes.' },
+})
+
+router.post('/login', loginLimiter, (req, res) => {
   const { email, password } = req.body
   if (!email || !password) {
     res.status(400).json({ message: 'Email and password required' })
@@ -25,7 +34,7 @@ router.post('/login', (req, res) => {
   })
 })
 
-router.post('/register', async (req, res) => {
+router.post('/register', loginLimiter, async (req, res) => {
   const { name, email, company, password, role: requestedRole } = req.body
   if (!name || !email || !company || !password) {
     res.status(400).json({ message: 'All fields are required' })

@@ -2,7 +2,9 @@ import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { db } from '../database.js'
 
-export const JWT_SECRET = process.env.JWT_SECRET || 'sliquid-portal-secret-2025'
+const secret = process.env.JWT_SECRET
+if (!secret) throw new Error('JWT_SECRET environment variable is not set')
+export const JWT_SECRET = secret
 
 export interface JwtPayload {
   userId: number

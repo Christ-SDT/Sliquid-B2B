@@ -28,8 +28,10 @@ router.put('/read-all', requireAuth, (req, res) => {
 
 // PUT /api/notifications/:id/read — mark single as read
 router.put('/:id/read', requireAuth, (req, res) => {
-  db.prepare('UPDATE notifications SET read = 1 WHERE id = ? AND user_id = ?')
-    .run(req.params.id, req.user!.id)
+  const notif = db.prepare('SELECT user_id FROM notifications WHERE id = ?').get(req.params.id) as any
+  if (!notif) { res.status(404).json({ message: 'Not found' }); return }
+  if (notif.user_id !== req.user!.id) { res.status(403).json({ message: 'Forbidden' }); return }
+  db.prepare('UPDATE notifications SET read = 1 WHERE id = ?').run(req.params.id)
   res.json({ ok: true })
 })
 
