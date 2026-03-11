@@ -303,6 +303,30 @@ const migrations: Migration[] = [
         'https://youtu.be/lFVvtQfOb8Y', 70, 15, 1
       )
     }
+  },
+  {
+    version: 12,
+    name: 'add_satin_swirl_silver_trainings',
+    up: () => {
+      const tr = db.prepare(
+        'INSERT OR IGNORE INTO trainings (quiz_id, title, description, video_path, passing_score, estimated_minutes, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      )
+      tr.run(
+        'satin', 'Sliquid Satin',
+        'Explore Sliquid Satin — a silicone-based personal lubricant formulated for long-lasting comfort and ultra-smooth glide.',
+        'https://youtu.be/jNNoSLSxQ80', 70, 15, 2
+      )
+      tr.run(
+        'swirl', 'Sliquid Swirl',
+        'Learn about Sliquid Swirl — flavored water-based lubricants made with natural fruit extracts, glycerin-free and body-safe.',
+        'https://youtu.be/omRDQuBJO-k', 70, 15, 3
+      )
+      tr.run(
+        'silver-vs-silk', 'Silver vs Silk',
+        'Understand the differences between Sliquid Silver and Silk — two premium hybrid formulas blending water and silicone for different needs.',
+        'https://youtu.be/m5hA4P7IDTM', 70, 15, 4
+      )
+    }
   }
 ]
 
