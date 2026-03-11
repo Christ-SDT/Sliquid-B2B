@@ -31,10 +31,10 @@ const PARTNERSHIP_TYPES = [
       'Open a wholesale account to carry Sliquid, RIDE Lube, and Ride Rocco in-store or online. Access merchandising assets, planogram support, and competitive wholesale pricing tiers.',
   },
   {
-    id: 'practitioner',
-    title: 'Health Practitioner',
+    id: 'media',
+    title: 'Marketing & Media',
     description:
-      'Pelvic health therapists, OB-GYNs, sex therapists, and other clinical providers can access our practitioner program for professional pricing and patient-ready educational materials.',
+      'Press inquiries, brand collaborations, influencer partnerships, and editorial requests. Reach out with your media kit or proposal and our marketing team will follow up.',
   },
   {
     id: 'distributor',
@@ -356,7 +356,7 @@ export default function ContactPage() {
                 >
                   <option value="">Select inquiry type…</option>
                   <option value="retailer">Retailer Account</option>
-                  <option value="practitioner">Health Practitioner</option>
+                  <option value="media">Marketing & Media</option>
                   <option value="distributor">Distribution Partnership</option>
                   <option value="general">General Inquiry</option>
                 </select>

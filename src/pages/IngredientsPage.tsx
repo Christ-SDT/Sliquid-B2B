@@ -49,49 +49,84 @@ const KEY_INGREDIENTS = [
     name: 'Purified Water',
     tag: 'Base',
     description:
-      'The foundation of all water-based formulas. Triple-filtered and deionized to remove contaminants that could irritate sensitive tissue or disrupt pH.',
+      'The foundation of all water-based formulas. Triple-filtered and deionized — it makes up 96% of Naturals H2O and serves as the pure, contaminant-free carrier for every water-soluble formula.',
   },
   {
     id: 'aloe-vera',
-    name: 'Aloe Vera',
-    tag: 'Soothing',
+    name: 'Organic Aloe Barbadensis Leaf Juice',
+    tag: 'Soothing Base',
     description:
-      'A naturally soothing humectant that mimics the body\'s own moisture. Anti-inflammatory properties make it ideal for sensitive skin and post-irritation relief — a key ingredient in the Soothe line.',
+      'The base ingredient for the Organics line, sourced directly from the leaves of the aloe vera plant. Naturally lubricating and healing, it has been used for centuries to soothe and protect skin. Anti-inflammatory and pH-friendly for sensitive tissue.',
   },
   {
-    id: 'carrageenan',
-    name: 'Carrageenan',
-    tag: 'Natural Thickener',
+    id: 'plant-cellulose',
+    name: 'Plant Cellulose',
+    tag: 'Thickener — Naturals H2O',
     description:
-      'A seaweed-derived polysaccharide that gives water-based formulas their signature silky consistency without synthetic thickeners. Research suggests it may also inhibit certain viral activity.',
+      'Derived from cotton, plant cellulose is a natural, vegan-friendly, and gluten-free thickening agent. It gives Naturals H2O its signature silky glide and smooth consistency without synthetic polymers.',
+  },
+  {
+    id: 'agar-agar',
+    name: 'Organic Agar Agar',
+    tag: 'Thickener — Organics',
+    description:
+      'Sourced from red algae, Agar Agar is a naturally occurring plant-based material used to create the body and thickness of the Organics Natural lubricant. A clean, seaweed-derived alternative to synthetic gelling agents.',
+  },
+  {
+    id: 'guar-gum',
+    name: 'Organic Guar Gum (Cyamopsis)',
+    tag: 'Formula Stabilizer',
+    description:
+      'Derived from the guar bean, this non-toxic natural additive enables plant cellulose fiber to move and feel incredibly slippery while stabilizing the overall formula. Used in both the Naturals and Organics lines to condition texture and improve glide.',
   },
   {
     id: 'vitamin-e',
-    name: 'Vitamin E (Tocopherol)',
+    name: 'Natural Tocopherols (Vitamin E)',
     tag: 'Antioxidant',
     description:
-      'A natural antioxidant that conditions skin, extends shelf life without synthetic preservatives, and provides a subtle protective barrier for sensitive mucosal tissue.',
+      'A natural skin moisturizer and powerful antioxidant. Conditions skin, extends shelf life without synthetic preservatives, and provides a subtle protective barrier for sensitive mucosal tissue.',
   },
   {
     id: 'flax-extract',
-    name: 'Flax Extract',
+    name: 'Organic Flax Extract',
     tag: 'Organics Line',
     description:
-      'Used in Sliquid Organics formulas as a plant-derived moisturizer. Rich in omega fatty acids, it supports skin barrier function and long-lasting hydration.',
+      'Used in Sliquid Organics formulas as a plant-derived moisturizer and restorative emollient. Rich in omega fatty acids, it helps restore skin elasticity and supports long-lasting hydration.',
+  },
+  {
+    id: 'hibiscus',
+    name: 'Organic Hibiscus Extract',
+    tag: 'Emollient — Organics',
+    description:
+      'Added to Sliquid Organics as a restorative and healing emollient. Hibiscus is known to restore elasticity and suppleness to the skin, making it especially beneficial for sensitive or irritated tissue.',
+  },
+  {
+    id: 'green-tea',
+    name: 'Organic Green Tea Extract',
+    tag: 'Anti-Inflammatory — Organics',
+    description:
+      'A botanical anti-inflammatory included in the Organics Natural formula. Green tea extract helps calm irritation and provides antioxidant support, further protecting sensitive skin from environmental stressors.',
+  },
+  {
+    id: 'sunflower-seed',
+    name: 'Organic Sunflower Seed Extract',
+    tag: 'Skin Tonic — Organics',
+    description:
+      'Used in Sliquid Organics as a gentle cleansing and calming tonic. Sunflower seed extract is rich in vitamins and fatty acids that nourish and soothe skin without disrupting the natural barrier.',
   },
   {
     id: 'citric-acid',
     name: 'Citric Acid',
     tag: 'pH Balancer',
     description:
-      'A mild organic acid used to calibrate the pH of every formula to match the body\'s natural range (3.8–4.5 vaginal; 6–7 anal). Critical for maintaining the microbiome and preventing irritation.',
+      'A mild organic acid derived from citrus fruits, used to calibrate the pH of every formula to match the body\'s natural range. Functions as a natural antiseptic and pH buffer, and works in concert with potassium sorbate to safely extend shelf life. Used across all Sliquid lines.',
   },
   {
     id: 'potassium-sorbate',
-    name: 'Potassium Sorbate',
+    name: 'Potassium Sorbate & Sodium Benzoate',
     tag: 'Preservative',
     description:
-      'A naturally occurring salt used as a gentle, effective preservative. Chosen over parabens for its safety profile — widely used in food-grade applications and well-tolerated by sensitive skin.',
+      'The gentlest, most body-safe, non-toxic, non-irritating preservatives available for intimate products. Used together to extend shelf life, prevent contamination, and fight unwanted bacteria and mold — keeping formulas safer for women without the risks of parabens.',
   },
   {
     id: 'dimethicone',

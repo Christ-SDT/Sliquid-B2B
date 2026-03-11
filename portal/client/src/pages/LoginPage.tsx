@@ -32,11 +32,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-portal-accent flex items-center justify-center mb-4">
-            <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
-              <path d="M16 3C16 3 5 14.5 5 20.5a11 11 0 0022 0C27 14.5 16 3 16 3z" fill="white"/>
-            </svg>
-          </div>
+          <img
+            src="/images/cropped-lotus.png"
+            alt="Sliquid lotus"
+            className="w-12 h-12 object-contain mb-4"
+          />
           <h1 className="text-on-canvas font-bold text-2xl tracking-wider">SLIQUID</h1>
           <p className="text-on-canvas-muted text-xs font-medium tracking-widest mt-1">PARTNER PORTAL</p>
         </div>

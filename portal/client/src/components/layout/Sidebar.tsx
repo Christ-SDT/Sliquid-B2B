@@ -48,11 +48,11 @@ export default function Sidebar({ onClose }: Props) {
       {/* Logo */}
       <div className="flex items-center justify-between px-5 py-5 border-b border-portal-border">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-portal-accent flex items-center justify-center">
-            <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
-              <path d="M16 3C16 3 5 14.5 5 20.5a11 11 0 0022 0C27 14.5 16 3 16 3z" fill="white"/>
-            </svg>
-          </div>
+          <img
+            src="/images/cropped-lotus.png"
+            alt="Sliquid lotus"
+            className="w-8 h-8 object-contain"
+          />
           <div>
             <p className="text-on-canvas font-bold text-sm leading-none tracking-wider">SLIQUID</p>
             <p className="text-on-canvas-muted text-[10px] font-medium tracking-widest mt-0.5">PARTNER PORTAL</p>

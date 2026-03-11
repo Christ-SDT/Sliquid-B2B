@@ -1,16 +1,6 @@
 import { Link } from 'react-router-dom'
 import { NAV_LINKS, TOP_BAR_LINKS } from '@/utils/constants'
 
-function DropletLogo() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <path
-        d="M16 3C16 3 5 14.5 5 20.5a11 11 0 0022 0C27 14.5 16 3 16 3z"
-        fill="#0A84C0"
-      />
-    </svg>
-  )
-}
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -22,7 +12,13 @@ export default function Footer() {
           {/* Col 1: Brand */}
           <div className="space-y-5 lg:col-span-2">
             <div className="flex items-center gap-2.5">
-              <DropletLogo />
+              <img
+                src="/images/cropped-lotus.png"
+                alt="Sliquid lotus"
+                width="28"
+                height="28"
+                className="w-7 h-7 object-contain"
+              />
               <span className="text-white font-bold tracking-widest text-xl">
                 <strong>SLIQUID</strong>{' '}
                 <span className="font-normal text-gray-400">HQ</span>

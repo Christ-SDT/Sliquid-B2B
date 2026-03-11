@@ -3,27 +3,6 @@ import { Link, NavLink } from 'react-router-dom'
 import { sanitizeText } from '@/utils/sanitize'
 import { NAV_LINKS } from '@/utils/constants'
 
-function DropletLogo() {
-  return (
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 32 32"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M16 3C16 3 5 14.5 5 20.5a11 11 0 0022 0C27 14.5 16 3 16 3z"
-        fill="#0A84C0"
-      />
-      <path
-        d="M16 8C16 8 10 16 10 20.5a6 6 0 0012 0C22 16 16 8 16 8z"
-        fill="white"
-        fillOpacity="0.3"
-      />
-    </svg>
-  )
-}
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -51,7 +30,13 @@ export default function Header() {
             className="flex items-center gap-2.5 flex-shrink-0"
             aria-label="Sliquid HQ home"
           >
-            <DropletLogo />
+            <img
+              src="/images/cropped-lotus.png"
+              alt="Sliquid lotus"
+              width="32"
+              height="32"
+              className="w-8 h-8 object-contain"
+            />
             <span className="text-xl font-bold tracking-widest text-text-dark leading-none">
               <strong>SLIQUID</strong>{' '}
               <span className="font-normal text-text-gray">HQ</span>
