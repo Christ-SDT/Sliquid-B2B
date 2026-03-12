@@ -590,7 +590,7 @@ function LibraryCard({ item, onDelete, onEdit }: { item: LibraryItem; onDelete?:
           : <Icon className="w-12 h-12 text-on-canvas" />
         }
         <div className="absolute top-2 right-2">
-          <span className="px-2 py-1 bg-black/60 rounded text-[10px] text-on-canvas-subtle font-medium">{item.type}</span>
+          <span className="px-2 py-1 bg-portal-border/90 rounded text-[10px] text-on-canvas font-medium">{item.type}</span>
         </div>
 
         {/* Admin delete control */}
@@ -614,7 +614,7 @@ function LibraryCard({ item, onDelete, onEdit }: { item: LibraryItem; onDelete?:
             ) : (
               <button
                 onClick={() => setConfirmDelete(true)}
-                className="p-1.5 bg-black/60 hover:bg-red-600/80 rounded text-on-canvas-subtle hover:text-white transition-colors"
+                className="p-1.5 bg-portal-border/90 hover:bg-red-500/80 rounded text-on-canvas hover:text-white transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -649,8 +649,8 @@ function LibraryCard({ item, onDelete, onEdit }: { item: LibraryItem; onDelete?:
             <button
               onClick={copyUrl}
               title="Copy URL"
-              className="flex items-center justify-center gap-1.5 px-3 py-2 bg-surface-elevated hover:bg-portal-border
-                         text-on-canvas-subtle hover:text-on-canvas rounded-lg text-xs font-medium transition-colors"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 bg-surface-elevated border border-portal-border hover:bg-portal-border
+                         text-on-canvas rounded-lg text-xs font-medium transition-colors"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
@@ -659,8 +659,8 @@ function LibraryCard({ item, onDelete, onEdit }: { item: LibraryItem; onDelete?:
             <button
               onClick={onEdit}
               title="Edit"
-              className="flex items-center justify-center px-3 py-2 bg-surface-elevated hover:bg-portal-border
-                         text-on-canvas-subtle hover:text-on-canvas rounded-lg text-xs font-medium transition-colors"
+              className="flex items-center justify-center px-3 py-2 bg-surface-elevated border border-portal-border hover:bg-portal-border
+                         text-on-canvas rounded-lg text-xs font-medium transition-colors"
             >
               <Pencil className="w-3.5 h-3.5" />
             </button>
