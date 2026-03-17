@@ -5,6 +5,7 @@ export { db }
 
 export function resetDb(): void {
   db.exec(`
+    DELETE FROM certificates;
     DELETE FROM notifications;
     DELETE FROM quiz_results;
     DELETE FROM retailer_applications;
@@ -22,6 +23,31 @@ export function resetDb(): void {
     DELETE FROM users;
   `)
   db.exec('DELETE FROM sqlite_sequence')
+}
+
+export function seedTraining(quizId: string, overrides: Partial<{
+  title: string; passing_score: number; sort_order: number
+}> = {}) {
+  const row = { title: `Training: ${quizId}`, passing_score: 70, sort_order: 0, ...overrides }
+  const result = db.prepare(
+    'INSERT INTO trainings (quiz_id, title, passing_score, estimated_minutes, sort_order) VALUES (?, ?, ?, ?, ?)'
+  ).run(quizId, row.title, row.passing_score, 15, row.sort_order)
+  return result.lastInsertRowid as number
+}
+
+export function seedQuizResult(userId: number, quizId: string, passed: boolean, score = 85) {
+  const result = db.prepare(
+    'INSERT INTO quiz_results (user_id, quiz_id, score, passed) VALUES (?, ?, ?, ?)'
+  ).run(userId, quizId, score, passed ? 1 : 0)
+  return result.lastInsertRowid as number
+}
+
+export function seedCertificate(userId: number, userName: string, certNumber?: string) {
+  const cn = certNumber ?? `SLQ-2025-TEST${userId}`
+  const result = db.prepare(
+    'INSERT INTO certificates (certificate_number, user_id, issued_to) VALUES (?, ?, ?)'
+  ).run(cn, userId, userName)
+  return { id: result.lastInsertRowid as number, certNumber: cn }
 }
 
 export function seedTestUsers() {

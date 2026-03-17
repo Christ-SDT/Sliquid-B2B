@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { randomBytes } from 'crypto'
 import { db } from '../database.js'
 import { requireAuth } from '../middleware/auth.js'
 import { sendQuizPassEmail } from '../email.js'
@@ -35,6 +36,30 @@ router.post('/complete', requireAuth, (req, res) => {
       quizTitle: quizTitle ?? quizId,
       score: clampedScore,
     }).catch(err => console.error('[email] Failed to send pass email:', err))
+
+    // Check if all trainings have been passed → auto-issue certificate
+    const allIds = (db.prepare('SELECT quiz_id FROM trainings').all() as { quiz_id: string }[])
+      .map(r => r.quiz_id)
+
+    if (allIds.length > 0) {
+      const passedIds = (db.prepare(
+        `SELECT DISTINCT quiz_id FROM quiz_results WHERE user_id = ? AND passed = 1`
+      ).all(user.id) as { quiz_id: string }[]).map(r => r.quiz_id)
+
+      const allPassed = allIds.every(id => passedIds.includes(id))
+
+      if (allPassed) {
+        const existing = db.prepare('SELECT id FROM certificates WHERE user_id = ?').get(user.id)
+        if (!existing) {
+          const suffix = randomBytes(3).toString('hex').toUpperCase()
+          const certNumber = `SLQ-${new Date().getFullYear()}-${suffix}`
+          db.prepare(
+            'INSERT INTO certificates (certificate_number, user_id, issued_to) VALUES (?, ?, ?)'
+          ).run(certNumber, user.id, user.name)
+          console.log(`[cert] Issued certificate ${certNumber} to user ${user.id} (${user.name})`)
+        }
+      }
+    }
   }
 
   res.json({ ok: true, score: clampedScore, passed: !!passed })

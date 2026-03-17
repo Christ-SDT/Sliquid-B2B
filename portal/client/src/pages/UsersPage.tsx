@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
-import { Search, Users, RefreshCw, CheckCircle, XCircle, Loader2 } from 'lucide-react'
+import { TIER_LABEL } from '@/types'
+import {
+  Search, Users, RefreshCw, CheckCircle, XCircle, Loader2,
+  X, Award, GraduationCap, ExternalLink, ShieldCheck,
+} from 'lucide-react'
 
 interface PortalUser {
   id: number
@@ -9,6 +13,8 @@ interface PortalUser {
   company?: string | null
   role: string
   created_at?: string
+  last_login?: string | null
+  certificate_number?: string | null
 }
 
 interface WooStatus {
@@ -21,29 +27,58 @@ type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
 interface Store { id: number; name: string }
 
-// ─── User Row ─────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function UserRow({
+function formatDate(iso?: string | null, fallback = '—') {
+  if (!iso) return fallback
+  return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+}
+
+function relativeTime(isoStr: string): string {
+  const diff = Math.floor((Date.now() - new Date(isoStr).getTime()) / 1000)
+  if (diff < 60) return `${diff}s ago`
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  return `${Math.floor(diff / 86400)}d ago`
+}
+
+function roleBadgeClass(role: string) {
+  switch (role) {
+    case 'tier5': return 'bg-violet-600 border-violet-600 text-white'
+    case 'tier4': return 'bg-orange-500 border-orange-500 text-white'
+    case 'tier3': return 'bg-cyan-600 border-cyan-600 text-white'
+    case 'tier2': return 'bg-emerald-600 border-emerald-600 text-white'
+    default:      return 'bg-slate-500 border-slate-500 text-white'
+  }
+}
+
+// ─── User Detail Modal ────────────────────────────────────────────────────────
+
+function UserDetailModal({
   user,
   stores,
+  onClose,
   onRoleChange,
   onCompanyChange,
 }: {
   user: PortalUser
   stores: Store[]
+  onClose: () => void
   onRoleChange: (id: number, role: string) => void
   onCompanyChange: (id: number, company: string) => void
 }) {
-  const [selectedRole, setSelectedRole] = useState(user.role)
-  const [roleSaveState, setRoleSaveState] = useState<SaveState>('idle')
-  const [roleError, setRoleError] = useState('')
+  const [selectedRole, setSelectedRole]       = useState(user.role)
+  const [roleSaveState, setRoleSaveState]     = useState<SaveState>('idle')
+  const [roleError, setRoleError]             = useState('')
 
-  const [selectedCompany, setSelectedCompany] = useState(user.company ?? '')
-  const [companySaveState, setCompanySaveState] = useState<SaveState>('idle')
-  const [companyError, setCompanyError] = useState('')
+  const [selectedCompany, setSelectedCompany]     = useState(user.company ?? '')
+  const [companySaveState, setCompanySaveState]   = useState<SaveState>('idle')
+  const [companyError, setCompanyError]           = useState('')
 
-  async function handleRoleSave() {
-    if (selectedRole === user.role) return
+  const roleChanged    = selectedRole    !== user.role
+  const companyChanged = selectedCompany !== (user.company ?? '')
+
+  async function saveRole() {
     setRoleSaveState('saving')
     setRoleError('')
     try {
@@ -57,8 +92,7 @@ function UserRow({
     }
   }
 
-  async function handleCompanySave() {
-    if (selectedCompany === (user.company ?? '')) return
+  async function saveCompany() {
     setCompanySaveState('saving')
     setCompanyError('')
     try {
@@ -72,78 +106,207 @@ function UserRow({
     }
   }
 
-  const joined = user.created_at
-    ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    : '—'
-
-  const companyChanged = selectedCompany !== (user.company ?? '')
+  const initials = user.name
+    .split(' ')
+    .map(w => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
 
   return (
-    <tr className="border-b border-portal-border hover:bg-surface-elevated transition-colors">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-surface border border-portal-border rounded-xl w-full max-w-lg shadow-2xl overflow-hidden">
+
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
+          <h2 className="text-on-canvas font-semibold">User Profile</h2>
+          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6 overflow-y-auto max-h-[80vh]">
+
+          {/* ── Identity ── */}
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-portal-accent/20 border-2 border-portal-accent/30
+                            flex items-center justify-center text-portal-accent text-lg font-bold flex-shrink-0">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-on-canvas font-bold text-lg leading-tight truncate">{user.name}</h3>
+              <p className="text-on-canvas-muted text-sm truncate">{user.email}</p>
+              <span className={`mt-1.5 inline-flex items-center px-2 py-0.5 rounded-full border text-xs font-medium ${roleBadgeClass(user.role)}`}>
+                {TIER_LABEL[user.role] ?? user.role}
+              </span>
+            </div>
+          </div>
+
+          {/* ── Details grid ── */}
+          <div className="bg-portal-bg rounded-xl border border-portal-border divide-y divide-portal-border">
+
+            {/* Date Joined */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-on-canvas-muted text-sm">Date Joined</span>
+              <span className="text-on-canvas text-sm font-medium">{formatDate(user.created_at)}</span>
+            </div>
+
+            {/* Last Login */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-on-canvas-muted text-sm">Last Login</span>
+              <span className="text-on-canvas text-sm font-medium">
+                {user.last_login
+                  ? `${formatDate(user.last_login)} · ${relativeTime(user.last_login)}`
+                  : 'Never'}
+              </span>
+            </div>
+
+          </div>
+
+          {/* ── Editable: Store / Company ── */}
+          <div>
+            <label className="block text-on-canvas-subtle text-xs font-medium mb-2">Store / Company</label>
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedCompany}
+                onChange={e => { setSelectedCompany(e.target.value); setCompanySaveState('idle'); setCompanyError('') }}
+                className="flex-1 bg-portal-bg border border-portal-border rounded-lg px-3 py-2
+                           text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
+              >
+                <option value="">— no company —</option>
+                {stores.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+              </select>
+              {companyChanged && (
+                <button
+                  onClick={saveCompany}
+                  disabled={companySaveState === 'saving'}
+                  className="px-3 py-2 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
+                             text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0"
+                >
+                  {companySaveState === 'saving' ? 'Saving…' : 'Save'}
+                </button>
+              )}
+              {companySaveState === 'saved'  && <span className="text-emerald-400 text-xs font-medium flex-shrink-0">Saved</span>}
+              {companySaveState === 'error'  && <span className="text-red-400 text-xs flex-shrink-0">{companyError}</span>}
+            </div>
+          </div>
+
+          {/* ── Editable: Account Type ── */}
+          <div>
+            <label className="block text-on-canvas-subtle text-xs font-medium mb-2">Account Type</label>
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedRole}
+                onChange={e => { setSelectedRole(e.target.value); setRoleSaveState('idle'); setRoleError('') }}
+                className="flex-1 bg-portal-bg border border-portal-border rounded-lg px-3 py-2
+                           text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
+              >
+                <option value="tier1">Retail Store Employee</option>
+                <option value="tier2">Retail Management</option>
+                <option value="tier3">Distributor</option>
+                <option value="tier4">Prospect</option>
+                <option value="tier5">Admin</option>
+              </select>
+              {roleChanged && (
+                <button
+                  onClick={saveRole}
+                  disabled={roleSaveState === 'saving'}
+                  className="px-3 py-2 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
+                             text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0"
+                >
+                  {roleSaveState === 'saving' ? 'Saving…' : 'Save'}
+                </button>
+              )}
+              {roleSaveState === 'saved' && <span className="text-emerald-400 text-xs font-medium flex-shrink-0">Saved</span>}
+              {roleSaveState === 'error' && <span className="text-red-400 text-xs flex-shrink-0">{roleError}</span>}
+            </div>
+          </div>
+
+          {/* ── Certification ── */}
+          <div>
+            <label className="block text-on-canvas-subtle text-xs font-medium mb-2">Certification</label>
+            {user.certificate_number ? (
+              <div className="flex items-center justify-between gap-3 px-4 py-3
+                              bg-emerald-900/15 border border-emerald-700/30 rounded-xl">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Award className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-emerald-400 text-sm font-semibold">Sliquid Certified Expert</p>
+                    <p className="text-emerald-600/80 text-xs font-mono mt-0.5 truncate">
+                      {user.certificate_number}
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href="/verify"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-900/30 hover:bg-emerald-900/50
+                             border border-emerald-700/40 rounded-lg text-emerald-400 text-xs font-medium
+                             transition-colors flex-shrink-0"
+                >
+                  Verify <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 px-4 py-3
+                              bg-surface-elevated border border-portal-border rounded-xl">
+                <GraduationCap className="w-5 h-5 text-on-canvas-muted flex-shrink-0" />
+                <div>
+                  <p className="text-on-canvas-subtle text-sm font-medium">Training Not Completed</p>
+                  <p className="text-on-canvas-muted text-xs mt-0.5">
+                    No certificate has been issued for this user yet.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── User Row ─────────────────────────────────────────────────────────────────
+
+function UserRow({
+  user,
+  onClick,
+}: {
+  user: PortalUser
+  onClick: () => void
+}) {
+  const joined = formatDate(user.created_at, '—')
+
+  return (
+    <tr
+      onClick={onClick}
+      className="border-b border-portal-border hover:bg-surface-elevated transition-colors cursor-pointer"
+    >
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-portal-accent/20 border border-portal-accent/30
                           flex items-center justify-center text-portal-accent text-xs font-bold flex-shrink-0">
             {user.name?.charAt(0).toUpperCase()}
           </div>
-          <span className="text-on-canvas text-sm font-medium">{user.name}</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-on-canvas text-sm font-medium">{user.name}</span>
+            {user.certificate_number && (
+              <span className="px-1.5 py-0.5 bg-emerald-900/30 border border-emerald-700/40
+                               rounded text-emerald-400 text-[10px] font-medium">
+                Certified
+              </span>
+            )}
+          </div>
         </div>
       </td>
       <td className="px-4 py-3 text-on-canvas-subtle text-sm">{user.email}</td>
-      {/* Editable company */}
+      <td className="px-4 py-3 text-on-canvas-subtle text-sm">{user.company ?? '—'}</td>
       <td className="px-4 py-3">
-        <div className="flex items-center gap-2">
-          <select
-            value={selectedCompany}
-            onChange={e => { setSelectedCompany(e.target.value); setCompanySaveState('idle'); setCompanyError('') }}
-            className="bg-portal-bg border border-portal-border rounded-lg px-3 py-1.5 text-on-canvas text-xs
-                       focus:outline-none focus:border-portal-accent transition-colors max-w-[160px]"
-          >
-            <option value="">— no company —</option>
-            {stores.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-          </select>
-          {companyChanged && (
-            <button
-              onClick={handleCompanySave}
-              disabled={companySaveState === 'saving'}
-              className="px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
-                         text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0"
-            >
-              {companySaveState === 'saving' ? 'Saving…' : 'Save'}
-            </button>
-          )}
-          {companySaveState === 'saved' && <span className="text-emerald-400 text-xs font-medium flex-shrink-0">Saved</span>}
-          {companySaveState === 'error' && <span className="text-red-400 text-xs flex-shrink-0">{companyError}</span>}
-        </div>
-      </td>
-      {/* Editable role */}
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-2">
-          <select
-            value={selectedRole}
-            onChange={e => { setSelectedRole(e.target.value); setRoleSaveState('idle'); setRoleError('') }}
-            className="bg-portal-bg border border-portal-border rounded-lg px-3 py-1.5 text-on-canvas text-xs
-                       focus:outline-none focus:border-portal-accent transition-colors"
-          >
-            <option value="tier1">Retail Store Employee</option>
-            <option value="tier2">Retail Management</option>
-            <option value="tier3">Distributor</option>
-            <option value="tier4">Prospect</option>
-            <option value="tier5">Admin</option>
-          </select>
-          {selectedRole !== user.role && (
-            <button
-              onClick={handleRoleSave}
-              disabled={roleSaveState === 'saving'}
-              className="px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
-                         text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0"
-            >
-              {roleSaveState === 'saving' ? 'Saving…' : 'Save'}
-            </button>
-          )}
-          {roleSaveState === 'saved' && <span className="text-emerald-400 text-xs font-medium">Saved</span>}
-          {roleSaveState === 'error' && <span className="text-red-400 text-xs">{roleError}</span>}
-        </div>
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-xs font-medium ${roleBadgeClass(user.role)}`}>
+          {TIER_LABEL[user.role] ?? user.role}
+        </span>
       </td>
       <td className="px-4 py-3 text-on-canvas-muted text-xs">{joined}</td>
     </tr>
@@ -227,7 +390,7 @@ function WooPanel() {
     }
   }
 
-  function relativeTime(isoStr: string): string {
+  function wooRelativeTime(isoStr: string): string {
     const diff = Math.floor((Date.now() - new Date(isoStr).getTime()) / 1000)
     if (diff < 60) return `${diff}s ago`
     if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
@@ -246,26 +409,23 @@ function WooPanel() {
           <div className="flex items-center gap-2">
             {wooStatus.configured ? (
               <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-medium">
-                <CheckCircle className="w-4 h-4" />
-                Connected
+                <CheckCircle className="w-4 h-4" /> Connected
               </span>
             ) : (
               <span className="flex items-center gap-1.5 text-on-canvas-muted text-sm">
-                <XCircle className="w-4 h-4" />
-                Not Configured
+                <XCircle className="w-4 h-4" /> Not Configured
               </span>
             )}
           </div>
         )}
       </div>
 
-      {/* Last sync info */}
       {wooStatus?.lastPull && (
         <div className="bg-portal-bg rounded-lg px-4 py-3 flex items-center justify-between">
           <div>
             <p className="text-on-canvas-subtle text-xs">Last pull</p>
             <p className="text-on-canvas text-sm font-medium mt-0.5">
-              {relativeTime(wooStatus.lastPull.synced_at)}
+              {wooRelativeTime(wooStatus.lastPull.synced_at)}
               {' · '}
               <span className={wooStatus.lastPull.status === 'ok' ? 'text-emerald-400' : 'text-red-400'}>
                 {wooStatus.lastPull.status}
@@ -277,7 +437,6 @@ function WooPanel() {
         </div>
       )}
 
-      {/* Actions */}
       <div className="flex flex-wrap gap-3">
         <button
           onClick={handleTest}
@@ -306,7 +465,6 @@ function WooPanel() {
         </div>
       )}
 
-      {/* Credentials form */}
       <div className="border-t border-portal-border pt-5 space-y-4">
         <p className="text-on-canvas-subtle text-sm font-medium">
           {wooStatus?.configured ? 'Update Credentials' : 'Enter Credentials'}
@@ -314,36 +472,21 @@ function WooPanel() {
         <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="text-on-canvas-muted text-xs mb-1.5 block">WooCommerce Store URL</label>
-            <input
-              type="url"
-              value={url}
-              onChange={e => setUrl(e.target.value)}
-              placeholder="https://your-store.com"
+            <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://your-store.com"
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
-            />
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors" />
           </div>
           <div>
             <label className="text-on-canvas-muted text-xs mb-1.5 block">Consumer Key</label>
-            <input
-              type="text"
-              value={consumerKey}
-              onChange={e => setConsumerKey(e.target.value)}
-              placeholder="ck_xxxxxxxxxxxxxxxxxxxx"
+            <input type="text" value={consumerKey} onChange={e => setConsumerKey(e.target.value)} placeholder="ck_xxxxxxxxxxxxxxxxxxxx"
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono"
-            />
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono" />
           </div>
           <div>
             <label className="text-on-canvas-muted text-xs mb-1.5 block">Consumer Secret</label>
-            <input
-              type="password"
-              value={consumerSecret}
-              onChange={e => setConsumerSecret(e.target.value)}
-              placeholder="cs_xxxxxxxxxxxxxxxxxxxx"
+            <input type="password" value={consumerSecret} onChange={e => setConsumerSecret(e.target.value)} placeholder="cs_xxxxxxxxxxxxxxxxxxxx"
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono"
-            />
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono" />
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -370,11 +513,12 @@ function WooPanel() {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<PortalUser[]>([])
+  const [users, setUsers]   = useState<PortalUser[]>([])
   const [stores, setStores] = useState<Store[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [error, setError]   = useState('')
   const [search, setSearch] = useState('')
+  const [selectedUser, setSelectedUser] = useState<PortalUser | null>(null)
 
   useEffect(() => {
     Promise.all([
@@ -388,10 +532,12 @@ export default function UsersPage() {
 
   function handleRoleChange(id: number, role: string) {
     setUsers(prev => prev.map(u => u.id === id ? { ...u, role } : u))
+    setSelectedUser(prev => prev?.id === id ? { ...prev, role } : prev)
   }
 
   function handleCompanyChange(id: number, company: string) {
     setUsers(prev => prev.map(u => u.id === id ? { ...u, company } : u))
+    setSelectedUser(prev => prev?.id === id ? { ...prev, company } : prev)
   }
 
   const filtered = users.filter(u => {
@@ -404,15 +550,27 @@ export default function UsersPage() {
     )
   })
 
+  const certifiedCount = users.filter(u => u.certificate_number).length
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-on-canvas text-2xl font-bold flex items-center gap-3">
-          <Users className="w-6 h-6 text-portal-accent" />
-          User Management
-        </h1>
-        <p className="text-on-canvas-muted text-sm mt-1">View and manage all registered portal users.</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-on-canvas text-2xl font-bold flex items-center gap-3">
+            <Users className="w-6 h-6 text-portal-accent" />
+            User Management
+          </h1>
+          <p className="text-on-canvas-muted text-sm mt-1">
+            View and manage all registered portal users.
+            {certifiedCount > 0 && (
+              <span className="ml-2 inline-flex items-center gap-1 text-emerald-400">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                {certifiedCount} certified
+              </span>
+            )}
+          </p>
+        </div>
       </div>
 
       {/* Search */}
@@ -457,9 +615,7 @@ export default function UsersPage() {
                   <UserRow
                     key={user.id}
                     user={user}
-                    stores={stores}
-                    onRoleChange={handleRoleChange}
-                    onCompanyChange={handleCompanyChange}
+                    onClick={() => setSelectedUser(user)}
                   />
                 ))}
               </tbody>
@@ -468,10 +624,24 @@ export default function UsersPage() {
         )}
       </div>
 
-      <p className="text-on-canvas-muted text-xs">{filtered.length} of {users.length} user{users.length !== 1 ? 's' : ''}</p>
+      <p className="text-on-canvas-muted text-xs">
+        {filtered.length} of {users.length} user{users.length !== 1 ? 's' : ''}
+        {' · '}Click any row to view details
+      </p>
 
       {/* WooCommerce Panel */}
       <WooPanel />
+
+      {/* User Detail Modal */}
+      {selectedUser && (
+        <UserDetailModal
+          user={selectedUser}
+          stores={stores}
+          onClose={() => setSelectedUser(null)}
+          onRoleChange={handleRoleChange}
+          onCompanyChange={handleCompanyChange}
+        />
+      )}
     </div>
   )
 }

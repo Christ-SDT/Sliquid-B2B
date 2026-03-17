@@ -17,6 +17,7 @@ import QuizPage from '@/pages/QuizPage'
 import UsersPage from '@/pages/UsersPage'
 import StoreUsersPage from '@/pages/StoreUsersPage'
 import RequestsPage from '@/pages/RequestsPage'
+import CertificateVerify from '@/pages/CertificateVerify'
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="requests" element={<RequestsPage />} />
             <Route path="store-users" element={<StoreUsersPage />} />
           </Route>
+          <Route path="/verify" element={<CertificateVerify />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AuthProvider>

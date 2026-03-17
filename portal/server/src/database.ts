@@ -327,6 +327,37 @@ const migrations: Migration[] = [
         'https://youtu.be/m5hA4P7IDTM', 70, 15, 4
       )
     }
+  },
+  {
+    version: 13,
+    name: 'certificates_table',
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS certificates (
+          id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+          certificate_number TEXT UNIQUE NOT NULL,
+          user_id            INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          issued_to          TEXT NOT NULL,
+          completion_date    TEXT NOT NULL DEFAULT (datetime('now')),
+          is_valid           INTEGER NOT NULL DEFAULT 1,
+          created_at         TEXT DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_certs_user   ON certificates(user_id);
+        CREATE INDEX IF NOT EXISTS idx_certs_number ON certificates(certificate_number);
+      `)
+    }
+  },
+  {
+    version: 14,
+    name: 'add_last_login',
+    up: () => {
+      const cols = (
+        db.prepare("SELECT name FROM pragma_table_info('users')").all() as { name: string }[]
+      ).map(c => c.name)
+      if (!cols.includes('last_login')) {
+        db.exec('ALTER TABLE users ADD COLUMN last_login TEXT')
+      }
+    }
   }
 ]
 

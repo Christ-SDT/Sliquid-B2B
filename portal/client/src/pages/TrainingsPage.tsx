@@ -4,6 +4,7 @@ import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
 import { GraduationCap, Clock, CheckCircle2, ChevronRight, Award, Plus, Pencil, Trash2, Loader2, X } from 'lucide-react'
+import CertificateGenerator from '@/components/CertificateGenerator'
 
 type Training = {
   id: number
@@ -341,6 +342,8 @@ export default function TrainingsPage() {
   }
 
   const passedCount = trainings.filter(t => bestFor(t.quiz_id)?.passed === 1).length
+  const allComplete = !loading && trainings.length > 0 && passedCount === trainings.length
+  const [showCertModal, setShowCertModal] = useState(false)
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -362,6 +365,29 @@ export default function TrainingsPage() {
           </button>
         )}
       </div>
+
+      {/* Completion banner */}
+      {allComplete && (
+        <div className="mb-6 p-5 bg-portal-accent/10 border border-portal-accent/30 rounded-xl flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Award className="w-6 h-6 text-portal-accent flex-shrink-0" />
+            <div>
+              <p className="text-on-canvas font-semibold text-sm">
+                You're a Sliquid Certified Expert!
+              </p>
+              <p className="text-on-canvas-muted text-xs mt-0.5">
+                All modules complete — your certificate is ready to download.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowCertModal(true)}
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <Award className="w-4 h-4" /> View Certificate
+          </button>
+        </div>
+      )}
 
       {/* Progress summary */}
       {!loading && trainings.length > 0 && (
@@ -422,6 +448,21 @@ export default function TrainingsPage() {
             setEditTarget(null)
           }}
         />
+      )}
+
+      {/* Certificate modal */}
+      {showCertModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-portal-border rounded-xl w-full max-w-lg shadow-2xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
+              <h2 className="text-on-canvas font-semibold">Your Certificate</h2>
+              <button onClick={() => setShowCertModal(false)} className="text-on-canvas-muted hover:text-on-canvas">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <CertificateGenerator />
+          </div>
+        </div>
       )}
     </div>
   )
