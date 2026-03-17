@@ -110,7 +110,7 @@ export default function CertificateVerify() {
                     ['Issued To',     result.fullName ?? ''],
                     ['Completed',     result.completionDate ?? ''],
                     ['Certificate #', result.certificateNumber ?? ''],
-                    ['Program',       'Sliquid Expert Certification'],
+                    ['Program',       'Sliquid Certified Expert Course'],
                     ['Issued By',     'Sliquid, LLC  •  Dallas, TX'],
                     ['Status',        '✓ Valid'],
                   ] as [string, string][]).map(([label, value]) => (
@@ -125,7 +125,7 @@ export default function CertificateVerify() {
 
                 <div className="px-6 pb-5 pt-2">
                   <p className="text-on-canvas-muted text-xs text-center leading-relaxed">
-                    This individual has completed all required modules of the Sliquid Expert Certification Program
+                    This individual has completed all required modules of the Sliquid Certified Expert Course
                     and demonstrated expert-level product knowledge.
                   </p>
                 </div>

@@ -358,6 +358,40 @@ const migrations: Migration[] = [
         db.exec('ALTER TABLE users ADD COLUMN last_login TEXT')
       }
     }
+  },
+  {
+    version: 15,
+    name: 'add_sizzle_splash_soul_soak_soothe_trainings',
+    up: () => {
+      const tr = db.prepare(
+        'INSERT OR IGNORE INTO trainings (quiz_id, title, description, video_path, passing_score, estimated_minutes, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      )
+      tr.run(
+        'sizzle-vs-sparks', 'Sizzle vs Sparks',
+        'Discover the differences between Sizzle and Sparks product lines — formulations, sensations, and how to guide customers to the right choice.',
+        'https://youtu.be/yt3FzssdPh0', 70, 15, 5
+      )
+      tr.run(
+        'splash', 'Sliquid Splash',
+        'Learn about Sliquid Splash — a gentle feminine wash formulated to cleanse and balance with natural ingredients.',
+        'https://youtu.be/6SHy8fWy3r8', 70, 15, 6
+      )
+      tr.run(
+        'soul', 'Sliquid Soul',
+        'Explore Sliquid Soul — a rich, creamy body lotion crafted to deeply moisturize and nourish with clean, body-safe ingredients.',
+        'https://youtu.be/PdsWwZDBOmw', 70, 15, 7
+      )
+      tr.run(
+        'soak', 'Sliquid Soak',
+        'Learn about Sliquid Soak — a gentle toy cleaner and body cleanser made to safely care for intimacy products and skin.',
+        'https://youtu.be/Zwnm6h5YekM', 70, 15, 8
+      )
+      tr.run(
+        'soothe', 'Sliquid Soothe',
+        'Discover Sliquid Soothe — a calming, aloe-based aftercare lotion designed to hydrate and soothe sensitive skin post-intimacy.',
+        'https://youtu.be/hhfTxbiYsBI', 70, 15, 9
+      )
+    }
   }
 ]
 

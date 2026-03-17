@@ -279,13 +279,13 @@ function CertificatePDF({ firstName, lastName, completionDate, certNumber, verif
           </Text>
           <View style={styles.nameUnderline} />
           <Text style={styles.bodyText}>
-            has successfully demonstrated expert-level knowledge and proficiency in
+            has successfully completed the
           </Text>
           <View style={styles.expertBadge}>
-            <Text style={styles.expertText}>SLIQUID CERTIFIED EXPERT</Text>
+            <Text style={styles.expertText}>SLIQUID PRODUCT KNOWLEDGE</Text>
           </View>
           <Text style={styles.supportingText}>
-            covering product education, intimate wellness expertise, and Sliquid brand standards.
+            Sliquid Certified Expert Course.
           </Text>
           <Text style={styles.dateText}>Completed on  {completionDate}</Text>
         </View>

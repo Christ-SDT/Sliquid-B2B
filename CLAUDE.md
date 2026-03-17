@@ -40,14 +40,17 @@ The project has two top-level parts:
 | `portal/client/src/types/index.ts` | Shared TS types, `TIER_LABEL`, `isLimitedTier()`, `isProspect()`, `isAdmin()` |
 | `portal/client/src/components/layout/Shell.tsx` | Auth guard + route restriction enforcement |
 | `portal/client/src/components/layout/Sidebar.tsx` | Navigation with role-based filtering (`managerOnly`, `prospectVisible`, `adminOnly` flags) |
+| `portal/client/src/components/CertificateGenerator.tsx` | PDF certificate download component (uses `@react-pdf/renderer`) |
 | `portal/client/src/quizzes/index.ts` | Quiz registry |
 | `portal/client/public/training/<id>/index.html` | SCORM packages |
 | `portal/client/src/pages/AssetsPage.tsx` | Merged "Product Library" with admin add/edit/delete; 4 tabs (Info Sheets, Digital Assets, Campaign Materials, Video) |
 | `portal/client/src/pages/RetailerPage.tsx` | "Request Physical Marketing Assets" — catalog + request form for Counter Cards, Banner, Neon Signs |
 | `portal/client/src/pages/StoreUsersPage.tsx` | "My Store" page for tier2 — read-only member list with quiz stats |
+| `portal/client/src/pages/CertificateVerify.tsx` | Public `/verify` page — search form to verify a cert number |
 | `portal/client/src/context/NotificationContext.tsx` | Notification state — polls `/api/notifications` every 60s; provides `markRead`, `markAllRead` |
 | `portal/server/src/notifications.ts` | `notifyAdmins(type, title, message, link?)` + `notifyUsers(...)` helpers |
 | `portal/server/src/routes/notifications.ts` | GET `/`, PUT `/read-all`, PUT `/:id/read` |
+| `portal/server/src/routes/certificates.ts` | GET `/mine` (auth) + GET `/verify/:certNumber` (public) |
 | `portal/server/src/index.ts` | Express app + route mounting + WC polling interval |
 | `portal/server/src/database.ts` | DB init, migrations, seed |
 | `portal/server/src/middleware/auth.ts` | `requireAuth` + `requireRole(...roles)` |
@@ -107,22 +110,25 @@ VITE_API_URL=http://localhost:3001
 | `cd portal/client && npm run build` | Production build |
 | `cd portal/client && npx tsc --noEmit` | TypeScript check (client) |
 | `cd portal/server && npx tsc --noEmit` | TypeScript check (server) |
+| `cd portal/server && npm test` | Run all server tests (vitest + supertest) |
 
 ---
 
 ## Role / Tier System
 
 ### Roles
-| Role | Label | Description |
-|---|---|---|
-| `tier1` | Retail Store Employee | Restricted access (product library, distributors, trainings) |
-| `tier2` | Retail Management | Restricted access + can view their store's users (`/store-users`) |
-| `tier3` | Distributor | Restricted access (product library, distributors, trainings) |
-| `tier4` | Prospect | Prospect access (distributors, trainings, become a retailer only) |
-| `tier5` | Admin | Full unrestricted access |
+| Role | Label | Badge Color | Description |
+|---|---|---|---|
+| `tier1` | Retail Store Employee | Slate gray | Restricted access (product library, distributors, trainings) |
+| `tier2` | Retail Management | Emerald green | Restricted access + can view their store's users (`/store-users`) |
+| `tier3` | Distributor | Cyan | Restricted access (product library, distributors, trainings) |
+| `tier4` | Prospect | Orange | Prospect access (distributors, trainings, become a retailer only) |
+| `tier5` | Admin | Violet | Full unrestricted access |
 
 `isLimitedTier(role)` in `types/index.ts` returns `true` for tier1/2/3.
 `isProspect(role)` returns `true` for tier4. `isAdmin(role)` returns `true` for tier5 or 'admin'.
+
+**Role badge colors** — defined in `roleBadgeClass()` in `UsersPage.tsx`. Uses solid filled Tailwind classes (e.g. `bg-violet-600 text-white`) for strong readability. Do not revert to transparent/muted variants.
 
 **Backward-compat note:** `Sidebar.tsx` checks `role === 'tier5' || role === 'admin'` so legacy `admin` DB rows still get full admin access without migration.
 
@@ -157,6 +163,9 @@ Each NAV entry has: `restricted`, `prospectVisible`, `managerOnly`, `adminOnly`.
 | `/invoices` | ✗ | ✗ | ✗ | ✗ | ✓ |
 | `/stats` | ✗ | ✗ | ✗ | ✗ | ✓ |
 | `/users` | ✗ | ✗ | ✗ | ✗ | ✓ |
+| `/verify` | ✓ (public) | ✓ (public) | ✓ (public) | ✓ (public) | ✓ (public) |
+
+`/verify` is outside `<Shell>` — no auth required, accessible to anyone.
 
 Restricted tiers redirected to `/dashboard` for any disallowed route (enforced in `Shell.tsx`).
 
@@ -187,8 +196,13 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 7 | `stores_table` | Creates `stores` table; seeds from distinct existing user companies; ensures 'Demo Retail Store' exists |
 | 8 | `marketing_request_fields` | Adds `requested_items TEXT` and `request_notes TEXT` to `retailer_applications` |
 | 9 | `notifications_table` | Creates `notifications` table: `user_id, type, title, message, link, read (0/1), created_at`; index on `user_id` |
+| 10 | `marketing_items_table` | Creates `marketing_items` table; seeds Counter Cards, Retractable Banner, Sliquid Neon Sign, Ride Lube Neon Sign |
+| 11 | `trainings_table` | Creates `trainings` table; seeds H2O vs Sassy and Sea vs Tsunami entries |
+| 12 | `add_satin_swirl_silver_trainings` | Seeds Satin, Swirl, Silver vs Silk training entries |
+| 13 | `certificates_table` | Creates `certificates` table (certificate_number, user_id, issued_to, completion_date, is_valid); indexes on user_id and certificate_number |
+| 14 | `add_last_login` | Adds `last_login TEXT` column to `users` table; stamped on every successful login |
 
-**Next migration version: 10**
+**Next migration version: 15**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -205,7 +219,7 @@ Managed in `portal/server/src/database.ts`. Rules:
 ### Auth — `/api/auth`
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| POST | `/login` | — | Returns `{ token, user }` |
+| POST | `/login` | — | Returns `{ token, user }`; stamps `last_login` on the user row |
 | POST | `/register` | — | Accepts `name, email, company, password, role` |
 | GET | `/me` | requireAuth | Returns current user |
 
@@ -261,13 +275,19 @@ Managed in `portal/server/src/database.ts`. Rules:
 ### Quiz — `/api/quiz`
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| POST | `/complete` | requireAuth | Save quiz result; emails cert if score ≥ 70 |
+| POST | `/complete` | requireAuth | Save quiz result; emails cert if score ≥ 70; auto-issues certificate if all trainings passed |
 | GET | `/results` | requireAuth | Get current user's quiz results |
+
+### Certificates — `/api/certificates`
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/mine` | requireAuth | Returns `{ firstName, lastName, completionDate, certificateNumber }` for current user; 404 if no cert |
+| GET | `/verify/:certNumber` | **Public** | Returns `{ valid, fullName, firstName, lastName, completionDate, certificateNumber }`; 404 if not found or revoked |
 
 ### Admin — `/api/admin`
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/users` | tier5/admin only | List all users (id, name, email, company, role, created_at) |
+| GET | `/users` | tier5/admin only | List all users; includes `last_login` and `certificate_number` (null if not certified) via LEFT JOIN |
 | PUT | `/users/:id/role` | tier5/admin only | Update a user's role; valid values: tier1–tier5 |
 | PUT | `/users/:id/company` | tier5/admin only | Update a user's company to a store name from the stores table |
 
@@ -318,16 +338,20 @@ All endpoints require `requireAuth + requireRole('tier5', 'admin')`.
 - **SCORM shim:** `QuizPage.tsx` installs `window.API` (SCORM 1.2) before the iframe loads; captures `cmi.core.score.raw` on `LMSFinish`
 - **Quiz registry:** `portal/client/src/quizzes/index.ts` — add entries here when adding new quizzes
 - **Pass threshold:** score ≥ 70 triggers a completion email (if SMTP configured)
+- **Certificate auto-issuance:** after any passing result, server checks if all `trainings` rows have a corresponding passed `quiz_results` row for that user — if so and no cert exists, auto-generates one (see Certification System below)
 
-### Registered Quizzes
+### Registered Quizzes (in `trainings` DB table)
 | Order | ID | Title | Video |
 |---|---|---|---|
 | 1 | `h2o-vs-sassy` | H2O vs Sassy | YouTube `https://youtu.be/r9ttBy_WlfA` |
 | 2 | `sea-vs-tsunami` | Sea vs Tsunami | YouTube `https://youtu.be/lFVvtQfOb8Y` |
+| 3 | `satin` | Sliquid Satin | YouTube `https://youtu.be/jNNoSLSxQ80` |
+| 4 | `swirl` | Sliquid Swirl | YouTube `https://youtu.be/omRDQuBJO-k` |
+| 5 | `silver-vs-silk` | Silver vs Silk | YouTube `https://youtu.be/m5hA4P7IDTM` |
 
 **Notes:**
 - `sliquiz` (Customer Service Skills) was replaced by `h2o-vs-sassy` — do not re-add it.
-- Quiz order in `QUIZZES` array determines "Go to Next Module" navigation on the pass screen.
+- Quiz order in the `trainings` table (`sort_order`) determines "Go to Next Module" navigation.
 - Source files for H2O vs Sassy are at `/Users/dropingtons/Desktop/Sliquid/Sliquiz H2o vs Sassy /` (original export was incomplete — only `assets/js/project.js` was unique; all engine files were copied from sea-vs-tsunami).
 
 ### SCORM Package Structure
@@ -354,8 +378,8 @@ On the pass screen, a **"Go to Next Module"** button appears if there is a next 
 1. Drop the SCORM package into `portal/client/public/training/<new-id>/`
    - If the export is incomplete, copy engine files from `sea-vs-tsunami` and replace `assets/js/project.js`
    - Update `imsmanifest.xml` `<title>` to match the new quiz name
-2. Add an entry to `portal/client/src/quizzes/index.ts` (position in array = module order)
-3. Optionally set `videoPath` to a YouTube URL to enable the video-first flow (see below)
+2. Add a row to the `trainings` table via the Admin UI (Trainings page → Add Training) or directly in the DB
+3. Optionally set `video_path` to a YouTube URL to enable the video-first flow
 
 ### Video-First Quiz Flow (`videoPath` field)
 When a quiz has `videoPath` set, `QuizPage.tsx` renders a two-phase experience:
@@ -381,6 +405,97 @@ When a quiz has `videoPath` set, `QuizPage.tsx` renders a two-phase experience:
 - `videoPositionRef` — shared `number` ref tracking playback position across both players
 
 **Video hosting note:** Video files (`.mp4`, etc.) are in `.gitignore` — never commit them (GitHub 100 MB limit, Cloudflare Pages 25 MB limit). Always use a CDN URL or YouTube link for `videoPath` in production.
+
+### Trainings Page — Completion Banner
+When all modules are passed (`passedCount === trainings.length`):
+- A green banner appears above the progress bar with "You're a Sliquid Certified Expert!"
+- "View Certificate" button opens a modal containing `CertificateGenerator`
+
+---
+
+## Certification System
+
+### Overview
+When a user passes their final training module, a certificate is automatically issued and stored in the `certificates` table. Users can download a PDF and anyone can verify a certificate at `/verify`.
+
+### Certificate Number Format
+`SLQ-YYYY-XXXXXX` where `YYYY` is the current year and `XXXXXX` is 6 uppercase hex characters generated via `randomBytes(3).toString('hex').toUpperCase()`.
+
+### Auto-Issuance Logic (`routes/quiz.ts`)
+On every `POST /api/quiz/complete` where `passed = true`:
+1. Fetch all `quiz_id` values from the `trainings` table
+2. Fetch all distinct `quiz_id` values from `quiz_results` for this user where `passed = 1`
+3. If every training quiz_id is in the user's passed set → check for an existing certificate
+4. If no certificate exists → insert a new row into `certificates`
+- Does **not** re-issue if a certificate already exists for that user
+- Does **not** issue if no trainings are configured (empty trainings table)
+
+### `certificates` Table Schema
+```sql
+CREATE TABLE certificates (
+  id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+  certificate_number TEXT UNIQUE NOT NULL,     -- e.g. SLQ-2025-A3F7B2
+  user_id            INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  issued_to          TEXT NOT NULL,             -- snapshot of user.name at issuance
+  completion_date    TEXT NOT NULL DEFAULT (datetime('now')),
+  is_valid           INTEGER NOT NULL DEFAULT 1, -- 0 = revoked
+  created_at         TEXT DEFAULT (datetime('now'))
+);
+```
+
+### CertificateGenerator Component (`portal/client/src/components/CertificateGenerator.tsx`)
+- Fetches `GET /api/certificates/mine` (uses auth token — no props needed)
+- Displays: Recipient, Completed date, Certificate #, Status
+- **Download Certificate PDF** button uses `@react-pdf/renderer` to generate PDF in-browser
+- PDF prints `{origin}/verify` as the verification URL so anyone can look it up
+- PDF design: landscape LETTER, Sliquid blue header bar, gold inner border, circular seal, two signature blocks
+
+### Certificate Verify Page (`portal/client/src/pages/CertificateVerify.tsx`)
+- Route: `/verify` — outside `<Shell>`, publicly accessible, no auth required
+- User types a certificate number into a search form and clicks **Verify**
+- Input is trimmed and uppercased before the API call
+- **Verified** (green): shows Issued To, Completed, Certificate #, Program, Issued By, Status ✓ Valid
+- **Not Found** (red): shows the searched number + "not found" message
+- "Search another certificate" button resets the form without a page reload
+- Uses raw `fetch` (not `api.*`) since no auth token is available
+
+### Sliquid Wellness Logo
+Copied to `portal/client/public/images/sliquid-wellness-logo.png` from `~/Downloads/Logo Sliquid Wellness-01.png`.
+
+---
+
+## User Management (`/users`)
+
+Admin-only page (`UsersPage.tsx`). All editing now happens inside a **modal** — rows are read-only and fully clickable.
+
+### User Row (table)
+- Displays: avatar initial, name, "Certified" badge if applicable, email, company, role badge (solid color), date joined
+- Click anywhere on the row → opens `UserDetailModal`
+
+### Role Badge Colors (`roleBadgeClass()` in UsersPage.tsx)
+Solid filled with white text for maximum readability:
+| Role | Tailwind class |
+|---|---|
+| tier5 (Admin) | `bg-violet-600 border-violet-600 text-white` |
+| tier4 (Prospect) | `bg-orange-500 border-orange-500 text-white` |
+| tier3 (Distributor) | `bg-cyan-600 border-cyan-600 text-white` |
+| tier2 (Retail Management) | `bg-emerald-600 border-emerald-600 text-white` |
+| tier1 (Retail Store Employee) | `bg-slate-500 border-slate-500 text-white` |
+
+### UserDetailModal
+Shows full user profile. Contains:
+- **Identity:** large avatar initials (up to 2 letters), name, email, role badge
+- **Details grid:** Date Joined, Last Login (formatted date + relative time e.g. "3d ago"; "Never" if null)
+- **Store / Company:** editable dropdown (stores table); Save button appears on change; syncs back to table and list on save
+- **Account Type:** editable role dropdown; Save button appears on change; syncs back on save
+- **Certification:**
+  - If certified: green panel with `Award` icon, "Sliquid Certified Expert", cert number, **Verify** link opening `/verify` in new tab
+  - If not certified: gray panel with `GraduationCap` icon, "Training Not Completed"
+
+### last_login Tracking
+- `last_login TEXT` column added to `users` table (migration v14)
+- Stamped via `UPDATE users SET last_login = datetime('now') WHERE id = ?` on every successful login in `routes/auth.ts`
+- Returned by `GET /api/admin/users` and displayed in the modal
 
 ---
 
@@ -544,6 +659,56 @@ Credentials can be set two ways (env takes precedence):
 
 ---
 
+## Testing
+
+Server uses **Vitest + supertest** with an in-memory SQLite database.
+
+### Running Tests
+```bash
+cd portal/server
+npm test            # run all tests once
+npm run test:watch  # watch mode
+```
+
+### Test Structure
+```
+portal/server/src/__tests__/
+  setup.ts                        # sets DB_PATH=:memory:, JWT_SECRET, silences console.log
+  helpers/
+    auth.ts                       # makeToken(), makeExpiredToken(), bearerToken()
+    db.ts                         # resetDb(), seedTestUsers(), seedInventoryItem(),
+                                  # seedTraining(), seedQuizResult(), seedCertificate()
+  middleware/
+    auth.test.ts
+  routes/
+    auth.test.ts
+    products.test.ts
+    assets.test.ts
+    inventory.test.ts
+    notifications.test.ts
+    retailer.test.ts
+    marketing-items.test.ts
+    trainings.test.ts
+    quiz.test.ts                  # quiz completion + certificate auto-issuance
+    certificates.test.ts          # GET /mine + GET /verify/:certNumber
+```
+
+### Test Helper Functions (`helpers/db.ts`)
+| Function | Description |
+|---|---|
+| `resetDb()` | Deletes all rows from all tables including `certificates`; resets autoincrement sequences |
+| `seedTestUsers()` | Inserts admin (tier5), tier1, tier2, tier4 users; returns their IDs |
+| `seedInventoryItem(overrides?)` | Inserts a test inventory row; returns its ID |
+| `seedTraining(quizId, overrides?)` | Inserts a training row; returns its ID |
+| `seedQuizResult(userId, quizId, passed, score?)` | Inserts a quiz_results row; returns its ID |
+| `seedCertificate(userId, userName, certNumber?)` | Inserts a certificates row; returns `{ id, certNumber }` |
+
+### Key Test Coverage — Certification
+- `quiz.test.ts` verifies: no cert when no trainings; no cert on partial pass; no cert on failed quiz; cert issued when all passed; cert number format `SLQ-\d{4}-[A-F0-9]{6}`; no duplicate cert on retake; per-user isolation
+- `certificates.test.ts` verifies: 401 no auth on `/mine`; 404 no cert; correct data shape; user isolation; revoked cert returns 404; public verify endpoint requires no auth; unknown cert returns 404 + `valid: false`
+
+---
+
 ## Deployment
 
 ### Cloudflare Pages (portal client)
@@ -566,10 +731,12 @@ Credentials can be set two ways (env takes precedence):
 
 - **Styling:** Tailwind only. Use the custom tokens (`bg-surface`, `bg-portal-bg`, `bg-surface-elevated`, `border-portal-border`, `text-portal-accent`) — do not use raw colors for structural elements.
 - **Icons:** `lucide-react` exclusively.
-- **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export) and public pre-auth calls (e.g., `/api/stores` from RegisterPage) use raw `fetch`.
+- **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export), public pre-auth calls (e.g., `/api/stores` from RegisterPage), and the public certificate verify page use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **10**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **15**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
 - **Video files:** `.mp4`, `.mov`, `.webm`, `.avi`, `.m4v` are in `.gitignore` — never commit large video files. Use YouTube or a CDN URL instead.
 - **Stores dropdown:** Registration and admin company-edit use the `stores` table. To add/edit stores, use the admin API or the DB directly. Do not hardcode store names in client code.
+- **Certificate verification URL:** Always `/verify` (no cert number in the path) — users type the cert number into the search form on that page.
+- **Role badge colors:** Always solid filled (`bg-{color}-{shade} text-white`). Do not revert to transparent/muted variants — they were hard to read.
