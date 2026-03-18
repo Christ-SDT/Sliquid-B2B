@@ -4,10 +4,21 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   PDFDownloadLink,
+  Font,
 } from '@react-pdf/renderer'
 import { api } from '@/api/client'
+
+// ─── Font Registration ────────────────────────────────────────────────────────
+Font.register({
+  family: 'Poppins',
+  fonts: [
+    { src: '/fonts/Poppins-Light.ttf',   fontWeight: 300 },
+    { src: '/fonts/Poppins-Regular.ttf', fontWeight: 400 },
+  ],
+})
 
 // ─── Colors ──────────────────────────────────────────────────────────────────
 const SLIQUID_BLUE = '#0A84C0'
@@ -17,6 +28,9 @@ const NEAR_WHITE = '#FAFCFE'
 const DARK_TEXT = '#1A1A2E'
 const MID_GRAY = '#6B7280'
 const WHITE = '#FFFFFF'
+
+// Badge served from public/downloads/badge.png (place file there before generating PDFs)
+const BADGE_URL = '/downloads/badge.png'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface CertData {
@@ -76,15 +90,17 @@ const styles = StyleSheet.create({
   brandName: {
     color: WHITE,
     fontSize: 28,
-    fontFamily: 'Helvetica-Bold',
-    letterSpacing: 4,
+    fontFamily: 'Poppins',
+    fontWeight: 300,
+    letterSpacing: 1,
   },
   tagline: {
-    color: '#B0D9F0',
-    fontSize: 8,
-    fontFamily: 'Helvetica',
-    letterSpacing: 3,
-    marginTop: 2,
+    color: WHITE,
+    fontSize: 9,
+    fontFamily: 'Poppins',
+    fontWeight: 400,
+    marginTop: 3,
+    opacity: 0.9,
   },
   goldLine: {
     position: 'absolute',
@@ -106,22 +122,29 @@ const styles = StyleSheet.create({
   },
   certHeader: {
     color: SLIQUID_BLUE,
-    fontSize: 10,
+    fontSize: 16,
     fontFamily: 'Helvetica-Bold',
     letterSpacing: 4,
     marginTop: 18,
+  },
+  certHeaderLine2: {
+    color: SLIQUID_BLUE,
+    fontSize: 16,
+    fontFamily: 'Helvetica-Bold',
+    letterSpacing: 4,
+    marginTop: 4,
   },
   thisText: {
     color: MID_GRAY,
     fontSize: 11,
     fontFamily: 'Helvetica-Oblique',
-    marginTop: 16,
+    marginTop: 14,
   },
   recipientName: {
     color: DARK_TEXT,
     fontSize: 32,
     fontFamily: 'Helvetica-Bold',
-    marginTop: 12,
+    marginTop: 10,
   },
   nameUnderline: {
     height: 1.5,
@@ -133,34 +156,27 @@ const styles = StyleSheet.create({
     color: MID_GRAY,
     fontSize: 10,
     fontFamily: 'Helvetica',
-    marginTop: 14,
+    marginTop: 12,
     textAlign: 'center',
   },
   expertBadge: {
     backgroundColor: SLIQUID_LIGHT_BLUE,
     borderRadius: 14,
-    paddingHorizontal: 24,
+    paddingHorizontal: 32,
     paddingVertical: 8,
-    marginTop: 12,
+    marginTop: 10,
   },
   expertText: {
     color: SLIQUID_BLUE,
-    fontSize: 22,
+    fontSize: 18,
     fontFamily: 'Helvetica-Bold',
     letterSpacing: 1,
-  },
-  supportingText: {
-    color: MID_GRAY,
-    fontSize: 9,
-    fontFamily: 'Helvetica',
-    marginTop: 8,
-    textAlign: 'center',
   },
   dateText: {
     color: DARK_TEXT,
     fontSize: 9,
     fontFamily: 'Helvetica',
-    marginTop: 10,
+    marginTop: 8,
   },
   bottomSection: {
     position: 'absolute',
@@ -262,17 +278,18 @@ function CertificatePDF({ firstName, lastName, completionDate, certNumber, verif
 
         {/* Top Bar */}
         <View style={styles.topBar}>
-          <Text style={styles.brandName}>SLIQUID</Text>
-          <Text style={styles.tagline}>PREMIUM INTIMATE WELLNESS</Text>
+          <Text style={styles.brandName}>sliquid</Text>
+          <Text style={styles.tagline}>an intimate wellness company</Text>
         </View>
 
         <View style={styles.goldLine} />
 
         {/* Body Content */}
         <View style={styles.body}>
-          <Text style={styles.certHeader}>
-            C E R T I F I C A T E   O F   A C H I E V E M E N T
-          </Text>
+          {/* Two-line certificate header */}
+          <Text style={styles.certHeader}>C E R T I F I C A T E</Text>
+          <Text style={styles.certHeaderLine2}>O F   C O M P L E T I O N</Text>
+
           <Text style={styles.thisText}>This certifies that</Text>
           <Text style={styles.recipientName}>
             {firstName} {lastName}
@@ -281,13 +298,24 @@ function CertificatePDF({ firstName, lastName, completionDate, certNumber, verif
           <Text style={styles.bodyText}>
             has successfully completed the
           </Text>
+
+          {/* Course name pill */}
           <View style={styles.expertBadge}>
-            <Text style={styles.expertText}>SLIQUID PRODUCT KNOWLEDGE</Text>
+            <Text style={styles.expertText}>SLIQUID CERTIFIED EXPERT TRAINING COURSE</Text>
           </View>
-          <Text style={styles.supportingText}>
-            Sliquid Certified Expert Course.
-          </Text>
+
           <Text style={styles.dateText}>Completed on  {completionDate}</Text>
+
+          {/* Gold badge — place badge.png at public/downloads/badge.png */}
+          <Image
+            src={BADGE_URL}
+            style={{
+              width: 88,
+              height: 110,
+              alignSelf: 'center',
+              marginTop: 10,
+            }}
+          />
         </View>
 
         {/* Bottom Signature Section */}

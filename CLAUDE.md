@@ -42,6 +42,9 @@ The project has two top-level parts:
 | `portal/client/src/components/layout/Sidebar.tsx` | Navigation with role-based filtering (`managerOnly`, `prospectVisible`, `adminOnly` flags) |
 | `portal/client/src/components/CertificateGenerator.tsx` | PDF certificate download component (uses `@react-pdf/renderer`) |
 | `portal/client/src/components/CertRewardForm.tsx` | Pre-certificate reward form (product choice, shirt size, shipping address) — shown once before certificate |
+| `portal/client/public/fonts/Poppins-Light.ttf` | Poppins weight 300 — registered for `@react-pdf/renderer` PDF top bar |
+| `portal/client/public/fonts/Poppins-Regular.ttf` | Poppins weight 400 — registered for `@react-pdf/renderer` PDF top bar tagline |
+| `portal/client/public/downloads/badge.png` | Gold badge image rendered in certificate PDF (must be placed here manually) |
 | `portal/client/src/quizzes/index.ts` | Quiz registry |
 | `portal/client/public/training/<id>/index.html` | SCORM packages |
 | `portal/client/src/pages/AssetsPage.tsx` | Merged "Product Library" with admin add/edit/delete; 4 tabs (Info Sheets, Digital Assets, Campaign Materials, Video) |
@@ -452,6 +455,27 @@ CREATE TABLE certificates (
 );
 ```
 
+### `cert_rewards` Table Schema (migration v16)
+```sql
+CREATE TABLE cert_rewards (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  full_name    TEXT NOT NULL,      -- snapshot of user.name at submission
+  product      TEXT NOT NULL,      -- free product chosen
+  shirt_size   TEXT NOT NULL,      -- XS/S/M/L/XL/2XL/3XL
+  address1     TEXT NOT NULL,
+  address2     TEXT,               -- optional
+  city         TEXT NOT NULL,
+  state        TEXT NOT NULL,
+  zip          TEXT NOT NULL,
+  submitted_at TEXT DEFAULT (datetime('now')),
+  UNIQUE(user_id)                  -- one submission per user, ever
+);
+```
+- Enforced UNIQUE on `user_id` — second submission is ignored (idempotent, no error)
+- `GET /api/certificates/mine` returns `rewardSubmitted: true` once a row exists for that user
+- Admins can query this table directly to pull fulfillment data for shipping
+
 ### Cert Reward Form (`portal/client/src/components/CertRewardForm.tsx`)
 Gate shown **before** the certificate download, one time only per user. Collects:
 - **Name** — pre-filled from cert data, read-only
@@ -467,8 +491,16 @@ Gate shown **before** the certificate download, one time only per user. Collects
 - Displays: Recipient, Completed date, Certificate #, Status
 - **Download Certificate PDF** button uses `@react-pdf/renderer` to generate PDF in-browser
 - PDF prints `{origin}/verify` as the verification URL so anyone can look it up
-- PDF design: landscape LETTER, Sliquid blue header bar, gold inner border, circular seal, two signature blocks
-- **PDF certificate text:** badge reads `SLIQUID PRODUCT KNOWLEDGE`; body copy reads `has successfully completed the`; supporting text reads `Sliquid Certified Expert Course.`
+
+**PDF layout (landscape LETTER):**
+- **Top bar logo:** Poppins Light 28pt lowercase `sliquid` + Poppins Regular 9pt `an intimate wellness company` (white on blue — no image, no bleed)
+- Fonts registered via `Font.register` from `public/fonts/Poppins-Light.ttf` and `public/fonts/Poppins-Regular.ttf`
+- **Certificate header:** two lines — `C E R T I F I C A T E` / `O F   C O M P L E T I O N` — Helvetica-Bold 16pt, Sliquid blue
+- **Body copy:** `has successfully completed the`
+- **Course pill:** `SLIQUID CERTIFIED EXPERT TRAINING COURSE` — Helvetica-Bold 18pt, SLIQUID_LIGHT_BLUE background, paddingHorizontal 32
+- Supporting text line removed entirely
+- **Gold badge image:** `<Image src="/downloads/badge.png">` 88×110pt, centered below date — place `badge.png` at `public/downloads/badge.png` before generating PDFs
+- Gold inner border, corner accents, circular seal, two signature blocks (Erik + cert number box)
 
 ### Certificate Verify Page (`portal/client/src/pages/CertificateVerify.tsx`)
 - Route: `/verify` — outside `<Shell>`, publicly accessible, no auth required
@@ -481,6 +513,15 @@ Gate shown **before** the certificate download, one time only per user. Collects
 
 ### Sliquid Wellness Logo
 Copied to `portal/client/public/images/sliquid-wellness-logo.png` from `~/Downloads/Logo Sliquid Wellness-01.png`.
+
+### Static Font & Badge Assets
+| File | Purpose |
+|---|---|
+| `portal/client/public/fonts/Poppins-Light.ttf` | Poppins weight 300 — used in PDF top bar |
+| `portal/client/public/fonts/Poppins-Regular.ttf` | Poppins weight 400 — used in PDF top bar tagline |
+| `portal/client/public/downloads/badge.png` | Gold badge rendered in certificate PDF — **must be placed here manually** before PDFs will generate |
+
+`public/downloads/` directory is created. Drop the badge image there when available.
 
 ---
 
@@ -697,7 +738,8 @@ portal/server/src/__tests__/
   helpers/
     auth.ts                       # makeToken(), makeExpiredToken(), bearerToken()
     db.ts                         # resetDb(), seedTestUsers(), seedInventoryItem(),
-                                  # seedTraining(), seedQuizResult(), seedCertificate()
+                                  # seedTraining(), seedQuizResult(), seedCertificate(),
+                                  # seedCertReward()
   middleware/
     auth.test.ts
   routes/
@@ -710,22 +752,28 @@ portal/server/src/__tests__/
     marketing-items.test.ts
     trainings.test.ts
     quiz.test.ts                  # quiz completion + certificate auto-issuance
-    certificates.test.ts          # GET /mine + GET /verify/:certNumber
+    certificates.test.ts          # GET /mine (rewardSubmitted field), POST /reward, GET /verify/:certNumber
 ```
 
 ### Test Helper Functions (`helpers/db.ts`)
 | Function | Description |
 |---|---|
-| `resetDb()` | Deletes all rows from all tables including `certificates`; resets autoincrement sequences |
+| `resetDb()` | Deletes all rows from all tables including `cert_rewards` and `certificates`; resets autoincrement sequences |
 | `seedTestUsers()` | Inserts admin (tier5), tier1, tier2, tier4 users; returns their IDs |
 | `seedInventoryItem(overrides?)` | Inserts a test inventory row; returns its ID |
 | `seedTraining(quizId, overrides?)` | Inserts a training row; returns its ID |
 | `seedQuizResult(userId, quizId, passed, score?)` | Inserts a quiz_results row; returns its ID |
 | `seedCertificate(userId, userName, certNumber?)` | Inserts a certificates row; returns `{ id, certNumber }` |
+| `seedCertReward(userId, overrides?)` | Inserts a cert_rewards row using that user's name; returns the row ID |
 
 ### Key Test Coverage — Certification
-- `quiz.test.ts` verifies: no cert when no trainings; no cert on partial pass; no cert on failed quiz; cert issued when all passed; cert number format `SLQ-\d{4}-[A-F0-9]{6}`; no duplicate cert on retake; per-user isolation
-- `certificates.test.ts` verifies: 401 no auth on `/mine`; 404 no cert; correct data shape; user isolation; revoked cert returns 404; public verify endpoint requires no auth; unknown cert returns 404 + `valid: false`
+- `quiz.test.ts` (18 tests): no cert when no trainings; no cert on partial pass; no cert on failed quiz; cert issued when all passed; cert number format `SLQ-\d{4}-[A-F0-9]{6}`; no duplicate cert on retake; per-user isolation
+- `certificates.test.ts` (25 tests):
+  - `GET /mine`: 401 no auth; 404 no cert; correct data shape; `rewardSubmitted: false` before reward; `rewardSubmitted: true` after reward; user isolation; revoked cert 404
+  - `POST /reward`: 401 no auth; 403 no cert; 400 for each missing required field (product, shirtSize, address1, city, state, zip); 201 + DB row verified; address2 optional; idempotent (second call returns 200, no duplicate); per-user isolation; round-trip confirms `rewardSubmitted` flips to `true`
+  - `GET /verify/:certNumber`: unknown 404; revoked 404; valid 200 + full shape; public (no auth); case-sensitive lookup
+
+**Total: 123 tests passing across 11 test files**
 
 ---
 

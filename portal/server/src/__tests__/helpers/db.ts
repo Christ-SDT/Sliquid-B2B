@@ -5,6 +5,7 @@ export { db }
 
 export function resetDb(): void {
   db.exec(`
+    DELETE FROM cert_rewards;
     DELETE FROM certificates;
     DELETE FROM notifications;
     DELETE FROM quiz_results;
@@ -39,6 +40,26 @@ export function seedQuizResult(userId: number, quizId: string, passed: boolean, 
   const result = db.prepare(
     'INSERT INTO quiz_results (user_id, quiz_id, score, passed) VALUES (?, ?, ?, ?)'
   ).run(userId, quizId, score, passed ? 1 : 0)
+  return result.lastInsertRowid as number
+}
+
+export function seedCertReward(userId: number, overrides: Partial<{
+  product: string; shirtSize: string; address1: string; city: string; state: string; zip: string
+}> = {}) {
+  const row = {
+    product: 'Sliquid H2O',
+    shirtSize: 'M',
+    address1: '123 Main St',
+    address2: null,
+    city: 'Dallas',
+    state: 'TX',
+    zip: '75201',
+    ...overrides,
+  }
+  const user = db.prepare('SELECT name FROM users WHERE id = ?').get(userId) as { name: string }
+  const result = db.prepare(
+    'INSERT INTO cert_rewards (user_id, full_name, product, shirt_size, address1, address2, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(userId, user.name, row.product, row.shirtSize, row.address1, row.address2, row.city, row.state, row.zip)
   return result.lastInsertRowid as number
 }
 
