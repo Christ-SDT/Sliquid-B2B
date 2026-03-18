@@ -41,6 +41,7 @@ The project has two top-level parts:
 | `portal/client/src/components/layout/Shell.tsx` | Auth guard + route restriction enforcement |
 | `portal/client/src/components/layout/Sidebar.tsx` | Navigation with role-based filtering (`managerOnly`, `prospectVisible`, `adminOnly` flags) |
 | `portal/client/src/components/CertificateGenerator.tsx` | PDF certificate download component (uses `@react-pdf/renderer`) |
+| `portal/client/src/components/CertRewardForm.tsx` | Pre-certificate reward form (product choice, shirt size, shipping address) — shown once before certificate |
 | `portal/client/src/quizzes/index.ts` | Quiz registry |
 | `portal/client/public/training/<id>/index.html` | SCORM packages |
 | `portal/client/src/pages/AssetsPage.tsx` | Merged "Product Library" with admin add/edit/delete; 4 tabs (Info Sheets, Digital Assets, Campaign Materials, Video) |
@@ -202,8 +203,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 13 | `certificates_table` | Creates `certificates` table (certificate_number, user_id, issued_to, completion_date, is_valid); indexes on user_id and certificate_number |
 | 14 | `add_last_login` | Adds `last_login TEXT` column to `users` table; stamped on every successful login |
 | 15 | `add_sizzle_splash_soul_soak_soothe_trainings` | Seeds Sizzle vs Sparks, Splash, Soul, Soak, Soothe training entries (sort_order 5–9) |
+| 16 | `cert_rewards_table` | Creates `cert_rewards` table (user_id UNIQUE, full_name, product, shirt_size, address1, address2, city, state, zip, submitted_at); index on user_id |
 
-**Next migration version: 16**
+**Next migration version: 17**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -282,7 +284,8 @@ Managed in `portal/server/src/database.ts`. Rules:
 ### Certificates — `/api/certificates`
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/mine` | requireAuth | Returns `{ firstName, lastName, completionDate, certificateNumber }` for current user; 404 if no cert |
+| GET | `/mine` | requireAuth | Returns `{ firstName, lastName, completionDate, certificateNumber, rewardSubmitted }` for current user; 404 if no cert |
+| POST | `/reward` | requireAuth | Save reward claim (product, shirtSize, address1, address2, city, state, zip); 400 if missing fields; 403 if no valid cert; no-op if already submitted |
 | GET | `/verify/:certNumber` | **Public** | Returns `{ valid, fullName, firstName, lastName, completionDate, certificateNumber }`; 404 if not found or revoked |
 
 ### Admin — `/api/admin`
@@ -448,6 +451,16 @@ CREATE TABLE certificates (
   created_at         TEXT DEFAULT (datetime('now'))
 );
 ```
+
+### Cert Reward Form (`portal/client/src/components/CertRewardForm.tsx`)
+Gate shown **before** the certificate download, one time only per user. Collects:
+- **Name** — pre-filled from cert data, read-only
+- **Free product** — text input with `<datalist>` autocomplete populated from `GET /api/products`
+- **T-shirt size** — dropdown (XS, S, M, L, XL, 2XL, 3XL)
+- **Shipping address** — Street, Apt/suite (optional), City, State (2-char, auto-uppercased), ZIP
+- **Privacy notice** — "Your information is used only to ship your rewards and will never be sold, shared, or used for any other purpose."
+- On submit → `POST /api/certificates/reward` → calls `onComplete()` which flips `rewardSubmitted: true` in TrainingsPage state → `CertificateGenerator` is rendered
+- If `rewardSubmitted` is already `true` when modal opens → reward form is skipped entirely
 
 ### CertificateGenerator Component (`portal/client/src/components/CertificateGenerator.tsx`)
 - Fetches `GET /api/certificates/mine` (uses auth token — no props needed)

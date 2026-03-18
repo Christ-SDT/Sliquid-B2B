@@ -392,6 +392,29 @@ const migrations: Migration[] = [
         'https://youtu.be/hhfTxbiYsBI', 70, 15, 9
       )
     }
+  },
+  {
+    version: 16,
+    name: 'cert_rewards_table',
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS cert_rewards (
+          id           INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          full_name    TEXT NOT NULL,
+          product      TEXT NOT NULL,
+          shirt_size   TEXT NOT NULL,
+          address1     TEXT NOT NULL,
+          address2     TEXT,
+          city         TEXT NOT NULL,
+          state        TEXT NOT NULL,
+          zip          TEXT NOT NULL,
+          submitted_at TEXT DEFAULT (datetime('now')),
+          UNIQUE(user_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_cert_rewards_user ON cert_rewards(user_id);
+      `)
+    }
   }
 ]
 

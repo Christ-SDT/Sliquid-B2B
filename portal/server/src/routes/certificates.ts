@@ -26,7 +26,62 @@ router.get('/mine', requireAuth, (req, res) => {
     day: 'numeric',
   })
 
-  res.json({ firstName, lastName, completionDate, certificateNumber: cert.certificate_number })
+  const reward = db.prepare('SELECT id FROM cert_rewards WHERE user_id = ?').get(user.id)
+
+  res.json({
+    firstName,
+    lastName,
+    completionDate,
+    certificateNumber: cert.certificate_number,
+    rewardSubmitted: !!reward,
+  })
+})
+
+// POST /api/certificates/reward — save reward claim (one per user)
+router.post('/reward', requireAuth, (req, res) => {
+  const user = req.user!
+  const { product, shirtSize, address1, address2, city, state, zip } = req.body as {
+    product?: string
+    shirtSize?: string
+    address1?: string
+    address2?: string
+    city?: string
+    state?: string
+    zip?: string
+  }
+
+  if (!product?.trim() || !shirtSize || !address1?.trim() || !city?.trim() || !state?.trim() || !zip?.trim()) {
+    res.status(400).json({ message: 'All required fields must be filled in' })
+    return
+  }
+
+  const cert = db.prepare('SELECT id FROM certificates WHERE user_id = ? AND is_valid = 1').get(user.id)
+  if (!cert) {
+    res.status(403).json({ message: 'No valid certificate found' })
+    return
+  }
+
+  const existing = db.prepare('SELECT id FROM cert_rewards WHERE user_id = ?').get(user.id)
+  if (existing) {
+    res.json({ message: 'Already submitted' })
+    return
+  }
+
+  db.prepare(
+    'INSERT INTO cert_rewards (user_id, full_name, product, shirt_size, address1, address2, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(
+    user.id,
+    user.name,
+    product.trim(),
+    shirtSize,
+    address1.trim(),
+    address2?.trim() || null,
+    city.trim(),
+    state.trim(),
+    zip.trim()
+  )
+
+  res.status(201).json({ message: 'Submitted successfully' })
 })
 
 // GET /api/certificates/verify/:certNumber — public, no auth required

@@ -5,6 +5,13 @@ import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
 import { GraduationCap, Clock, CheckCircle2, ChevronRight, Award, Plus, Pencil, Trash2, Loader2, X } from 'lucide-react'
 import CertificateGenerator from '@/components/CertificateGenerator'
+import CertRewardForm from '@/components/CertRewardForm'
+
+type CertData = {
+  firstName: string
+  lastName: string
+  rewardSubmitted: boolean
+}
 
 type Training = {
   id: number
@@ -343,7 +350,20 @@ export default function TrainingsPage() {
 
   const passedCount = trainings.filter(t => bestFor(t.quiz_id)?.passed === 1).length
   const allComplete = !loading && trainings.length > 0 && passedCount === trainings.length
+
   const [showCertModal, setShowCertModal] = useState(false)
+  const [certData, setCertData] = useState<CertData | null>(null)
+  const [certDataLoading, setCertDataLoading] = useState(false)
+
+  function openCertModal() {
+    setShowCertModal(true)
+    setCertData(null)
+    setCertDataLoading(true)
+    api.get<CertData>('/certificates/mine')
+      .then(data => setCertData(data))
+      .catch(() => setCertData(null))
+      .finally(() => setCertDataLoading(false))
+  }
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -381,7 +401,7 @@ export default function TrainingsPage() {
             </div>
           </div>
           <button
-            onClick={() => setShowCertModal(true)}
+            onClick={openCertModal}
             className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
           >
             <Award className="w-4 h-4" /> View Certificate
@@ -455,12 +475,37 @@ export default function TrainingsPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-surface border border-portal-border rounded-xl w-full max-w-lg shadow-2xl">
             <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
-              <h2 className="text-on-canvas font-semibold">Your Certificate</h2>
+              <h2 className="text-on-canvas font-semibold">
+                {certDataLoading || !certData
+                  ? 'Sliquid Certified Expert'
+                  : certData.rewardSubmitted
+                    ? 'Your Certificate'
+                    : 'Claim Your Rewards'}
+              </h2>
               <button onClick={() => setShowCertModal(false)} className="text-on-canvas-muted hover:text-on-canvas">
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <CertificateGenerator />
+
+            {/* Loading */}
+            {certDataLoading && (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-5 h-5 text-portal-accent animate-spin" />
+              </div>
+            )}
+
+            {/* Reward form — shown once before the certificate */}
+            {!certDataLoading && certData && !certData.rewardSubmitted && (
+              <CertRewardForm
+                userName={`${certData.firstName} ${certData.lastName}`}
+                onComplete={() => setCertData(prev => prev ? { ...prev, rewardSubmitted: true } : prev)}
+              />
+            )}
+
+            {/* Certificate — shown after reward form is submitted (or if already done) */}
+            {!certDataLoading && certData?.rewardSubmitted && (
+              <CertificateGenerator />
+            )}
           </div>
         </div>
       )}
