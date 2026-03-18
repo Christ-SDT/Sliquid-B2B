@@ -201,8 +201,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 12 | `add_satin_swirl_silver_trainings` | Seeds Satin, Swirl, Silver vs Silk training entries |
 | 13 | `certificates_table` | Creates `certificates` table (certificate_number, user_id, issued_to, completion_date, is_valid); indexes on user_id and certificate_number |
 | 14 | `add_last_login` | Adds `last_login TEXT` column to `users` table; stamped on every successful login |
+| 15 | `add_sizzle_splash_soul_soak_soothe_trainings` | Seeds Sizzle vs Sparks, Splash, Soul, Soak, Soothe training entries (sort_order 5–9) |
 
-**Next migration version: 15**
+**Next migration version: 16**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -348,6 +349,11 @@ All endpoints require `requireAuth + requireRole('tier5', 'admin')`.
 | 3 | `satin` | Sliquid Satin | YouTube `https://youtu.be/jNNoSLSxQ80` |
 | 4 | `swirl` | Sliquid Swirl | YouTube `https://youtu.be/omRDQuBJO-k` |
 | 5 | `silver-vs-silk` | Silver vs Silk | YouTube `https://youtu.be/m5hA4P7IDTM` |
+| 6 | `sizzle-vs-sparks` | Sizzle vs Sparks | YouTube `https://youtu.be/yt3FzssdPh0` |
+| 7 | `splash` | Sliquid Splash | YouTube `https://youtu.be/6SHy8fWy3r8` |
+| 8 | `soul` | Sliquid Soul | YouTube `https://youtu.be/PdsWwZDBOmw` |
+| 9 | `soak` | Sliquid Soak | YouTube `https://youtu.be/Zwnm6h5YekM` |
+| 10 | `soothe` | Sliquid Soothe | YouTube `https://youtu.be/hhfTxbiYsBI` |
 
 **Notes:**
 - `sliquiz` (Customer Service Skills) was replaced by `h2o-vs-sassy` — do not re-add it.
@@ -449,12 +455,13 @@ CREATE TABLE certificates (
 - **Download Certificate PDF** button uses `@react-pdf/renderer` to generate PDF in-browser
 - PDF prints `{origin}/verify` as the verification URL so anyone can look it up
 - PDF design: landscape LETTER, Sliquid blue header bar, gold inner border, circular seal, two signature blocks
+- **PDF certificate text:** badge reads `SLIQUID PRODUCT KNOWLEDGE`; body copy reads `has successfully completed the`; supporting text reads `Sliquid Certified Expert Course.`
 
 ### Certificate Verify Page (`portal/client/src/pages/CertificateVerify.tsx`)
 - Route: `/verify` — outside `<Shell>`, publicly accessible, no auth required
 - User types a certificate number into a search form and clicks **Verify**
 - Input is trimmed and uppercased before the API call
-- **Verified** (green): shows Issued To, Completed, Certificate #, Program, Issued By, Status ✓ Valid
+- **Verified** (green): shows Issued To, Completed, Certificate #, Program (`Sliquid Certified Expert Course`), Issued By, Status ✓ Valid
 - **Not Found** (red): shows the searched number + "not found" message
 - "Search another certificate" button resets the form without a page reload
 - Uses raw `fetch` (not `api.*`) since no auth token is available
