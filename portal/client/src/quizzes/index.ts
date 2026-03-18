@@ -42,9 +42,9 @@ export const QUIZZES: Quiz[] = [
   },
   {
     id: 'sizzle-vs-sparks',
-    title: 'Sizzle vs Sparks',
+    title: 'Sizzle vs Spark',
     description:
-      'Discover the differences between Sizzle and Sparks product lines — formulations, sensations, and how to guide customers to the right choice.',
+      'Discover the differences between Sizzle and Spark product lines — formulations, sensations, and how to guide customers to the right choice.',
     path: '/training/sizzle-vs-sparks/index.html',
     passingScore: 70,
     estimatedMinutes: 15,

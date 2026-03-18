@@ -367,8 +367,8 @@ const migrations: Migration[] = [
         'INSERT OR IGNORE INTO trainings (quiz_id, title, description, video_path, passing_score, estimated_minutes, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)'
       )
       tr.run(
-        'sizzle-vs-sparks', 'Sizzle vs Sparks',
-        'Discover the differences between Sizzle and Sparks product lines — formulations, sensations, and how to guide customers to the right choice.',
+        'sizzle-vs-sparks', 'Sizzle vs Spark',
+        'Discover the differences between Sizzle and Spark product lines — formulations, sensations, and how to guide customers to the right choice.',
         'https://youtu.be/yt3FzssdPh0', 70, 15, 5
       )
       tr.run(
@@ -414,6 +414,32 @@ const migrations: Migration[] = [
         );
         CREATE INDEX IF NOT EXISTS idx_cert_rewards_user ON cert_rewards(user_id);
       `)
+    }
+  },
+  {
+    version: 17,
+    name: 'add_ogel_training',
+    up: () => {
+      db.prepare(
+        'INSERT OR IGNORE INTO trainings (quiz_id, title, description, video_path, passing_score, estimated_minutes, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      ).run(
+        'ogel',
+        'O Gel',
+        'Learn about O Gel — formulation, usage, and how to guide customers to the right intimate care choice.',
+        'https://youtu.be/NlxXiAIs7C0',
+        70,
+        15,
+        100,
+      )
+    }
+  },
+  {
+    version: 18,
+    name: 'rename_sizzle_vs_sparks_to_spark',
+    up: () => {
+      db.prepare(
+        "UPDATE trainings SET title='Sizzle vs Spark', description='Discover the differences between Sizzle and Spark product lines — formulations, sensations, and how to guide customers to the right choice.' WHERE quiz_id='sizzle-vs-sparks'"
+      ).run()
     }
   }
 ]

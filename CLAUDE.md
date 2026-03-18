@@ -47,7 +47,7 @@ The project has two top-level parts:
 | `portal/client/public/downloads/badge.png` | Gold badge image rendered in certificate PDF (must be placed here manually) |
 | `portal/client/src/quizzes/index.ts` | Quiz registry |
 | `portal/client/public/training/<id>/index.html` | SCORM packages |
-| `portal/client/src/pages/AssetsPage.tsx` | Merged "Product Library" with admin add/edit/delete; 4 tabs (Info Sheets, Digital Assets, Campaign Materials, Video) |
+| `portal/client/src/pages/AssetsPage.tsx` | Merged "Product Library" with file-explorer UX: collapsible brand sections → section pills → clickable preview strip → FileExplorerModal → FileDetailModal (download only here); admin add/edit/delete |
 | `portal/client/src/pages/RetailerPage.tsx` | "Request Physical Marketing Assets" — catalog + request form for Counter Cards, Banner, Neon Signs |
 | `portal/client/src/pages/StoreUsersPage.tsx` | "My Store" page for tier2 — read-only member list with quiz stats |
 | `portal/client/src/pages/CertificateVerify.tsx` | Public `/verify` page — search form to verify a cert number |
@@ -205,10 +205,12 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 12 | `add_satin_swirl_silver_trainings` | Seeds Satin, Swirl, Silver vs Silk training entries |
 | 13 | `certificates_table` | Creates `certificates` table (certificate_number, user_id, issued_to, completion_date, is_valid); indexes on user_id and certificate_number |
 | 14 | `add_last_login` | Adds `last_login TEXT` column to `users` table; stamped on every successful login |
-| 15 | `add_sizzle_splash_soul_soak_soothe_trainings` | Seeds Sizzle vs Sparks, Splash, Soul, Soak, Soothe training entries (sort_order 5–9) |
+| 15 | `add_sizzle_splash_soul_soak_soothe_trainings` | Seeds Sizzle vs Spark, Splash, Soul, Soak, Soothe training entries (sort_order 5–9) |
 | 16 | `cert_rewards_table` | Creates `cert_rewards` table (user_id UNIQUE, full_name, product, shirt_size, address1, address2, city, state, zip, submitted_at); index on user_id |
+| 17 | `add_ogel_training` | Seeds O Gel training entry with YouTube video `https://youtu.be/NlxXiAIs7C0` (sort_order 100) |
+| 18 | `rename_sizzle_vs_sparks_to_spark` | Updates `sizzle-vs-sparks` title from "Sizzle vs Sparks" → "Sizzle vs Spark" in trainings table |
 
-**Next migration version: 17**
+**Next migration version: 19**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -355,11 +357,12 @@ All endpoints require `requireAuth + requireRole('tier5', 'admin')`.
 | 3 | `satin` | Sliquid Satin | YouTube `https://youtu.be/jNNoSLSxQ80` |
 | 4 | `swirl` | Sliquid Swirl | YouTube `https://youtu.be/omRDQuBJO-k` |
 | 5 | `silver-vs-silk` | Silver vs Silk | YouTube `https://youtu.be/m5hA4P7IDTM` |
-| 6 | `sizzle-vs-sparks` | Sizzle vs Sparks | YouTube `https://youtu.be/yt3FzssdPh0` |
+| 6 | `sizzle-vs-sparks` | Sizzle vs Spark | YouTube `https://youtu.be/yt3FzssdPh0` |
 | 7 | `splash` | Sliquid Splash | YouTube `https://youtu.be/6SHy8fWy3r8` |
 | 8 | `soul` | Sliquid Soul | YouTube `https://youtu.be/PdsWwZDBOmw` |
 | 9 | `soak` | Sliquid Soak | YouTube `https://youtu.be/Zwnm6h5YekM` |
 | 10 | `soothe` | Sliquid Soothe | YouTube `https://youtu.be/hhfTxbiYsBI` |
+| 11 | `ogel` | O Gel | YouTube `https://youtu.be/NlxXiAIs7C0` |
 
 **Notes:**
 - `sliquiz` (Customer Service Skills) was replaced by `h2o-vs-sassy` — do not re-add it.
@@ -598,30 +601,57 @@ Shows full user profile. Contains:
 
 `AssetsPage.tsx` is the merged "Product Library" combining `/api/assets` and `/api/creatives` data in one page. `/creatives` route and `CreativesPage.tsx` have been **deleted**.
 
-### Tabs
-| Tab key | Label | Data source | Asset types included |
-|---|---|---|---|
-| `sheets` | Info Sheets | assets (Document) + creatives (Print) | — |
-| `assets` | Digital Assets | assets only | Logo, Banner, Social |
-| `campaign` | Campaign Materials | creatives only | Banner, Social Media, Email, Multi |
-| `video` | Video Assets | creatives only | Video |
+### UX — File Explorer (current design)
+Tab-based grid has been replaced with a brand-grouped file explorer:
 
-Both APIs fetched in parallel via `Promise.all` on mount. Results merged client-side with a `_source: 'asset' | 'creative'` discriminant and unified `displayName` field (assets use `name`, creatives use `title`).
+```
+AssetsPage
+  └─ Search bar (header) + Add Item (admin)
+  └─ BrandSection per brand (collapsible, sorted: Sliquid → Ride Lube → Ride Rocco → …)
+        ├─ "View all [Brand] (N items)" button → FileExplorerModal (all items for brand)
+        ├─ Section pills: [Logos (3)] [Social Media (5)] [Documents (2)] …
+        ├─ Preview strip: up to 4 clickable thumbnails → FileDetailModal
+        └─ "Show all [Section]" button → FileExplorerModal (section items)
 
-### LibraryCard Component
-- Handles both asset and creative data shapes
-- Download button works for both sources
-- Copy-URL button shown only for assets (has `file_url` field)
-- Brand filter and search work across all tabs
+FileExplorerModal  (z-50)
+  └─ Grid: grid-cols-3→5, each card aspect-square
+  └─ Admin hover: edit + delete icons (delete requires confirm)
+  └─ Click file → FileDetailModal
+
+FileDetailModal  (z-[60], stacked over explorer)
+  └─ Large preview + metadata
+  └─ Download button (only download point in the UI)
+  └─ Admin: Edit → EditItemModal (z-[70]); Delete (two-click confirm)
+  └─ Back arrow → close detail (explorer stays open); X → close both
+```
+
+### Section → Type Mapping (`SECTION_MAP`)
+| Section label | Asset type(s) | Source |
+|---|---|---|
+| Logos | Logo | asset |
+| Banners | Banner | asset |
+| Social Media | Social, Social Media | asset |
+| Documents | Document, Print | asset / creative |
+| Email Templates | Email | creative |
+| Campaign Materials | Multi | creative |
+| Videos | Video | creative |
+
+### Brand Display Names
+| DB value | Display name |
+|---|---|
+| `RIDE` | Ride Lube |
+| All others | as-is |
+
+Brand sort order: Sliquid → Ride Lube (RIDE) → Ride Rocco → Sliquid Science → alphabetical for unknowns.
 
 ### Admin CRUD (tier5/admin only)
-- **Add** button in page header → `AddItemModal`: adapts form fields per active tab; type dropdown changes based on tab; POSTs to `/api/assets` or `/api/creatives`
-- **Edit** (pencil icon in card footer) → `EditItemModal`: pre-filled with existing data; updates via `PUT /api/assets/:id` or `PUT /api/creatives/:id`; updates item in-place via `onSaved` callback
-- **Delete** (trash icon on card image) → inline confirm/cancel before calling `DELETE /api/assets/:id` or `DELETE /api/creatives/:id`
-- Brand field in add/edit modals uses `<datalist>` for suggestions (`BRAND_OPTIONS` constant)
+- **Add** button → `AddItemModal`: Section dropdown (maps to type + source); Brand dropdown with "Other (type a new brand…)" fallback text input; POSTs to `/api/assets` or `/api/creatives`
+- **Edit** → `EditItemModal`: same brand dropdown; `PUT /api/assets/:id` or `PUT /api/creatives/:id`
+- **Delete** → two-click confirm inline (in explorer hover icons or FileDetailModal)
 
 ### Image Sizes
-- **Product Library cards:** 600×338px (16:9 `aspect-video`)
+- **Preview strip / FileExplorerModal cards:** `aspect-square` (square thumbnails)
+- **FileDetailModal preview:** `aspect-video` (`object-contain`)
 - Images placed at any CDN URL; paste into `thumbnail_url` field when adding/editing items
 
 ---
