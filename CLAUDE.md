@@ -209,8 +209,10 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 16 | `cert_rewards_table` | Creates `cert_rewards` table (user_id UNIQUE, full_name, product, shirt_size, address1, address2, city, state, zip, submitted_at); index on user_id |
 | 17 | `add_ogel_training` | Seeds O Gel training entry with YouTube video `https://youtu.be/NlxXiAIs7C0` (sort_order 100) |
 | 18 | `rename_sizzle_vs_sparks_to_spark` | Updates `sizzle-vs-sparks` title from "Sizzle vs Sparks" → "Sizzle vs Spark" in trainings table |
+| 19 | `replace_distributors` | Adds `notes TEXT` column; deletes all old fake distributors; seeds 13 real distributors. `region` = filter category (US/Canada/UK/Mexico/US, Canada); `state` = display locations (CO, MI, AZ etc.) |
+| 20 | `remove_body_spa_and_secret_amor` | Deletes Body Spa and Secret Amor (Secreto Amor MX) distributor rows |
 
-**Next migration version: 19**
+**Next migration version: 21**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -252,7 +254,11 @@ Managed in `portal/server/src/database.ts`. Rules:
 ### Distributors — `/api/distributors`
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/` | requireAuth | List distributors |
+| GET | `/` | requireAuth | List distributors (filters: state, region, search) |
+| GET | `/:id` | requireAuth | Get single distributor |
+| POST | `/` | tier5/admin only | Create distributor; required: `name`, `region` |
+| PUT | `/:id` | tier5/admin only | Update distributor |
+| DELETE | `/:id` | tier5/admin only | Delete distributor |
 
 ### Invoices — `/api/invoices`
 | Method | Path | Auth | Description |

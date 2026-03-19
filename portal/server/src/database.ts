@@ -441,6 +441,112 @@ const migrations: Migration[] = [
         "UPDATE trainings SET title='Sizzle vs Spark', description='Discover the differences between Sizzle and Spark product lines — formulations, sensations, and how to guide customers to the right choice.' WHERE quiz_id='sizzle-vs-sparks'"
       ).run()
     }
+  },
+  {
+    version: 19,
+    name: 'replace_distributors',
+    up: () => {
+      // Add notes column (safe to run even if already exists)
+      try { db.exec('ALTER TABLE distributors ADD COLUMN notes TEXT') } catch {}
+      // Clear all fake seed data
+      db.exec('DELETE FROM distributors')
+      // Reset autoincrement counter
+      try { db.exec("DELETE FROM sqlite_sequence WHERE name='distributors'") } catch {}
+
+      const ins = db.prepare(
+        'INSERT INTO distributors (name, region, state, city, address, contact_name, phone, email, website, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+      )
+      // region = filter category ("US", "Canada", "UK", "Mexico", "US, Canada")
+      // state  = display locations (e.g. "CO, MI, AZ")
+      const rows: [string, string, string, string|null, string|null, string|null, string|null, string|null, string|null, string|null][] = [
+        [
+          'El Dorado (Eldorado Trading Company)', 'US', 'CO, MI, AZ',
+          'Broomfield', '2325 W. Midway Blvd, Broomfield, CO 80020',
+          'Customer Service', '1-800-525-0848', 'customerservice@eldorado.net',
+          'https://www.eldorado.net',
+          'Award-winning adult toy, lingerie & party supply distributor. Ships from CO. Local: 1-303-444-4622',
+        ],
+        [
+          'Nalcore (Nalpac & Entrenue)', 'US', 'MI, AZ',
+          'Ferndale', '1365 Jarvis St, Ferndale, MI 48220',
+          'Sales Team', '1-800-837-5946', 'sales@nalpac.com',
+          'https://www.nalpac.com',
+          'Nalpac acquired Entrenue in 2022. Ships from MI (Nalpac) and AZ (Entrenue). Entrenue: sales@entrenue.com | 1-800-368-7268 | www.entrenue.com',
+        ],
+        [
+          'East Coast News (ECN)', 'US', 'NJ, FL, CA',
+          null, null,
+          'Sales Team', '1-800-999-2483', 'sales@ecn.com',
+          'https://www.ecn.com',
+          'Ships from NJ, FL, and CA.',
+        ],
+        [
+          'Holiday Products', 'US', 'CA',
+          'Chatsworth', 'Chatsworth, CA',
+          'Veronica', '818-772-8080', 'veronica@holidayproducts.com',
+          'https://www.holidayproducts.com',
+          'Ships from Chatsworth, CA.',
+        ],
+        [
+          "Honey's Place", 'US', 'CA',
+          'San Fernando', 'San Fernando, CA',
+          'Kyle', '818-256-1101', 'kyle@honeysplace.com',
+          'https://www.honeysplace.com',
+          'Ships from San Fernando, CA.',
+        ],
+        [
+          'National Video (National Video Supply / Universal Distributor)', 'US', 'CA',
+          'Santa Clarita', '21100 Centre Pointe Pkwy, Santa Clarita, CA 91350',
+          'Customer Service', '661-254-4700', null,
+          'https://www.natvideo.com',
+          'Combined adult DVD and novelty distributor. Email not publicly listed — contact via website.',
+        ],
+        [
+          'Williams Trading Co.', 'US', 'NJ',
+          'Pennsauken', '9250 Commerce Hwy, Pennsauken, NJ 08110',
+          'Sales Department', '1-800-423-8587', 'sales@williamstradingco.com',
+          'https://www.williamstradingco.com',
+          'Full-line adult novelty distributor. Sales ext. 2. Fax: 856-662-8030. Local: 856-662-3344',
+        ],
+        [
+          'Ultralove (Ultra Love Products Ltd.)', 'Canada', 'BC',
+          'Vancouver', '1151 Davie St, Vancouver, BC V6E 1N2, Canada',
+          'Wholesale Team', '604-435-2347', null,
+          'https://www.ultralove.ca',
+          "Canada's largest adult wholesale distributor. Contact via website form; email not publicly listed.",
+        ],
+        [
+          'Pink Cherry Wholesale', 'US, Canada', 'NV, Ontario',
+          null, '6165 S Valley View Blvd Ste E, Las Vegas, NV 89118',
+          'Customer Service', '1-888-980-8697', 'cs@pinkcherry.com',
+          'https://www.pinkcherrywholesale.com',
+          'Dual US (Las Vegas) and Canada operations. CA: 2-1283 North Service Rd E, Oakville, ON L6H 1A7 | www.pinkcherrywholesale.ca | Parent: PinkCherry (pinkcherry.com)',
+        ],
+        [
+          'Sexy Living', 'Canada', 'BC',
+          'Burnaby', '4429 Juneau St, Burnaby, BC V5C 4C4, Canada',
+          'Wholesale Team', '+1-236-818-1511', 'info@sexyliving.com',
+          'https://www.sexyliving.com',
+          "Canada's leading premium adult wholesale distributor. Also offers Shopify dropship app.",
+        ],
+        [
+          'Net 1 on 1 (Net1on1 Wholesale Ltd.)', 'UK', 'West Sussex',
+          'Shoreham-By-Sea', 'Adur Business Centre, Little High Street, Shoreham-By-Sea, West Sussex BN43 5EG, UK',
+          'Customer Service', '+44 (0) 01273 830 280', 'customerservice@1on1wholesale.co.uk',
+          'https://www.net1on1.com',
+          "UK's largest online wholesale adult toy supplier. Wholesale ordering at 1on1wholesale.co.uk.",
+        ],
+      ]
+      for (const row of rows) ins.run(...row)
+    }
+  },
+  {
+    version: 20,
+    name: 'remove_body_spa_and_secret_amor',
+    up: () => {
+      db.prepare("DELETE FROM distributors WHERE name LIKE 'Body Spa%'").run()
+      db.prepare("DELETE FROM distributors WHERE name LIKE 'Secret Amor%'").run()
+    }
   }
 ]
 

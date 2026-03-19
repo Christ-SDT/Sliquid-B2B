@@ -63,14 +63,15 @@ export interface Asset {
 export interface Distributor {
   id: number
   name: string
-  region: string
-  state: string
+  region: string       // filter category: "US" | "Canada" | "UK" | "Mexico" | "US, Canada"
+  state: string        // display locations: "CO, MI, AZ" | "BC" | "West Sussex" etc.
   city?: string | null
   address?: string | null
   contact_name?: string | null
   email?: string | null
   phone?: string | null
   website?: string | null
+  notes?: string | null
 }
 
 export interface InvoiceItem {
