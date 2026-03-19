@@ -547,6 +547,43 @@ const migrations: Migration[] = [
       db.prepare("DELETE FROM distributors WHERE name LIKE 'Body Spa%'").run()
       db.prepare("DELETE FROM distributors WHERE name LIKE 'Secret Amor%'").run()
     }
+  },
+  {
+    version: 21,
+    name: 'training_options_table',
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS training_options (
+          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+          label       TEXT NOT NULL,
+          subtitle    TEXT,
+          description TEXT,
+          specs       TEXT NOT NULL DEFAULT '[]',
+          icon_name   TEXT NOT NULL DEFAULT 'Users',
+          sort_order  INTEGER NOT NULL DEFAULT 0,
+          created_at  TEXT DEFAULT (datetime('now'))
+        );
+      `)
+      const ins = db.prepare(
+        'INSERT INTO training_options (label, subtitle, description, specs, icon_name, sort_order) VALUES (?, ?, ?, ?, ?, ?)'
+      )
+      ins.run(
+        'Virtual Training',
+        'Live video session',
+        'A Sliquid brand representative joins your team over video call to walk through product lines, answer questions, and coach your staff on how to confidently guide customers.',
+        JSON.stringify(['Flexible scheduling from anywhere', 'Product line walkthroughs & Q&A', 'Screen-share demos & selling tips', 'Recording available on request']),
+        'Monitor',
+        0,
+      )
+      ins.run(
+        'In-Person Training',
+        'On-site at your location',
+        'A Sliquid brand representative comes directly to your store to train your team on the floor — hands-on product knowledge, merchandising tips, and real-time customer coaching.',
+        JSON.stringify(['Live in-store session with your team', 'Hands-on product demonstrations', 'Merchandising & display guidance', 'Customer Q&A coaching on the floor']),
+        'Users',
+        1,
+      )
+    }
   }
 ]
 

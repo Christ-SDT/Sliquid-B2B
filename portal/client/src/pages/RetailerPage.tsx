@@ -18,6 +18,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Package,
   Star,
   Megaphone,
+  Monitor,
+  Users,
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -30,6 +32,16 @@ type MarketingItem = {
   specs: string[]
   variants: string[]
   image_url: string | null
+  icon_name: string
+  sort_order: number
+}
+
+type TrainingOption = {
+  id: number
+  label: string
+  subtitle: string | null
+  description: string | null
+  specs: string[]
   icon_name: string
   sort_order: number
 }
@@ -232,6 +244,99 @@ function EditItemModal({ item, onClose, onSaved }: { item: MarketingItem; onClos
   )
 }
 
+// ─── Training Option Form ─────────────────────────────────────────────────────
+
+function TrainingOptionForm({
+  initial,
+  onClose,
+  onSaved,
+}: {
+  initial?: TrainingOption
+  onClose: () => void
+  onSaved: (opt: TrainingOption) => void
+}) {
+  const [label, setLabel] = useState(initial?.label ?? '')
+  const [subtitle, setSubtitle] = useState(initial?.subtitle ?? '')
+  const [description, setDescription] = useState(initial?.description ?? '')
+  const [specsText, setSpecsText] = useState(initial?.specs.join('\n') ?? '')
+  const [iconName, setIconName] = useState(initial?.icon_name ?? 'Users')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const payload = {
+        label: label.trim(),
+        subtitle: subtitle.trim() || null,
+        description: description.trim() || null,
+        specs: specsText.split('\n').map(s => s.trim()).filter(Boolean),
+        icon_name: iconName,
+        sort_order: initial?.sort_order ?? 0,
+      }
+      const opt = initial
+        ? await api.put<TrainingOption>(`/training-options/${initial.id}`, payload)
+        : await api.post<TrainingOption>('/training-options', payload)
+      onSaved(opt)
+      onClose()
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to save')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-surface border border-portal-border rounded-xl w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
+          <h2 className="text-on-canvas font-semibold">{initial ? 'Edit Training Option' : 'Add Training Option'}</h2>
+          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas"><X className="w-4 h-4" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Label *</label>
+            <input value={label} onChange={e => setLabel(e.target.value)} required placeholder="e.g. Virtual Training"
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Subtitle</label>
+            <input value={subtitle} onChange={e => setSubtitle(e.target.value)} placeholder="e.g. Live video session"
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Description</label>
+            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent resize-none" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Specs (one per line)</label>
+            <textarea value={specsText} onChange={e => setSpecsText(e.target.value)} rows={4} placeholder={'Flexible scheduling\nProduct walkthroughs'}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent resize-none" />
+          </div>
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Icon</label>
+            <select value={iconName} onChange={e => setIconName(e.target.value)}
+              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent">
+              {Object.keys(ICON_MAP).map(k => <option key={k} value={k}>{k}</option>)}
+            </select>
+          </div>
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onClose} className="flex-1 py-2 rounded-lg border border-portal-border text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors">Cancel</button>
+            <button type="submit" disabled={loading} className="flex-1 py-2 rounded-lg bg-portal-accent hover:bg-portal-accent/90 text-white text-sm font-medium transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {initial ? 'Save Changes' : 'Add Option'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 // ─── Item Card ────────────────────────────────────────────────────────────────
 
 interface ItemCardProps {
@@ -388,6 +493,7 @@ export default function RetailerPage() {
 
   const [items, setItems] = useState<MarketingItem[]>([])
   const [itemsLoading, setItemsLoading] = useState(true)
+  const [trainingOptions, setTrainingOptions] = useState<TrainingOption[]>([])
   const [priorRequest, setPriorRequest] = useState<PriorRequest | null>(null)
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([])
   const [trainingType, setTrainingType] = useState('')
@@ -400,13 +506,17 @@ export default function RetailerPage() {
   const [error, setError] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [editTarget, setEditTarget] = useState<MarketingItem | null>(null)
+  const [showAddTrainingModal, setShowAddTrainingModal] = useState(false)
+  const [editTrainingTarget, setEditTrainingTarget] = useState<TrainingOption | null>(null)
+  const [confirmDeleteTrainingId, setConfirmDeleteTrainingId] = useState<number | null>(null)
 
   useEffect(() => {
     Promise.all([
       api.get<MarketingItem[]>('/marketing-items'),
       api.get<PriorRequest | null>('/retailer/status'),
+      api.get<TrainingOption[]>('/training-options'),
     ])
-      .then(([mi, status]) => { setItems(mi); setPriorRequest(status) })
+      .then(([mi, status, opts]) => { setItems(mi); setPriorRequest(status); setTrainingOptions(opts) })
       .catch(console.error)
       .finally(() => setItemsLoading(false))
   }, [])
@@ -480,6 +590,17 @@ export default function RetailerPage() {
       .then(() => {
         setItems(prev => prev.filter(i => i.id !== id))
         setSelectedItems(prev => prev.filter(s => s.id !== id))
+      })
+      .catch(console.error)
+  }
+
+  function handleDeleteTrainingOption(id: number) {
+    api.delete(`/training-options/${id}`)
+      .then(() => {
+        setTrainingOptions(prev => prev.filter(o => o.id !== id))
+        setConfirmDeleteTrainingId(null)
+        const deleted = trainingOptions.find(o => o.id === id)
+        if (deleted && trainingType === deleted.label) setTrainingType('')
       })
       .catch(console.error)
   }
@@ -615,29 +736,27 @@ export default function RetailerPage() {
 
       {/* Training */}
       <div>
-        <h2 className="text-on-canvas font-semibold text-base mb-1">Training Request</h2>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-on-canvas font-semibold text-base">Training Request</h2>
+          {adminMode && (
+            <button
+              onClick={() => setShowAddTrainingModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-xs font-medium transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Option
+            </button>
+          )}
+        </div>
         <p className="text-on-canvas-muted text-sm mb-4">Request a training session with a Sliquid brand representative. Choose the format that works best for your team.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {([
-            {
-              type: 'Virtual Training',
-              Icon: Monitor,
-              subtitle: 'Live video session',
-              description: 'A Sliquid brand representative joins your team over video call to walk through product lines, answer questions, and coach your staff on how to confidently guide customers.',
-              specs: ['Flexible scheduling from anywhere', 'Product line walkthroughs & Q&A', 'Screen-share demos & selling tips', 'Recording available on request'],
-            },
-            {
-              type: 'In-Person Training',
-              Icon: Users,
-              subtitle: 'On-site at your location',
-              description: 'A Sliquid brand representative comes directly to your store to train your team on the floor — hands-on product knowledge, merchandising tips, and real-time customer coaching.',
-              specs: ['Live in-store session with your team', 'Hands-on product demonstrations', 'Merchandising & display guidance', 'Customer Q&A coaching on the floor'],
-            },
-          ] as const).map(({ type, Icon, subtitle, description, specs }) => {
-            const active = trainingType === type
+          {trainingOptions.map(opt => {
+            const active = trainingType === opt.label
+            const Icon = ICON_MAP[opt.icon_name] ?? Users
+            const isPendingDelete = confirmDeleteTrainingId === opt.id
             return (
               <div
-                key={type}
+                key={opt.id}
                 className={`bg-surface border rounded-xl overflow-hidden transition-all duration-150 flex flex-col
                   ${active ? 'border-portal-accent shadow-[0_0_0_1px] shadow-portal-accent/30' : 'border-portal-border'}`}
               >
@@ -649,33 +768,54 @@ export default function RetailerPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <h3 className="text-on-canvas font-semibold text-sm">{type}</h3>
-                        <p className="text-portal-accent text-xs font-medium mt-0.5">{subtitle}</p>
+                        <h3 className="text-on-canvas font-semibold text-sm">{opt.label}</h3>
+                        {opt.subtitle && <p className="text-portal-accent text-xs font-medium mt-0.5">{opt.subtitle}</p>}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setTrainingType(active ? '' : type)}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
-                          ${active
-                            ? 'bg-portal-accent text-white hover:bg-portal-accent/80'
-                            : 'bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500'
-                          }`}
-                      >
-                        {active ? '✓ Selected' : 'Select'}
-                      </button>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {adminMode && !isPendingDelete && (
+                          <>
+                            <button onClick={() => setEditTrainingTarget(opt)} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors">
+                              <Pencil className="w-3 h-3" />
+                            </button>
+                            <button onClick={() => setConfirmDeleteTrainingId(opt.id)} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-red-400 transition-colors">
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </>
+                        )}
+                        {adminMode && isPendingDelete && (
+                          <>
+                            <button onClick={() => handleDeleteTrainingOption(opt.id)} className="px-2 h-6 rounded-md bg-red-500/80 text-white text-xs font-medium">Delete</button>
+                            <button onClick={() => setConfirmDeleteTrainingId(null)} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors"><X className="w-3 h-3" /></button>
+                          </>
+                        )}
+                        {!isPendingDelete && (
+                          <button
+                            type="button"
+                            onClick={() => setTrainingType(active ? '' : opt.label)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
+                              ${active
+                                ? 'bg-portal-accent text-white hover:bg-portal-accent/80'
+                                : 'bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500'
+                              }`}
+                          >
+                            {active ? '✓ Selected' : 'Select'}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-on-canvas-muted text-xs mt-2 leading-relaxed">{description}</p>
-                    <ul className="mt-3 space-y-1">
-                      {specs.map(s => (
-                        <li key={s} className="flex items-center gap-2 text-xs text-on-canvas-subtle">
-                          <span className="w-1 h-1 rounded-full bg-portal-accent flex-shrink-0" />
-                          {s}
-                        </li>
-                      ))}
-                    </ul>
+                    {opt.description && <p className="text-on-canvas-muted text-xs mt-2 leading-relaxed">{opt.description}</p>}
+                    {opt.specs.length > 0 && (
+                      <ul className="mt-3 space-y-1">
+                        {opt.specs.map(s => (
+                          <li key={s} className="flex items-center gap-2 text-xs text-on-canvas-subtle">
+                            <span className="w-1 h-1 rounded-full bg-portal-accent flex-shrink-0" />
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
-                {/* Disclaimer */}
                 <div className="flex items-start gap-2 px-5 py-3 bg-portal-bg border-t border-portal-border/60">
                   <AlertCircle className="w-3.5 h-3.5 text-on-canvas-muted/60 flex-shrink-0 mt-0.5" />
                   <p className="text-on-canvas-muted/60 text-xs leading-relaxed">
@@ -800,6 +940,22 @@ export default function RetailerPage() {
           onSaved={updated => {
             setItems(prev => prev.map(i => i.id === updated.id ? updated : i))
             setEditTarget(null)
+          }}
+        />
+      )}
+      {showAddTrainingModal && (
+        <TrainingOptionForm
+          onClose={() => setShowAddTrainingModal(false)}
+          onSaved={opt => { setTrainingOptions(prev => [...prev, opt]); setShowAddTrainingModal(false) }}
+        />
+      )}
+      {editTrainingTarget && (
+        <TrainingOptionForm
+          initial={editTrainingTarget}
+          onClose={() => setEditTrainingTarget(null)}
+          onSaved={updated => {
+            setTrainingOptions(prev => prev.map(o => o.id === updated.id ? updated : o))
+            setEditTrainingTarget(null)
           }}
         />
       )}
