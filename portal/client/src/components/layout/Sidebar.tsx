@@ -11,7 +11,7 @@ import {
 // restricted: tier1/2/3  |  prospectVisible: tier4  |  managerOnly: tier2 only  |  adminOnly: tier5 only
 const NAV = [
   { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard',         restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
-  { to: '/assets',       icon: BookOpen,        label: 'Product Library',   restricted: true,  prospectVisible: false, managerOnly: false, adminOnly: false },
+  { to: '/assets',       icon: BookOpen,        label: 'Asset Library',   restricted: true,  prospectVisible: false, managerOnly: false, adminOnly: false },
   { to: '/distributors', icon: MapPin,          label: 'Distributors',      restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
   { to: '/trainings',    icon: GraduationCap,   label: 'Digital Training',  restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
   { to: '/store-users',  icon: Users2,          label: 'My Store',          restricted: false, prospectVisible: false, managerOnly: true,  adminOnly: false },

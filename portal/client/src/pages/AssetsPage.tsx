@@ -214,7 +214,7 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div className="relative bg-surface border border-portal-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-portal-border sticky top-0 bg-surface z-10">
-          <h2 className="text-on-canvas font-semibold">Add to Product Library</h2>
+          <h2 className="text-on-canvas font-semibold">Add to Asset Library</h2>
           <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas">
             <X className="w-5 h-5" />
           </button>
@@ -1100,7 +1100,7 @@ export default function AssetsPage() {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <BookOpen className="w-6 h-6 text-portal-accent" />
-          <h1 className="text-on-canvas text-2xl font-bold">Product Library</h1>
+          <h1 className="text-on-canvas text-2xl font-bold">Asset Library</h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">

@@ -834,7 +834,7 @@ export default function RetailerPage() {
         <p className="text-on-canvas-muted text-sm mb-5">Tell us where to send the materials.</p>
 
         {/* Selected items summary */}
-        {(selectedItems.length > 0 || trainingType) && (
+        {(selectedItems.length > 0 || trainingType) ? (
           <div className="mb-5 p-4 bg-portal-accent/5 border border-portal-accent/20 rounded-lg">
             <p className="text-on-canvas text-xs font-semibold uppercase tracking-wider mb-2">
               Selected ({selectedItems.length + (trainingType ? 1 : 0)})
@@ -854,6 +854,11 @@ export default function RetailerPage() {
                 </span>
               )}
             </div>
+          </div>
+        ) : (
+          <div className="mb-5 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center gap-3">
+            <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <p className="text-amber-300 text-sm">Please select at least one item or training option above before submitting.</p>
           </div>
         )}
 
@@ -917,9 +922,9 @@ export default function RetailerPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || (selectedItems.length === 0 && !trainingType)}
             className="w-full flex items-center justify-center gap-2 bg-portal-accent hover:bg-portal-accent/90
-                       disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm mt-2"
+                       disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-colors text-sm mt-2"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             {loading ? 'Submitting…' : 'Submit Request'}

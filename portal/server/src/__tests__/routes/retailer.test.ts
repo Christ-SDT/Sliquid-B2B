@@ -40,6 +40,38 @@ describe('POST /api/retailer/apply', () => {
     expect(res.status).toBe(400)
   })
 
+  it('returns 400 when requested_items is missing — no selection made', async () => {
+    const res = await request(app)
+      .post('/api/retailer/apply')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ contact_name: 'Jane', business_name: 'Store', address: '123 St' })
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 400 when contact_name is missing', async () => {
+    const res = await request(app)
+      .post('/api/retailer/apply')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ business_name: 'Store', address: '123 St', requested_items: 'Counter Cards' })
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 400 when address is missing', async () => {
+    const res = await request(app)
+      .post('/api/retailer/apply')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ contact_name: 'Jane', business_name: 'Store', requested_items: 'Counter Cards' })
+    expect(res.status).toBe(400)
+  })
+
+  it('accepts submission without optional request_notes', async () => {
+    const res = await request(app)
+      .post('/api/retailer/apply')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ ...applyPayload, request_notes: undefined })
+    expect(res.status).toBe(201)
+  })
+
   it('returns 401 without auth', async () => {
     const res = await request(app).post('/api/retailer/apply').send(applyPayload)
     expect(res.status).toBe(401)
@@ -47,6 +79,11 @@ describe('POST /api/retailer/apply', () => {
 })
 
 describe('GET /api/retailer/status', () => {
+  it('returns 401 without auth', async () => {
+    const res = await request(app).get('/api/retailer/status')
+    expect(res.status).toBe(401)
+  })
+
   it('returns null when user has no requests', async () => {
     const res = await request(app)
       .get('/api/retailer/status')
@@ -94,6 +131,14 @@ describe('GET /api/retailer/applications', () => {
 })
 
 describe('PUT /api/retailer/applications/:id/status', () => {
+  it('returns 404 for unknown application', async () => {
+    const res = await request(app)
+      .put('/api/retailer/applications/99999/status')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ status: 'approved' })
+    expect(res.status).toBe(404)
+  })
+
   it('updates application status as admin', async () => {
     const applyRes = await request(app)
       .post('/api/retailer/apply')
