@@ -13,9 +13,9 @@
 	</metadata>
 	<organizations default="Course_ID1_ORG">
 		<organization identifier="Course_ID1_ORG">
-			<title>O Gel</title>
+			<title>Customer Service Skills</title>
 			<item identifier="Course_ID1_SCO" isvisible="true" identifierref="Course_ID1_SCO_RES">
-				<title>O Gel</title>
+				<title>Course Object title</title>
 			</item>
 			<metadata>
 				<schema>ADL SCORM</schema>

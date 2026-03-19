@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone } from 'lucide-react'
+import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone, Package, Archive, Receipt, BarChart3 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { useNotifications } from '@/context/NotificationContext'
+import { isAdmin } from '@/types'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -41,6 +42,7 @@ const NOTIF_COLORS: Record<string, string> = {
 
 export default function TopBar({ onMenuClick }: Props) {
   const { user } = useAuth()
+  const adminUser = isAdmin(user?.role ?? '')
   const { theme, toggleTheme } = useTheme()
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
   const navigate = useNavigate()
@@ -187,6 +189,31 @@ export default function TopBar({ onMenuClick }: Props) {
           {profileOpen && (
             <div className="absolute right-0 top-full mt-1 w-52 bg-surface border border-portal-border
                             rounded-lg shadow-lg z-50 py-2">
+              {/* Admin-only quick links */}
+              {adminUser && (
+                <>
+                  <div className="px-3 pb-1 pt-1">
+                    <p className="text-on-canvas-muted/60 text-[10px] font-semibold uppercase tracking-wider">Admin Tools</p>
+                  </div>
+                  {[
+                    { to: '/products',  icon: Package,  label: 'Products'  },
+                    { to: '/inventory', icon: Archive,  label: 'Inventory' },
+                    { to: '/invoices',  icon: Receipt,  label: 'Invoices'  },
+                    { to: '/stats',     icon: BarChart3, label: 'Analytics' },
+                  ].map(({ to, icon: Icon, label }) => (
+                    <button
+                      key={to}
+                      onClick={() => { setProfileOpen(false); navigate(to) }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-on-canvas-subtle hover:text-on-canvas hover:bg-surface-elevated transition-colors"
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      {label}
+                    </button>
+                  ))}
+                  <div className="border-t border-portal-border mx-3 my-1.5" />
+                </>
+              )}
+              {/* Wellness Mode toggle */}
               <div className="px-3 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-on-canvas-subtle">
                   {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}

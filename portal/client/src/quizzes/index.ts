@@ -90,6 +90,26 @@ export const QUIZZES: Quiz[] = [
     estimatedMinutes: 15,
     videoPath: 'https://youtu.be/hhfTxbiYsBI',
   },
+  {
+    id: 'shine',
+    title: 'Sliquid Shine',
+    description:
+      'Learn about Sliquid Shine — a toy cleaner and body-safe polish designed to keep intimate products clean, polished, and in top condition.',
+    path: '/training/shine/index.html',
+    passingScore: 70,
+    estimatedMinutes: 15,
+    videoPath: 'https://youtu.be/tuYXO0ivwIw',
+  },
+  {
+    id: 'massage-oil',
+    title: 'Massage Oil',
+    description:
+      'Explore Sliquid massage oils — luxurious, body-safe formulations designed for sensual massage and skin nourishment.',
+    path: '/training/massage-oil/index.html',
+    passingScore: 70,
+    estimatedMinutes: 15,
+    videoPath: 'https://youtu.be/UFdK5yIqZaI',
+  },
   // Add future quizzes here — each SCORM package goes in:
   // portal/client/public/training/<quiz-id>/index.html
 ]

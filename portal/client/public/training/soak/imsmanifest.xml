@@ -33,12 +33,11 @@
 				<adlcp:location>metadata.xml</adlcp:location> 
 			</metadata>
 			
-			<file href="ar/KeyClick.mp3"/>
+			<file href="assets/htmlimages/Answer_checkbox_correct.png"/>
 		    <file href="index.html"/>
 			<file href="scormdriver.js"/>
 			<file href="browsersniff.js"/>
 			
-<file href="assets/htmlimages/Answer_checkbox_correct.png"/> 
 <file href="assets/htmlimages/Answer_checkbox_incorrect.png"/> 
 <file href="assets/htmlimages/Answer_radio_correct.png"/> 
 <file href="assets/htmlimages/Answer_radio_incorrect.png"/> 

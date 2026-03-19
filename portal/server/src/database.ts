@@ -584,6 +584,29 @@ const migrations: Migration[] = [
         1,
       )
     }
+  },
+  {
+    version: 22,
+    name: 'add_shine_massage_oil_trainings',
+    up: () => {
+      const ins = db.prepare(
+        'INSERT OR IGNORE INTO trainings (quiz_id, title, description, video_path, passing_score, estimated_minutes, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      )
+      ins.run(
+        'shine',
+        'Sliquid Shine',
+        'Learn about Sliquid Shine — a toy cleaner and body-safe polish designed to keep intimate products clean, polished, and in top condition.',
+        'https://youtu.be/tuYXO0ivwIw',
+        70, 15, 101,
+      )
+      ins.run(
+        'massage-oil',
+        'Massage Oil',
+        'Explore Sliquid massage oils — luxurious, body-safe formulations designed for sensual massage and skin nourishment.',
+        'https://youtu.be/UFdK5yIqZaI',
+        70, 15, 102,
+      )
+    }
   }
 ]
 
