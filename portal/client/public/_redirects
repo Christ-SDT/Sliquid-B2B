@@ -1,1 +1,2 @@
-/*  /index.html  200
+# Cloudflare Pages automatically serves index.html for unmatched paths (SPA fallback).
+# The old "/* /index.html 200" rule is not needed and triggers a loop detection warning.

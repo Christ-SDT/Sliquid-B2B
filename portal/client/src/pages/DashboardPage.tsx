@@ -282,7 +282,7 @@ function PendingApprovalCard() {
       <div className="border-t border-portal-border pt-4">
         <p className="text-on-canvas-muted text-sm mb-3">Want to sell Sliquid in your store?</p>
         <a
-          href="https://sliquid.com/sliquid-insider-portal/sliquid-insider-registration/"
+          href="https://sliquid.com/retailers/become-a-sliquid-retailer/"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-portal-accent text-portal-accent hover:bg-portal-accent/10 text-sm font-medium transition-colors"

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { IMG_HERO } from '@/utils/constants'
 
-const INSIDER_URL = 'https://sliquid.com/sliquid-insider-portal/sliquid-insider-registration/'
+const INSIDER_URL = 'https://sliquid.com/retailers/become-a-sliquid-retailer/'
 
 export default function HeroSection() {
   return (

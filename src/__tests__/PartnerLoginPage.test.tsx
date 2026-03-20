@@ -42,7 +42,7 @@ describe('PartnerLoginPage — render', () => {
     renderPage()
     const link = screen.getByRole('link', { name: /register with sliquid/i })
     expect(link).toBeInTheDocument()
-    expect(link).toHaveAttribute('href', 'https://sliquid.com/sliquid-insider-portal/sliquid-insider-registration/')
+    expect(link).toHaveAttribute('href', 'https://sliquid.com/retailers/become-a-sliquid-retailer/')
     expect(link).toHaveAttribute('target', '_blank')
   })
 
@@ -83,10 +83,10 @@ describe('PartnerLoginPage — form interaction', () => {
     )
   })
 
-  it('stores token in localStorage on success', async () => {
+  it('opens portal in a new tab with token in URL hash on success', async () => {
     mockFetch(true, { token: 'test-jwt-token', user: { name: 'Jane' } })
-    const setItem = vi.spyOn(Storage.prototype, 'setItem')
-    vi.stubGlobal('location', { href: '' })
+    const openSpy = vi.fn()
+    vi.stubGlobal('open', openSpy)
     renderPage()
 
     await userEvent.type(screen.getByLabelText(/email/i), 'jane@store.com')
@@ -94,22 +94,10 @@ describe('PartnerLoginPage — form interaction', () => {
     fireEvent.submit(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() =>
-      expect(setItem).toHaveBeenCalledWith('portal_token', 'test-jwt-token')
-    )
-  })
-
-  it('redirects to portal on success', async () => {
-    mockFetch(true, { token: 'test-jwt-token', user: { name: 'Jane' } })
-    const locationSpy = { href: '' }
-    vi.stubGlobal('location', locationSpy)
-    renderPage()
-
-    await userEvent.type(screen.getByLabelText(/email/i), 'jane@store.com')
-    await userEvent.type(screen.getByLabelText(/password/i), 'correct')
-    fireEvent.submit(screen.getByRole('button', { name: /sign in/i }))
-
-    await waitFor(() =>
-      expect(locationSpy.href).toContain('/dashboard')
+      expect(openSpy).toHaveBeenCalledWith(
+        expect.stringContaining('/dashboard#token='),
+        '_blank'
+      )
     )
   })
 

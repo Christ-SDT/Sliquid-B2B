@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest'
 import request from 'supertest'
 import { app } from '../../app.js'
-import { db, resetDb, seedTestUsers } from '../helpers/db.js'
+import { db, resetDb, seedTestUsers, seedUser } from '../helpers/db.js'
 import { bearerToken } from '../helpers/auth.js'
 
 let adminId: number
@@ -82,20 +82,49 @@ describe('POST /api/auth/register', () => {
     expect(res.status).toBe(409)
   })
 
-  it('blocks self-registration as tier5 — downgrades to tier1', async () => {
+  it('always registers as tier4 regardless of role param', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({ name: 'Any User', email: 'any@test.com', company: 'Co', password: 'ValidPass1!', role: 'tier1' })
+    expect(res.status).toBe(201)
+    expect(res.body.user.role).toBe('tier4')
+  })
+
+  it('ignores tier5 in role param — still registers as tier4', async () => {
     const res = await request(app)
       .post('/api/auth/register')
       .send({ name: 'Hacker', email: 'hacker@test.com', company: 'Evil', password: 'ValidPass1!', role: 'tier5' })
     expect(res.status).toBe(201)
-    expect(res.body.user.role).toBe('tier1')
+    expect(res.body.user.role).toBe('tier4')
   })
 
-  it('allows registering as tier4 (Prospect)', async () => {
+  it('new registration has status pending', async () => {
     const res = await request(app)
       .post('/api/auth/register')
-      .send({ name: 'Prospect', email: 'p2@test.com', company: 'Co', password: 'ValidPass1!', role: 'tier4' })
+      .send({ name: 'Pending', email: 'pending@test.com', company: 'Co', password: 'ValidPass1!' })
     expect(res.status).toBe(201)
-    expect(res.body.user.role).toBe('tier4')
+    const row = db.prepare('SELECT status FROM users WHERE email = ?').get('pending@test.com') as { status: string }
+    expect(row.status).toBe('pending')
+  })
+
+  it('pending user can log in and receives a token', async () => {
+    await request(app)
+      .post('/api/auth/register')
+      .send({ name: 'Pending', email: 'pending2@test.com', company: 'Co', password: 'ValidPass1!' })
+    const login = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'pending2@test.com', password: 'ValidPass1!' })
+    expect(login.status).toBe(200)
+    expect(login.body.token).toBeDefined()
+  })
+
+  it('declined user cannot log in — returns 403', async () => {
+    const { email, password } = seedUser({ status: 'declined' })
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email, password })
+    expect(res.status).toBe(403)
+    expect(res.body.message).toMatch(/declined/i)
   })
 })
 

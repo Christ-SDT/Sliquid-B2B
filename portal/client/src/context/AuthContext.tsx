@@ -17,9 +17,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Accept token passed via URL hash from the B2B site login page.
+    // Hash is never sent to the server, and we clear it immediately after reading.
+    const hash = window.location.hash
+    if (hash.startsWith('#token=')) {
+      const hashToken = decodeURIComponent(hash.slice(7))
+      setToken(hashToken)
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+
     const token = localStorage.getItem('portal_token')
     if (!token) { setLoading(false); return }
-    api.get<User>('/user/me')
+    api.get<User>('/auth/me')
       .then(setUser)
       .catch(() => clearToken())
       .finally(() => setLoading(false))

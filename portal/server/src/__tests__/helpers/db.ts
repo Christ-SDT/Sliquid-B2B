@@ -71,13 +71,33 @@ export function seedCertificate(userId: number, userName: string, certNumber?: s
   return { id: result.lastInsertRowid as number, certNumber: cn }
 }
 
+export function seedUser(overrides: {
+  name?: string; email?: string; password?: string
+  role?: string; company?: string; status?: string
+} = {}) {
+  const h = (p: string) => bcrypt.hashSync(p, 10)
+  const row = {
+    name: 'Test User',
+    email: `user_${Date.now()}@test.com`,
+    password: 'Pass1234!',
+    role: 'tier1',
+    company: 'Test Co',
+    status: 'active',
+    ...overrides,
+  }
+  const result = db.prepare(
+    'INSERT INTO users (name, email, password_hash, role, company, status) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(row.name, row.email, h(row.password), row.role, row.company, row.status)
+  return { id: result.lastInsertRowid as number, ...row }
+}
+
 export function seedTestUsers() {
   const h = (p: string) => bcrypt.hashSync(p, 10)
-  const ins = db.prepare('INSERT INTO users (name, email, password_hash, role, company) VALUES (?, ?, ?, ?, ?)')
-  const admin = ins.run('Test Admin', 'admin@test.com', h('Admin1234!'), 'tier5', 'Sliquid')
-  const t1 = ins.run('Tier1 User', 'tier1@test.com', h('Tier1234!'), 'tier1', 'Demo Store')
-  const t2 = ins.run('Tier2 User', 'tier2@test.com', h('Tier2234!'), 'tier2', 'Demo Store')
-  const t4 = ins.run('Prospect', 'tier4@test.com', h('Tier4234!'), 'tier4', 'Prospect Co')
+  const ins = db.prepare('INSERT INTO users (name, email, password_hash, role, company, status) VALUES (?, ?, ?, ?, ?, ?)')
+  const admin = ins.run('Test Admin', 'admin@test.com', h('Admin1234!'), 'tier5', 'Sliquid', 'active')
+  const t1 = ins.run('Tier1 User', 'tier1@test.com', h('Tier1234!'), 'tier1', 'Demo Store', 'active')
+  const t2 = ins.run('Tier2 User', 'tier2@test.com', h('Tier2234!'), 'tier2', 'Demo Store', 'active')
+  const t4 = ins.run('Prospect', 'tier4@test.com', h('Tier4234!'), 'tier4', 'Prospect Co', 'active')
   return {
     adminId: admin.lastInsertRowid as number,
     tier1Id: t1.lastInsertRowid as number,
