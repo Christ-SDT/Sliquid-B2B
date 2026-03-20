@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
 import { Users, Loader2, CheckCircle, XCircle, UserCheck } from 'lucide-react'
-import { TIER_LABEL } from '@/types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -15,13 +14,6 @@ type PendingUser = {
   status: string
 }
 
-const ROLE_OPTIONS = [
-  { value: 'tier1', label: 'Retail Store Employee' },
-  { value: 'tier2', label: 'Retail Management' },
-  { value: 'tier3', label: 'Distributor' },
-  { value: 'tier4', label: 'Prospect' },
-]
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmt(dateStr: string) {
@@ -33,27 +25,20 @@ function fmt(dateStr: string) {
 export default function RequestsPage() {
   const [users, setUsers] = useState<PendingUser[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedRoles, setSelectedRoles] = useState<Record<number, string>>({})
   const [confirming, setConfirming] = useState<number | null>(null)
   const [working, setWorking] = useState<number | null>(null)
 
   useEffect(() => {
     api.get<PendingUser[]>('/admin/users?status=pending')
-      .then(data => {
-        setUsers(data)
-        const defaults: Record<number, string> = {}
-        data.forEach(u => { defaults[u.id] = 'tier1' })
-        setSelectedRoles(defaults)
-      })
+      .then(data => setUsers(data))
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 
   async function handleApprove(id: number) {
-    const role = selectedRoles[id] ?? 'tier1'
     setWorking(id)
     try {
-      await api.post(`/admin/users/${id}/approve`, { role })
+      await api.post(`/admin/users/${id}/approve`, {})
       setUsers(prev => prev.filter(u => u.id !== id))
     } catch (err) {
       console.error(err)
@@ -134,19 +119,8 @@ export default function RequestsPage() {
                     </div>
                   </div>
 
-                  {/* Role selector + actions */}
+                  {/* Actions */}
                   <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-                    <select
-                      value={selectedRoles[u.id] ?? 'tier1'}
-                      onChange={e => setSelectedRoles(prev => ({ ...prev, [u.id]: e.target.value }))}
-                      className="bg-portal-bg border border-portal-border rounded-lg px-3 py-1.5 text-on-canvas text-xs
-                                 focus:outline-none focus:border-portal-accent transition-colors"
-                    >
-                      {ROLE_OPTIONS.map(o => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-
                     <button
                       onClick={() => handleApprove(u.id)}
                       disabled={working === u.id}
@@ -158,7 +132,7 @@ export default function RequestsPage() {
                       ) : (
                         <CheckCircle className="w-3 h-3" />
                       )}
-                      Approve as {TIER_LABEL[selectedRoles[u.id] ?? 'tier1'] ?? selectedRoles[u.id]}
+                      Approve
                     </button>
 
                     <button

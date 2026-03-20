@@ -101,45 +101,33 @@ describe('POST /api/admin/users/:id/approve', () => {
   it('returns 401 without auth', async () => {
     const res = await request(app)
       .post(`/api/admin/users/${tier1Id}/approve`)
-      .send({ role: 'tier1' })
     expect(res.status).toBe(401)
   })
 
   it('returns 403 for non-admin', async () => {
     const res = await request(app)
       .post(`/api/admin/users/${tier1Id}/approve`)
-      .send({ role: 'tier1' })
       .set('Authorization', bearerToken(tier1Id, 'tier1'))
     expect(res.status).toBe(403)
-  })
-
-  it('returns 400 for invalid role', async () => {
-    const res = await request(app)
-      .post(`/api/admin/users/${tier1Id}/approve`)
-      .send({ role: 'superadmin' })
-      .set('Authorization', bearerToken(adminId, 'tier5'))
-    expect(res.status).toBe(400)
   })
 
   it('returns 404 for unknown user', async () => {
     const res = await request(app)
       .post('/api/admin/users/99999/approve')
-      .send({ role: 'tier1' })
       .set('Authorization', bearerToken(adminId, 'tier5'))
     expect(res.status).toBe(404)
   })
 
-  it('sets status to active and applies chosen role', async () => {
+  it('sets status to active and role to tier1', async () => {
     const { id } = seedUser({ status: 'pending', email: 'pend@test.com' })
 
     const res = await request(app)
       .post(`/api/admin/users/${id}/approve`)
-      .send({ role: 'tier2' })
       .set('Authorization', bearerToken(adminId, 'tier5'))
 
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('active')
-    expect(res.body.role).toBe('tier2')
+    expect(res.body.role).toBe('tier1')
   })
 
   it('approved user can subsequently log in', async () => {
@@ -147,7 +135,6 @@ describe('POST /api/admin/users/:id/approve', () => {
 
     await request(app)
       .post(`/api/admin/users/${id}/approve`)
-      .send({ role: 'tier1' })
       .set('Authorization', bearerToken(adminId, 'tier5'))
 
     const login = await request(app)
@@ -157,30 +144,17 @@ describe('POST /api/admin/users/:id/approve', () => {
     expect(login.body.token).toBeDefined()
   })
 
-  it('approved user has the role assigned by admin, not original registration role', async () => {
+  it('approved user always becomes tier1 regardless of original role', async () => {
     const { id, email, password } = seedUser({ status: 'pending', role: 'tier4', email: 'promoted@test.com' })
 
     await request(app)
       .post(`/api/admin/users/${id}/approve`)
-      .send({ role: 'tier3' })
       .set('Authorization', bearerToken(adminId, 'tier5'))
 
     const login = await request(app)
       .post('/api/auth/login')
       .send({ email, password })
-    expect(login.body.user.role).toBe('tier3')
-  })
-
-  it('can approve as any valid tier (tier1–tier5)', async () => {
-    for (const role of ['tier1', 'tier2', 'tier3', 'tier4', 'tier5']) {
-      const { id } = seedUser({ status: 'pending', email: `tier_${role}@test.com` })
-      const res = await request(app)
-        .post(`/api/admin/users/${id}/approve`)
-        .send({ role })
-        .set('Authorization', bearerToken(adminId, 'tier5'))
-      expect(res.status).toBe(200)
-      expect(res.body.role).toBe(role)
-    }
+    expect(login.body.user.role).toBe('tier1')
   })
 })
 

@@ -28,11 +28,16 @@ export default function Shell() {
 
   const isRestricted = ['tier1', 'tier2', 'tier3'].includes(user.role)
   const isProspectRole = user.role === 'tier4'
+  const isPending = user.status === 'pending'
 
-  if (isRestricted && !RESTRICTED_ALLOWED.some(p => location.pathname.startsWith(p))) {
+  // Pending users (awaiting approval) can only see the dashboard
+  if (isPending && !location.pathname.startsWith('/dashboard')) {
     return <Navigate to="/dashboard" replace />
   }
-  if (isProspectRole && !PROSPECT_ALLOWED.some(p => location.pathname.startsWith(p))) {
+  if (!isPending && isRestricted && !RESTRICTED_ALLOWED.some(p => location.pathname.startsWith(p))) {
+    return <Navigate to="/dashboard" replace />
+  }
+  if (!isPending && isProspectRole && !PROSPECT_ALLOWED.some(p => location.pathname.startsWith(p))) {
     return <Navigate to="/dashboard" replace />
   }
 
