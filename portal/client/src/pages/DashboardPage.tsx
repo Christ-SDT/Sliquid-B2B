@@ -357,12 +357,17 @@ export default function DashboardPage() {
       {isLimitedDashboard ? (
         /* --- Limited dashboard (tier1/2/3 + prospect) --- */
         <div className="space-y-6">
-          {isProspectRole && user?.status === 'pending' && <PendingApprovalCard />}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <MiniAssetsWidget />
-            <MiniDistributorsWidget />
-          </div>
-          <MiniTrainingsWidget />
+          {isProspectRole ? (
+            <PendingApprovalCard />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <MiniAssetsWidget />
+                <MiniDistributorsWidget />
+              </div>
+              <MiniTrainingsWidget />
+            </>
+          )}
         </div>
       ) : (
         /* --- Full dashboard (tier4 / admin) --- */
