@@ -34,11 +34,10 @@ export default function Sidebar({ onClose }: Props) {
   const isProspectRole = role === 'tier4'
   const isPending = user?.status === 'pending'
   const visibleNav = NAV.filter(item => {
-    // Pending users only see the dashboard while awaiting approval
-    if (isPending) return item.to === '/dashboard'
+    // Pending users and prospects only see the dashboard
+    if (isPending || isProspectRole) return item.to === '/dashboard'
     if (item.adminOnly) return isAdminRole
     if (item.managerOnly) return role === 'tier2' || isAdminRole
-    if (isProspectRole) return item.prospectVisible
     if (isRestricted) return item.restricted
     return true
   })

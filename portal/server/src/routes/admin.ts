@@ -43,8 +43,14 @@ router.put('/users/:id/role', requireAuth, requireRole('tier5', 'admin'), (req, 
 })
 
 router.post('/users/:id/approve', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const { role } = req.body
+  const validRoles = ['tier1', 'tier2']
+  if (!validRoles.includes(role)) {
+    res.status(400).json({ message: 'Role must be tier1 (Retail Store Employee) or tier2 (Retail Management)' })
+    return
+  }
   const id = parseInt(req.params.id)
-  const result = db.prepare("UPDATE users SET role = 'tier1', status = 'active' WHERE id = ?").run(id)
+  const result = db.prepare("UPDATE users SET role = ?, status = 'active' WHERE id = ?").run(role, id)
   if (result.changes === 0) { res.status(404).json({ message: 'User not found' }); return }
   const user = db.prepare('SELECT id, name, email, company, role, status, created_at FROM users WHERE id = ?').get(id)
   res.json(user)
