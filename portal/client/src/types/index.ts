@@ -4,6 +4,7 @@ export interface User {
   name: string
   role: 'tier1' | 'tier2' | 'tier3' | 'tier4' | 'tier5'
   company?: string
+  status?: string
 }
 
 export const TIER_LABEL: Record<string, string> = {

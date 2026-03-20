@@ -586,6 +586,11 @@ const migrations: Migration[] = [
     }
   },
   {
+    version: 23,
+    name: 'add_user_status',
+    up: () => db.exec(`ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'active'`),
+  },
+  {
     version: 22,
     name: 'add_shine_massage_oil_trainings',
     up: () => {

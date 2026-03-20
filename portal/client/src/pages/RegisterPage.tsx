@@ -1,13 +1,12 @@
 import { useState, FormEvent, useEffect, useRef } from 'react'
-import { useNavigate, Navigate, Link } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { Loader2, Eye, EyeOff, ChevronDown } from 'lucide-react'
+import { Loader2, Eye, EyeOff, ChevronDown, CheckCircle } from 'lucide-react'
 
 interface Store { id: number; name: string }
 
 export default function RegisterPage() {
   const { user, register } = useAuth()
-  const navigate = useNavigate()
   const [name, setName] = useState('')
   const [company, setCompany] = useState('')
   const [storeSearch, setStoreSearch] = useState('')
@@ -16,8 +15,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
-  const [role, setRole] = useState('tier1')
   const [showPassword, setShowPassword] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [stores, setStores] = useState<Store[]>([])
@@ -52,6 +51,35 @@ export default function RegisterPage() {
 
   if (user) return <Navigate to="/dashboard" replace />
 
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-portal-bg flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="flex flex-col items-center mb-8">
+            <img src="/images/cropped-lotus.png" alt="Sliquid lotus" className="w-12 h-12 object-contain mb-4" />
+            <h1 className="text-on-canvas font-bold text-2xl tracking-wider">SLIQUID</h1>
+            <p className="text-on-canvas-muted text-xs font-medium tracking-widest mt-1">PARTNER PORTAL</p>
+          </div>
+          <div className="bg-surface border border-portal-border rounded-2xl p-8 text-center">
+            <div className="w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-7 h-7 text-emerald-400" />
+            </div>
+            <h2 className="text-on-canvas text-xl font-semibold mb-2">Account submitted!</h2>
+            <p className="text-on-canvas-muted text-sm mb-6">
+              Your account is pending review. You'll receive full access once a Sliquid admin approves your registration.
+            </p>
+            <Link
+              to="/login"
+              className="inline-block w-full bg-portal-accent hover:bg-portal-accent/90 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm"
+            >
+              Back to sign in
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
@@ -60,8 +88,8 @@ export default function RegisterPage() {
     if (password !== confirm) { setError('Passwords do not match'); return }
     setLoading(true)
     try {
-      await register(name, email, company, password, role)
-      navigate('/dashboard', { replace: true })
+      await register(name, email, company, password)
+      setSubmitted(true)
     } catch (err: any) {
       setError(err.message === 'Email already in use' ? 'Email already in use' : (err.message ?? 'Registration failed'))
     } finally {
@@ -161,20 +189,6 @@ export default function RegisterPage() {
                              placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
                 />
               )}
-            </div>
-
-            <div>
-              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Account Type</label>
-              <select
-                value={role}
-                onChange={e => setRole(e.target.value)}
-                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                           focus:outline-none focus:border-portal-accent transition-colors"
-              >
-                <option value="tier1">Retail Store Employee</option>
-                <option value="tier2">Retail Management</option>
-                <option value="tier3">Distributor</option>
-              </select>
             </div>
 
             <div>

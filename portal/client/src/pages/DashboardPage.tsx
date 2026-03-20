@@ -8,7 +8,7 @@ import { QUIZZES } from '@/quizzes'
 import {
   Package, FolderOpen, Receipt, Archive,
   TrendingUp, AlertTriangle, ChevronRight, DollarSign,
-  Star, GraduationCap, Award, Clock, CheckCircle2, MapPin,
+  Star, GraduationCap, Award, Clock, CheckCircle2, MapPin, ExternalLink,
 } from 'lucide-react'
 
 interface Overview {
@@ -256,6 +256,45 @@ function MiniTrainingsWidget() {
   )
 }
 
+// --- Pending Approval card ---
+
+function PendingApprovalCard() {
+  return (
+    <div className="bg-surface border border-portal-border rounded-2xl p-6 mb-6">
+      <div className="flex items-center gap-3 mb-4">
+        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-sm font-medium">
+          <Clock className="w-3.5 h-3.5" />
+          Pending Approval
+        </span>
+      </div>
+      <p className="text-on-canvas text-sm mb-4">
+        Your account has been submitted and is awaiting admin review. You'll gain full access once approved.
+      </p>
+
+      <div className="bg-portal-bg rounded-xl p-4 space-y-2 text-sm text-on-canvas-subtle mb-4">
+        <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-2">Did you know?</p>
+        <p>• Sliquid has been formulating body-safe, pH-balanced intimacy products since 2002.</p>
+        <p>• Every product is free from parabens, glycerin, DEA, and gluten.</p>
+        <p>• The lineup spans 40+ SKUs across Naturals, Organics, RIDE, Silver, and Swirl collections.</p>
+        <p>• Sliquid is available in over 40 countries worldwide.</p>
+      </div>
+
+      <div className="border-t border-portal-border pt-4">
+        <p className="text-on-canvas-muted text-sm mb-3">Want to sell Sliquid in your store?</p>
+        <a
+          href="https://sliquid.com/sliquid-insider-portal/sliquid-insider-registration/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-portal-accent text-portal-accent hover:bg-portal-accent/10 text-sm font-medium transition-colors"
+        >
+          Register as a Sliquid Insider Retailer
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
+      </div>
+    </div>
+  )
+}
+
 // --- Upgrade banner ---
 
 function UpgradeBanner({ role }: { role: string }) {
@@ -318,6 +357,7 @@ export default function DashboardPage() {
       {isLimitedDashboard ? (
         /* --- Limited dashboard (tier1/2/3 + prospect) --- */
         <div className="space-y-6">
+          {isProspectRole && user?.status === 'pending' && <PendingApprovalCard />}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <MiniAssetsWidget />
             <MiniDistributorsWidget />

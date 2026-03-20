@@ -27,17 +27,22 @@ router.post('/login', loginLimiter, (req, res) => {
   const valid = bcrypt.compareSync(password, user.password_hash)
   if (!valid) { res.status(401).json({ message: 'Invalid credentials' }); return }
 
+  if (user.status === 'declined') {
+    res.status(403).json({ message: 'Your registration request was declined. Please contact support@sliquid.com.' })
+    return
+  }
+
   db.prepare("UPDATE users SET last_login = datetime('now') WHERE id = ?").run(user.id)
 
   const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' })
   res.json({
     token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role, company: user.company },
+    user: { id: user.id, name: user.name, email: user.email, role: user.role, company: user.company, status: user.status },
   })
 })
 
 router.post('/register', loginLimiter, async (req, res) => {
-  const { name, email, company, password, role: requestedRole } = req.body
+  const { name, email, company, password } = req.body
   if (!name || !email || !company || !password) {
     res.status(400).json({ message: 'All fields are required' })
     return
@@ -46,17 +51,17 @@ router.post('/register', loginLimiter, async (req, res) => {
     res.status(400).json({ message: 'Password must be at least 8 characters' })
     return
   }
-  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4']
-  const role = validRoles.includes(requestedRole) ? requestedRole : 'tier1'
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email)
   if (existing) {
     res.status(409).json({ message: 'Email already in use' })
     return
   }
+  const role = 'tier4'
+  const status = 'pending'
   const password_hash = await bcrypt.hash(password, 10)
   const result = db.prepare(
-    'INSERT INTO users (name, email, company, password_hash, role) VALUES (?, ?, ?, ?, ?)'
-  ).run(name, email, company, password_hash, role)
+    'INSERT INTO users (name, email, company, password_hash, role, status) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(name, email, company, password_hash, role, status)
   const userId = result.lastInsertRowid as number
   const token = jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: '7d' })
   res.status(201).json({

@@ -17,6 +17,7 @@ import QuizPage from '@/pages/QuizPage'
 import UsersPage from '@/pages/UsersPage'
 import StoreUsersPage from '@/pages/StoreUsersPage'
 import RequestsPage from '@/pages/RequestsPage'
+import MarketingRequestsPage from '@/pages/MarketingRequestsPage'
 import CertificateVerify from '@/pages/CertificateVerify'
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
             <Route path="quiz/:id" element={<QuizPage />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="requests" element={<RequestsPage />} />
+            <Route path="marketing-requests" element={<MarketingRequestsPage />} />
             <Route path="store-users" element={<StoreUsersPage />} />
           </Route>
           <Route path="/verify" element={<CertificateVerify />} />

@@ -14,7 +14,7 @@ export interface JwtPayload {
 declare global {
   namespace Express {
     interface Request {
-      user?: { id: number; role: string; email: string; name: string; company?: string }
+      user?: { id: number; role: string; email: string; name: string; company?: string; status?: string }
     }
   }
 }
@@ -28,7 +28,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = header.slice(7)
   try {
     const payload = jwt.verify(token, JWT_SECRET) as JwtPayload
-    const user = db.prepare('SELECT id, name, email, role, company FROM users WHERE id = ?').get(payload.userId) as any
+    const user = db.prepare('SELECT id, name, email, role, company, status FROM users WHERE id = ?').get(payload.userId) as any
     if (!user) { res.status(401).json({ message: 'User not found' }); return }
     req.user = user
     next()

@@ -1,28 +1,26 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
-import { Megaphone, ChevronDown, Loader2, Mail } from 'lucide-react'
+import { Users, Loader2, CheckCircle, XCircle, UserCheck } from 'lucide-react'
+import { TIER_LABEL } from '@/types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type MarketingRequest = {
+type PendingUser = {
   id: number
-  contact_name: string
-  business_name: string
-  address: string
-  requested_items: string
-  request_notes: string | null
+  name: string
+  email: string
+  company: string | null
+  role: string
+  created_at: string
   status: string
-  submitted_at: string
-  reviewed_at: string | null
-  user_name: string | null
-  user_email: string | null
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  pending:  'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  approved: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  declined: 'bg-red-500/15 text-red-400 border-red-500/30',
-}
+const ROLE_OPTIONS = [
+  { value: 'tier1', label: 'Retail Store Employee' },
+  { value: 'tier2', label: 'Retail Management' },
+  { value: 'tier3', label: 'Distributor' },
+  { value: 'tier4', label: 'Prospect' },
+]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -30,45 +28,58 @@ function fmt(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-function buildMailtoLink(r: MarketingRequest): string {
-  const subject = encodeURIComponent(`Re: Sliquid Request — ${r.business_name}`)
-  const statusLine = r.status === 'approved'
-    ? 'We are pleased to let you know that your request has been approved.'
-    : r.status === 'declined'
-      ? 'Unfortunately, we are unable to fulfil your request at this time.'
-      : 'We have received your request and will follow up shortly.'
-  const body = encodeURIComponent(
-    `Hi ${r.contact_name},\n\n${statusLine}\n\nRequest details:\n${r.requested_items}\n` +
-    (r.request_notes ? `\nNotes: ${r.request_notes}\n` : '') +
-    `\nPlease don't hesitate to reach out with any questions.\n\nBest regards,\nTeam Sliquid`
-  )
-  return `mailto:${r.user_email ?? ''}?subject=${subject}&body=${body}`
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function RequestsPage() {
-  const [requests, setRequests] = useState<MarketingRequest[]>([])
+  const [users, setUsers] = useState<PendingUser[]>([])
   const [loading, setLoading] = useState(true)
-  const [expanded, setExpanded] = useState<number | null>(null)
+  const [selectedRoles, setSelectedRoles] = useState<Record<number, string>>({})
+  const [confirming, setConfirming] = useState<number | null>(null)
+  const [working, setWorking] = useState<number | null>(null)
 
   useEffect(() => {
-    api.get<MarketingRequest[]>('/retailer/applications')
-      .then(setRequests)
+    api.get<PendingUser[]>('/admin/users?status=pending')
+      .then(data => {
+        setUsers(data)
+        const defaults: Record<number, string> = {}
+        data.forEach(u => { defaults[u.id] = 'tier1' })
+        setSelectedRoles(defaults)
+      })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 
-  async function handleStatusChange(id: number, status: string) {
+  async function handleApprove(id: number) {
+    const role = selectedRoles[id] ?? 'tier1'
+    setWorking(id)
     try {
-      await api.put(`/retailer/applications/${id}/status`, { status })
-      setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r))
+      await api.post(`/admin/users/${id}/approve`, { role })
+      setUsers(prev => prev.filter(u => u.id !== id))
     } catch (err) {
       console.error(err)
+    } finally {
+      setWorking(null)
     }
   }
 
-  const pending = requests.filter(r => r.status === 'pending').length
+  async function handleDecline(id: number) {
+    if (confirming !== id) {
+      setConfirming(id)
+      return
+    }
+    setWorking(id)
+    try {
+      await api.post(`/admin/users/${id}/decline`, {})
+      setUsers(prev => prev.filter(u => u.id !== id))
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setWorking(null)
+      setConfirming(null)
+    }
+  }
+
+  const pendingCount = users.length
 
   return (
     <div className="space-y-6">
@@ -76,120 +87,115 @@ export default function RequestsPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-on-canvas text-2xl font-bold flex items-center gap-3">
-            <Megaphone className="w-6 h-6 text-portal-accent" />
-            Marketing &amp; Training Requests
+            <UserCheck className="w-6 h-6 text-portal-accent" />
+            Partner Requests
           </h1>
           <p className="text-on-canvas-muted text-sm mt-1">
-            In-store marketing asset and training requests submitted by partners.
+            Review and approve new partner registrations.
           </p>
         </div>
-        {pending > 0 && (
+        {pendingCount > 0 && (
           <span className="flex-shrink-0 px-3 py-1 bg-amber-500/15 border border-amber-500/30 text-amber-400 text-sm font-semibold rounded-full">
-            {pending} pending
+            {pendingCount} pending
           </span>
         )}
       </div>
 
-      {/* Requests list */}
+      {/* List */}
       <div className="bg-surface border border-portal-border rounded-xl overflow-hidden">
         {loading ? (
           <div className="p-10 flex items-center justify-center">
             <Loader2 className="w-5 h-5 text-portal-accent animate-spin" />
           </div>
-        ) : requests.length === 0 ? (
+        ) : users.length === 0 ? (
           <div className="p-10 text-center">
-            <Megaphone className="w-8 h-8 text-on-canvas-muted/30 mx-auto mb-3" />
-            <p className="text-on-canvas-muted text-sm">No requests yet.</p>
+            <CheckCircle className="w-8 h-8 text-emerald-400/40 mx-auto mb-3" />
+            <p className="text-on-canvas text-sm font-medium">No pending registrations</p>
+            <p className="text-on-canvas-muted text-xs mt-1">All caught up!</p>
           </div>
         ) : (
           <div className="divide-y divide-portal-border">
-            {requests.map(r => (
-              <div key={r.id} className="px-6 py-4">
-                {/* Row header */}
-                <div className="flex items-start gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-on-canvas font-medium text-sm">{r.contact_name}</p>
-                      <span className="text-on-canvas-muted text-xs">·</span>
-                      <p className="text-on-canvas-subtle text-sm">{r.business_name}</p>
-                      {r.user_email && (
-                        <>
-                          <span className="text-on-canvas-muted text-xs">·</span>
-                          <p className="text-on-canvas-muted text-xs">{r.user_email}</p>
-                        </>
-                      )}
+            {users.map(u => (
+              <div key={u.id} className="px-6 py-4">
+                <div className="flex items-start gap-4 flex-wrap">
+                  {/* User info */}
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-portal-accent/20 border border-portal-accent/30
+                                    flex items-center justify-center text-portal-accent text-sm font-bold flex-shrink-0">
+                      {u.name.charAt(0).toUpperCase()}
                     </div>
-                    <p className="text-on-canvas-muted text-xs mt-1">{fmt(r.submitted_at)}</p>
-                    <p className="text-on-canvas-subtle text-sm mt-2 line-clamp-2">{r.requested_items}</p>
+                    <div className="min-w-0">
+                      <p className="text-on-canvas font-medium text-sm">{u.name}</p>
+                      <p className="text-on-canvas-muted text-xs">{u.email}</p>
+                      {u.company && (
+                        <p className="text-on-canvas-subtle text-xs mt-0.5">{u.company}</p>
+                      )}
+                      <p className="text-on-canvas-muted text-xs mt-1">Registered {fmt(u.created_at)}</p>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {/* Status selector */}
-                    <div className="relative">
-                      <select
-                        value={r.status}
-                        onChange={e => handleStatusChange(r.id, e.target.value)}
-                        className={`appearance-none pl-3 pr-7 py-1.5 rounded-lg border text-xs font-medium cursor-pointer focus:outline-none transition-colors ${STATUS_STYLES[r.status] ?? STATUS_STYLES.pending}`}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="declined">Declined</option>
-                      </select>
-                      <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
-                    </div>
-
-                    {/* Email button */}
-                    {r.user_email && (
-                      <a
-                        href={buildMailtoLink(r)}
-                        title={`Email ${r.contact_name}`}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-portal-border
-                                   text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500 text-xs transition-colors"
-                      >
-                        <Mail className="w-3 h-3" />
-                        Email
-                      </a>
-                    )}
-
-                    {/* Expand toggle */}
-                    <button
-                      onClick={() => setExpanded(expanded === r.id ? null : r.id)}
-                      className="text-on-canvas-muted hover:text-on-canvas text-xs underline-offset-2 hover:underline transition-colors"
+                  {/* Role selector + actions */}
+                  <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                    <select
+                      value={selectedRoles[u.id] ?? 'tier1'}
+                      onChange={e => setSelectedRoles(prev => ({ ...prev, [u.id]: e.target.value }))}
+                      className="bg-portal-bg border border-portal-border rounded-lg px-3 py-1.5 text-on-canvas text-xs
+                                 focus:outline-none focus:border-portal-accent transition-colors"
                     >
-                      {expanded === r.id ? 'Less' : 'Details'}
+                      {ROLE_OPTIONS.map(o => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+
+                    <button
+                      onClick={() => handleApprove(u.id)}
+                      disabled={working === u.id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500
+                                 disabled:opacity-60 text-white text-xs font-medium transition-colors"
+                    >
+                      {working === u.id ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <CheckCircle className="w-3 h-3" />
+                      )}
+                      Approve as {TIER_LABEL[selectedRoles[u.id] ?? 'tier1'] ?? selectedRoles[u.id]}
                     </button>
+
+                    <button
+                      onClick={() => handleDecline(u.id)}
+                      disabled={working === u.id}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors disabled:opacity-60
+                        ${confirming === u.id
+                          ? 'bg-red-600 border-red-600 text-white hover:bg-red-500'
+                          : 'border-portal-border text-on-canvas-subtle hover:text-red-400 hover:border-red-500/50'}`}
+                    >
+                      <XCircle className="w-3 h-3" />
+                      {confirming === u.id ? 'Confirm Decline' : 'Decline'}
+                    </button>
+
+                    {confirming === u.id && (
+                      <button
+                        onClick={() => setConfirming(null)}
+                        className="text-on-canvas-muted text-xs hover:text-on-canvas transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    )}
                   </div>
                 </div>
-
-                {/* Expanded details */}
-                {expanded === r.id && (
-                  <div className="mt-4 pt-4 border-t border-portal-border/50 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Address</p>
-                      <p className="text-on-canvas-subtle whitespace-pre-line">{r.address}</p>
-                    </div>
-                    <div>
-                      <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Items Requested</p>
-                      <p className="text-on-canvas-subtle">{r.requested_items}</p>
-                    </div>
-                    {r.request_notes && (
-                      <div className="sm:col-span-2">
-                        <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Notes</p>
-                        <p className="text-on-canvas-subtle">{r.request_notes}</p>
-                      </div>
-                    )}
-                    {r.reviewed_at && (
-                      <div>
-                        <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Reviewed</p>
-                        <p className="text-on-canvas-subtle">{fmt(r.reviewed_at)}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             ))}
           </div>
         )}
+      </div>
+
+      {/* Users list note */}
+      <div className="flex items-start gap-2 px-4 py-3 bg-portal-bg rounded-xl border border-portal-border text-xs text-on-canvas-muted">
+        <Users className="w-4 h-4 flex-shrink-0 mt-0.5" />
+        <span>
+          To manage existing users (change roles, view profiles), visit{' '}
+          <a href="/users" className="text-portal-accent hover:underline">User Management</a>.
+        </span>
       </div>
     </div>
   )

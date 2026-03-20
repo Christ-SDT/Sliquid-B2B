@@ -16,8 +16,9 @@ const NAV = [
   { to: '/trainings',    icon: GraduationCap,   label: 'Digital Training',   restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
   { to: '/store-users',  icon: Users2,          label: 'My Store',           restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
   { to: '/retailer',     icon: Megaphone,       label: 'In-store Marketing', restricted: false, prospectVisible: true,  managerOnly: false, adminOnly: false },
-  { to: '/requests',     icon: Megaphone,       label: 'Partner Requests',   restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
-  { to: '/users',        icon: Users,           label: 'User Management',    restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
+  { to: '/requests',          icon: Megaphone,  label: 'Partner Requests',    restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
+  { to: '/marketing-requests', icon: Megaphone, label: 'Marketing Requests', restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
+  { to: '/users',              icon: Users,     label: 'User Management',    restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
 ]
 
 interface Props {
