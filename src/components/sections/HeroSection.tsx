@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { IMG_HERO } from '@/utils/constants'
 
+const INSIDER_URL = 'https://sliquid.com/sliquid-insider-portal/sliquid-insider-registration/'
+
 export default function HeroSection() {
   return (
     <section
@@ -27,28 +29,29 @@ export default function HeroSection() {
           >
             <h1 className="text-text-dark text-[38px] md:text-[46px] font-semibold
                            leading-[1.1] tracking-[-1px] mb-6">
-              Innovative intimacy solutions for global retail growth
+              Everything Sliquid retailers need in one place.
             </h1>
             <p className="text-text-gray text-base md:text-lg mb-8 leading-relaxed">
-              Increase customer loyalty and deliver body-safe formulations with
-              our premium organic solutions.
+              Your hub for product education, staff training, downloadable assets, and partner resources to support your business every step of the way.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                to="/contact"
+              <a
+                href={INSIDER_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center bg-sliquid-blue
                            hover:bg-sliquid-dark-blue text-white font-semibold px-7 py-3.5
                            rounded-lg text-[15px] transition-colors duration-150"
               >
-                Become a Partner
-              </Link>
+                Become a Retailer
+              </a>
               <Link
-                to="/our-brands"
+                to="/partner-login#register"
                 className="inline-flex items-center justify-center border border-gray-300
                            text-text-dark hover:border-sliquid-blue hover:text-sliquid-blue
                            font-semibold px-7 py-3.5 rounded-lg text-[15px] transition-colors duration-150"
               >
-                Our Brands
+                Partner Portal
               </Link>
             </div>
           </div>

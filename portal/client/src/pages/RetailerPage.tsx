@@ -857,14 +857,14 @@ export default function RetailerPage() {
           </div>
         ) : (
           <div className="mb-5 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center gap-3">
-            <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <p className="text-amber-300 text-sm">Please select at least one item or training option above before submitting.</p>
+            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+            <p className="text-amber-700 dark:text-amber-300 text-sm">Please select at least one item or training option above before submitting.</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Full Name *</label>
+            <label className="block text-on-canvas text-sm font-medium mb-1.5">Full Name *</label>
             <input
               type="text"
               value={name}
@@ -877,7 +877,7 @@ export default function RetailerPage() {
           </div>
 
           <div>
-            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Company / Business Name *</label>
+            <label className="block text-on-canvas text-sm font-medium mb-1.5">Company / Business Name *</label>
             <input
               type="text"
               value={company}
@@ -890,7 +890,7 @@ export default function RetailerPage() {
           </div>
 
           <div>
-            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Physical Location / Storefront Address *</label>
+            <label className="block text-on-canvas text-sm font-medium mb-1.5">Physical Location / Storefront Address *</label>
             <textarea
               value={location}
               onChange={e => setLocation(e.target.value)}
@@ -903,8 +903,8 @@ export default function RetailerPage() {
           </div>
 
           <div>
-            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
-              Additional Notes <span className="text-on-canvas-muted font-normal">(optional)</span>
+            <label className="block text-on-canvas text-sm font-medium mb-1.5">
+              Additional Notes <span className="text-on-canvas-subtle font-normal">(optional)</span>
             </label>
             <textarea
               value={notes}
