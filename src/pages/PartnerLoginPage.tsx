@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
-const PORTAL_URL = import.meta.env.VITE_PORTAL_URL ?? 'https://portal.sliquid.com'
+const PORTAL_URL = import.meta.env.VITE_PORTAL_URL ?? 'https://sliquid-portal.pages.dev'
 const INSIDER_URL = 'https://sliquid.com/retailers/become-a-sliquid-retailer/'
 
 export async function loginToPortal(email: string, password: string) {
