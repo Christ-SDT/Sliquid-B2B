@@ -44,6 +44,9 @@ function getLabelImageParts(): { inlineData: { data: string; mimeType: string } 
   }
 }
 
+// Note: Imagen 3 is text-to-image only (no image input).
+// Drop .png/.jpg label files into src/assets/labels/ — they will be loaded
+// when we switch to a Gemini multimodal model in the future.
 const BRAND_BRIEF =
   `You are Lampy, Sliquid's AI product image creator.
 Generate professional product photography for Sliquid and Ride Lube intimate wellness products.
@@ -69,29 +72,19 @@ router.post('/generate', requireAuth, async (req, res) => {
 
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
-    const labelParts = getLabelImageParts()
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-preview-image-generation',
-      contents: [{
-        role: 'user',
-        parts: [
-          ...labelParts,
-          { text: `${BRAND_BRIEF}\n\nCreate: ${prompt.trim()}` },
-        ],
-      }],
-      config: { responseModalities: ['TEXT', 'IMAGE'] as any },
+    const response = await (ai.models as any).generateImages({
+      model: 'imagen-3.0-generate-002',
+      prompt: `${BRAND_BRIEF}\n\nCreate: ${prompt.trim()}`,
+      config: {
+        numberOfImages: 1,
+        outputMimeType: 'image/png',
+        aspectRatio: '1:1',
+      },
     })
 
     // Extract image bytes from response
-    let imageData: string | null = null
-    const parts = (response as any).candidates?.[0]?.content?.parts ?? []
-    for (const part of parts) {
-      if (part?.inlineData?.data) {
-        imageData = part.inlineData.data
-        break
-      }
-    }
+    const imageData: string | null = response?.generatedImages?.[0]?.image?.imageBytes ?? null
     if (!imageData) return res.status(500).json({ error: 'No image returned from AI' })
 
     // Upload to S3

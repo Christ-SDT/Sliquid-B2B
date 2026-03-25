@@ -25,6 +25,9 @@ import creatorRouter from './routes/creator.js'
 
 const app = express()
 
+// Required for express-rate-limit behind Railway's proxy
+app.set('trust proxy', 1)
+
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
   : ['http://localhost:5173', 'http://localhost:4173']
