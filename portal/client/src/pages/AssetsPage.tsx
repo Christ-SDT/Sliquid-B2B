@@ -1,4 +1,4 @@
-import { useEffect, useState, FormEvent } from 'react'
+import { useEffect, useState, useRef, FormEvent } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
@@ -6,7 +6,7 @@ import { Asset, Creative, AiImage } from '@/types'
 import {
   Search, FolderOpen, Download,
   FileImage, FileText, Share2, Image, Video, Mail, Printer, Megaphone, BookOpen,
-  Plus, Trash2, X, Loader2, Pencil, ChevronDown, ChevronRight, Folder, ArrowLeft, LayoutGrid, Sparkles,
+  Plus, Trash2, X, Loader2, Pencil, ChevronDown, ChevronRight, Folder, ArrowLeft, LayoutGrid, Sparkles, Upload,
 } from 'lucide-react'
 
 // ─── Brand constants ──────────────────────────────────────────────────────────
@@ -169,51 +169,104 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
   const [campaign, setCampaign] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isCreative = sectionOpt.source === 'creative'
   const brand = brandOpt === '__custom__' ? customBrand : brandOpt
+
+  function handleFileSelect(file: File) {
+    setSelectedFile(file)
+    const bytes = file.size
+    if (bytes < 1024) setFileSize(`${bytes} B`)
+    else if (bytes < 1024 * 1024) setFileSize(`${(bytes / 1024).toFixed(1)} KB`)
+    else setFileSize(`${(bytes / (1024 * 1024)).toFixed(1)} MB`)
+
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file)
+      setFilePreviewUrl(url)
+      const img = new window.Image()
+      img.onload = () => setDimensions(`${img.naturalWidth}×${img.naturalHeight}`)
+      img.src = url
+    } else {
+      setFilePreviewUrl(null)
+      setDimensions('')
+    }
+  }
+
+  function clearFile() {
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl)
+    setSelectedFile(null)
+    setFilePreviewUrl(null)
+    setFileSize('')
+    setDimensions('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
     setSaving(true)
     try {
-      if (sectionOpt.source === 'asset') {
-        const result = await api.post<{ id: number }>('/assets', {
-          name: nameTitle, brand, type: sectionOpt.type,
-          file_url: fileUrl,
-          thumbnail_url: thumbnailUrl || null,
-          file_size: fileSize || null,
-          dimensions: dimensions || null,
-        })
-        onAdded({
-          id: result.id, name: nameTitle, brand, type: sectionOpt.type,
-          file_url: fileUrl,
-          thumbnail_url: thumbnailUrl || null,
-          file_size: fileSize || null,
-          dimensions: dimensions || null,
-          _source: 'asset', displayName: nameTitle,
-        })
+      if (selectedFile) {
+        const formData = new FormData()
+        formData.append('file', selectedFile)
+        formData.append('type', sectionOpt.type)
+        formData.append('brand', brand)
+        if (fileSize) formData.append('file_size', fileSize)
+        if (dimensions) formData.append('dimensions', dimensions)
+        if (thumbnailUrl) formData.append('thumbnail_url', thumbnailUrl)
+
+        if (isCreative) {
+          formData.append('title', nameTitle)
+          if (description) formData.append('description', description)
+          if (campaign) formData.append('campaign', campaign)
+          const result = await api.postForm<Creative & { id: number }>('/creatives/upload', formData)
+          onAdded({ ...result, _source: 'creative', displayName: result.title })
+        } else {
+          formData.append('name', nameTitle)
+          const result = await api.postForm<Asset & { id: number }>('/assets/upload', formData)
+          onAdded({ ...result, _source: 'asset', displayName: result.name })
+        }
       } else {
-        const result = await api.post<{ id: number }>('/creatives', {
-          title: nameTitle, brand, type: sectionOpt.type,
-          file_url: fileUrl,
-          thumbnail_url: thumbnailUrl || null,
-          file_size: fileSize || null,
-          dimensions: dimensions || null,
-          description: description || null,
-          campaign: campaign || null,
-        })
-        onAdded({
-          id: result.id, title: nameTitle, brand, type: sectionOpt.type,
-          file_url: fileUrl,
-          thumbnail_url: thumbnailUrl || null,
-          file_size: fileSize || null,
-          dimensions: dimensions || null,
-          description: description || null,
-          campaign: campaign || null,
-          _source: 'creative', displayName: nameTitle,
-        })
+        if (sectionOpt.source === 'asset') {
+          const result = await api.post<{ id: number }>('/assets', {
+            name: nameTitle, brand, type: sectionOpt.type,
+            file_url: fileUrl,
+            thumbnail_url: thumbnailUrl || null,
+            file_size: fileSize || null,
+            dimensions: dimensions || null,
+          })
+          onAdded({
+            id: result.id, name: nameTitle, brand, type: sectionOpt.type,
+            file_url: fileUrl,
+            thumbnail_url: thumbnailUrl || null,
+            file_size: fileSize || null,
+            dimensions: dimensions || null,
+            _source: 'asset', displayName: nameTitle,
+          })
+        } else {
+          const result = await api.post<{ id: number }>('/creatives', {
+            title: nameTitle, brand, type: sectionOpt.type,
+            file_url: fileUrl,
+            thumbnail_url: thumbnailUrl || null,
+            file_size: fileSize || null,
+            dimensions: dimensions || null,
+            description: description || null,
+            campaign: campaign || null,
+          })
+          onAdded({
+            id: result.id, title: nameTitle, brand, type: sectionOpt.type,
+            file_url: fileUrl,
+            thumbnail_url: thumbnailUrl || null,
+            file_size: fileSize || null,
+            dimensions: dimensions || null,
+            description: description || null,
+            campaign: campaign || null,
+            _source: 'creative', displayName: nameTitle,
+          })
+        }
       }
       onClose()
     } catch (err: any) {
@@ -281,17 +334,82 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
             />
           </div>
 
-          {/* File URL */}
+          {/* File upload dropzone */}
           <div>
-            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">File URL</label>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Upload File</label>
+            <div
+              className={`relative border-2 border-dashed rounded-xl p-5 text-center transition-colors cursor-pointer
+                ${selectedFile
+                  ? 'border-portal-accent bg-portal-accent/5'
+                  : 'border-portal-border hover:border-portal-accent/60 hover:bg-portal-accent/5'}`}
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFileSelect(f) }}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/*,.pdf,.mp4,.mov,.webm,.svg,.ai,.eps,.zip"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleFileSelect(f) }}
+              />
+              {selectedFile ? (
+                <div className="flex items-center gap-3">
+                  {filePreviewUrl
+                    ? <img src={filePreviewUrl} alt="preview" className="w-14 h-14 object-contain rounded-lg flex-shrink-0" />
+                    : <div className="w-14 h-14 bg-portal-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Upload className="w-6 h-6 text-portal-accent" />
+                      </div>
+                  }
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="text-on-canvas text-sm font-medium truncate">{selectedFile.name}</p>
+                    {fileSize && <p className="text-on-canvas-muted text-xs">{fileSize}{dimensions && ` · ${dimensions}`}</p>}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={e => { e.stopPropagation(); clearFile() }}
+                    className="text-on-canvas-muted hover:text-red-400 transition-colors flex-shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2 py-2">
+                  <div className="w-10 h-10 mx-auto bg-surface-elevated rounded-xl flex items-center justify-center">
+                    <Upload className="w-5 h-5 text-on-canvas-muted" />
+                  </div>
+                  <div>
+                    <p className="text-on-canvas text-sm font-medium">Click to upload or drag & drop</p>
+                    <p className="text-on-canvas-muted text-xs mt-0.5">PNG, JPG, PDF, MP4, SVG, AI, EPS, ZIP…</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* URL divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-portal-border" />
+            <span className="text-on-canvas-muted text-xs">or paste a URL</span>
+            <div className="flex-1 h-px bg-portal-border" />
+          </div>
+
+          {/* File URL — optional when file uploaded */}
+          <div>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+              File URL
+              {selectedFile && <span className="text-on-canvas-muted font-normal ml-1">(overridden by uploaded file)</span>}
+            </label>
             <input
               type="url"
               value={fileUrl}
               onChange={e => setFileUrl(e.target.value)}
               placeholder="https://yoursite.com/wp-content/uploads/file.pdf"
-              required
-              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+              required={!selectedFile}
+              disabled={!!selectedFile}
+              className={`w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors
+                         ${selectedFile ? 'opacity-40 cursor-not-allowed' : ''}`}
             />
           </div>
 
@@ -344,7 +462,7 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
             </div>
           )}
 
-          {/* File size + dimensions */}
+          {/* File size + dimensions (auto-filled from upload, editable) */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
@@ -390,7 +508,7 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
                          hover:bg-portal-accent/90 disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-colors"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {saving ? 'Adding…' : 'Add Item'}
+              {saving ? (selectedFile ? 'Uploading…' : 'Adding…') : 'Add Item'}
             </button>
           </div>
         </form>
@@ -431,14 +549,64 @@ function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const brand = brandOpt === '__custom__' ? customBrand : brandOpt
+
+  function handleFileSelect(file: File) {
+    setSelectedFile(file)
+    const bytes = file.size
+    if (bytes < 1024) setFileSize(`${bytes} B`)
+    else if (bytes < 1024 * 1024) setFileSize(`${(bytes / 1024).toFixed(1)} KB`)
+    else setFileSize(`${(bytes / (1024 * 1024)).toFixed(1)} MB`)
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file)
+      setFilePreviewUrl(url)
+      const img = new window.Image()
+      img.onload = () => setDimensions(`${img.naturalWidth}×${img.naturalHeight}`)
+      img.src = url
+    } else {
+      setFilePreviewUrl(null)
+    }
+  }
+
+  function clearFile() {
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl)
+    setSelectedFile(null)
+    setFilePreviewUrl(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
     setSaving(true)
     try {
+      if (selectedFile && item._source !== 'ai') {
+        const formData = new FormData()
+        formData.append('file', selectedFile)
+        formData.append('type', type)
+        formData.append('brand', brand)
+        if (fileSize) formData.append('file_size', fileSize)
+        if (dimensions) formData.append('dimensions', dimensions)
+        if (thumbnailUrl) formData.append('thumbnail_url', thumbnailUrl)
+        if (isCreative) {
+          formData.append('title', nameTitle)
+          if (description) formData.append('description', description)
+          if (campaign) formData.append('campaign', campaign)
+          const updated = await api.putForm<Creative>(`/creatives/${item.id}/file`, formData)
+          onSaved({ ...updated, _source: 'creative', displayName: updated.title })
+        } else {
+          formData.append('name', nameTitle)
+          const updated = await api.putForm<Asset>(`/assets/${item.id}/file`, formData)
+          onSaved({ ...updated, _source: 'asset', displayName: updated.name })
+        }
+        onClose()
+        return
+      }
+
       if (item._source === 'asset') {
         const updated = await api.put<Asset>(`/assets/${item.id}`, {
           name: nameTitle, brand, type,
@@ -482,6 +650,49 @@ function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
             <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">{error}</div>
+          )}
+
+          {/* Replace file (only for asset/creative, not AI images) */}
+          {item._source !== 'ai' && (
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                Replace File <span className="text-on-canvas-muted font-normal">(optional)</span>
+              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/*,.pdf,.mp4,.mov,.webm,.svg,.ai,.eps,.zip"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleFileSelect(f) }}
+              />
+              {selectedFile ? (
+                <div className="flex items-center gap-3 p-3 bg-portal-accent/5 border border-portal-accent/30 rounded-xl">
+                  {filePreviewUrl
+                    ? <img src={filePreviewUrl} alt="preview" className="w-10 h-10 object-contain rounded flex-shrink-0" />
+                    : <div className="w-10 h-10 bg-portal-accent/10 rounded flex items-center justify-center flex-shrink-0">
+                        <Upload className="w-5 h-5 text-portal-accent" />
+                      </div>
+                  }
+                  <div className="flex-1 min-w-0">
+                    <p className="text-on-canvas text-sm font-medium truncate">{selectedFile.name}</p>
+                    {fileSize && <p className="text-on-canvas-muted text-xs">{fileSize}</p>}
+                  </div>
+                  <button type="button" onClick={clearFile} className="text-on-canvas-muted hover:text-red-400 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-surface-elevated border border-portal-border
+                             hover:border-portal-accent text-on-canvas text-sm rounded-xl transition-colors"
+                >
+                  <Upload className="w-4 h-4" />
+                  Choose replacement file
+                </button>
+              )}
+            </div>
           )}
 
           <div>
@@ -620,7 +831,7 @@ function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
                          hover:bg-portal-accent/90 disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-colors"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {saving ? 'Saving…' : 'Save Changes'}
+              {saving ? (selectedFile ? 'Uploading…' : 'Saving…') : 'Save Changes'}
             </button>
           </div>
         </form>
@@ -698,7 +909,7 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
             )}
           </div>
 
-          {/* Download */}
+          {/* View / Download */}
           <a
             href={item.file_url}
             download
@@ -708,7 +919,7 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
                        text-white rounded-lg text-sm font-medium transition-colors"
           >
             <Download className="w-4 h-4" />
-            Download
+            View / Download
           </a>
 
           {/* Admin controls */}

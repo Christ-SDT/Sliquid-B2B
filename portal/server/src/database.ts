@@ -610,6 +610,20 @@ const migrations: Migration[] = [
     }
   },
   {
+    version: 25,
+    name: 'add_s3_key_to_assets_and_creatives',
+    up: () => {
+      const assetCols = (
+        db.prepare("SELECT name FROM pragma_table_info('assets')").all() as { name: string }[]
+      ).map(c => c.name)
+      if (!assetCols.includes('s3_key')) db.exec('ALTER TABLE assets ADD COLUMN s3_key TEXT')
+      const creativeCols = (
+        db.prepare("SELECT name FROM pragma_table_info('creatives')").all() as { name: string }[]
+      ).map(c => c.name)
+      if (!creativeCols.includes('s3_key')) db.exec('ALTER TABLE creatives ADD COLUMN s3_key TEXT')
+    }
+  },
+  {
     version: 22,
     name: 'add_shine_massage_oil_trainings',
     up: () => {

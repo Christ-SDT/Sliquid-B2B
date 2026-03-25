@@ -34,6 +34,25 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return res.json()
 }
 
+async function requestForm<T>(path: string, method: 'POST' | 'PUT', formData: FormData): Promise<T> {
+  const token = getToken()
+  const res = await fetch(`${BASE}${path}`, {
+    method,
+    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body: formData,
+  })
+  if (res.status === 401) {
+    clearToken()
+    window.location.href = '/login'
+    throw new Error('Unauthorized')
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: 'Request failed' }))
+    throw new Error(err.message ?? err.error ?? 'Request failed')
+  }
+  return res.json()
+}
+
 export const api = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body: unknown) =>
@@ -41,4 +60,6 @@ export const api = {
   put: <T>(path: string, body: unknown) =>
     request<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+  postForm: <T>(path: string, formData: FormData) => requestForm<T>(path, 'POST', formData),
+  putForm: <T>(path: string, formData: FormData) => requestForm<T>(path, 'PUT', formData),
 }

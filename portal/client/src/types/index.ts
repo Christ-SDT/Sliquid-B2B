@@ -58,6 +58,7 @@ export interface Asset {
   thumbnail_url?: string | null
   file_size?: string | null
   dimensions?: string | null
+  s3_key?: string | null
   created_at?: string
 }
 
@@ -116,6 +117,7 @@ export interface Creative {
   description?: string | null
   dimensions?: string | null
   file_size?: string | null
+  s3_key?: string | null
   created_at?: string
 }
 
