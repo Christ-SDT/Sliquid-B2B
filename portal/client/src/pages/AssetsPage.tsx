@@ -2,11 +2,11 @@ import { useEffect, useState, FormEvent } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
-import { Asset, Creative } from '@/types'
+import { Asset, Creative, AiImage } from '@/types'
 import {
   Search, FolderOpen, Download,
   FileImage, FileText, Share2, Image, Video, Mail, Printer, Megaphone, BookOpen,
-  Plus, Trash2, X, Loader2, Pencil, ChevronDown, ChevronRight, Folder, ArrowLeft, LayoutGrid,
+  Plus, Trash2, X, Loader2, Pencil, ChevronDown, ChevronRight, Folder, ArrowLeft, LayoutGrid, Sparkles,
 } from 'lucide-react'
 
 // ─── Brand constants ──────────────────────────────────────────────────────────
@@ -15,7 +15,7 @@ const BRAND_OPTIONS = ['Sliquid', 'RIDE', 'Ride Rocco', 'Sliquid Science']
 // Display names (maps DB value → human label)
 const BRAND_DISPLAY: Record<string, string> = { 'RIDE': 'Ride Lube' }
 // Preferred sort order (by DB value)
-const BRAND_ORDER = ['Sliquid', 'RIDE', 'Ride Rocco', 'Sliquid Science']
+const BRAND_ORDER = ['Sliquid', 'RIDE', 'Ride Rocco', 'Sliquid Science', 'Creator Creations']
 
 function displayBrand(brand: string): string {
   return BRAND_DISPLAY[brand] ?? brand
@@ -44,13 +44,26 @@ const SECTION_MAP: Record<string, string> = {
   Email:          'Email Templates',
   Multi:          'Campaign Materials',
   Video:          'Videos',
+  'AI Generated': 'Generated Images',
 }
 
 // ─── Unified library item ─────────────────────────────────────────────────────
 
+type AiLibraryItem = AiImage & {
+  _source: 'ai'
+  displayName: string
+  brand: string
+  type: string
+  file_url: string
+  thumbnail_url: string
+  file_size?: null
+  dimensions?: null
+}
+
 type LibraryItem =
   | (Asset & { _source: 'asset'; displayName: string })
   | (Creative & { _source: 'creative'; displayName: string })
+  | AiLibraryItem
 
 const TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Logo:           Image,
@@ -62,6 +75,7 @@ const TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
   Print:          Printer,
   Multi:          Megaphone,
   Video:          Video,
+  'AI Generated': Sparkles,
 }
 
 interface SectionOption { label: string; type: string; source: 'asset' | 'creative' }
@@ -669,6 +683,12 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
             {'description' in item && item.description && (
               <p className="text-on-canvas-muted text-sm mt-1">{item.description}</p>
             )}
+            {item._source === 'ai' && (item as any).prompt && (
+              <p className="text-on-canvas-muted text-sm mt-1 italic">"{(item as any).prompt}"</p>
+            )}
+            {item._source === 'ai' && (item as any).created_by && (
+              <p className="text-on-canvas-muted text-xs mt-1">Created by {(item as any).created_by}</p>
+            )}
             {(item.file_size || item.dimensions) && (
               <div className="flex items-center gap-2 mt-2">
                 {item.file_size && <span className="text-on-canvas-muted text-xs">{item.file_size}</span>}
@@ -749,9 +769,10 @@ interface FileExplorerModalProps {
   onSelect: (item: LibraryItem) => void
   onEdit?: (item: LibraryItem) => void
   onDelete?: (item: LibraryItem) => void
+  canDeleteItem?: (item: LibraryItem) => boolean
 }
 
-function FileExplorerModal({ brand, section, items, onClose, onSelect, onEdit, onDelete }: FileExplorerModalProps) {
+function FileExplorerModal({ brand, section, items, onClose, onSelect, onEdit, onDelete, canDeleteItem }: FileExplorerModalProps) {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const isAll = section === '__all__'
   const sectionLabel = isAll ? 'All Items' : section
@@ -825,7 +846,7 @@ function FileExplorerModal({ brand, section, items, onClose, onSelect, onEdit, o
                               <Pencil className="w-3 h-3" />
                             </button>
                           )}
-                          {onDelete && (
+                          {onDelete && (canDeleteItem ? canDeleteItem(item) : true) && (
                             pendingDelete ? (
                               <>
                                 <button
@@ -1026,15 +1047,25 @@ export default function AssetsPage() {
     Promise.all([
       api.get<Asset[]>('/assets'),
       api.get<Creative[]>('/creatives'),
+      api.get<AiImage[]>('/creator/images').catch(() => [] as AiImage[]),
     ])
-      .then(([assets, creatives]) => {
+      .then(([assets, creatives, aiImages]) => {
         const assetItems: LibraryItem[] = assets.map(a => ({
           ...a, _source: 'asset' as const, displayName: a.name,
         }))
         const creativeItems: LibraryItem[] = creatives.map(c => ({
           ...c, _source: 'creative' as const, displayName: c.title,
         }))
-        const combined = [...assetItems, ...creativeItems]
+        const aiItems: LibraryItem[] = aiImages.map(img => ({
+          ...img,
+          _source: 'ai' as const,
+          displayName: img.prompt.length > 60 ? img.prompt.slice(0, 60) + '…' : img.prompt,
+          brand: 'Creator Creations',
+          type: 'AI Generated',
+          file_url: img.s3_url,
+          thumbnail_url: img.s3_url,
+        }))
+        const combined = [...assetItems, ...creativeItems, ...aiItems]
         setAllItems(combined)
         setExpandedBrands(new Set(combined.map(i => i.brand)))
       })
@@ -1057,7 +1088,10 @@ export default function AssetsPage() {
   }
 
   async function handleDelete(item: LibraryItem) {
-    const endpoint = item._source === 'asset' ? `/assets/${item.id}` : `/creatives/${item.id}`
+    const endpoint =
+      item._source === 'asset' ? `/assets/${item.id}` :
+      item._source === 'creative' ? `/creatives/${item.id}` :
+      `/creator/${item.id}`
     try {
       await api.delete(endpoint)
       setAllItems(prev => prev.filter(i => !(i._source === item._source && i.id === item.id)))
@@ -1174,7 +1208,10 @@ export default function AssetsPage() {
           onClose={() => setOpenExplorer(null)}
           onSelect={item => setDetailItem(item)}
           onEdit={adminUser ? item => setEditingItem(item) : undefined}
-          onDelete={adminUser ? item => handleDelete(item) : undefined}
+          onDelete={item => handleDelete(item)}
+          canDeleteItem={item =>
+            adminUser || (item._source === 'ai' && (item as any).user_id === user?.id)
+          }
         />
       )}
 
@@ -1185,7 +1222,11 @@ export default function AssetsPage() {
           onBack={() => setDetailItem(null)}
           onClose={() => { setDetailItem(null); setOpenExplorer(null) }}
           onEdit={adminUser ? () => setEditingItem(detailItem) : undefined}
-          onDelete={adminUser ? () => handleDelete(detailItem) : undefined}
+          onDelete={
+            adminUser || (detailItem._source === 'ai' && (detailItem as any).user_id === user?.id)
+              ? () => handleDelete(detailItem)
+              : undefined
+          }
         />
       )}
 

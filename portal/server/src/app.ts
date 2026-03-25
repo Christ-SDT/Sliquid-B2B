@@ -21,6 +21,7 @@ import marketingItemsRouter from './routes/marketing-items.js'
 import trainingsRouter from './routes/trainings.js'
 import certificatesRouter from './routes/certificates.js'
 import trainingOptionsRouter from './routes/training-options.js'
+import creatorRouter from './routes/creator.js'
 
 const app = express()
 
@@ -62,6 +63,7 @@ app.use('/api/marketing-items', marketingItemsRouter)
 app.use('/api/trainings', trainingsRouter)
 app.use('/api/certificates', certificatesRouter)
 app.use('/api/training-options', trainingOptionsRouter)
+app.use('/api/creator', creatorRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))
 

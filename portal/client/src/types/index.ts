@@ -119,6 +119,17 @@ export interface Creative {
   created_at?: string
 }
 
+export interface AiImage {
+  id: number
+  user_id: number
+  created_by: string
+  prompt: string
+  s3_url: string
+  s3_key: string
+  model: string
+  created_at?: string
+}
+
 export interface StatsOverview {
   totalProducts: number
   totalAssets: number

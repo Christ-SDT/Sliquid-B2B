@@ -6,7 +6,7 @@ import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 
 // Routes accessible to tier1 / tier2 / tier3 (tier2 also gets /store-users)
-const RESTRICTED_ALLOWED = ['/dashboard', '/assets', '/distributors', '/trainings', '/quiz', '/store-users']
+const RESTRICTED_ALLOWED = ['/dashboard', '/assets', '/distributors', '/trainings', '/quiz', '/store-users', '/creator']
 // Routes accessible to tier4 (Prospect)
 const PROSPECT_ALLOWED   = ['/dashboard']
 

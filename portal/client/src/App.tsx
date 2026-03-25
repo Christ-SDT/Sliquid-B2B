@@ -19,6 +19,7 @@ import StoreUsersPage from '@/pages/StoreUsersPage'
 import RequestsPage from '@/pages/RequestsPage'
 import MarketingRequestsPage from '@/pages/MarketingRequestsPage'
 import CertificateVerify from '@/pages/CertificateVerify'
+import CreatorPage from '@/pages/CreatorPage'
 
 export default function App() {
   return (
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="requests" element={<RequestsPage />} />
             <Route path="marketing-requests" element={<MarketingRequestsPage />} />
             <Route path="store-users" element={<StoreUsersPage />} />
+            <Route path="creator" element={<CreatorPage />} />
           </Route>
           <Route path="/verify" element={<CertificateVerify />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -591,6 +591,25 @@ const migrations: Migration[] = [
     up: () => db.exec(`ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'active'`),
   },
   {
+    version: 24,
+    name: 'ai_images_table',
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS ai_images (
+          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          created_by  TEXT NOT NULL,
+          prompt      TEXT NOT NULL,
+          s3_url      TEXT NOT NULL,
+          s3_key      TEXT NOT NULL UNIQUE,
+          model       TEXT DEFAULT 'gemini-2.0-flash-preview-image-generation',
+          created_at  TEXT DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_ai_images_created_at ON ai_images(created_at);
+      `)
+    }
+  },
+  {
     version: 22,
     name: 'add_shine_massage_oil_trainings',
     up: () => {
