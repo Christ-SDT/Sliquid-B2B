@@ -1284,6 +1284,13 @@ export default function AssetsPage() {
       .finally(() => setLoading(false))
   }, [])
 
+  function closeAll() {
+    setDetailItem(null)
+    setOpenExplorer(null)
+    setEditingItem(null)
+    setShowAddModal(false)
+  }
+
   function handleAdded(item: LibraryItem) {
     setAllItems(prev => {
       const updated = [item, ...prev]
@@ -1416,7 +1423,7 @@ export default function AssetsPage() {
           brand={openExplorer.brand}
           section={openExplorer.section}
           items={explorerItems}
-          onClose={() => setOpenExplorer(null)}
+          onClose={closeAll}
           onSelect={item => setDetailItem(item)}
           onEdit={adminUser ? item => setEditingItem(item) : undefined}
           onDelete={item => handleDelete(item)}
@@ -1431,7 +1438,7 @@ export default function AssetsPage() {
         <FileDetailModal
           item={detailItem}
           onBack={() => setDetailItem(null)}
-          onClose={() => { setDetailItem(null); setOpenExplorer(null) }}
+          onClose={() => setDetailItem(null)}
           onEdit={adminUser ? () => setEditingItem(detailItem) : undefined}
           onDelete={
             adminUser || (detailItem._source === 'ai' && (detailItem as any).user_id === user?.id)
@@ -1453,7 +1460,7 @@ export default function AssetsPage() {
       {editingItem && (
         <EditItemModal
           item={editingItem}
-          onClose={() => setEditingItem(null)}
+          onClose={closeAll}
           onSaved={updated => { handleSaved(updated); setEditingItem(null) }}
         />
       )}
