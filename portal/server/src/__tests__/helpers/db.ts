@@ -21,6 +21,7 @@ export function resetDb(): void {
     DELETE FROM stores;
     DELETE FROM trainings;
     DELETE FROM marketing_items;
+    DELETE FROM ai_images;
     DELETE FROM users;
   `)
   db.exec('DELETE FROM sqlite_sequence')
