@@ -79,10 +79,11 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
     }))
 
     const fileUrl = buildS3Url(bucket, region, s3Key)
+    const thumbUrl = thumbnail_url ?? (file.mimetype.startsWith('image/') ? fileUrl : null)
     const { lastInsertRowid } = db.prepare(`
       INSERT INTO creatives (title, brand, type, file_url, thumbnail_url, file_size, dimensions, description, campaign, s3_key)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(title, brand, type, fileUrl, thumbnail_url ?? null, file_size ?? null, dimensions ?? null, description ?? null, campaign ?? null, s3Key)
+    `).run(title, brand, type, fileUrl, thumbUrl, file_size ?? null, dimensions ?? null, description ?? null, campaign ?? null, s3Key)
 
     notifyUsers('new_asset', 'New in Product Library', `${title} (${brand}) has been added to the Product Library.`, '/assets')
     res.status(201).json(db.prepare('SELECT * FROM creatives WHERE id = ?').get(lastInsertRowid))
@@ -118,6 +119,7 @@ router.put('/:id/file', requireAuth, requireRole('tier5', 'admin'), upload.singl
     }))
 
     const fileUrl = buildS3Url(bucket, region, s3Key)
+    const thumbUrl = thumbnail_url ?? (file.mimetype.startsWith('image/') ? fileUrl : row.thumbnail_url)
 
     if (row.s3_key) await deleteS3Object(row.s3_key)
 
@@ -125,7 +127,7 @@ router.put('/:id/file', requireAuth, requireRole('tier5', 'admin'), upload.singl
       'UPDATE creatives SET title=?, brand=?, type=?, file_url=?, thumbnail_url=?, file_size=?, dimensions=?, description=?, campaign=?, s3_key=? WHERE id=?'
     ).run(
       title ?? row.title, brand ?? row.brand, type ?? row.type,
-      fileUrl, thumbnail_url ?? row.thumbnail_url, file_size ?? null, dimensions ?? null,
+      fileUrl, thumbUrl, file_size ?? null, dimensions ?? null,
       description ?? row.description, campaign ?? row.campaign, s3Key, id
     )
 

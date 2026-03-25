@@ -78,9 +78,11 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
     }))
 
     const fileUrl = buildS3Url(bucket, region, s3Key)
+    // Auto-use the image URL as thumbnail when no separate thumbnail is provided
+    const thumbUrl = thumbnail_url ?? (file.mimetype.startsWith('image/') ? fileUrl : null)
     const { lastInsertRowid } = db.prepare(
       'INSERT INTO assets (name, brand, type, file_url, thumbnail_url, file_size, dimensions, s3_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(name, brand, type, fileUrl, thumbnail_url ?? null, file_size ?? null, dimensions ?? null, s3Key)
+    ).run(name, brand, type, fileUrl, thumbUrl, file_size ?? null, dimensions ?? null, s3Key)
 
     notifyUsers('new_asset', 'New in Product Library', `${name} (${brand}) has been added to the Product Library.`, '/assets')
     res.status(201).json(db.prepare('SELECT * FROM assets WHERE id = ?').get(lastInsertRowid))
@@ -116,6 +118,7 @@ router.put('/:id/file', requireAuth, requireRole('tier5', 'admin'), upload.singl
     }))
 
     const fileUrl = buildS3Url(bucket, region, s3Key)
+    const thumbUrl = thumbnail_url ?? (file.mimetype.startsWith('image/') ? fileUrl : row.thumbnail_url)
 
     // Delete old S3 object if this asset previously had one
     if (row.s3_key) await deleteS3Object(row.s3_key)
@@ -124,7 +127,7 @@ router.put('/:id/file', requireAuth, requireRole('tier5', 'admin'), upload.singl
       'UPDATE assets SET name=?, brand=?, type=?, file_url=?, thumbnail_url=?, file_size=?, dimensions=?, s3_key=? WHERE id=?'
     ).run(
       name ?? row.name, brand ?? row.brand, type ?? row.type,
-      fileUrl, thumbnail_url ?? row.thumbnail_url, file_size ?? null, dimensions ?? null, s3Key, id
+      fileUrl, thumbUrl, file_size ?? null, dimensions ?? null, s3Key, id
     )
 
     res.json(db.prepare('SELECT * FROM assets WHERE id = ?').get(id))
