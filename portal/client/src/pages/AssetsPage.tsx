@@ -176,6 +176,10 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
   const isCreative = sectionOpt.source === 'creative'
   const brand = brandOpt === '__custom__' ? customBrand : brandOpt
 
+  useEffect(() => {
+    return () => { if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl) }
+  }, [filePreviewUrl])
+
   function handleFileSelect(file: File) {
     setSelectedFile(file)
     const bytes = file.size
@@ -554,6 +558,10 @@ function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const brand = brandOpt === '__custom__' ? customBrand : brandOpt
+
+  useEffect(() => {
+    return () => { if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl) }
+  }, [filePreviewUrl])
 
   function handleFileSelect(file: File) {
     setSelectedFile(file)
