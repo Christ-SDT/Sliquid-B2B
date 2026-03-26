@@ -80,13 +80,14 @@ const TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
 
 interface SectionOption { label: string; type: string; source: 'asset' | 'creative' }
 const SECTION_OPTIONS: SectionOption[] = [
-  { label: 'Logos',              type: 'Logo',     source: 'asset'    },
-  { label: 'Banners',            type: 'Banner',   source: 'asset'    },
-  { label: 'Social Media',       type: 'Social',   source: 'asset'    },
-  { label: 'Documents',          type: 'Document', source: 'asset'    },
-  { label: 'Email Templates',    type: 'Email',    source: 'creative' },
-  { label: 'Campaign Materials', type: 'Multi',    source: 'creative' },
-  { label: 'Videos',             type: 'Video',    source: 'creative' },
+  { label: 'Logos',              type: 'Logo',      source: 'asset'    },
+  { label: 'Banners',           type: 'Banner',    source: 'asset'    },
+  { label: 'Social Media',       type: 'Social',    source: 'asset'    },
+  { label: 'Documents',          type: 'Document',  source: 'asset'    },
+  { label: 'Email Templates',    type: 'Email',     source: 'creative' },
+  { label: 'Campaign Materials', type: 'Multi',     source: 'creative' },
+  { label: 'Videos',             type: 'Video',     source: 'creative' },
+  { label: 'Other…',             type: '__other__', source: 'asset'    },
 ]
 
 function groupByBrand(items: LibraryItem[]): Map<string, Map<string, LibraryItem[]>> {
@@ -158,6 +159,7 @@ interface AddItemModalProps {
 
 function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
   const [sectionOpt, setSectionOpt] = useState<SectionOption>(SECTION_OPTIONS[0])
+  const [customSection, setCustomSection] = useState('')
   const [nameTitle, setNameTitle] = useState('')
   const [brandOpt, setBrandOpt] = useState(BRAND_OPTIONS[0])
   const [customBrand, setCustomBrand] = useState('')
@@ -173,6 +175,8 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const isOtherSection = sectionOpt.type === '__other__'
+  const resolvedType = isOtherSection ? customSection : sectionOpt.type
   const isCreative = sectionOpt.source === 'creative'
   const brand = brandOpt === '__custom__' ? customBrand : brandOpt
 
@@ -182,6 +186,11 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
 
   function handleFileSelect(file: File) {
     setSelectedFile(file)
+    // Auto-fill name from filename if the field is still empty
+    if (!nameTitle) {
+      const baseName = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
+      setNameTitle(baseName.charAt(0).toUpperCase() + baseName.slice(1))
+    }
     const bytes = file.size
     if (bytes < 1024) setFileSize(`${bytes} B`)
     else if (bytes < 1024 * 1024) setFileSize(`${(bytes / 1024).toFixed(1)} KB`)
@@ -216,7 +225,7 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
       if (selectedFile) {
         const formData = new FormData()
         formData.append('file', selectedFile)
-        formData.append('type', sectionOpt.type)
+        formData.append('type', resolvedType)
         formData.append('brand', brand)
         if (fileSize) formData.append('file_size', fileSize)
         if (dimensions) formData.append('dimensions', dimensions)
@@ -236,14 +245,14 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
       } else {
         if (sectionOpt.source === 'asset') {
           const result = await api.post<{ id: number }>('/assets', {
-            name: nameTitle, brand, type: sectionOpt.type,
+            name: nameTitle, brand, type: resolvedType,
             file_url: fileUrl,
             thumbnail_url: thumbnailUrl || null,
             file_size: fileSize || null,
             dimensions: dimensions || null,
           })
           onAdded({
-            id: result.id, name: nameTitle, brand, type: sectionOpt.type,
+            id: result.id, name: nameTitle, brand, type: resolvedType,
             file_url: fileUrl,
             thumbnail_url: thumbnailUrl || null,
             file_size: fileSize || null,
@@ -252,7 +261,7 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
           })
         } else {
           const result = await api.post<{ id: number }>('/creatives', {
-            title: nameTitle, brand, type: sectionOpt.type,
+            title: nameTitle, brand, type: resolvedType,
             file_url: fileUrl,
             thumbnail_url: thumbnailUrl || null,
             file_size: fileSize || null,
@@ -261,7 +270,7 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
             campaign: campaign || null,
           })
           onAdded({
-            id: result.id, title: nameTitle, brand, type: sectionOpt.type,
+            id: result.id, title: nameTitle, brand, type: resolvedType,
             file_url: fileUrl,
             thumbnail_url: thumbnailUrl || null,
             file_size: fileSize || null,
@@ -297,7 +306,7 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
           )}
 
           {/* Section */}
-          <div>
+          <div className="space-y-2">
             <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Section</label>
             <select
               value={sectionOpt.type}
@@ -308,6 +317,18 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
                 <option key={s.type} value={s.type}>{s.label}</option>
               ))}
             </select>
+            {isOtherSection && (
+              <input
+                type="text"
+                value={customSection}
+                onChange={e => setCustomSection(e.target.value)}
+                placeholder="e.g. Product Sheets"
+                required
+                autoFocus
+                className="w-full bg-portal-bg border border-portal-accent/60 rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+              />
+            )}
           </div>
 
           {/* Name / Title */}
@@ -1127,11 +1148,13 @@ interface BrandSectionProps {
 
 function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSelectItem }: BrandSectionProps) {
   const sections = Array.from(sectionMap.entries())
-  const [activeSection, setActiveSection] = useState(sections[0]?.[0] ?? '')
+  const [activeSection, setActiveSection] = useState('__all__')
 
-  const activeSafe = sectionMap.has(activeSection) ? activeSection : (sections[0]?.[0] ?? '')
-  const activeSectionItems = sectionMap.get(activeSafe) ?? []
-  const totalItems = Array.from(sectionMap.values()).reduce((acc, arr) => acc + arr.length, 0)
+  const allItems = Array.from(sectionMap.values()).flat()
+  const totalItems = allItems.length
+  const activeSectionItems = activeSection === '__all__'
+    ? allItems
+    : (sectionMap.get(activeSection) ?? allItems)
 
   return (
     <div className="bg-surface border border-portal-border rounded-2xl overflow-hidden">
@@ -1171,12 +1194,22 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
           <div className="px-6 pb-6 space-y-4">
             {/* Sub-category pills */}
             <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setActiveSection('__all__')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
+                  ${activeSection === '__all__'
+                    ? 'bg-portal-accent text-white'
+                    : 'bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500'
+                  }`}
+              >
+                All ({totalItems})
+              </button>
               {sections.map(([sectionName, sectionItems]) => (
                 <button
                   key={sectionName}
                   onClick={() => setActiveSection(sectionName)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
-                    ${activeSafe === sectionName
+                    ${activeSection === sectionName
                       ? 'bg-portal-accent text-white'
                       : 'bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500'
                     }`}
@@ -1232,12 +1265,12 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
                 }
               </p>
               <button
-                onClick={() => onShowAll(activeSafe)}
+                onClick={() => onShowAll(activeSection === '__all__' ? '__all__' : activeSection)}
                 className="flex items-center gap-2 px-4 py-2 bg-portal-accent/10 hover:bg-portal-accent/20
                            text-portal-accent rounded-lg text-sm font-medium transition-colors"
               >
                 <FolderOpen className="w-4 h-4" />
-                Show all {activeSafe}
+                {activeSection === '__all__' ? `Show all ${displayBrand(brand)}` : `Show all ${activeSection}`}
               </button>
             </div>
           </div>
