@@ -155,9 +155,10 @@ function toBrandOpt(brand: string): string {
 interface AddItemModalProps {
   onClose: () => void
   onAdded: (item: LibraryItem) => void
+  onBulkAdded?: (items: LibraryItem[]) => void
 }
 
-function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
+function AddItemModal({ onClose, onAdded, onBulkAdded }: AddItemModalProps) {
   const [sectionOpt, setSectionOpt] = useState<SectionOption>(SECTION_OPTIONS[0])
   const [customSection, setCustomSection] = useState('')
   const [nameTitle, setNameTitle] = useState('')
@@ -171,46 +172,60 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
   const [campaign, setCampaign] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
+  const [notify, setNotify] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isOtherSection = sectionOpt.type === '__other__'
   const resolvedType = isOtherSection ? customSection : sectionOpt.type
   const isCreative = sectionOpt.source === 'creative'
   const brand = brandOpt === '__custom__' ? customBrand : brandOpt
+  const isBulk = selectedFiles.length > 1
 
   useEffect(() => {
     return () => { if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl) }
   }, [filePreviewUrl])
 
-  function handleFileSelect(file: File) {
-    setSelectedFile(file)
-    // Auto-fill name from filename if the field is still empty
-    if (!nameTitle) {
-      const baseName = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
-      setNameTitle(baseName.charAt(0).toUpperCase() + baseName.slice(1))
-    }
-    const bytes = file.size
-    if (bytes < 1024) setFileSize(`${bytes} B`)
-    else if (bytes < 1024 * 1024) setFileSize(`${(bytes / 1024).toFixed(1)} KB`)
-    else setFileSize(`${(bytes / (1024 * 1024)).toFixed(1)} MB`)
+  function handleFilesSelect(files: File[]) {
+    if (files.length === 0) return
+    setSelectedFiles(files)
 
-    if (file.type.startsWith('image/')) {
-      const url = URL.createObjectURL(file)
+    // Preview from first file only
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl)
+    const first = files[0]
+    if (first.type.startsWith('image/')) {
+      const url = URL.createObjectURL(first)
       setFilePreviewUrl(url)
-      const img = new window.Image()
-      img.onload = () => setDimensions(`${img.naturalWidth}×${img.naturalHeight}`)
-      img.src = url
+      if (files.length === 1) {
+        const img = new window.Image()
+        img.onload = () => setDimensions(`${img.naturalWidth}×${img.naturalHeight}`)
+        img.src = url
+      }
     } else {
       setFilePreviewUrl(null)
       setDimensions('')
     }
+
+    // Auto-fill name + size only for single file
+    if (files.length === 1) {
+      if (!nameTitle) {
+        const baseName = first.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
+        setNameTitle(baseName.charAt(0).toUpperCase() + baseName.slice(1))
+      }
+      const bytes = first.size
+      if (bytes < 1024) setFileSize(`${bytes} B`)
+      else if (bytes < 1024 * 1024) setFileSize(`${(bytes / 1024).toFixed(1)} KB`)
+      else setFileSize(`${(bytes / (1024 * 1024)).toFixed(1)} MB`)
+    } else {
+      setFileSize('')
+      setDimensions('')
+    }
   }
 
-  function clearFile() {
+  function clearFiles() {
     if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl)
-    setSelectedFile(null)
+    setSelectedFiles([])
     setFilePreviewUrl(null)
     setFileSize('')
     setDimensions('')
@@ -222,7 +237,29 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
     setError('')
     setSaving(true)
     try {
-      if (selectedFile) {
+      if (isBulk) {
+        // ── Bulk upload ──
+        const fd = new FormData()
+        selectedFiles.forEach(f => fd.append('files', f))
+        fd.append('brand', brand)
+        fd.append('type', resolvedType)
+        if (notify) fd.append('notify', 'true')
+
+        const endpoint = isCreative ? '/creatives/bulk-upload' : '/assets/bulk-upload'
+        const result = await api.postForm<{ items: (Asset | Creative)[]; count: number; errors?: string[] }>(endpoint, fd)
+
+        if (result.errors?.length) setError(`${result.count} uploaded. Failed: ${result.errors.join('; ')}`)
+
+        const mapped: LibraryItem[] = result.items.map(item =>
+          isCreative
+            ? { ...(item as Creative), _source: 'creative' as const, displayName: (item as Creative).title }
+            : { ...(item as Asset), _source: 'asset' as const, displayName: (item as Asset).name }
+        )
+        if (onBulkAdded) onBulkAdded(mapped)
+        if (!result.errors?.length) onClose()
+      } else if (selectedFiles.length === 1) {
+        // ── Single file upload ──
+        const selectedFile = selectedFiles[0]
         const formData = new FormData()
         formData.append('file', selectedFile)
         formData.append('type', resolvedType)
@@ -230,6 +267,7 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
         if (fileSize) formData.append('file_size', fileSize)
         if (dimensions) formData.append('dimensions', dimensions)
         if (thumbnailUrl) formData.append('thumbnail_url', thumbnailUrl)
+        if (notify) formData.append('notify', 'true')
 
         if (isCreative) {
           formData.append('title', nameTitle)
@@ -242,7 +280,9 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
           const result = await api.postForm<Asset & { id: number }>('/assets/upload', formData)
           onAdded({ ...result, _source: 'asset', displayName: result.name })
         }
+        onClose()
       } else {
+        // ── URL-only ──
         if (sectionOpt.source === 'asset') {
           const result = await api.post<{ id: number }>('/assets', {
             name: nameTitle, brand, type: resolvedType,
@@ -280,8 +320,8 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
             _source: 'creative', displayName: nameTitle,
           })
         }
+        onClose()
       }
-      onClose()
     } catch (err: any) {
       setError(err.message ?? 'Failed to add item')
     } finally {
@@ -361,43 +401,66 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
 
           {/* File upload dropzone */}
           <div>
-            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Upload File</label>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Upload File{isBulk && <span className="ml-2 px-2 py-0.5 bg-portal-accent/20 text-portal-accent rounded-full text-xs font-semibold">{selectedFiles.length} files</span>}</label>
             <div
               className={`relative border-2 border-dashed rounded-xl p-5 text-center transition-colors cursor-pointer
-                ${selectedFile
+                ${selectedFiles.length > 0
                   ? 'border-portal-accent bg-portal-accent/5'
                   : 'border-portal-border hover:border-portal-accent/60 hover:bg-portal-accent/5'}`}
               onClick={() => fileInputRef.current?.click()}
               onDragOver={e => e.preventDefault()}
-              onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFileSelect(f) }}
+              onDrop={e => { e.preventDefault(); const files = Array.from(e.dataTransfer.files); if (files.length) handleFilesSelect(files) }}
             >
               <input
                 ref={fileInputRef}
                 type="file"
+                multiple
                 className="hidden"
                 accept="image/*,.pdf,.mp4,.mov,.webm,.svg,.ai,.eps,.zip"
-                onChange={e => { const f = e.target.files?.[0]; if (f) handleFileSelect(f) }}
+                onChange={e => { const files = Array.from(e.target.files ?? []); if (files.length) handleFilesSelect(files) }}
               />
-              {selectedFile ? (
-                <div className="flex items-center gap-3">
-                  {filePreviewUrl
-                    ? <img src={filePreviewUrl} alt="preview" className="w-14 h-14 object-contain rounded-lg flex-shrink-0" />
-                    : <div className="w-14 h-14 bg-portal-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Upload className="w-6 h-6 text-portal-accent" />
-                      </div>
-                  }
-                  <div className="flex-1 text-left min-w-0">
-                    <p className="text-on-canvas text-sm font-medium truncate">{selectedFile.name}</p>
-                    {fileSize && <p className="text-on-canvas-muted text-xs">{fileSize}{dimensions && ` · ${dimensions}`}</p>}
+              {selectedFiles.length > 0 ? (
+                isBulk ? (
+                  <div className="flex items-center gap-3">
+                    {filePreviewUrl
+                      ? <img src={filePreviewUrl} alt="preview" className="w-14 h-14 object-contain rounded-lg flex-shrink-0" />
+                      : <div className="w-14 h-14 bg-portal-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Upload className="w-6 h-6 text-portal-accent" />
+                        </div>
+                    }
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="text-on-canvas text-sm font-medium">{selectedFiles.length} files selected</p>
+                      <p className="text-on-canvas-muted text-xs truncate">{selectedFiles[0].name}{selectedFiles.length > 1 ? ` + ${selectedFiles.length - 1} more` : ''}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); clearFiles() }}
+                      className="text-on-canvas-muted hover:text-red-400 transition-colors flex-shrink-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={e => { e.stopPropagation(); clearFile() }}
-                    className="text-on-canvas-muted hover:text-red-400 transition-colors flex-shrink-0"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    {filePreviewUrl
+                      ? <img src={filePreviewUrl} alt="preview" className="w-14 h-14 object-contain rounded-lg flex-shrink-0" />
+                      : <div className="w-14 h-14 bg-portal-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Upload className="w-6 h-6 text-portal-accent" />
+                        </div>
+                    }
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="text-on-canvas text-sm font-medium truncate">{selectedFiles[0].name}</p>
+                      {fileSize && <p className="text-on-canvas-muted text-xs">{fileSize}{dimensions && ` · ${dimensions}`}</p>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); clearFiles() }}
+                      className="text-on-canvas-muted hover:text-red-400 transition-colors flex-shrink-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )
               ) : (
                 <div className="space-y-2 py-2">
                   <div className="w-10 h-10 mx-auto bg-surface-elevated rounded-xl flex items-center justify-center">
@@ -405,7 +468,7 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
                   </div>
                   <div>
                     <p className="text-on-canvas text-sm font-medium">Click to upload or drag & drop</p>
-                    <p className="text-on-canvas-muted text-xs mt-0.5">PNG, JPG, PDF, MP4, SVG, AI, EPS, ZIP…</p>
+                    <p className="text-on-canvas-muted text-xs mt-0.5">PNG, JPG, PDF, MP4, SVG, AI, EPS, ZIP… · Max 750 MB · Select multiple files for bulk upload</p>
                   </div>
                 </div>
               )}
@@ -423,18 +486,18 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
           <div>
             <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
               File URL
-              {selectedFile && <span className="text-on-canvas-muted font-normal ml-1">(overridden by uploaded file)</span>}
+              {selectedFiles.length > 0 && <span className="text-on-canvas-muted font-normal ml-1">(overridden by uploaded file)</span>}
             </label>
             <input
               type="url"
               value={fileUrl}
               onChange={e => setFileUrl(e.target.value)}
               placeholder="https://yoursite.com/wp-content/uploads/file.pdf"
-              required={!selectedFile}
-              disabled={!!selectedFile}
+              required={selectedFiles.length === 0}
+              disabled={selectedFiles.length > 0}
               className={`w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
                          placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors
-                         ${selectedFile ? 'opacity-40 cursor-not-allowed' : ''}`}
+                         ${selectedFiles.length > 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
             />
           </div>
 
@@ -517,6 +580,17 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
             </div>
           </div>
 
+          {/* Notify checkbox */}
+          <label className="flex items-center gap-2 text-sm text-on-canvas-subtle cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={notify}
+              onChange={e => setNotify(e.target.checked)}
+              className="rounded border-portal-border"
+            />
+            Notify all users about this upload
+          </label>
+
           <div className="flex gap-3 pt-2">
             <button
               type="button"
@@ -533,7 +607,7 @@ function AddItemModal({ onClose, onAdded }: AddItemModalProps) {
                          hover:bg-portal-accent/90 disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-colors"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {saving ? (selectedFile ? 'Uploading…' : 'Adding…') : 'Add Item'}
+              {saving ? (selectedFiles.length > 0 ? 'Uploading…' : 'Adding…') : (isBulk ? `Upload ${selectedFiles.length} Files` : 'Add Item')}
             </button>
           </div>
         </form>
@@ -1493,6 +1567,13 @@ export default function AssetsPage() {
         <AddItemModal
           onClose={() => setShowAddModal(false)}
           onAdded={handleAdded}
+          onBulkAdded={items => {
+            setAllItems(prev => {
+              const updated = [...items, ...prev]
+              items.forEach(item => setExpandedBrands(prev2 => new Set([...prev2, item.brand])))
+              return updated
+            })
+          }}
         />
       )}
 

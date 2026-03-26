@@ -492,45 +492,71 @@ function DetailModal({
 function UploadModal({
   onClose,
   onUploaded,
+  onBulkUploaded,
 }: {
   onClose: () => void
   onUploaded: (item: MediaItem) => void
+  onBulkUploaded?: (items: MediaItem[]) => void
 }) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
   const [label, setLabel] = useState('')
   const [brand, setBrand] = useState('Sliquid')
+  const [notify, setNotify] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const isBulk = selectedFiles.length > 1
 
   useEffect(() => {
     return () => { if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl) }
   }, [filePreviewUrl])
 
-  function handleFileSelect(file: File) {
-    setSelectedFile(file)
+  function handleFilesSelect(files: File[]) {
+    if (!files.length) return
+    setSelectedFiles(files)
     if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl)
-    setFilePreviewUrl(file.type.startsWith('image/') ? URL.createObjectURL(file) : null)
-    if (!label) {
-      const base = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
+    const first = files[0]
+    setFilePreviewUrl(first.type.startsWith('image/') ? URL.createObjectURL(first) : null)
+    // Auto-fill label only for single file
+    if (files.length === 1 && !label) {
+      const base = first.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
       setLabel(base.charAt(0).toUpperCase() + base.slice(1))
     }
   }
 
+  function clearFiles() {
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl)
+    setSelectedFiles([])
+    setFilePreviewUrl(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!selectedFile) { setError('Please select a file'); return }
+    if (!selectedFiles.length) { setError('Please select a file'); return }
     setUploading(true)
     setError('')
     try {
-      const fd = new FormData()
-      fd.append('file', selectedFile)
-      fd.append('label', label)
-      fd.append('brand', brand)
-      const result = await api.postForm<MediaItem>('/media/upload', fd)
-      onUploaded(result)
-      onClose()
+      if (isBulk) {
+        const fd = new FormData()
+        selectedFiles.forEach(f => fd.append('files', f))
+        fd.append('brand', brand)
+        if (notify) fd.append('notify', 'true')
+        const result = await api.postForm<{ items: MediaItem[]; count: number; errors?: string[] }>('/media/bulk-upload', fd)
+        if (result.errors?.length) setError(`${result.count} uploaded. Failed: ${result.errors.join('; ')}`)
+        if (onBulkUploaded) onBulkUploaded(result.items)
+        if (!result.errors?.length) onClose()
+      } else {
+        const fd = new FormData()
+        fd.append('file', selectedFiles[0])
+        fd.append('label', label)
+        fd.append('brand', brand)
+        if (notify) fd.append('notify', 'true')
+        const result = await api.postForm<MediaItem>('/media/upload', fd)
+        onUploaded(result)
+        onClose()
+      }
     } catch (err: any) {
       setError(err.message ?? 'Upload failed')
     } finally {
@@ -543,38 +569,75 @@ function UploadModal({
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-surface border border-portal-border rounded-xl shadow-2xl w-full max-w-md">
         <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
-          <h2 className="text-on-canvas font-semibold text-base">Upload Image</h2>
+          <h2 className="text-on-canvas font-semibold text-base">
+            Upload {isBulk ? `${selectedFiles.length} Files` : 'Image'}
+          </h2>
           <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas"><X className="w-4 h-4" /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {/* Dropzone */}
           <div
             onDragOver={e => e.preventDefault()}
-            onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFileSelect(f) }}
+            onDrop={e => { e.preventDefault(); const files = Array.from(e.dataTransfer.files); if (files.length) handleFilesSelect(files) }}
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-portal-border rounded-xl p-6 text-center cursor-pointer hover:border-portal-accent/50 transition-colors"
+            className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+              selectedFiles.length > 0 ? 'border-portal-accent bg-portal-accent/5' : 'border-portal-border hover:border-portal-accent/50'
+            }`}
           >
-            {filePreviewUrl
+            {filePreviewUrl && !isBulk
               ? <img src={filePreviewUrl} className="max-h-32 mx-auto rounded-lg object-contain mb-2" alt="preview" />
               : <Upload className="w-8 h-8 text-on-canvas-muted mx-auto mb-2" />
             }
             <p className="text-on-canvas-subtle text-sm">
-              {selectedFile ? selectedFile.name : 'Drag & drop or click to select'}
+              {selectedFiles.length > 0
+                ? isBulk
+                  ? `${selectedFiles.length} files selected`
+                  : selectedFiles[0].name
+                : 'Drag & drop or click to select'
+              }
             </p>
-            {!selectedFile && <p className="text-on-canvas-muted text-xs mt-1">Max 50 MB</p>}
-            <input ref={fileInputRef} type="file" accept="image/*,video/*,.pdf" className="hidden"
-              onChange={e => { if (e.target.files?.[0]) handleFileSelect(e.target.files[0]) }} />
+            {selectedFiles.length === 0
+              ? <p className="text-on-canvas-muted text-xs mt-1">Max 750 MB · Select multiple files for bulk upload</p>
+              : isBulk
+                ? <p className="text-on-canvas-muted text-xs mt-1 truncate">{selectedFiles[0].name}{selectedFiles.length > 1 ? ` + ${selectedFiles.length - 1} more` : ''}</p>
+                : null
+            }
+            {selectedFiles.length > 0 && (
+              <button
+                type="button"
+                onClick={e => { e.stopPropagation(); clearFiles() }}
+                className="mt-2 text-xs text-on-canvas-muted hover:text-red-400 transition-colors"
+              >
+                Clear selection
+              </button>
+            )}
+            <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,.pdf" className="hidden"
+              onChange={e => { const files = Array.from(e.target.files ?? []); if (files.length) handleFilesSelect(files) }} />
           </div>
 
-          <Field label="Label (optional)">
-            <input value={label} onChange={e => setLabel(e.target.value)} placeholder="Descriptive name" className={inputCls} />
-          </Field>
+          {/* Label — only shown for single file */}
+          {!isBulk && (
+            <Field label="Label (optional)">
+              <input value={label} onChange={e => setLabel(e.target.value)} placeholder="Descriptive name" className={inputCls} />
+            </Field>
+          )}
 
           <Field label="Brand">
             <select value={brand} onChange={e => setBrand(e.target.value)} className={selectCls}>
               {BRANDS.map(b => <option key={b} value={b}>{b === 'RIDE' ? 'Ride Lube' : b}</option>)}
             </select>
           </Field>
+
+          {/* Notify checkbox */}
+          <label className="flex items-center gap-2 text-sm text-on-canvas-subtle cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={notify}
+              onChange={e => setNotify(e.target.checked)}
+              className="rounded border-portal-border"
+            />
+            Notify all users about this upload
+          </label>
 
           {error && (
             <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
@@ -583,10 +646,10 @@ function UploadModal({
           )}
 
           <div className="flex gap-2 pt-1">
-            <button type="submit" disabled={uploading || !selectedFile}
+            <button type="submit" disabled={uploading || selectedFiles.length === 0}
               className="flex-1 flex items-center justify-center gap-2 py-2 bg-portal-accent text-white rounded-lg text-sm font-medium hover:bg-portal-accent/90 disabled:opacity-50 disabled:cursor-not-allowed">
               {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-              {uploading ? 'Uploading…' : 'Upload'}
+              {uploading ? 'Uploading…' : isBulk ? `Upload ${selectedFiles.length} Files` : 'Upload'}
             </button>
             <button type="button" onClick={onClose}
               className="px-4 py-2 bg-surface-elevated border border-portal-border rounded-lg text-sm text-on-canvas-subtle hover:text-on-canvas">
@@ -811,6 +874,7 @@ export default function MediaPage() {
         <UploadModal
           onClose={() => setShowUpload(false)}
           onUploaded={item => setItems(prev => [item, ...prev])}
+          onBulkUploaded={items => setItems(prev => [...items, ...prev])}
         />
       )}
     </div>

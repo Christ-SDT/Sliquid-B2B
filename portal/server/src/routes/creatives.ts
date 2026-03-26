@@ -6,9 +6,10 @@ import path from 'path'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { notifyUsers } from '../notifications.js'
+import { sendBroadcastEmail } from '../email.js'
 
 const router = Router()
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50_000_000 } })
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 750_000_000 } })
 
 // ─── S3 helpers ───────────────────────────────────────────────────────────────
 
@@ -85,12 +86,65 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(title, brand, type, fileUrl, thumbUrl, file_size ?? null, dimensions ?? null, description ?? null, campaign ?? null, s3Key)
 
-    notifyUsers('new_asset', 'New in Product Library', `${title} (${brand}) has been added to the Product Library.`, '/assets')
+    if (req.body.notify === 'true') {
+      notifyUsers('new_asset', 'New in Product Library', `${title} (${brand}) has been added to the Product Library.`, '/assets')
+      sendBroadcastEmail({ subject: `New in Product Library: ${title}`, bodyHtml: `<p>${title} (${brand}) has been added to the Product Library.</p>`, link: '/assets' })
+    }
     res.status(201).json(db.prepare('SELECT * FROM creatives WHERE id = ?').get(lastInsertRowid))
   } catch (err: any) {
     console.error('[creatives] upload error:', err)
     res.status(500).json({ message: err.message ?? 'Upload failed' })
   }
+})
+
+// ─── POST /bulk-upload — upload multiple creatives at once ───────────────────
+
+router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.array('files', 20), async (req, res) => {
+  const files = req.files as Express.Multer.File[] | undefined
+  if (!files || files.length === 0) { res.status(400).json({ message: 'No files uploaded' }); return }
+
+  const { brand, type, notify } = req.body
+  if (!brand || !type) { res.status(400).json({ message: 'brand and type are required' }); return }
+  if (!process.env.S3_BUCKET || !process.env.AWS_ACCESS_KEY_ID) {
+    res.status(503).json({ message: 'File storage not configured' }); return
+  }
+
+  const bucket = process.env.S3_BUCKET!
+  const region = process.env.AWS_REGION ?? 'us-east-1'
+  const items: Record<string, unknown>[] = []
+  const errors: string[] = []
+
+  for (const file of files) {
+    try {
+      const ext = path.extname(file.originalname).toLowerCase()
+      const s3Key = `portal-assets/creatives/${randomUUID()}${ext}`
+      await getS3Client().send(new PutObjectCommand({
+        Bucket: bucket, Key: s3Key, Body: file.buffer, ContentType: file.mimetype,
+      }))
+      const fileUrl = buildS3Url(bucket, region, s3Key)
+      const thumbUrl = file.mimetype.startsWith('image/') ? fileUrl : null
+      const baseName = file.originalname.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
+      const title = baseName.charAt(0).toUpperCase() + baseName.slice(1)
+      const fileSize = file.size < 1024 * 1024
+        ? `${(file.size / 1024).toFixed(1)} KB`
+        : `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+
+      const { lastInsertRowid } = db.prepare(
+        'INSERT INTO creatives (title, brand, type, file_url, thumbnail_url, file_size, s3_key) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      ).run(title, brand, type, fileUrl, thumbUrl, fileSize, s3Key)
+
+      items.push(db.prepare('SELECT * FROM creatives WHERE id = ?').get(lastInsertRowid) as Record<string, unknown>)
+    } catch (err: any) {
+      errors.push(`${file.originalname}: ${err.message ?? 'upload failed'}`)
+    }
+  }
+
+  if (notify === 'true' && items.length > 0) {
+    notifyUsers('new_asset', 'New in Product Library', `${items.length} new file${items.length > 1 ? 's' : ''} (${brand}) added to the Product Library.`, '/assets')
+    sendBroadcastEmail({ subject: `${items.length} new file${items.length > 1 ? 's' : ''} added to Product Library`, bodyHtml: `<p>${items.length} new ${brand} file${items.length > 1 ? 's' : ''} added to the Product Library.</p>`, link: '/assets' })
+  }
+
+  res.status(items.length > 0 ? 201 : 500).json({ items, count: items.length, ...(errors.length > 0 && { errors }) })
 })
 
 // ─── PUT /:id/file — replace file for existing creative ──────────────────────

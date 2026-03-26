@@ -59,3 +59,21 @@ export async function sendQuizPassEmail(opts: {
 
   console.log(`[email] Pass email sent to ${toEmail} (${quizTitle}, ${score}%)`)
 }
+
+// ─── Broadcast email stub ─────────────────────────────────────────────────────
+// Called when an admin checks "Notify all users" on an upload.
+// Full implementation (per-user send loop) is wired once SMTP broadcast is enabled.
+export async function sendBroadcastEmail(opts: {
+  subject: string
+  bodyHtml: string
+  link?: string
+}): Promise<void> {
+  if (!transporter) {
+    console.log('[email] SMTP not configured — skipping broadcast email:', opts.subject)
+    return
+  }
+  // TODO: fetch all non-admin user emails and send individually, e.g.:
+  //   const users = db.prepare("SELECT email, name FROM users WHERE role NOT IN ('tier5','admin')").all()
+  //   for (const u of users) { await transporter.sendMail({ from: EMAIL_FROM, to: u.email, ... }) }
+  console.log('[email] Broadcast email stub called (SMTP configured but send not yet implemented):', opts.subject)
+}

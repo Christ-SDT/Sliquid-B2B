@@ -5,9 +5,11 @@ import { randomUUID } from 'crypto'
 import path from 'path'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
+import { notifyUsers } from '../notifications.js'
+import { sendBroadcastEmail } from '../email.js'
 
 const router = Router()
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50_000_000 } })
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 750_000_000 } })
 
 // ─── S3 helpers ───────────────────────────────────────────────────────────────
 
@@ -96,7 +98,7 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
     res.status(503).json({ message: 'File storage not configured' }); return
   }
 
-  const { label, brand } = req.body
+  const { label, brand, notify } = req.body
 
   try {
     const ext = path.extname(file.originalname).toLowerCase()
@@ -123,11 +125,68 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
     )
 
     const row = db.prepare('SELECT * FROM media WHERE id = ?').get(result.lastInsertRowid) as Record<string, unknown>
+
+    if (notify === 'true') {
+      const name = (row.label as string) ?? file.originalname
+      notifyUsers('new_asset', 'New Media Added', `${name} has been added to the Media Library.`, '/media')
+      sendBroadcastEmail({ subject: `New Media Added: ${name}`, bodyHtml: `<p>${name} has been added to the Media Library.</p>`, link: '/media' })
+    }
+
     res.status(201).json({ ...row, _source: 'media', thumbnail_url: row.file_url })
   } catch (err: any) {
     console.error('[media] upload error:', err)
     res.status(500).json({ message: err.message ?? 'Upload failed' })
   }
+})
+
+// ─── POST /bulk-upload — upload multiple media files at once ─────────────────
+
+router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.array('files', 20), async (req, res) => {
+  const files = req.files as Express.Multer.File[] | undefined
+  if (!files || files.length === 0) { res.status(400).json({ message: 'No files uploaded' }); return }
+
+  if (!process.env.S3_BUCKET || !process.env.AWS_ACCESS_KEY_ID) {
+    res.status(503).json({ message: 'File storage not configured' }); return
+  }
+
+  const { brand, notify } = req.body
+  const resolvedBrand = brand || 'Sliquid'
+  const bucket = process.env.S3_BUCKET!
+  const region = process.env.AWS_REGION ?? 'us-east-1'
+  const items: Record<string, unknown>[] = []
+  const errors: string[] = []
+
+  for (const file of files) {
+    try {
+      const ext = path.extname(file.originalname).toLowerCase()
+      const s3Key = `portal-assets/media/${randomUUID()}${ext}`
+      await getS3Client().send(new PutObjectCommand({
+        Bucket: bucket, Key: s3Key, Body: file.buffer, ContentType: file.mimetype,
+      }))
+      const fileUrl = buildS3Url(bucket, region, s3Key)
+      const baseName = file.originalname.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
+      const label = baseName.charAt(0).toUpperCase() + baseName.slice(1)
+      const fileSize = file.size < 1024 * 1024
+        ? `${(file.size / 1024).toFixed(1)} KB`
+        : `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+
+      const { lastInsertRowid } = db.prepare(
+        'INSERT INTO media (filename, label, brand, s3_key, file_url, file_size, mime_type, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+      ).run(file.originalname, label, resolvedBrand, s3Key, fileUrl, fileSize, file.mimetype, (req as any).user!.name)
+
+      const row = db.prepare('SELECT * FROM media WHERE id = ?').get(lastInsertRowid) as Record<string, unknown>
+      items.push({ ...row, _source: 'media', thumbnail_url: row.file_url })
+    } catch (err: any) {
+      errors.push(`${file.originalname}: ${err.message ?? 'upload failed'}`)
+    }
+  }
+
+  if (notify === 'true' && items.length > 0) {
+    notifyUsers('new_asset', 'New Media Added', `${items.length} new file${items.length > 1 ? 's' : ''} added to the Media Library.`, '/media')
+    sendBroadcastEmail({ subject: `${items.length} new file${items.length > 1 ? 's' : ''} added to Media Library`, bodyHtml: `<p>${items.length} new file${items.length > 1 ? 's' : ''} added to the Media Library.</p>`, link: '/media' })
+  }
+
+  res.status(items.length > 0 ? 201 : 500).json({ items, count: items.length, ...(errors.length > 0 && { errors }) })
 })
 
 // ─── PUT /item/:source/:id — unified update for any source ───────────────────
