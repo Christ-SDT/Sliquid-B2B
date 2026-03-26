@@ -371,21 +371,23 @@ function AddItemModal({ onClose, onAdded, onBulkAdded }: AddItemModalProps) {
             )}
           </div>
 
-          {/* Name / Title */}
-          <div>
-            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
-              {isCreative ? 'Title' : 'Name'}
-            </label>
-            <input
-              type="text"
-              value={nameTitle}
-              onChange={e => setNameTitle(e.target.value)}
-              placeholder={isCreative ? 'e.g. Summer Campaign Banner' : 'e.g. H2O 4oz Info Sheet'}
-              required
-              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
-            />
-          </div>
+          {/* Name / Title — hidden for bulk (server derives each name from filename) */}
+          {!isBulk && (
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                {isCreative ? 'Title' : 'Name'}
+              </label>
+              <input
+                type="text"
+                value={nameTitle}
+                onChange={e => setNameTitle(e.target.value)}
+                placeholder={isCreative ? 'e.g. Summer Campaign Banner' : 'e.g. H2O 4oz Info Sheet'}
+                required={selectedFiles.length === 0}
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+              />
+            </div>
+          )}
 
           {/* Brand */}
           <div>

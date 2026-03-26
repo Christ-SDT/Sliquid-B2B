@@ -63,8 +63,12 @@ const MODEL_GEMINI  = 'gemini-2.0-flash-preview-image-generation'
 const VALID_MODELS  = [MODEL_IMAGEN, MODEL_GEMINI] as const
 
 function getActiveModel(): string {
-  const row = db.prepare("SELECT value FROM woo_settings WHERE key = 'ai_model'").get() as any
-  return row?.value ?? MODEL_IMAGEN
+  try {
+    const row = db.prepare("SELECT value FROM woo_settings WHERE key = 'ai_model'").get() as any
+    return row?.value ?? MODEL_IMAGEN
+  } catch {
+    return MODEL_IMAGEN
+  }
 }
 
 // ─── GET /api/creator/settings ────────────────────────────────────────────────
@@ -99,9 +103,8 @@ router.post('/generate', requireAuth, async (req, res) => {
     return res.status(503).json({ error: 'Image storage not configured (missing S3_BUCKET or AWS credentials)' })
   }
 
-  const activeModel = getActiveModel()
-
   try {
+    const activeModel = getActiveModel()
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
     const productNames = getMatchedProductNames(prompt.trim())
