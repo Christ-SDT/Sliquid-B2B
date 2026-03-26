@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { NotificationProvider } from '@/context/NotificationContext'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
+
+const INACTIVITY_MS = 2 * 60 * 60 * 1000  // 2 hours
+const CHECK_INTERVAL = 60 * 1000           // check once per minute
 
 // Routes accessible to tier1 / tier2 / tier3 (tier2 also gets /store-users)
 const RESTRICTED_ALLOWED = ['/dashboard', '/assets', '/distributors', '/trainings', '/quiz', '/store-users', '/creator']
@@ -19,9 +22,26 @@ function Skeleton() {
 }
 
 export default function Shell() {
-  const { user, loading } = useAuth()
+  const { user, loading, logout } = useAuth()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const lastActivityRef = useRef(Date.now())
+
+  useEffect(() => {
+    if (!user) return
+    // Event handlers just stamp a timestamp — no timer churn on every mousemove
+    const stamp = () => { lastActivityRef.current = Date.now() }
+    const events = ['mousemove', 'keydown', 'pointerdown', 'scroll', 'touchstart']
+    events.forEach(e => window.addEventListener(e, stamp, { passive: true }))
+    // Single interval checks once per minute instead of resetting a timer on every event
+    const interval = setInterval(() => {
+      if (Date.now() - lastActivityRef.current >= INACTIVITY_MS) logout()
+    }, CHECK_INTERVAL)
+    return () => {
+      clearInterval(interval)
+      events.forEach(e => window.removeEventListener(e, stamp))
+    }
+  }, [user, logout])
 
   if (loading) return <Skeleton />
   if (!user) return <Navigate to="/login" replace />

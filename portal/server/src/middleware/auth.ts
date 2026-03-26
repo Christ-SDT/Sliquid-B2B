@@ -6,9 +6,13 @@ const secret = process.env.JWT_SECRET
 if (!secret) throw new Error('JWT_SECRET environment variable is not set')
 export const JWT_SECRET = secret
 
+// Tokens issued before this server started are rejected — all sessions reset on every deploy
+export const SERVER_BOOT_TIME = Math.floor(Date.now() / 1000)
+
 export interface JwtPayload {
   userId: number
   role: string
+  iat?: number
 }
 
 declare global {
@@ -28,6 +32,11 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = header.slice(7)
   try {
     const payload = jwt.verify(token, JWT_SECRET) as JwtPayload
+    // Reject tokens issued before this server boot — forces re-login after every deploy
+    if ((payload.iat ?? 0) < SERVER_BOOT_TIME) {
+      res.status(401).json({ message: 'Session expired after server update — please log in again' })
+      return
+    }
     const user = db.prepare('SELECT id, name, email, role, company, status FROM users WHERE id = ?').get(payload.userId) as any
     if (!user) { res.status(401).json({ message: 'User not found' }); return }
     req.user = user

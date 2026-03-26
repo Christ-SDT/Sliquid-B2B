@@ -1297,9 +1297,9 @@ export default function AssetsPage() {
   useEffect(() => {
     setLoading(true)
     Promise.all([
-      api.get<Asset[]>('/assets'),
-      api.get<Creative[]>('/creatives'),
-      api.get<AiImage[]>('/creator/images').catch(() => [] as AiImage[]),
+      api.get<Asset[]>('/assets').catch(err => { console.error('[assets]', err); return [] as Asset[] }),
+      api.get<Creative[]>('/creatives').catch(err => { console.error('[creatives]', err); return [] as Creative[] }),
+      api.get<AiImage[]>('/creator/images').catch(err => { console.error('[creator]', err); return [] as AiImage[] }),
     ])
       .then(([assets, creatives, aiImages]) => {
         const assetItems: LibraryItem[] = assets.map(a => ({
@@ -1321,7 +1321,6 @@ export default function AssetsPage() {
         setAllItems(combined)
         setExpandedBrands(new Set(combined.map(i => i.brand)))
       })
-      .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 

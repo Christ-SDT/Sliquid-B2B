@@ -22,35 +22,68 @@ function getS3Client() {
   })
 }
 
-// Load up to 3 Sliquid label reference images from assets/labels/ (optional)
-function getLabelImageParts(): { inlineData: { data: string; mimeType: string } }[] {
+// Stop words to ignore when keyword-matching the prompt against label filenames
+const STOP_WORDS = new Set([
+  'a','an','the','in','on','at','of','for','to','and','or','with','by','is','be',
+  'can','you','create','make','generate','image','photo','picture','shot','show',
+  'place','put','using','use','like','as','its','it','please','me','my','our','some',
+  'background','setting','scene','lifestyle','product','bottle','bottles','packaging',
+])
+
+// Return label images whose filenames best match keywords in the prompt (up to maxCount)
+function getLabelImageParts(prompt: string, maxCount = 3): { inlineData: { data: string; mimeType: string } }[] {
   try {
     const dir = path.join(
       path.dirname(fileURLToPath(import.meta.url)),
       '../assets/labels'
     )
     if (!fs.existsSync(dir)) return []
-    return fs.readdirSync(dir)
-      .filter(f => /\.(png|jpg|jpeg)$/i.test(f))
-      .slice(0, 3)
-      .map(f => ({
-        inlineData: {
-          data: fs.readFileSync(path.join(dir, f)).toString('base64'),
-          mimeType: f.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg',
-        },
-      }))
+
+    const files = fs.readdirSync(dir).filter(f => /\.(png|jpg|jpeg)$/i.test(f))
+    if (files.length === 0) return []
+
+    // Extract meaningful keywords from the prompt (≥2 chars, not stop words)
+    const keywords = prompt
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length >= 2 && !STOP_WORDS.has(w))
+
+    if (keywords.length === 0) return files.slice(0, maxCount).map(f => toImagePart(dir, f))
+
+    // Score each file by how many prompt keywords appear in its name
+    const scored = files
+      .map(f => {
+        const lower = f.toLowerCase()
+        const score = keywords.reduce((acc, kw) => acc + (lower.includes(kw) ? 1 : 0), 0)
+        return { f, score }
+      })
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score)
+
+    // If nothing matched by keyword, send a small generic sample so AI has design context
+    const chosen = scored.length > 0 ? scored.slice(0, maxCount).map(({ f }) => f) : files.slice(0, 2)
+    return chosen.map(f => toImagePart(dir, f))
   } catch {
     return []
   }
 }
 
+function toImagePart(dir: string, filename: string) {
+  return {
+    inlineData: {
+      data: fs.readFileSync(path.join(dir, filename)).toString('base64'),
+      mimeType: filename.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg',
+    },
+  }
+}
+
 const BRAND_BRIEF =
   `You are Lampy, Sliquid's AI product image creator.
-Generate professional product photography for Sliquid and Ride Lube intimate wellness products.
-Sliquid bottles: elegant, minimalist design with clean typography. Palette: light blues, white, soft naturals.
-Ride Lube bottles: bold, modern design with darker accents.
-Place products in flattering lifestyle contexts (spa shelves, bathroom counters, bedside tables) with soft professional lighting.
-Render realistic, high-quality imagery suitable for retail display.`
+The reference images above show the EXACT Sliquid product bottles and labels — use them as your visual source of truth.
+Reproduce the bottle design, label artwork, color scheme, and typography faithfully from those references; do not invent a generic bottle.
+Place the product in a flattering lifestyle context (spa shelves, bathroom counters, bedside tables) with soft professional lighting.
+Render realistic, high-quality imagery suitable for retail and marketing use.`
 
 // ─── POST /api/creator/generate ──────────────────────────────────────────────
 
@@ -69,7 +102,10 @@ router.post('/generate', requireAuth, async (req, res) => {
 
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
-    const labelParts = getLabelImageParts()
+    const labelParts = getLabelImageParts(prompt.trim())
+    const refNote = labelParts.length > 0
+      ? `(${labelParts.length} reference image${labelParts.length > 1 ? 's' : ''} of the actual product label provided above)`
+      : ''
 
     const response = await ai.models.generateContent({
       model: 'gemini-3.1-flash-image-preview',
@@ -77,7 +113,7 @@ router.post('/generate', requireAuth, async (req, res) => {
         role: 'user',
         parts: [
           ...labelParts,
-          { text: `${BRAND_BRIEF}\n\nCreate: ${prompt.trim()}` },
+          { text: `${BRAND_BRIEF}\n\nCreate: ${prompt.trim()} ${refNote}` },
         ],
       }],
       config: { responseModalities: ['TEXT', 'IMAGE'] as any },
