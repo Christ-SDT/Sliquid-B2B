@@ -610,6 +610,14 @@ const migrations: Migration[] = [
     }
   },
   {
+    version: 26,
+    name: 'add_s3_key_to_marketing_items',
+    up: () => {
+      const cols = (db.prepare("SELECT name FROM pragma_table_info('marketing_items')").all() as { name: string }[]).map(c => c.name)
+      if (!cols.includes('s3_key')) db.exec('ALTER TABLE marketing_items ADD COLUMN s3_key TEXT')
+    }
+  },
+  {
     version: 25,
     name: 'add_s3_key_to_assets_and_creatives',
     up: () => {

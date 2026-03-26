@@ -1,11 +1,11 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
 import {
   CheckCircle, LayoutGrid, Flag, Zap, Check, Loader2, Package,
   Star, Megaphone, Plus, Pencil, Trash2, X, Users, Clock, ThumbsUp, ThumbsDown,
-  Monitor, AlertCircle,
+  Monitor, AlertCircle, Upload,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -64,22 +64,64 @@ function AddItemModal({ onClose, onAdded }: { onClose: () => void; onAdded: (ite
   const [iconName, setIconName] = useState('Package')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    return () => { if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl) }
+  }, [filePreviewUrl])
+
+  function handleFileSelect(file: File) {
+    setSelectedFile(file)
+    if (!name) {
+      const base = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
+      setName(base.charAt(0).toUpperCase() + base.slice(1))
+    }
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file)
+      setFilePreviewUrl(url)
+    } else {
+      setFilePreviewUrl(null)
+    }
+  }
+
+  function clearFile() {
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl)
+    setSelectedFile(null)
+    setFilePreviewUrl(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      const item = await api.post<MarketingItem>('/marketing-items', {
-        name: name.trim(),
-        subtitle: subtitle.trim() || null,
-        image_url: imageUrl.trim() || null,
-        description: description.trim() || null,
-        specs: specsText.split('\n').map(s => s.trim()).filter(Boolean),
-        variants: variantsText.split('\n').map(s => s.trim()).filter(Boolean),
-        icon_name: iconName,
-        sort_order: 0,
-      })
+      let item: MarketingItem
+      if (selectedFile) {
+        const formData = new FormData()
+        formData.append('file', selectedFile)
+        formData.append('name', name.trim())
+        if (subtitle.trim()) formData.append('subtitle', subtitle.trim())
+        if (description.trim()) formData.append('description', description.trim())
+        formData.append('specs', JSON.stringify(specsText.split('\n').map(s => s.trim()).filter(Boolean)))
+        formData.append('variants', JSON.stringify(variantsText.split('\n').map(s => s.trim()).filter(Boolean)))
+        formData.append('icon_name', iconName)
+        formData.append('sort_order', '0')
+        item = await api.postForm<MarketingItem>('/marketing-items/upload', formData)
+      } else {
+        item = await api.post<MarketingItem>('/marketing-items', {
+          name: name.trim(),
+          subtitle: subtitle.trim() || null,
+          image_url: imageUrl.trim() || null,
+          description: description.trim() || null,
+          specs: specsText.split('\n').map(s => s.trim()).filter(Boolean),
+          variants: variantsText.split('\n').map(s => s.trim()).filter(Boolean),
+          icon_name: iconName,
+          sort_order: 0,
+        })
+      }
       onAdded(item)
       onClose()
     } catch (err: unknown) {
@@ -107,11 +149,50 @@ function AddItemModal({ onClose, onAdded }: { onClose: () => void; onAdded: (ite
             <input value={subtitle} onChange={e => setSubtitle(e.target.value)} placeholder='e.g. 5" × 7" Easel Back'
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
           </div>
+
+          {/* Image upload */}
           <div>
-            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Image URL</label>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+              Card Image <span className="text-on-canvas-muted font-normal">(16:7 landscape recommended)</span>
+            </label>
+            <div
+              className={`relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors
+                ${selectedFile ? 'border-portal-accent bg-portal-accent/5' : 'border-portal-border hover:border-portal-accent/60 hover:bg-portal-accent/5'}`}
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFileSelect(f) }}
+            >
+              <input ref={fileInputRef} type="file" className="hidden"
+                accept="image/*,.pdf"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleFileSelect(f) }} />
+              {selectedFile ? (
+                <div className="flex items-center gap-3">
+                  {filePreviewUrl
+                    ? <img src={filePreviewUrl} alt="preview" className="w-16 h-9 object-cover rounded flex-shrink-0" />
+                    : <div className="w-16 h-9 bg-portal-accent/10 rounded flex items-center justify-center flex-shrink-0"><Upload className="w-4 h-4 text-portal-accent" /></div>
+                  }
+                  <p className="flex-1 text-on-canvas text-sm text-left truncate">{selectedFile.name}</p>
+                  <button type="button" onClick={e => { e.stopPropagation(); clearFile() }} className="text-on-canvas-muted hover:text-red-400 flex-shrink-0"><X className="w-4 h-4" /></button>
+                </div>
+              ) : (
+                <div className="py-2 space-y-1">
+                  <Upload className="w-5 h-5 mx-auto text-on-canvas-muted" />
+                  <p className="text-on-canvas text-sm font-medium">Click to upload or drag & drop</p>
+                  <p className="text-on-canvas-muted text-xs">PNG, JPG, WebP…</p>
+                </div>
+              )}
+            </div>
+            {/* URL fallback */}
+            <div className="flex items-center gap-2 mt-2">
+              <div className="flex-1 h-px bg-portal-border" />
+              <span className="text-on-canvas-muted text-xs">or paste a URL</span>
+              <div className="flex-1 h-px bg-portal-border" />
+            </div>
             <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://…"
-              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+              disabled={!!selectedFile}
+              className={`mt-2 w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent ${selectedFile ? 'opacity-40 cursor-not-allowed' : ''}`} />
           </div>
+
           <div>
             <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Description</label>
             <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
@@ -139,7 +220,7 @@ function AddItemModal({ onClose, onAdded }: { onClose: () => void; onAdded: (ite
             <button type="button" onClick={onClose} className="flex-1 py-2 rounded-lg border border-portal-border text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors">Cancel</button>
             <button type="submit" disabled={loading} className="flex-1 py-2 rounded-lg bg-portal-accent hover:bg-portal-accent/90 text-white text-sm font-medium transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Add Item
+              {loading ? (selectedFile ? 'Uploading…' : 'Adding…') : 'Add Item'}
             </button>
           </div>
         </form>
@@ -160,22 +241,63 @@ function EditItemModal({ item, onClose, onSaved }: { item: MarketingItem; onClos
   const [iconName, setIconName] = useState(item.icon_name)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    return () => { if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl) }
+  }, [filePreviewUrl])
+
+  function handleFileSelect(file: File) {
+    setSelectedFile(file)
+    if (file.type.startsWith('image/')) {
+      setFilePreviewUrl(URL.createObjectURL(file))
+    } else {
+      setFilePreviewUrl(null)
+    }
+  }
+
+  function clearFile() {
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl)
+    setSelectedFile(null)
+    setFilePreviewUrl(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      const updated = await api.put<MarketingItem>(`/marketing-items/${item.id}`, {
-        name: name.trim(),
-        subtitle: subtitle.trim() || null,
-        image_url: imageUrl.trim() || null,
-        description: description.trim() || null,
-        specs: specsText.split('\n').map(s => s.trim()).filter(Boolean),
-        variants: variantsText.split('\n').map(s => s.trim()).filter(Boolean),
-        icon_name: iconName,
-        sort_order: item.sort_order,
-      })
+      let updated: MarketingItem
+      if (selectedFile) {
+        const formData = new FormData()
+        formData.append('file', selectedFile)
+        updated = await api.putForm<MarketingItem>(`/marketing-items/${item.id}/image`, formData)
+        // Then update metadata separately if anything changed
+        updated = await api.put<MarketingItem>(`/marketing-items/${item.id}`, {
+          name: name.trim(),
+          subtitle: subtitle.trim() || null,
+          image_url: updated.image_url,
+          description: description.trim() || null,
+          specs: specsText.split('\n').map(s => s.trim()).filter(Boolean),
+          variants: variantsText.split('\n').map(s => s.trim()).filter(Boolean),
+          icon_name: iconName,
+          sort_order: item.sort_order,
+        })
+      } else {
+        updated = await api.put<MarketingItem>(`/marketing-items/${item.id}`, {
+          name: name.trim(),
+          subtitle: subtitle.trim() || null,
+          image_url: imageUrl.trim() || null,
+          description: description.trim() || null,
+          specs: specsText.split('\n').map(s => s.trim()).filter(Boolean),
+          variants: variantsText.split('\n').map(s => s.trim()).filter(Boolean),
+          icon_name: iconName,
+          sort_order: item.sort_order,
+        })
+      }
       onSaved(updated)
       onClose()
     } catch (err: unknown) {
@@ -203,11 +325,57 @@ function EditItemModal({ item, onClose, onSaved }: { item: MarketingItem; onClos
             <input value={subtitle} onChange={e => setSubtitle(e.target.value)}
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
           </div>
+
+          {/* Image upload / replace */}
           <div>
-            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Image URL</label>
-            <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://…"
-              className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+              Card Image <span className="text-on-canvas-muted font-normal">(16:7 landscape recommended)</span>
+            </label>
+            {/* Current image preview */}
+            {item.image_url && !selectedFile && (
+              <img src={item.image_url} alt="current" className="w-full aspect-[16/7] object-cover rounded-lg mb-2 border border-portal-border" />
+            )}
+            <div
+              className={`relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors
+                ${selectedFile ? 'border-portal-accent bg-portal-accent/5' : 'border-portal-border hover:border-portal-accent/60 hover:bg-portal-accent/5'}`}
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFileSelect(f) }}
+            >
+              <input ref={fileInputRef} type="file" className="hidden"
+                accept="image/*,.pdf"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleFileSelect(f) }} />
+              {selectedFile ? (
+                <div className="flex items-center gap-3">
+                  {filePreviewUrl
+                    ? <img src={filePreviewUrl} alt="preview" className="w-16 h-9 object-cover rounded flex-shrink-0" />
+                    : <div className="w-16 h-9 bg-portal-accent/10 rounded flex items-center justify-center flex-shrink-0"><Upload className="w-4 h-4 text-portal-accent" /></div>
+                  }
+                  <p className="flex-1 text-on-canvas text-sm text-left truncate">{selectedFile.name}</p>
+                  <button type="button" onClick={e => { e.stopPropagation(); clearFile() }} className="text-on-canvas-muted hover:text-red-400 flex-shrink-0"><X className="w-4 h-4" /></button>
+                </div>
+              ) : (
+                <div className="py-2 space-y-1">
+                  <Upload className="w-5 h-5 mx-auto text-on-canvas-muted" />
+                  <p className="text-on-canvas text-sm font-medium">{item.image_url ? 'Replace image' : 'Upload image'}</p>
+                  <p className="text-on-canvas-muted text-xs">PNG, JPG, WebP…</p>
+                </div>
+              )}
+            </div>
+            {/* URL fallback (only shown when no file and no existing S3 image) */}
+            {!selectedFile && (
+              <>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="flex-1 h-px bg-portal-border" />
+                  <span className="text-on-canvas-muted text-xs">or paste a URL</span>
+                  <div className="flex-1 h-px bg-portal-border" />
+                </div>
+                <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://…"
+                  className="mt-2 w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent" />
+              </>
+            )}
           </div>
+
           <div>
             <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Description</label>
             <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
@@ -235,7 +403,7 @@ function EditItemModal({ item, onClose, onSaved }: { item: MarketingItem; onClos
             <button type="button" onClick={onClose} className="flex-1 py-2 rounded-lg border border-portal-border text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors">Cancel</button>
             <button type="submit" disabled={loading} className="flex-1 py-2 rounded-lg bg-portal-accent hover:bg-portal-accent/90 text-white text-sm font-medium transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Save Changes
+              {loading ? (selectedFile ? 'Uploading…' : 'Saving…') : 'Save Changes'}
             </button>
           </div>
         </form>
