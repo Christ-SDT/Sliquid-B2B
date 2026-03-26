@@ -6,6 +6,7 @@ import { TIER_LABEL } from '@/types'
 import {
   LayoutDashboard, BookOpen,
   MapPin, Megaphone, GraduationCap, LogOut, X, Users, Users2, Moon, Sun, Sparkles,
+  Image as ImageIcon,
 } from 'lucide-react'
 
 // restricted: tier1/2/3  |  prospectVisible: tier4  |  managerOnly: tier2 only  |  adminOnly: tier5 only
@@ -19,7 +20,8 @@ const NAV = [
   { to: '/retailer',     icon: Megaphone,       label: 'In-store Marketing', restricted: false, prospectVisible: true,  managerOnly: false, adminOnly: false },
   { to: '/requests',          icon: Megaphone,  label: 'Partner Requests',    restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
   { to: '/marketing-requests', icon: Megaphone, label: 'Marketing Requests', restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
-  { to: '/users',              icon: Users,     label: 'User Management',    restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
+  { to: '/users',              icon: Users,      label: 'User Management',    restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
+  { to: '/media',              icon: ImageIcon,  label: 'Media Library',      restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
 ]
 
 interface Props {

@@ -632,6 +632,27 @@ const migrations: Migration[] = [
     }
   },
   {
+    version: 27,
+    name: 'media_table',
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS media (
+          id           INTEGER PRIMARY KEY AUTOINCREMENT,
+          filename     TEXT NOT NULL,
+          label        TEXT,
+          brand        TEXT DEFAULT 'Sliquid',
+          s3_key       TEXT NOT NULL UNIQUE,
+          file_url     TEXT NOT NULL,
+          file_size    TEXT,
+          mime_type    TEXT,
+          dimensions   TEXT,
+          uploaded_by  TEXT NOT NULL,
+          created_at   TEXT DEFAULT (datetime('now'))
+        );
+      `)
+    }
+  },
+  {
     version: 22,
     name: 'add_shine_massage_oil_trainings',
     up: () => {

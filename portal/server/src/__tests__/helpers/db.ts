@@ -22,6 +22,7 @@ export function resetDb(): void {
     DELETE FROM trainings;
     DELETE FROM marketing_items;
     DELETE FROM ai_images;
+    DELETE FROM media;
     DELETE FROM users;
   `)
   db.exec('DELETE FROM sqlite_sequence')
@@ -105,6 +106,26 @@ export function seedTestUsers() {
     tier2Id: t2.lastInsertRowid as number,
     tier4Id: t4.lastInsertRowid as number,
   }
+}
+
+export function seedMediaItem(overrides: Partial<{
+  label: string; brand: string; mime_type: string; file_size: string; uploaded_by: string
+}> = {}) {
+  const row = {
+    filename: 'test-image.png',
+    label: 'Test Image',
+    brand: 'Sliquid',
+    s3_key: `portal-assets/media/test-${Date.now()}.png`,
+    file_url: 'https://test-bucket.s3.us-east-1.amazonaws.com/portal-assets/media/test.png',
+    file_size: '120 KB',
+    mime_type: 'image/png',
+    uploaded_by: 'Test Admin',
+    ...overrides,
+  }
+  const result = db.prepare(
+    'INSERT INTO media (filename, label, brand, s3_key, file_url, file_size, mime_type, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(row.filename, row.label, row.brand, row.s3_key, row.file_url, row.file_size, row.mime_type, row.uploaded_by)
+  return result.lastInsertRowid as number
 }
 
 export function seedInventoryItem(overrides: Partial<{
