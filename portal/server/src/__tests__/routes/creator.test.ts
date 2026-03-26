@@ -8,6 +8,7 @@ import { bearerToken } from '../helpers/auth.js'
 
 const mockS3Send = vi.hoisted(() => vi.fn().mockResolvedValue({}))
 const mockGenerateContent = vi.hoisted(() => vi.fn())
+const mockGenerateImages = vi.hoisted(() => vi.fn())
 
 vi.mock('@aws-sdk/client-s3', () => ({
   S3Client: vi.fn(() => ({ send: mockS3Send })),
@@ -17,7 +18,7 @@ vi.mock('@aws-sdk/client-s3', () => ({
 
 vi.mock('@google/genai', () => ({
   GoogleGenAI: vi.fn(() => ({
-    models: { generateContent: mockGenerateContent },
+    models: { generateContent: mockGenerateContent, generateImages: mockGenerateImages },
   })),
 }))
 
@@ -26,6 +27,12 @@ vi.mock('@google/genai', () => ({
 function fakeGeminiResponse(base64 = 'aW1hZ2VkYXRh') {
   return {
     candidates: [{ content: { parts: [{ inlineData: { data: base64 } }] } }],
+  }
+}
+
+function fakeImagenResponse(base64 = 'aW1hZ2VkYXRh') {
+  return {
+    generatedImages: [{ image: { imageBytes: base64 } }],
   }
 }
 
@@ -57,6 +64,7 @@ beforeEach(() => {
   resetDb()
   ;({ adminId, tier1Id, tier2Id, tier4Id } = seedTestUsers())
   mockGenerateContent.mockResolvedValue(fakeGeminiResponse())
+  mockGenerateImages.mockResolvedValue(fakeImagenResponse())
   mockS3Send.mockResolvedValue({})
 })
 
@@ -131,9 +139,7 @@ describe('POST /api/creator/generate', () => {
   })
 
   it('returns 500 when AI returns no image data', async () => {
-    mockGenerateContent.mockResolvedValueOnce({
-      candidates: [{ content: { parts: [] } }],
-    })
+    mockGenerateImages.mockResolvedValueOnce({ generatedImages: [] })
     const res = await request(app)
       .post('/api/creator/generate')
       .set('Authorization', bearerToken(tier1Id, 'tier1'))

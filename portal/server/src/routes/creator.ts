@@ -3,7 +3,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client
 import { GoogleGenAI } from '@google/genai'
 import { randomUUID } from 'crypto'
 import { db } from '../database.js'
-import { requireAuth } from '../middleware/auth.js'
+import { requireAuth, requireRole } from '../middleware/auth.js'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -56,6 +56,34 @@ Ride Lube bottles: bold, modern design with darker accents.
 Place products in flattering lifestyle contexts — spa shelves, bathroom counters, bedside tables — with soft professional lighting.
 Render photorealistic, high-resolution imagery suitable for retail display and marketing.`
 
+// ─── Model constants ──────────────────────────────────────────────────────────
+
+const MODEL_IMAGEN  = 'imagen-3.0-generate-002'
+const MODEL_GEMINI  = 'gemini-2.0-flash-preview-image-generation'
+const VALID_MODELS  = [MODEL_IMAGEN, MODEL_GEMINI] as const
+
+function getActiveModel(): string {
+  const row = db.prepare("SELECT value FROM woo_settings WHERE key = 'ai_model'").get() as any
+  return row?.value ?? MODEL_IMAGEN
+}
+
+// ─── GET /api/creator/settings ────────────────────────────────────────────────
+
+router.get('/settings', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
+  res.json({ model: getActiveModel() })
+})
+
+// ─── POST /api/creator/settings ───────────────────────────────────────────────
+
+router.post('/settings', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const { model } = req.body as { model?: string }
+  if (!model || !(VALID_MODELS as readonly string[]).includes(model)) {
+    res.status(400).json({ error: `model must be one of: ${VALID_MODELS.join(', ')}` }); return
+  }
+  db.prepare("INSERT OR REPLACE INTO woo_settings (key, value) VALUES ('ai_model', ?)").run(model)
+  res.json({ ok: true, model })
+})
+
 // ─── POST /api/creator/generate ──────────────────────────────────────────────
 
 router.post('/generate', requireAuth, async (req, res) => {
@@ -71,37 +99,54 @@ router.post('/generate', requireAuth, async (req, res) => {
     return res.status(503).json({ error: 'Image storage not configured (missing S3_BUCKET or AWS credentials)' })
   }
 
+  const activeModel = getActiveModel()
+
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
-    // Build product-specific context from matched label filenames
     const productNames = getMatchedProductNames(prompt.trim())
     const productRef = productNames.length > 0
       ? `Specific Sliquid product(s) to feature: ${productNames.join(', ')}. Reproduce the actual bottle design for this variant accurately. `
       : ''
 
-    const enrichedPrompt = `${productRef}Create: ${prompt.trim()}`
+    let imageBytes: string
+    let mimeType = 'image/png'
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-preview-image-generation',
-      contents: [{ role: 'user', parts: [{ text: enrichedPrompt }] }],
-      config: {
-        systemInstruction: BRAND_BRIEF,
-        responseModalities: ['IMAGE', 'TEXT'],
-        tools: [{ googleSearch: {} }],
-        thinkingConfig: { thinkingBudget: -1 },
-        imageConfig: {
-          imageSize: '2K',
-          personGeneration: 'ALLOW_ADULT',
+    if (activeModel === MODEL_GEMINI) {
+      // ── Gemini path — generateContent with quality improvements ──
+      const enrichedPrompt = `${productRef}Create: ${prompt.trim()}`
+      const response = await ai.models.generateContent({
+        model: MODEL_GEMINI,
+        contents: [{ role: 'user', parts: [{ text: enrichedPrompt }] }],
+        config: {
+          systemInstruction: BRAND_BRIEF,
+          responseModalities: ['IMAGE', 'TEXT'],
+          tools: [{ googleSearch: {} }],
+          thinkingConfig: { thinkingBudget: -1 },
+          imageConfig: { imageSize: '2K', personGeneration: 'ALLOW_ADULT' },
         },
-      },
-    })
+      })
+      const parts = (response as any).candidates?.[0]?.content?.parts ?? []
+      const imagePart = parts.find((p: any) => p.inlineData?.data)
+      imageBytes = imagePart?.inlineData?.data
+      mimeType = imagePart?.inlineData?.mimeType ?? 'image/png'
+    } else {
+      // ── Imagen path — original stable model ──
+      const enrichedPrompt = `${BRAND_BRIEF}\n\n${productRef}Create: ${prompt.trim()}`
+      const response = await (ai.models as any).generateImages({
+        model: MODEL_IMAGEN,
+        prompt: enrichedPrompt,
+        config: {
+          numberOfImages: 1,
+          aspectRatio: '1:1',
+          personGeneration: 'allow_adult',
+          safetyFilterLevel: 'block_only_high',
+        },
+      })
+      imageBytes = response?.generatedImages?.[0]?.image?.imageBytes
+    }
 
-    const parts = (response as any).candidates?.[0]?.content?.parts ?? []
-    const imagePart = parts.find((p: any) => p.inlineData?.data)
-    const imageBytes: string | undefined = imagePart?.inlineData?.data
-    const mimeType: string = imagePart?.inlineData?.mimeType ?? 'image/png'
-    if (!imageBytes) return res.status(500).json({ error: 'No image returned from AI' })
+    if (!imageBytes!) return res.status(500).json({ error: 'No image returned from AI' })
 
     // Upload to S3
     const s3 = getS3Client()
@@ -111,21 +156,17 @@ router.post('/generate', requireAuth, async (req, res) => {
     const region = process.env.AWS_REGION ?? 'us-east-1'
 
     await s3.send(new PutObjectCommand({
-      Bucket: bucket,
-      Key: s3Key,
+      Bucket: bucket, Key: s3Key,
       Body: Buffer.from(imageBytes, 'base64'),
       ContentType: mimeType,
     }))
 
     const s3Url = `https://${bucket}.s3.${region}.amazonaws.com/${s3Key}`
+    const { lastInsertRowid } = db.prepare(
+      'INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key, model) VALUES (?, ?, ?, ?, ?, ?)'
+    ).run(req.user!.id, req.user!.name, prompt.trim(), s3Url, s3Key, activeModel)
 
-    const { lastInsertRowid } = db.prepare(`
-      INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key, model)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(req.user!.id, req.user!.name, prompt.trim(), s3Url, s3Key, 'gemini-2.0-flash-preview-image-generation')
-
-    const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(lastInsertRowid)
-    return res.json(row)
+    return res.json(db.prepare('SELECT * FROM ai_images WHERE id = ?').get(lastInsertRowid))
   } catch (err: any) {
     console.error('[creator] generate error:', err)
     return res.status(500).json({ error: err.message ?? 'Failed to generate image' })
