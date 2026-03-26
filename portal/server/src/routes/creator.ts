@@ -83,7 +83,7 @@ router.post('/generate', requireAuth, async (req, res) => {
     const enrichedPrompt = `${productRef}Create: ${prompt.trim()}`
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-image-preview',
+      model: 'gemini-2.0-flash-preview-image-generation',
       contents: [{ role: 'user', parts: [{ text: enrichedPrompt }] }],
       config: {
         systemInstruction: BRAND_BRIEF,
@@ -122,7 +122,7 @@ router.post('/generate', requireAuth, async (req, res) => {
     const { lastInsertRowid } = db.prepare(`
       INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key, model)
       VALUES (?, ?, ?, ?, ?, ?)
-    `).run(req.user!.id, req.user!.name, prompt.trim(), s3Url, s3Key, 'gemini-3-pro-image-preview')
+    `).run(req.user!.id, req.user!.name, prompt.trim(), s3Url, s3Key, 'gemini-2.0-flash-preview-image-generation')
 
     const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(lastInsertRowid)
     return res.json(row)
