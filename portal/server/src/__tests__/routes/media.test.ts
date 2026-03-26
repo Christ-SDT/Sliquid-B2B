@@ -263,6 +263,209 @@ describe('PUT /api/media/:id', () => {
   })
 })
 
+// ─── PUT /api/media/item/:source/:id — unified update ────────────────────────
+
+describe('PUT /api/media/item/:source/:id', () => {
+  it('returns 401 without auth', async () => {
+    const id = seedMediaItem()
+    const res = await request(app).put(`/api/media/item/media/${id}`).send({ label: 'New' })
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 403 for non-admin', async () => {
+    const id = seedMediaItem()
+    const res = await request(app)
+      .put(`/api/media/item/media/${id}`)
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ label: 'New', brand: 'Sliquid' })
+    expect(res.status).toBe(403)
+  })
+
+  it('returns 400 for unknown source', async () => {
+    const res = await request(app)
+      .put('/api/media/item/unknown/1')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ label: 'x' })
+    expect(res.status).toBe(400)
+  })
+
+  it('updates a media row', async () => {
+    const id = seedMediaItem({ label: 'Old', brand: 'Sliquid' })
+    const res = await request(app)
+      .put(`/api/media/item/media/${id}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ label: 'Updated', brand: 'RIDE' })
+    expect(res.status).toBe(200)
+    expect(res.body.label).toBe('Updated')
+    expect(res.body.brand).toBe('RIDE')
+    expect(res.body._source).toBe('media')
+  })
+
+  it('updates an asset', async () => {
+    const assetId = db.prepare(
+      "INSERT INTO assets (name, brand, type, file_url, s3_key) VALUES ('Logo', 'Sliquid', 'Logo', 'https://bucket/a.png', 'portal-assets/a.png')"
+    ).run().lastInsertRowid
+
+    const res = await request(app)
+      .put(`/api/media/item/asset/${assetId}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ name: 'New Logo', brand: 'RIDE', type: 'Banner', file_url: 'https://bucket/new.png' })
+    expect(res.status).toBe(200)
+    expect(res.body.label).toBe('New Logo')
+    expect(res.body._source).toBe('asset')
+  })
+
+  it('returns 400 for asset missing required fields', async () => {
+    const assetId = db.prepare(
+      "INSERT INTO assets (name, brand, type, file_url, s3_key) VALUES ('Logo', 'Sliquid', 'Logo', 'https://bucket/a.png', 'portal-assets/b.png')"
+    ).run().lastInsertRowid
+
+    const res = await request(app)
+      .put(`/api/media/item/asset/${assetId}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ name: 'Missing fields' }) // no brand/type/file_url
+    expect(res.status).toBe(400)
+  })
+
+  it('updates a creative', async () => {
+    const creativeId = db.prepare(
+      "INSERT INTO creatives (title, brand, type, file_url, s3_key) VALUES ('Banner', 'Sliquid', 'Banner', 'https://bucket/c.png', 'portal-assets/c.png')"
+    ).run().lastInsertRowid
+
+    const res = await request(app)
+      .put(`/api/media/item/creative/${creativeId}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ name: 'Updated Banner', brand: 'Sliquid', type: 'Email', file_url: 'https://bucket/c2.png' })
+    expect(res.status).toBe(200)
+    expect(res.body.label).toBe('Updated Banner')
+    expect(res.body._source).toBe('creative')
+  })
+
+  it('updates a marketing item', async () => {
+    const mktId = db.prepare(
+      "INSERT INTO marketing_items (name, subtitle, sort_order) VALUES ('Counter Cards', 'Original sub', 0)"
+    ).run().lastInsertRowid
+
+    const res = await request(app)
+      .put(`/api/media/item/marketing/${mktId}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ name: 'Updated Cards', subtitle: 'New sub', description: 'Desc' })
+    expect(res.status).toBe(200)
+    expect(res.body.label).toBe('Updated Cards')
+    expect(res.body._source).toBe('marketing')
+  })
+
+  it('returns 400 when trying to edit an AI image', async () => {
+    const aiId = db.prepare(
+      'INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key) VALUES (?, ?, ?, ?, ?)'
+    ).run(adminId, 'Admin', 'test', 'https://bucket/ai.png', 'ai-images/ai.png').lastInsertRowid
+
+    const res = await request(app)
+      .put(`/api/media/item/ai/${aiId}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ label: 'New prompt' })
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 404 for non-existent item', async () => {
+    const res = await request(app)
+      .put('/api/media/item/media/9999')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ label: 'Ghost', brand: 'Sliquid' })
+    expect(res.status).toBe(404)
+  })
+})
+
+// ─── DELETE /api/media/item/:source/:id — unified delete ─────────────────────
+
+describe('DELETE /api/media/item/:source/:id', () => {
+  it('returns 401 without auth', async () => {
+    const id = seedMediaItem()
+    const res = await request(app).delete(`/api/media/item/media/${id}`)
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 403 for non-admin', async () => {
+    const id = seedMediaItem()
+    const res = await request(app)
+      .delete(`/api/media/item/media/${id}`)
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+    expect(res.status).toBe(403)
+  })
+
+  it('returns 400 for unknown source', async () => {
+    const res = await request(app)
+      .delete('/api/media/item/unknown/1')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(400)
+  })
+
+  it('deletes a media row', async () => {
+    const id = seedMediaItem()
+    const res = await request(app)
+      .delete(`/api/media/item/media/${id}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(200)
+    expect(res.body.ok).toBe(true)
+    expect(db.prepare('SELECT * FROM media WHERE id = ?').get(id)).toBeUndefined()
+  })
+
+  it('deletes an asset', async () => {
+    const assetId = db.prepare(
+      "INSERT INTO assets (name, brand, type, file_url, s3_key) VALUES ('Logo', 'Sliquid', 'Logo', 'https://bucket/d.png', 'portal-assets/d.png')"
+    ).run().lastInsertRowid
+
+    const res = await request(app)
+      .delete(`/api/media/item/asset/${assetId}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(200)
+    expect(db.prepare('SELECT * FROM assets WHERE id = ?').get(assetId)).toBeUndefined()
+  })
+
+  it('deletes a creative', async () => {
+    const creativeId = db.prepare(
+      "INSERT INTO creatives (title, brand, type, file_url, s3_key) VALUES ('Ad', 'Sliquid', 'Banner', 'https://bucket/e.png', 'portal-assets/e.png')"
+    ).run().lastInsertRowid
+
+    const res = await request(app)
+      .delete(`/api/media/item/creative/${creativeId}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(200)
+    expect(db.prepare('SELECT * FROM creatives WHERE id = ?').get(creativeId)).toBeUndefined()
+  })
+
+  it('deletes a marketing item', async () => {
+    const mktId = db.prepare(
+      "INSERT INTO marketing_items (name, sort_order) VALUES ('Sign', 0)"
+    ).run().lastInsertRowid
+
+    const res = await request(app)
+      .delete(`/api/media/item/marketing/${mktId}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(200)
+    expect(db.prepare('SELECT * FROM marketing_items WHERE id = ?').get(mktId)).toBeUndefined()
+  })
+
+  it('deletes an AI image', async () => {
+    const aiId = db.prepare(
+      'INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key) VALUES (?, ?, ?, ?, ?)'
+    ).run(adminId, 'Admin', 'test', 'https://bucket/f.png', 'ai-images/f.png').lastInsertRowid
+
+    const res = await request(app)
+      .delete(`/api/media/item/ai/${aiId}`)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(200)
+    expect(db.prepare('SELECT * FROM ai_images WHERE id = ?').get(aiId)).toBeUndefined()
+  })
+
+  it('returns 404 for non-existent item', async () => {
+    const res = await request(app)
+      .delete('/api/media/item/media/9999')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(404)
+  })
+})
+
 // ─── DELETE /api/media/:id ────────────────────────────────────────────────────
 
 describe('DELETE /api/media/:id', () => {

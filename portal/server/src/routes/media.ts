@@ -31,39 +31,48 @@ async function deleteS3Object(key: string) {
   } catch { /* continue even if S3 delete fails */ }
 }
 
+// Valid source values
+type Source = 'asset' | 'creative' | 'marketing' | 'ai' | 'media'
+const VALID_SOURCES: Source[] = ['asset', 'creative', 'marketing', 'ai', 'media']
+
 // ─── GET / — aggregated gallery from all sources ─────────────────────────────
 
 router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
   const assets = db.prepare(`
     SELECT id, 'asset' as _source, name as label, brand, type,
-           file_url, thumbnail_url, file_size, dimensions, s3_key, created_at
+           file_url, thumbnail_url, file_size, dimensions, s3_key, NULL as description,
+           NULL as subtitle, NULL as campaign, NULL as mime_type, NULL as uploaded_by, created_at
     FROM assets WHERE s3_key IS NOT NULL
   `).all() as Record<string, unknown>[]
 
   const creatives = db.prepare(`
     SELECT id, 'creative' as _source, title as label, brand, type,
-           file_url, thumbnail_url, file_size, dimensions, s3_key, created_at
+           file_url, thumbnail_url, file_size, dimensions, s3_key, description,
+           NULL as subtitle, campaign, NULL as mime_type, NULL as uploaded_by, created_at
     FROM creatives WHERE s3_key IS NOT NULL
   `).all() as Record<string, unknown>[]
 
   const marketing = db.prepare(`
     SELECT id, 'marketing' as _source, name as label, 'Sliquid' as brand, NULL as type,
            image_url as file_url, image_url as thumbnail_url,
-           NULL as file_size, NULL as dimensions, s3_key, created_at
+           NULL as file_size, NULL as dimensions, s3_key, description,
+           subtitle, NULL as campaign, NULL as mime_type, NULL as uploaded_by, created_at
     FROM marketing_items WHERE s3_key IS NOT NULL
   `).all() as Record<string, unknown>[]
 
   const ai = db.prepare(`
     SELECT id, 'ai' as _source, prompt as label, 'Creator Creations' as brand, NULL as type,
            s3_url as file_url, s3_url as thumbnail_url,
-           NULL as file_size, NULL as dimensions, s3_key, created_at
+           NULL as file_size, NULL as dimensions, s3_key, NULL as description,
+           NULL as subtitle, NULL as campaign, NULL as mime_type, created_by as uploaded_by, created_at
     FROM ai_images
   `).all() as Record<string, unknown>[]
 
   const media = db.prepare(`
     SELECT id, 'media' as _source, label, brand, NULL as type,
            file_url, file_url as thumbnail_url, file_size, dimensions,
-           s3_key, mime_type, uploaded_by, created_at
+           s3_key, NULL as description, NULL as subtitle, NULL as campaign,
+           mime_type, uploaded_by, created_at
     FROM media
   `).all() as Record<string, unknown>[]
 
@@ -100,8 +109,6 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
     }))
 
     const fileUrl = buildS3Url(bucket, region, s3Key)
-
-    // Detect dimensions for images server-side (store null; client can display from img)
     const fileSize = `${(file.size / 1024).toFixed(0)} KB`
 
     const result = db.prepare(`
@@ -111,10 +118,7 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
       file.originalname,
       label || file.originalname.replace(/\.[^.]+$/, ''),
       brand || 'Sliquid',
-      s3Key,
-      fileUrl,
-      fileSize,
-      file.mimetype,
+      s3Key, fileUrl, fileSize, file.mimetype,
       (req as any).user!.name,
     )
 
@@ -126,20 +130,149 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
   }
 })
 
-// ─── PUT /:id — update label and brand for media table rows ──────────────────
+// ─── PUT /item/:source/:id — unified update for any source ───────────────────
+// Supported fields per source:
+//   asset:     name, brand, type, file_url, thumbnail_url, file_size, dimensions
+//   creative:  label(title), brand, type, file_url, thumbnail_url, description, campaign, file_size, dimensions
+//   marketing: name, subtitle, description
+//   ai:        (no editable fields — deletion only)
+//   media:     label, brand
+
+router.put('/item/:source/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const source = req.params.source as Source
+  const id = req.params.id
+
+  if (!VALID_SOURCES.includes(source)) {
+    res.status(400).json({ message: `Unknown source: ${source}` }); return
+  }
+
+  const b = req.body
+
+  try {
+    if (source === 'asset') {
+      if (!b.name || !b.brand || !b.type || !b.file_url) {
+        res.status(400).json({ message: 'name, brand, type, and file_url are required' }); return
+      }
+      const result = db.prepare(
+        'UPDATE assets SET name=?, brand=?, type=?, file_url=?, thumbnail_url=?, file_size=?, dimensions=? WHERE id=?'
+      ).run(b.name, b.brand, b.type, b.file_url, b.thumbnail_url ?? null, b.file_size ?? null, b.dimensions ?? null, id)
+      if (result.changes === 0) { res.status(404).json({ message: 'Not found' }); return }
+      const row = db.prepare('SELECT * FROM assets WHERE id = ?').get(id) as any
+      return res.json({ ...row, _source: 'asset', label: row.name, thumbnail_url: row.thumbnail_url ?? row.file_url })
+    }
+
+    if (source === 'creative') {
+      if (!b.name || !b.brand || !b.type || !b.file_url) {
+        res.status(400).json({ message: 'name, brand, type, and file_url are required' }); return
+      }
+      const result = db.prepare(
+        'UPDATE creatives SET title=?, brand=?, type=?, file_url=?, thumbnail_url=?, description=?, campaign=?, file_size=?, dimensions=? WHERE id=?'
+      ).run(b.name, b.brand, b.type, b.file_url, b.thumbnail_url ?? null, b.description ?? null, b.campaign ?? null, b.file_size ?? null, b.dimensions ?? null, id)
+      if (result.changes === 0) { res.status(404).json({ message: 'Not found' }); return }
+      const row = db.prepare('SELECT * FROM creatives WHERE id = ?').get(id) as any
+      return res.json({ ...row, _source: 'creative', label: row.title, thumbnail_url: row.thumbnail_url ?? row.file_url })
+    }
+
+    if (source === 'marketing') {
+      if (!b.name) {
+        res.status(400).json({ message: 'name is required' }); return
+      }
+      const existing = db.prepare('SELECT * FROM marketing_items WHERE id = ?').get(id) as any
+      if (!existing) { res.status(404).json({ message: 'Not found' }); return }
+      db.prepare(
+        'UPDATE marketing_items SET name=?, subtitle=?, description=? WHERE id=?'
+      ).run(b.name, b.subtitle ?? existing.subtitle, b.description ?? existing.description, id)
+      const row = db.prepare('SELECT * FROM marketing_items WHERE id = ?').get(id) as any
+      return res.json({ ...row, _source: 'marketing', label: row.name, file_url: row.image_url, thumbnail_url: row.image_url })
+    }
+
+    if (source === 'ai') {
+      res.status(400).json({ message: 'AI-generated images cannot be edited' }); return
+    }
+
+    if (source === 'media') {
+      const result = db.prepare(
+        'UPDATE media SET label=?, brand=? WHERE id=?'
+      ).run(b.label ?? null, b.brand ?? 'Sliquid', id)
+      if (result.changes === 0) { res.status(404).json({ message: 'Not found' }); return }
+      const row = db.prepare('SELECT * FROM media WHERE id = ?').get(id) as any
+      return res.json({ ...row, _source: 'media', thumbnail_url: row.file_url })
+    }
+  } catch (err: any) {
+    console.error('[media] update error:', err)
+    res.status(500).json({ message: err.message ?? 'Update failed' })
+  }
+})
+
+// ─── DELETE /item/:source/:id — unified delete for any source ────────────────
+
+router.delete('/item/:source/:id', requireAuth, requireRole('tier5', 'admin'), async (req, res) => {
+  const source = req.params.source as Source
+  const id = req.params.id
+
+  if (!VALID_SOURCES.includes(source)) {
+    res.status(400).json({ message: `Unknown source: ${source}` }); return
+  }
+
+  try {
+    if (source === 'asset') {
+      const row = db.prepare('SELECT s3_key FROM assets WHERE id = ?').get(id) as any
+      if (!row) { res.status(404).json({ message: 'Not found' }); return }
+      if (row.s3_key) await deleteS3Object(row.s3_key)
+      db.prepare('DELETE FROM assets WHERE id = ?').run(id)
+      return res.json({ ok: true })
+    }
+
+    if (source === 'creative') {
+      const row = db.prepare('SELECT s3_key FROM creatives WHERE id = ?').get(id) as any
+      if (!row) { res.status(404).json({ message: 'Not found' }); return }
+      if (row.s3_key) await deleteS3Object(row.s3_key)
+      db.prepare('DELETE FROM creatives WHERE id = ?').run(id)
+      return res.json({ ok: true })
+    }
+
+    if (source === 'marketing') {
+      const row = db.prepare('SELECT s3_key FROM marketing_items WHERE id = ?').get(id) as any
+      if (!row) { res.status(404).json({ message: 'Not found' }); return }
+      if (row.s3_key) await deleteS3Object(row.s3_key)
+      db.prepare('DELETE FROM marketing_items WHERE id = ?').run(id)
+      return res.json({ ok: true })
+    }
+
+    if (source === 'ai') {
+      const row = db.prepare('SELECT s3_key FROM ai_images WHERE id = ?').get(id) as any
+      if (!row) { res.status(404).json({ message: 'Not found' }); return }
+      if (row.s3_key) await deleteS3Object(row.s3_key)
+      db.prepare('DELETE FROM ai_images WHERE id = ?').run(id)
+      return res.json({ ok: true })
+    }
+
+    if (source === 'media') {
+      const row = db.prepare('SELECT s3_key FROM media WHERE id = ?').get(id) as any
+      if (!row) { res.status(404).json({ message: 'Not found' }); return }
+      if (row.s3_key) await deleteS3Object(row.s3_key)
+      db.prepare('DELETE FROM media WHERE id = ?').run(id)
+      return res.json({ ok: true })
+    }
+  } catch (err: any) {
+    console.error('[media] delete error:', err)
+    res.status(500).json({ message: err.message ?? 'Delete failed' })
+  }
+})
+
+// ─── PUT /:id — legacy update for media table rows (kept for backward compat) ─
 
 router.put('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const { label, brand } = req.body
   const result = db.prepare(
     'UPDATE media SET label = ?, brand = ? WHERE id = ?'
   ).run(label ?? null, brand ?? 'Sliquid', req.params.id)
-
   if (result.changes === 0) { res.status(404).json({ message: 'Not found' }); return }
   const row = db.prepare('SELECT * FROM media WHERE id = ?').get(req.params.id) as any
   res.json({ ...row, _source: 'media', thumbnail_url: row.file_url })
 })
 
-// ─── DELETE /:id — delete media table row + S3 object ────────────────────────
+// ─── DELETE /:id — legacy delete for media table rows (kept for backward compat) ─
 
 router.delete('/:id', requireAuth, requireRole('tier5', 'admin'), async (req, res) => {
   const row = db.prepare('SELECT * FROM media WHERE id = ?').get(req.params.id) as any
