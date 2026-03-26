@@ -80,25 +80,33 @@ router.post('/generate', requireAuth, async (req, res) => {
       ? `Specific Sliquid product(s) to feature: ${productNames.join(', ')}. Reproduce the actual bottle design for this variant accurately. `
       : ''
 
-    const enrichedPrompt = `${BRAND_BRIEF}\n\n${productRef}Create: ${prompt.trim()}`
+    const enrichedPrompt = `${productRef}Create: ${prompt.trim()}`
 
-    const response = await (ai.models as any).generateImages({
-      model: 'imagen-3.0-generate-002',
-      prompt: enrichedPrompt,
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-pro-image-preview',
+      contents: [{ role: 'user', parts: [{ text: enrichedPrompt }] }],
       config: {
-        numberOfImages: 1,
-        aspectRatio: '1:1',
-        personGeneration: 'allow_adult',
-        safetyFilterLevel: 'block_only_high',
+        systemInstruction: BRAND_BRIEF,
+        responseModalities: ['IMAGE', 'TEXT'],
+        tools: [{ googleSearch: {} }],
+        thinkingConfig: { thinkingBudget: -1 },
+        imageConfig: {
+          imageSize: '2K',
+          personGeneration: 'ALLOW_ADULT',
+        },
       },
     })
 
-    const imageBytes = response?.generatedImages?.[0]?.image?.imageBytes
+    const parts = (response as any).candidates?.[0]?.content?.parts ?? []
+    const imagePart = parts.find((p: any) => p.inlineData?.data)
+    const imageBytes: string | undefined = imagePart?.inlineData?.data
+    const mimeType: string = imagePart?.inlineData?.mimeType ?? 'image/png'
     if (!imageBytes) return res.status(500).json({ error: 'No image returned from AI' })
 
     // Upload to S3
     const s3 = getS3Client()
-    const s3Key = `ai-images/${req.user!.id}/${randomUUID()}.png`
+    const ext = mimeType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'png'
+    const s3Key = `ai-images/${req.user!.id}/${randomUUID()}.${ext}`
     const bucket = process.env.S3_BUCKET!
     const region = process.env.AWS_REGION ?? 'us-east-1'
 
@@ -106,15 +114,15 @@ router.post('/generate', requireAuth, async (req, res) => {
       Bucket: bucket,
       Key: s3Key,
       Body: Buffer.from(imageBytes, 'base64'),
-      ContentType: 'image/png',
+      ContentType: mimeType,
     }))
 
     const s3Url = `https://${bucket}.s3.${region}.amazonaws.com/${s3Key}`
 
     const { lastInsertRowid } = db.prepare(`
-      INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(req.user!.id, req.user!.name, prompt.trim(), s3Url, s3Key)
+      INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key, model)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(req.user!.id, req.user!.name, prompt.trim(), s3Url, s3Key, 'gemini-3-pro-image-preview')
 
     const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(lastInsertRowid)
     return res.json(row)
