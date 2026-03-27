@@ -59,7 +59,7 @@ Render photorealistic, high-resolution imagery suitable for retail display and m
 // ─── Model constants ──────────────────────────────────────────────────────────
 
 const MODEL_IMAGEN  = 'imagen-3.0-generate-002'
-const MODEL_GEMINI  = 'gemini-2.0-flash-preview-image-generation'
+const MODEL_GEMINI  = 'gemini-2.0-flash-exp'
 const VALID_MODELS  = [MODEL_IMAGEN, MODEL_GEMINI] as const
 
 function getActiveModel(): string {
@@ -124,9 +124,7 @@ router.post('/generate', requireAuth, async (req, res) => {
         config: {
           systemInstruction: BRAND_BRIEF,
           responseModalities: ['IMAGE', 'TEXT'],
-          tools: [{ googleSearch: {} }],
-          thinkingConfig: { thinkingBudget: -1 },
-          imageConfig: { imageSize: '2K', personGeneration: 'ALLOW_ADULT' },
+          imageConfig: { personGeneration: 'ALLOW_ADULT' },
         },
       })
       const parts = (response as any).candidates?.[0]?.content?.parts ?? []
