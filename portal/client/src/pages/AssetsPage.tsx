@@ -150,6 +150,30 @@ function toBrandOpt(brand: string): string {
   return BRAND_OPTIONS.includes(brand) ? brand : '__custom__'
 }
 
+// ─── Video thumbnail helper ───────────────────────────────────────────────────
+
+function generateVideoThumbnail(file: File): Promise<Blob | null> {
+  return new Promise(resolve => {
+    const video = document.createElement('video')
+    video.muted = true
+    video.playsInline = true
+    const url = URL.createObjectURL(file)
+    video.src = url
+    video.addEventListener('loadedmetadata', () => {
+      video.currentTime = Math.min(1, (video.duration || 1) * 0.25)
+    })
+    video.addEventListener('seeked', () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth || 640
+      canvas.height = video.videoHeight || 360
+      canvas.getContext('2d')!.drawImage(video, 0, 0, canvas.width, canvas.height)
+      URL.revokeObjectURL(url)
+      canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.85)
+    })
+    video.addEventListener('error', () => { URL.revokeObjectURL(url); resolve(null) })
+  })
+}
+
 // ─── Add Item Modal ───────────────────────────────────────────────────────────
 
 interface AddItemModalProps {
@@ -174,6 +198,7 @@ function AddItemModal({ onClose, onAdded, onBulkAdded }: AddItemModalProps) {
   const [error, setError] = useState('')
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
+  const [videoThumbs, setVideoThumbs] = useState<Map<number, { blob: Blob; preview: string }>>(new Map())
   const [notify, setNotify] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -187,7 +212,11 @@ function AddItemModal({ onClose, onAdded, onBulkAdded }: AddItemModalProps) {
     return () => { if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl) }
   }, [filePreviewUrl])
 
-  function handleFilesSelect(files: File[]) {
+  useEffect(() => {
+    return () => { videoThumbs.forEach(t => URL.revokeObjectURL(t.preview)) }
+  }, [videoThumbs])
+
+  async function handleFilesSelect(files: File[]) {
     if (files.length === 0) return
     setSelectedFiles(files)
 
@@ -205,6 +234,22 @@ function AddItemModal({ onClose, onAdded, onBulkAdded }: AddItemModalProps) {
     } else {
       setFilePreviewUrl(null)
       setDimensions('')
+    }
+
+    // Generate thumbnails for any video files
+    const newThumbs = new Map<number, { blob: Blob; preview: string }>()
+    await Promise.all(files.map(async (f, i) => {
+      if (f.type.startsWith('video/')) {
+        const blob = await generateVideoThumbnail(f)
+        if (blob) newThumbs.set(i, { blob, preview: URL.createObjectURL(blob) })
+      }
+    }))
+    if (newThumbs.size > 0) {
+      setVideoThumbs(newThumbs)
+      // For a single video, use the generated thumbnail as the preview
+      if (files.length === 1 && newThumbs.has(0)) {
+        setFilePreviewUrl(newThumbs.get(0)!.preview)
+      }
     }
 
     // Auto-fill name + size only for single file
@@ -225,8 +270,10 @@ function AddItemModal({ onClose, onAdded, onBulkAdded }: AddItemModalProps) {
 
   function clearFiles() {
     if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl)
+    videoThumbs.forEach(t => URL.revokeObjectURL(t.preview))
     setSelectedFiles([])
     setFilePreviewUrl(null)
+    setVideoThumbs(new Map())
     setFileSize('')
     setDimensions('')
     if (fileInputRef.current) fileInputRef.current.value = ''
@@ -240,7 +287,11 @@ function AddItemModal({ onClose, onAdded, onBulkAdded }: AddItemModalProps) {
       if (isBulk) {
         // ── Bulk upload ──
         const fd = new FormData()
-        selectedFiles.forEach(f => fd.append('files', f))
+        selectedFiles.forEach((f, i) => {
+          fd.append('files', f)
+          const thumb = videoThumbs.get(i)
+          if (thumb) fd.append(`thumbnail_${i}`, thumb.blob, 'thumbnail.jpg')
+        })
         fd.append('brand', brand)
         fd.append('type', resolvedType)
         if (notify) fd.append('notify', 'true')
@@ -266,7 +317,13 @@ function AddItemModal({ onClose, onAdded, onBulkAdded }: AddItemModalProps) {
         formData.append('brand', brand)
         if (fileSize) formData.append('file_size', fileSize)
         if (dimensions) formData.append('dimensions', dimensions)
-        if (thumbnailUrl) formData.append('thumbnail_url', thumbnailUrl)
+        // For videos, send the generated thumbnail file; for others, send thumbnail URL text
+        const videoThumb = videoThumbs.get(0)
+        if (videoThumb) {
+          formData.append('thumbnail', videoThumb.blob, 'thumbnail.jpg')
+        } else if (thumbnailUrl) {
+          formData.append('thumbnail_url', thumbnailUrl)
+        }
         if (notify) formData.append('notify', 'true')
 
         if (isCreative) {

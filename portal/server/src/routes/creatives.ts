@@ -57,8 +57,11 @@ router.get('/:id', requireAuth, (req, res) => {
 
 // ─── POST /upload — new creative via S3 file upload ──────────────────────────
 
-router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single('file'), async (req, res) => {
-  const file = req.file
+router.post('/upload', requireAuth, requireRole('tier5', 'admin'),
+  upload.fields([{ name: 'file', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]),
+  async (req, res) => {
+  const filesMap = req.files as Record<string, Express.Multer.File[]> | undefined
+  const file = filesMap?.file?.[0]
   if (!file) { res.status(400).json({ message: 'No file uploaded' }); return }
 
   const { title, brand, type, thumbnail_url, file_size, dimensions, description, campaign } = req.body
@@ -80,7 +83,20 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
     }))
 
     const fileUrl = buildS3Url(bucket, region, s3Key)
-    const thumbUrl = thumbnail_url ?? (file.mimetype.startsWith('image/') ? fileUrl : null)
+
+    // Thumbnail: uploaded thumbnail file > thumbnail_url text > image auto-thumb > null
+    const thumbFile = filesMap?.thumbnail?.[0]
+    let thumbUrl: string | null = null
+    if (thumbFile) {
+      const thumbExt = path.extname(thumbFile.originalname || 'thumb.jpg').toLowerCase() || '.jpg'
+      const thumbKey = `portal-assets/creatives/${randomUUID()}-thumb${thumbExt}`
+      await getS3Client().send(new PutObjectCommand({
+        Bucket: bucket, Key: thumbKey, Body: thumbFile.buffer, ContentType: thumbFile.mimetype,
+      }))
+      thumbUrl = buildS3Url(bucket, region, thumbKey)
+    } else {
+      thumbUrl = thumbnail_url ?? (file.mimetype.startsWith('image/') ? fileUrl : null)
+    }
     const { lastInsertRowid } = db.prepare(`
       INSERT INTO creatives (title, brand, type, file_url, thumbnail_url, file_size, dimensions, description, campaign, s3_key)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -99,9 +115,15 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
 
 // ─── POST /bulk-upload — upload multiple creatives at once ───────────────────
 
-router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.array('files', 20), async (req, res) => {
-  const files = req.files as Express.Multer.File[] | undefined
-  if (!files || files.length === 0) { res.status(400).json({ message: 'No files uploaded' }); return }
+router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.any(), async (req, res) => {
+  const allFiles = (req.files as Express.Multer.File[]) ?? []
+  const files = allFiles.filter(f => f.fieldname === 'files')
+  const thumbMap = new Map<number, Express.Multer.File>()
+  for (const f of allFiles) {
+    const m = f.fieldname.match(/^thumbnail_(\d+)$/)
+    if (m) thumbMap.set(parseInt(m[1]), f)
+  }
+  if (files.length === 0) { res.status(400).json({ message: 'No files uploaded' }); return }
 
   const { brand, type, notify } = req.body
   if (!brand || !type) { res.status(400).json({ message: 'brand and type are required' }); return }
@@ -114,7 +136,8 @@ router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.a
   const items: Record<string, unknown>[] = []
   const errors: string[] = []
 
-  for (const file of files) {
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
     try {
       const ext = path.extname(file.originalname).toLowerCase()
       const s3Key = `portal-assets/creatives/${randomUUID()}${ext}`
@@ -122,7 +145,20 @@ router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.a
         Bucket: bucket, Key: s3Key, Body: file.buffer, ContentType: file.mimetype,
       }))
       const fileUrl = buildS3Url(bucket, region, s3Key)
-      const thumbUrl = file.mimetype.startsWith('image/') ? fileUrl : null
+
+      // Thumbnail: uploaded thumbnail > image auto-thumb > null
+      let thumbUrl: string | null = null
+      if (file.mimetype.startsWith('image/')) {
+        thumbUrl = fileUrl
+      } else if (thumbMap.has(i)) {
+        const tf = thumbMap.get(i)!
+        const thumbExt = path.extname(tf.originalname || 'thumb.jpg').toLowerCase() || '.jpg'
+        const thumbKey = `portal-assets/creatives/${randomUUID()}-thumb${thumbExt}`
+        await getS3Client().send(new PutObjectCommand({
+          Bucket: bucket, Key: thumbKey, Body: tf.buffer, ContentType: tf.mimetype,
+        }))
+        thumbUrl = buildS3Url(bucket, region, thumbKey)
+      }
       const baseName = file.originalname.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
       const title = baseName.charAt(0).toUpperCase() + baseName.slice(1)
       const fileSize = file.size < 1024 * 1024
