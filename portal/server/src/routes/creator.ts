@@ -30,7 +30,7 @@ const STOP_WORDS = new Set([
   'background','setting','scene','lifestyle','product','bottle','bottles','packaging',
 ])
 
-// Return matched product label names (without extension) — used by Imagen path (text-only)
+// Return matched product label names (without extension) — text fallback when no images found
 function getMatchedProductNames(prompt: string, max = 3): string[] {
   try {
     const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../assets/labels')
@@ -48,9 +48,40 @@ function getMatchedProductNames(prompt: string, max = 3): string[] {
   } catch { return [] }
 }
 
+// Return ALL label image variants that match the prompt — sent as inline base64 vision parts
+function getLabelImageParts(prompt: string, maxCount = 5): { inlineData: { data: string; mimeType: string } }[] {
+  try {
+    const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../assets/labels')
+    if (!fs.existsSync(dir)) return []
+    const files = fs.readdirSync(dir).filter(f => /\.(png|jpg|jpeg)$/i.test(f))
+    if (files.length === 0) return []
+    const keywords = prompt.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
+      .filter(w => w.length >= 2 && !STOP_WORDS.has(w))
+    // If no keywords matched, skip — don't send random label images
+    if (keywords.length === 0) return []
+    const scored = files
+      .map(f => ({ f, score: keywords.reduce((a, k) => a + (f.toLowerCase().includes(k) ? 1 : 0), 0) }))
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, maxCount)
+    return scored.map(({ f }) => toImagePart(dir, f))
+  } catch { return [] }
+}
+
+function toImagePart(dir: string, filename: string) {
+  return {
+    inlineData: {
+      data: fs.readFileSync(path.join(dir, filename)).toString('base64'),
+      mimeType: filename.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg',
+    },
+  }
+}
+
 const BRAND_BRIEF =
   `You are a professional product photographer for Sliquid, an intimate wellness brand.
 Generate photorealistic product lifestyle photography — never illustrations, diagrams, or cartoons.
+
+REFERENCE IMAGES: If images are provided before this message, they show the EXACT Sliquid product bottles, labels, colors, and typography. Reproduce those designs faithfully — do not invent a generic bottle shape or label. Match the label artwork, color scheme, and text layout precisely from the references.
 
 SLIQUID BRAND GUIDELINES:
 - Bottles are sleek, minimalist, with light blue (#0A84C0) and white color palette, clean sans-serif typography
@@ -70,7 +101,7 @@ PHOTOGRAPHY STYLE:
 // ─── Model constants ──────────────────────────────────────────────────────────
 
 const MODEL_IMAGEN  = 'imagen-3.0-generate-002'
-const MODEL_GEMINI  = 'gemini-2.0-flash-exp'
+const MODEL_GEMINI  = 'gemini-3.1-flash-image-preview'
 const VALID_MODELS  = [MODEL_IMAGEN, MODEL_GEMINI] as const
 
 function getActiveModel(): string {
@@ -104,7 +135,10 @@ router.post('/settings', requireAuth, requireRole('tier5', 'admin'), (req, res) 
 router.post('/generate', requireAuth, async (req, res) => {
   if (req.user!.role === 'tier4') return res.status(403).json({ error: 'Forbidden' })
 
-  const { prompt } = req.body as { prompt?: string }
+  const { prompt, referenceImage } = req.body as {
+    prompt?: string
+    referenceImage?: { data: string; mimeType: string }
+  }
   if (!prompt?.trim()) return res.status(400).json({ error: 'prompt is required' })
 
   if (!process.env.GEMINI_API_KEY) {
@@ -118,22 +152,34 @@ router.post('/generate', requireAuth, async (req, res) => {
     const activeModel = getActiveModel()
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
-    const productNames = getMatchedProductNames(prompt.trim())
-    const productRef = productNames.length > 0
-      ? `Specific Sliquid product(s) to feature: ${productNames.join(', ')}. Reproduce the actual bottle design for this variant accurately. `
-      : ''
+    // ── Build reference image parts ──
+    // 1. Label images matched from the labels folder (visual source of truth for bottle designs)
+    const labelParts = getLabelImageParts(prompt.trim())
+    // 2. Optional user-uploaded reference image sent from the client
+    const userImagePart = referenceImage?.data
+      ? [{ inlineData: { data: referenceImage.data, mimeType: referenceImage.mimeType } }]
+      : []
+    const allImageParts = [...labelParts, ...userImagePart]
 
-    // ── Gemini 2.0 Flash — image generation via generateContent ──
-    const userPrompt = productRef
-      ? `${productRef}\n\nScene: ${prompt.trim()}`
-      : prompt.trim()
+    // Build the text part — include product names as text fallback if no label images matched
+    const productNames = labelParts.length === 0 ? getMatchedProductNames(prompt.trim()) : []
+    const productRef = productNames.length > 0
+      ? `Specific Sliquid product(s) to feature: ${productNames.join(', ')}. `
+      : ''
+    const refNote = allImageParts.length > 0
+      ? ` (${allImageParts.length} reference image${allImageParts.length > 1 ? 's' : ''} of the actual product provided above)`
+      : ''
+    const textPart = productRef
+      ? `${productRef}\n\nScene: ${prompt.trim()}${refNote}`
+      : `${prompt.trim()}${refNote}`
+
+    // ── Gemini image generation — reference images first, then the text instruction ──
     const response = await ai.models.generateContent({
       model: MODEL_GEMINI,
-      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+      contents: [{ role: 'user', parts: [...allImageParts, { text: textPart }] }],
       config: {
         systemInstruction: BRAND_BRIEF,
         responseModalities: ['IMAGE', 'TEXT'] as any,
-        imageConfig: { personGeneration: 'ALLOW_ADULT' },
       },
     })
 
