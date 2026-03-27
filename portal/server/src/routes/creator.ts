@@ -4,9 +4,6 @@ import { GoogleGenAI } from '@google/genai'
 import { randomUUID } from 'crypto'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
 
 const router = Router()
 
@@ -20,61 +17,6 @@ function getS3Client() {
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
     },
   })
-}
-
-// Stop words to ignore when keyword-matching the prompt against label filenames
-const STOP_WORDS = new Set([
-  'a','an','the','in','on','at','of','for','to','and','or','with','by','is','be',
-  'can','you','create','make','generate','image','photo','picture','shot','show',
-  'place','put','using','use','like','as','its','it','please','me','my','our','some',
-  'background','setting','scene','lifestyle','product','bottle','bottles','packaging',
-])
-
-// Return matched product label names (without extension) — text fallback when no images found
-function getMatchedProductNames(prompt: string, max = 3): string[] {
-  try {
-    const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../assets/labels')
-    if (!fs.existsSync(dir)) return []
-    const files = fs.readdirSync(dir).filter(f => /\.(png|jpg|jpeg)$/i.test(f))
-    const keywords = prompt.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
-      .filter(w => w.length >= 2 && !STOP_WORDS.has(w))
-    if (keywords.length === 0) return []
-    return files
-      .map(f => ({ f, score: keywords.reduce((a, k) => a + (f.toLowerCase().includes(k) ? 1 : 0), 0) }))
-      .filter(({ score }) => score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, max)
-      .map(({ f }) => f.replace(/\.(png|jpg|jpeg)$/i, ''))
-  } catch { return [] }
-}
-
-// Return ALL label image variants that match the prompt — sent as inline base64 vision parts
-function getLabelImageParts(prompt: string, maxCount = 5): { inlineData: { data: string; mimeType: string } }[] {
-  try {
-    const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../assets/labels')
-    if (!fs.existsSync(dir)) return []
-    const files = fs.readdirSync(dir).filter(f => /\.(png|jpg|jpeg)$/i.test(f))
-    if (files.length === 0) return []
-    const keywords = prompt.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
-      .filter(w => w.length >= 2 && !STOP_WORDS.has(w))
-    // If no keywords matched, skip — don't send random label images
-    if (keywords.length === 0) return []
-    const scored = files
-      .map(f => ({ f, score: keywords.reduce((a, k) => a + (f.toLowerCase().includes(k) ? 1 : 0), 0) }))
-      .filter(({ score }) => score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, maxCount)
-    return scored.map(({ f }) => toImagePart(dir, f))
-  } catch { return [] }
-}
-
-function toImagePart(dir: string, filename: string) {
-  return {
-    inlineData: {
-      data: fs.readFileSync(path.join(dir, filename)).toString('base64'),
-      mimeType: filename.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg',
-    },
-  }
 }
 
 const BRAND_BRIEF =
@@ -152,46 +94,19 @@ router.post('/generate', requireAuth, async (req, res) => {
     const activeModel = getActiveModel()
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
-    // ── Build reference image parts ──
-    // 1. Label images matched from the labels folder (visual source of truth for bottle designs)
-    const labelParts = getLabelImageParts(prompt.trim())
-    // 2. Optional user-uploaded reference image sent from the client
-    const userImagePart = referenceImage?.data
+    // ── Build parts: optional user reference image first, then the prompt ──
+    const imageParts = referenceImage?.data
       ? [{ inlineData: { data: referenceImage.data, mimeType: referenceImage.mimeType } }]
       : []
-    const allImageParts = [...labelParts, ...userImagePart]
 
-    // Build the text part
-    const productNames = labelParts.length === 0 ? getMatchedProductNames(prompt.trim()) : []
+    const textPart = imageParts.length > 0
+      ? `REFERENCE IMAGE PROVIDED ABOVE: Copy the exact product appearance (bottle shape, label, colors, typography) from the reference.\n\nScene to create: ${prompt.trim()}\n\nOnly the background, environment, and lighting should change from the reference.`
+      : prompt.trim()
 
-    let textPart: string
-    if (allImageParts.length > 0) {
-      // Reference images present — mandate exact reproduction of the product appearance
-      const imageSource = labelParts.length > 0 && userImagePart.length > 0
-        ? `${labelParts.length} product label image${labelParts.length > 1 ? 's' : ''} and 1 user-supplied reference`
-        : labelParts.length > 0
-          ? `${labelParts.length} product label image${labelParts.length > 1 ? 's' : ''}`
-          : '1 user-supplied reference image'
-
-      textPart =
-        `REFERENCE (${imageSource} provided above): The image(s) directly above show the EXACT Sliquid product bottle to feature — ` +
-        `copy the precise bottle shape, label artwork, label text, color scheme, and typography exactly as shown. ` +
-        `Do NOT invent a generic bottle or redesign the product. The bottle must look identical to the reference.\n\n` +
-        `Scene to create: ${prompt.trim()}\n\n` +
-        `Reproduce the exact product from the reference image(s). Only the background, environment, and lighting should change.`
-    } else if (productNames.length > 0) {
-      // Text-only fallback when no label images matched
-      textPart =
-        `Sliquid product(s) to feature: ${productNames.join(', ')}.\n\n` +
-        `Scene: ${prompt.trim()}`
-    } else {
-      textPart = prompt.trim()
-    }
-
-    // ── Gemini image generation — reference images first, then the text instruction ──
+    // ── Gemini image generation ──
     const response = await ai.models.generateContent({
       model: MODEL_GEMINI,
-      contents: [{ role: 'user', parts: [...allImageParts, { text: textPart }] }],
+      contents: [{ role: 'user', parts: [...imageParts, { text: textPart }] }],
       config: {
         systemInstruction: BRAND_BRIEF,
         responseModalities: ['IMAGE', 'TEXT'] as any,
