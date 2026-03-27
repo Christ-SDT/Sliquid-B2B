@@ -14,7 +14,7 @@ RUN npm ci
 # Copy source and compile TypeScript
 COPY tsconfig.json ./
 COPY src ./src
-RUN npm run build
+RUN npm run build && cp -r src/assets dist/
 
 # Remove dev dependencies from the final image
 RUN npm prune --omit=dev

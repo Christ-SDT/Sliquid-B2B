@@ -161,17 +161,32 @@ router.post('/generate', requireAuth, async (req, res) => {
       : []
     const allImageParts = [...labelParts, ...userImagePart]
 
-    // Build the text part — include product names as text fallback if no label images matched
+    // Build the text part
     const productNames = labelParts.length === 0 ? getMatchedProductNames(prompt.trim()) : []
-    const productRef = productNames.length > 0
-      ? `Specific Sliquid product(s) to feature: ${productNames.join(', ')}. `
-      : ''
-    const refNote = allImageParts.length > 0
-      ? ` (${allImageParts.length} reference image${allImageParts.length > 1 ? 's' : ''} of the actual product provided above)`
-      : ''
-    const textPart = productRef
-      ? `${productRef}\n\nScene: ${prompt.trim()}${refNote}`
-      : `${prompt.trim()}${refNote}`
+
+    let textPart: string
+    if (allImageParts.length > 0) {
+      // Reference images present — mandate exact reproduction of the product appearance
+      const imageSource = labelParts.length > 0 && userImagePart.length > 0
+        ? `${labelParts.length} product label image${labelParts.length > 1 ? 's' : ''} and 1 user-supplied reference`
+        : labelParts.length > 0
+          ? `${labelParts.length} product label image${labelParts.length > 1 ? 's' : ''}`
+          : '1 user-supplied reference image'
+
+      textPart =
+        `REFERENCE (${imageSource} provided above): The image(s) directly above show the EXACT Sliquid product bottle to feature — ` +
+        `copy the precise bottle shape, label artwork, label text, color scheme, and typography exactly as shown. ` +
+        `Do NOT invent a generic bottle or redesign the product. The bottle must look identical to the reference.\n\n` +
+        `Scene to create: ${prompt.trim()}\n\n` +
+        `Reproduce the exact product from the reference image(s). Only the background, environment, and lighting should change.`
+    } else if (productNames.length > 0) {
+      // Text-only fallback when no label images matched
+      textPart =
+        `Sliquid product(s) to feature: ${productNames.join(', ')}.\n\n` +
+        `Scene: ${prompt.trim()}`
+    } else {
+      textPart = prompt.trim()
+    }
 
     // ── Gemini image generation — reference images first, then the text instruction ──
     const response = await ai.models.generateContent({
