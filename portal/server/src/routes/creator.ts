@@ -30,7 +30,7 @@ const STOP_WORDS = new Set([
   'background','setting','scene','lifestyle','product','bottle','bottles','packaging',
 ])
 
-// Return matched product label names (without extension) to describe in the prompt
+// Return matched product label names (without extension) — used by Imagen path (text-only)
 function getMatchedProductNames(prompt: string, max = 3): string[] {
   try {
     const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../assets/labels')
@@ -49,12 +49,23 @@ function getMatchedProductNames(prompt: string, max = 3): string[] {
 }
 
 const BRAND_BRIEF =
-  `You are Lampy, Sliquid's AI product image creator.
-Generate professional product photography for Sliquid and Ride Lube intimate wellness products.
-Sliquid bottles: elegant, minimalist design with light blues, white, and soft naturals palette, clean typography.
-Ride Lube bottles: bold, modern design with darker accents.
-Place products in flattering lifestyle contexts — spa shelves, bathroom counters, bedside tables — with soft professional lighting.
-Render photorealistic, high-resolution imagery suitable for retail display and marketing.`
+  `You are a professional product photographer for Sliquid, an intimate wellness brand.
+Generate photorealistic product lifestyle photography — never illustrations, diagrams, or cartoons.
+
+SLIQUID BRAND GUIDELINES:
+- Bottles are sleek, minimalist, with light blue (#0A84C0) and white color palette, clean sans-serif typography
+- Ride Lube bottles have a bolder, darker aesthetic with contrasting accents
+- Products belong in upscale, aspirational settings: marble bathroom countertops, spa shelves, bedside tables with linen, natural wood surfaces
+- Lighting: soft diffused window light or warm studio lighting — no harsh shadows
+- Mood: clean, calm, trustworthy, wellness-focused
+- Never show any explicit content, nudity, or suggestive imagery — products are health and wellness items
+
+PHOTOGRAPHY STYLE:
+- Ultra-sharp product focus, shallow depth of field for background
+- Colors: muted warm neutrals, soft whites, sage greens, warm grays as backgrounds
+- Composition: rule of thirds, negative space, editorial-style framing
+- Resolution: high detail, photorealistic render quality
+- Style reference: similar to Aesop, Glossier, or Malin+Goetz product photography`
 
 // ─── Model constants ──────────────────────────────────────────────────────────
 
@@ -65,7 +76,7 @@ const VALID_MODELS  = [MODEL_IMAGEN, MODEL_GEMINI] as const
 function getActiveModel(): string {
   try {
     const row = db.prepare("SELECT value FROM woo_settings WHERE key = 'ai_model'").get() as any
-    return row?.value ?? MODEL_IMAGEN
+    return row?.value ?? MODEL_GEMINI
   } catch {
     return MODEL_IMAGEN
   }
@@ -112,42 +123,25 @@ router.post('/generate', requireAuth, async (req, res) => {
       ? `Specific Sliquid product(s) to feature: ${productNames.join(', ')}. Reproduce the actual bottle design for this variant accurately. `
       : ''
 
-    let imageBytes: string
-    let mimeType = 'image/png'
+    // ── Gemini 2.0 Flash — image generation via generateContent ──
+    const userPrompt = productRef
+      ? `${productRef}\n\nScene: ${prompt.trim()}`
+      : prompt.trim()
+    const response = await ai.models.generateContent({
+      model: MODEL_GEMINI,
+      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+      config: {
+        systemInstruction: BRAND_BRIEF,
+        responseModalities: ['IMAGE', 'TEXT'] as any,
+        imageConfig: { personGeneration: 'ALLOW_ADULT' },
+      },
+    })
 
-    if (activeModel === MODEL_GEMINI) {
-      // ── Gemini path — generateContent with quality improvements ──
-      const enrichedPrompt = `${productRef}Create: ${prompt.trim()}`
-      const response = await ai.models.generateContent({
-        model: MODEL_GEMINI,
-        contents: [{ role: 'user', parts: [{ text: enrichedPrompt }] }],
-        config: {
-          systemInstruction: BRAND_BRIEF,
-          responseModalities: ['IMAGE', 'TEXT'],
-          imageConfig: { personGeneration: 'ALLOW_ADULT' },
-        },
-      })
-      const parts = (response as any).candidates?.[0]?.content?.parts ?? []
-      const imagePart = parts.find((p: any) => p.inlineData?.data)
-      imageBytes = imagePart?.inlineData?.data
-      mimeType = imagePart?.inlineData?.mimeType ?? 'image/png'
-    } else {
-      // ── Imagen path — original stable model ──
-      const enrichedPrompt = `${BRAND_BRIEF}\n\n${productRef}Create: ${prompt.trim()}`
-      const response = await (ai.models as any).generateImages({
-        model: MODEL_IMAGEN,
-        prompt: enrichedPrompt,
-        config: {
-          numberOfImages: 1,
-          aspectRatio: '1:1',
-          personGeneration: 'allow_adult',
-          safetyFilterLevel: 'block_only_high',
-        },
-      })
-      imageBytes = response?.generatedImages?.[0]?.image?.imageBytes
-    }
-
-    if (!imageBytes!) return res.status(500).json({ error: 'No image returned from AI' })
+    const parts = (response as any).candidates?.[0]?.content?.parts ?? []
+    const imagePart = parts.find((p: any) => p.inlineData?.data)
+    const imageBytes = imagePart?.inlineData?.data
+    const mimeType = imagePart?.inlineData?.mimeType ?? 'image/png'
+    if (!imageBytes) return res.status(500).json({ error: 'No image returned from AI' })
 
     // Upload to S3
     const s3 = getS3Client()

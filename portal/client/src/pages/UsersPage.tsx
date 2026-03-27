@@ -322,9 +322,9 @@ const AI_MODELS = [
     description: 'Stable · Original model · Best reliability',
   },
   {
-    id: 'gemini-2.0-flash-preview-image-generation',
+    id: 'gemini-2.0-flash-exp',
     label: 'Gemini 2.0 Flash',
-    description: 'Enhanced · 2K resolution · Google Search grounding · Thinking mode',
+    description: 'Vision-aware · Sends actual product label images as visual reference',
   },
 ]
 
