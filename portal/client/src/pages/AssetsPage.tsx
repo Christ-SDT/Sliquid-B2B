@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
 import { Asset, Creative, AiImage } from '@/types'
 import {
-  Search, FolderOpen, Download, ExternalLink,
+  Search, FolderOpen, Download, ExternalLink, Eye,
   FileImage, FileText, Share2, Image, Video, Mail, Printer, Megaphone, BookOpen,
   Plus, Trash2, X, Loader2, Pencil, ChevronDown, ChevronRight, Folder, ArrowLeft, LayoutGrid, Sparkles, Upload,
 } from 'lucide-react'
@@ -14,7 +14,12 @@ import {
 function triggerDownload(url: string, name: string) {
   const ext = url.split('?')[0].split('.').pop() ?? ''
   const filename = ext ? `${name}.${ext}` : name
-  fetch(url)
+  const token = localStorage.getItem('portal_token') ?? ''
+  const base = (import.meta.env.VITE_API_URL ?? '') + '/api'
+  const params = new URLSearchParams({ url, filename })
+  fetch(`${base}/media/proxy-download?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
     .then(r => r.blob())
     .then(blob => {
       const blobUrl = URL.createObjectURL(blob)
@@ -1034,9 +1039,16 @@ interface FileDetailModalProps {
 
 function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetailModalProps) {
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [viewerOpen, setViewerOpen] = useState(false)
   const Icon = TYPE_ICONS[item.type] ?? FolderOpen
 
+  const fileExt = item.file_url.split('?')[0].split('.').pop()?.toLowerCase() ?? ''
+  const isImage = ['png','jpg','jpeg','gif','webp','svg'].includes(fileExt)
+  const isVideo = ['mp4','mov','webm','avi','m4v'].includes(fileExt)
+  const isPdf   = fileExt === 'pdf'
+
   return (
+    <>
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-surface border border-portal-border rounded-2xl w-full max-w-lg shadow-xl overflow-hidden">
@@ -1093,16 +1105,14 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
 
           {/* View + Download */}
           <div className="flex gap-2">
-            <a
-              href={item.file_url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setViewerOpen(true)}
               className="flex-1 flex items-center justify-center gap-2 py-3 bg-surface-elevated border border-portal-border
                          hover:bg-portal-border text-on-canvas rounded-lg text-sm font-medium transition-colors"
             >
-              <ExternalLink className="w-4 h-4" />
+              <Eye className="w-4 h-4" />
               View
-            </a>
+            </button>
             <button
               onClick={() => triggerDownload(item.file_url, item.displayName)}
               className="flex-1 flex items-center justify-center gap-2 py-3 bg-portal-accent hover:bg-portal-accent/90
@@ -1158,6 +1168,62 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
         </div>
       </div>
     </div>
+
+    {/* ── File viewer lightbox ─────────────────────────────────────────────── */}
+
+    {viewerOpen && (
+      <div
+        className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4"
+        onClick={() => setViewerOpen(false)}
+      >
+        <button
+          onClick={() => setViewerOpen(false)}
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          aria-label="Close viewer"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        <div onClick={e => e.stopPropagation()} className="max-w-5xl w-full max-h-[90vh] flex items-center justify-center">
+          {isImage && (
+            <img
+              src={item.file_url}
+              alt={item.displayName}
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            />
+          )}
+          {isVideo && (
+            <video
+              src={item.file_url}
+              controls
+              autoPlay
+              className="max-w-full max-h-[90vh] rounded-lg shadow-2xl"
+            />
+          )}
+          {isPdf && (
+            <iframe
+              src={item.file_url}
+              title={item.displayName}
+              className="w-full h-[85vh] rounded-lg shadow-2xl bg-white"
+            />
+          )}
+          {!isImage && !isVideo && !isPdf && (
+            <div className="text-center text-white">
+              <p className="mb-4 text-on-canvas-muted">Preview not available for this file type.</p>
+              <a
+                href={item.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 bg-portal-accent rounded-lg text-white text-sm font-medium"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open in new tab
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+    </>
   )
 }
 

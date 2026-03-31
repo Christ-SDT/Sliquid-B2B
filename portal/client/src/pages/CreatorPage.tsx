@@ -9,7 +9,12 @@ import { Sparkles, Send, Download, Trash2, Loader2, Bot, AlertCircle, ImagePlus,
 function triggerDownload(url: string, name: string) {
   const ext = url.split('?')[0].split('.').pop() ?? ''
   const filename = ext ? `${name}.${ext}` : name
-  fetch(url)
+  const token = localStorage.getItem('portal_token') ?? ''
+  const base = (import.meta.env.VITE_API_URL ?? '') + '/api'
+  const params = new URLSearchParams({ url, filename })
+  fetch(`${base}/media/proxy-download?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
     .then(r => r.blob())
     .then(blob => {
       const blobUrl = URL.createObjectURL(blob)

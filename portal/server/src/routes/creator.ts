@@ -148,8 +148,26 @@ router.post('/generate', requireAuth, async (req, res) => {
 
 router.get('/images', requireAuth, (req, res) => {
   if (req.user!.role === 'tier4') return res.status(403).json({ error: 'Forbidden' })
-  const images = db.prepare('SELECT * FROM ai_images ORDER BY created_at DESC').all()
+  const images = db.prepare('SELECT * FROM ai_images WHERE approved = 1 ORDER BY created_at DESC').all()
   return res.json(images)
+})
+
+// ─── POST /api/creator/images/:id/approve ────────────────────────────────────
+
+router.post('/:id/approve', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const id = Number(req.params.id)
+  const result = db.prepare('UPDATE ai_images SET approved = 1 WHERE id = ?').run(id)
+  if (result.changes === 0) return res.status(404).json({ error: 'Not found' })
+  return res.json(db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id))
+})
+
+// ─── POST /api/creator/images/:id/unapprove ──────────────────────────────────
+
+router.post('/:id/unapprove', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const id = Number(req.params.id)
+  const result = db.prepare('UPDATE ai_images SET approved = 0 WHERE id = ?').run(id)
+  if (result.changes === 0) return res.status(404).json({ error: 'Not found' })
+  return res.json(db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id))
 })
 
 // ─── DELETE /api/creator/:id ──────────────────────────────────────────────────

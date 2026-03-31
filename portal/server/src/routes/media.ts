@@ -37,6 +37,25 @@ async function deleteS3Object(key: string) {
 type Source = 'asset' | 'creative' | 'marketing' | 'ai' | 'media'
 const VALID_SOURCES: Source[] = ['asset', 'creative', 'marketing', 'ai', 'media']
 
+// ─── GET /proxy-download — server-side fetch to avoid S3 CORS on downloads ───
+
+router.get('/proxy-download', requireAuth, async (req, res) => {
+  const { url, filename } = req.query as { url?: string; filename?: string }
+  if (!url) { res.status(400).json({ message: 'url is required' }); return }
+  try {
+    const upstream = await fetch(url)
+    if (!upstream.ok) { res.status(502).json({ message: 'Failed to fetch file' }); return }
+    const contentType = upstream.headers.get('content-type') ?? 'application/octet-stream'
+    const name = filename || decodeURIComponent(url.split('/').pop()?.split('?')[0] ?? 'download')
+    res.setHeader('Content-Disposition', `attachment; filename="${name}"`)
+    res.setHeader('Content-Type', contentType)
+    const buffer = await upstream.arrayBuffer()
+    res.send(Buffer.from(buffer))
+  } catch (err: any) {
+    res.status(500).json({ message: err.message ?? 'Download failed' })
+  }
+})
+
 // ─── GET / — aggregated gallery from all sources ─────────────────────────────
 
 router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
@@ -63,18 +82,20 @@ router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
   `).all() as Record<string, unknown>[]
 
   const ai = db.prepare(`
-    SELECT id, 'ai' as _source, prompt as label, 'Creator Creations' as brand, NULL as type,
+    SELECT id, 'ai' as _source, prompt as label,
+           COALESCE(brand, 'Creator Creations') as brand, type,
            s3_url as file_url, s3_url as thumbnail_url,
            NULL as file_size, NULL as dimensions, s3_key, NULL as description,
-           NULL as subtitle, NULL as campaign, NULL as mime_type, created_by as uploaded_by, created_at
-    FROM ai_images
+           NULL as subtitle, NULL as campaign, NULL as mime_type, created_by as uploaded_by,
+           created_at, approved
+    FROM ai_images WHERE approved = 0
   `).all() as Record<string, unknown>[]
 
   const media = db.prepare(`
-    SELECT id, 'media' as _source, label, brand, NULL as type,
+    SELECT id, 'media' as _source, label, brand, type,
            file_url, file_url as thumbnail_url, file_size, dimensions,
            s3_key, NULL as description, NULL as subtitle, NULL as campaign,
-           mime_type, uploaded_by, created_at
+           mime_type, uploaded_by, created_at, asset_id
     FROM media
   `).all() as Record<string, unknown>[]
 
@@ -248,13 +269,23 @@ router.put('/item/:source/:id', requireAuth, requireRole('tier5', 'admin'), (req
     }
 
     if (source === 'ai') {
-      res.status(400).json({ message: 'AI-generated images cannot be edited' }); return
+      const result = db.prepare(
+        'UPDATE ai_images SET brand=?, type=? WHERE id=?'
+      ).run(b.brand ?? null, b.type ?? null, id)
+      if (result.changes === 0) { res.status(404).json({ message: 'Not found' }); return }
+      const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
+      return res.json({
+        ...row, _source: 'ai', label: row.prompt,
+        brand: row.brand ?? 'Creator Creations',
+        file_url: row.s3_url, thumbnail_url: row.s3_url,
+        uploaded_by: row.created_by, approved: row.approved,
+      })
     }
 
     if (source === 'media') {
       const result = db.prepare(
-        'UPDATE media SET label=?, brand=? WHERE id=?'
-      ).run(b.label ?? null, b.brand ?? 'Sliquid', id)
+        'UPDATE media SET label=?, brand=?, type=? WHERE id=?'
+      ).run(b.label ?? null, b.brand ?? 'Sliquid', b.type ?? null, id)
       if (result.changes === 0) { res.status(404).json({ message: 'Not found' }); return }
       const row = db.prepare('SELECT * FROM media WHERE id = ?').get(id) as any
       return res.json({ ...row, _source: 'media', thumbnail_url: row.file_url })
@@ -318,6 +349,53 @@ router.delete('/item/:source/:id', requireAuth, requireRole('tier5', 'admin'), a
   } catch (err: any) {
     console.error('[media] delete error:', err)
     res.status(500).json({ message: err.message ?? 'Delete failed' })
+  }
+})
+
+// ─── POST /item/media/:id/add-to-assets ──────────────────────────────────────
+
+router.post('/item/media/:id/add-to-assets', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const id = Number(req.params.id)
+  const row = db.prepare('SELECT * FROM media WHERE id = ?').get(id) as any
+  if (!row) { res.status(404).json({ message: 'Not found' }); return }
+  if (row.asset_id) {
+    const updated = { ...row, _source: 'media', thumbnail_url: row.file_url }
+    return res.json(updated)
+  }
+  try {
+    const { lastInsertRowid } = db.prepare(
+      'INSERT INTO assets (name, brand, type, file_url, thumbnail_url, s3_key, file_size, dimensions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(
+      row.label || row.filename || 'Untitled',
+      row.brand || 'Sliquid',
+      row.type || 'Other',
+      row.file_url, row.file_url,
+      row.s3_key, row.file_size ?? null, row.dimensions ?? null,
+    )
+    db.prepare('UPDATE media SET asset_id = ? WHERE id = ?').run(lastInsertRowid, id)
+    const updated = db.prepare('SELECT * FROM media WHERE id = ?').get(id) as any
+    return res.json({ ...updated, _source: 'media', thumbnail_url: updated.file_url })
+  } catch (err: any) {
+    res.status(500).json({ message: err.message ?? 'Failed' })
+  }
+})
+
+// ─── DELETE /item/media/:id/remove-from-assets ────────────────────────────────
+
+router.delete('/item/media/:id/remove-from-assets', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const id = Number(req.params.id)
+  const row = db.prepare('SELECT * FROM media WHERE id = ?').get(id) as any
+  if (!row) { res.status(404).json({ message: 'Not found' }); return }
+  if (!row.asset_id) {
+    return res.json({ ...row, _source: 'media', thumbnail_url: row.file_url })
+  }
+  try {
+    db.prepare('DELETE FROM assets WHERE id = ?').run(row.asset_id)
+    db.prepare('UPDATE media SET asset_id = NULL WHERE id = ?').run(id)
+    const updated = db.prepare('SELECT * FROM media WHERE id = ?').get(id) as any
+    return res.json({ ...updated, _source: 'media', thumbnail_url: updated.file_url })
+  } catch (err: any) {
+    res.status(500).json({ message: err.message ?? 'Failed' })
   }
 })
 

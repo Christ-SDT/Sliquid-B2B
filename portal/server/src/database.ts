@@ -685,6 +685,30 @@ const migrations: Migration[] = [
       db.prepare("UPDATE trainings SET video_path = 'https://youtu.be/qfGlB4YRslQ' WHERE quiz_id = 'satin'").run()
       db.prepare("UPDATE trainings SET video_path = 'https://youtu.be/xEb-3YutbH0' WHERE quiz_id = 'swirl'").run()
     }
+  },
+  {
+    version: 29,
+    name: 'media_ai_edit_fields',
+    up: () => {
+      const aiCols = (db.prepare("SELECT name FROM pragma_table_info('ai_images')").all() as { name: string }[]).map(c => c.name)
+      if (!aiCols.includes('brand')) db.exec("ALTER TABLE ai_images ADD COLUMN brand TEXT")
+      if (!aiCols.includes('type'))  db.exec("ALTER TABLE ai_images ADD COLUMN type TEXT")
+      const mediaCols = (db.prepare("SELECT name FROM pragma_table_info('media')").all() as { name: string }[]).map(c => c.name)
+      if (!mediaCols.includes('type'))     db.exec("ALTER TABLE media ADD COLUMN type TEXT")
+      if (!mediaCols.includes('asset_id')) db.exec("ALTER TABLE media ADD COLUMN asset_id INTEGER")
+    }
+  },
+  {
+    version: 30,
+    name: 'ai_images_approval',
+    up: () => {
+      const cols = (db.prepare("SELECT name FROM pragma_table_info('ai_images')").all() as { name: string }[]).map(c => c.name)
+      if (!cols.includes('approved')) {
+        db.exec("ALTER TABLE ai_images ADD COLUMN approved INTEGER NOT NULL DEFAULT 0")
+        // All previously-generated images were already public — approve them
+        db.exec("UPDATE ai_images SET approved = 1")
+      }
+    }
   }
 ]
 
