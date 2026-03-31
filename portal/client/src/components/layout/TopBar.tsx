@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone, Package, Archive, Receipt, BarChart3 } from 'lucide-react'
+import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone, Package, Archive, Receipt, BarChart3, Users2 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { useNotifications } from '@/context/NotificationContext'
@@ -196,10 +196,11 @@ export default function TopBar({ onMenuClick }: Props) {
                     <p className="text-on-canvas-muted/60 text-[10px] font-semibold uppercase tracking-wider">Admin Tools</p>
                   </div>
                   {[
-                    { to: '/products',  icon: Package,  label: 'Products'  },
-                    { to: '/inventory', icon: Archive,  label: 'Inventory' },
-                    { to: '/invoices',  icon: Receipt,  label: 'Invoices'  },
-                    { to: '/stats',     icon: BarChart3, label: 'Analytics' },
+                    { to: '/products',    icon: Package,  label: 'Products'  },
+                    { to: '/inventory',   icon: Archive,  label: 'Inventory' },
+                    { to: '/invoices',    icon: Receipt,  label: 'Invoices'  },
+                    { to: '/stats',       icon: BarChart3, label: 'Analytics' },
+                    { to: '/store-users', icon: Users2,   label: 'My Store'  },
                   ].map(({ to, icon: Icon, label }) => (
                     <button
                       key={to}

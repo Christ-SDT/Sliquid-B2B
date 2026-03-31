@@ -12,6 +12,11 @@ router.get('/overview', requireAuth, (req, res) => {
   const lowStock = (db.prepare("SELECT COUNT(*) as c FROM inventory WHERE status = 'low_stock'").get() as any).c
   const outOfStock = (db.prepare("SELECT COUNT(*) as c FROM inventory WHERE status = 'out_of_stock'").get() as any).c
   const totalRevenue = (db.prepare("SELECT SUM(amount) as s FROM invoices WHERE status = 'paid'").get() as any).s ?? 0
+  const userRows = db.prepare(
+    "SELECT role, COUNT(*) as count FROM users WHERE status != 'declined' GROUP BY role"
+  ).all() as { role: string; count: number }[]
+  const usersByRole: Record<string, number> = {}
+  for (const row of userRows) usersByRole[row.role] = row.count
 
   res.json({
     totalProducts,
@@ -22,6 +27,7 @@ router.get('/overview', requireAuth, (req, res) => {
     outOfStock,
     totalRevenue: Math.round(totalRevenue * 100) / 100,
     distributors: 15,
+    usersByRole,
   })
 })
 

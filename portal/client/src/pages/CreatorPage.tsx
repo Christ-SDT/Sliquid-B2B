@@ -4,6 +4,26 @@ import { useAuth } from '@/context/AuthContext'
 import { AiImage } from '@/types'
 import { Sparkles, Send, Download, Trash2, Loader2, Bot, AlertCircle, ImagePlus, X } from 'lucide-react'
 
+// ─── Lampy loading messages ───────────────────────────────────────────────────
+
+const LAMPY_LOADING_MSGS = [
+  'Working on image…',
+  'Creating a masterpiece…',
+  'Adding detail…',
+  'Fixing the bottle…',
+  'Perfecting the lighting…',
+  'Almost there…',
+]
+
+function LampyLoadingMessage() {
+  const [idx, setIdx] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % LAMPY_LOADING_MSGS.length), 2200)
+    return () => clearInterval(t)
+  }, [])
+  return <span className="text-on-canvas-muted text-sm">{LAMPY_LOADING_MSGS[idx]}</span>
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function triggerDownload(url: string, name: string) {
@@ -292,7 +312,7 @@ export default function CreatorPage() {
                 <LampyAvatar />
                 <div className="bg-surface border border-portal-border rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-2">
                   <Loader2 className="w-4 h-4 text-portal-accent animate-spin" />
-                  <span className="text-on-canvas-muted text-sm">Creating your image…</span>
+                  <LampyLoadingMessage />
                 </div>
               </div>
             )

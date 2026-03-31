@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit'
 import { db } from '../database.js'
 import { requireAuth, JWT_SECRET } from '../middleware/auth.js'
 import { sendRegistrationConfirm } from '../email.js'
+import { notifyAdmins } from '../notifications.js'
 
 const router = Router()
 
@@ -68,6 +69,13 @@ router.post('/register', loginLimiter, async (req, res) => {
 
   sendRegistrationConfirm({ name, email, company })
     .catch(err => console.error('[email] Registration email failed:', err))
+
+  notifyAdmins(
+    'new_registration',
+    'New Partner Request',
+    `${name} (${company}) has submitted a registration request.`,
+    '/requests',
+  )
 
   res.status(201).json({
     token,

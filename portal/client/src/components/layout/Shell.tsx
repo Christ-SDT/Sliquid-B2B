@@ -8,10 +8,12 @@ import TopBar from './TopBar'
 const INACTIVITY_MS = 2 * 60 * 60 * 1000  // 2 hours
 const CHECK_INTERVAL = 60 * 1000           // check once per minute
 
-// Routes accessible to tier1 / tier2 / tier3 (tier2 also gets /store-users)
-const RESTRICTED_ALLOWED = ['/dashboard', '/assets', '/distributors', '/trainings', '/quiz', '/store-users', '/creator']
+// Routes accessible to tier1 only (most restricted)
+const TIER1_ALLOWED  = ['/dashboard', '/assets', '/distributors', '/trainings', '/quiz', '/store-users', '/creator']
+// Routes accessible to tier2 and tier3 (adds In-store Marketing)
+const TIER2_3_ALLOWED = [...TIER1_ALLOWED, '/retailer']
 // Routes accessible to tier4 (Prospect)
-const PROSPECT_ALLOWED   = ['/dashboard']
+const PROSPECT_ALLOWED = ['/dashboard']
 
 function Skeleton() {
   return (
@@ -54,7 +56,8 @@ export default function Shell() {
   if (isPending && !location.pathname.startsWith('/dashboard')) {
     return <Navigate to="/dashboard" replace />
   }
-  if (!isPending && isRestricted && !RESTRICTED_ALLOWED.some(p => location.pathname.startsWith(p))) {
+  const restrictedAllowed = user.role === 'tier1' ? TIER1_ALLOWED : TIER2_3_ALLOWED
+  if (!isPending && isRestricted && !restrictedAllowed.some(p => location.pathname.startsWith(p))) {
     return <Navigate to="/dashboard" replace />
   }
   if (!isPending && isProspectRole && !PROSPECT_ALLOWED.some(p => location.pathname.startsWith(p))) {

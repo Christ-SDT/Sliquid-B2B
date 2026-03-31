@@ -20,6 +20,7 @@ interface Overview {
   outOfStock: number
   totalRevenue: number
   distributors: number
+  usersByRole: Record<string, number>
 }
 
 type QuizResult = {

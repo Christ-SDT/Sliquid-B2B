@@ -1,27 +1,27 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
+import { useNotifications } from '@/context/NotificationContext'
 import { cn } from '@/lib/utils'
 import { TIER_LABEL } from '@/types'
 import {
   LayoutDashboard, BookOpen,
-  MapPin, Megaphone, GraduationCap, LogOut, X, Users, Users2, Moon, Sun, Sparkles,
+  MapPin, Megaphone, GraduationCap, LogOut, X, Users, Moon, Sun, Sparkles,
   Image as ImageIcon,
 } from 'lucide-react'
 
-// restricted: tier1/2/3  |  prospectVisible: tier4  |  managerOnly: tier2 only  |  adminOnly: tier5 only
+// restricted: tier1/2/3  |  tier23: tier2+tier3 (but not tier1)  |  prospectVisible: tier4  |  adminOnly: tier5 only
 const NAV = [
-  { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard',          restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
-  { to: '/assets',       icon: BookOpen,        label: 'Asset Library',      restricted: true,  prospectVisible: false, managerOnly: false, adminOnly: false },
-  { to: '/distributors', icon: MapPin,          label: 'Distributors',       restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
-  { to: '/trainings',    icon: GraduationCap,   label: 'Digital Training',   restricted: true,  prospectVisible: true,  managerOnly: false, adminOnly: false },
-  { to: '/creator',      icon: Sparkles,        label: 'AI Creator',         restricted: true,  prospectVisible: false, managerOnly: false, adminOnly: false },
-  { to: '/store-users',  icon: Users2,          label: 'My Store',           restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
-  { to: '/retailer',     icon: Megaphone,       label: 'In-store Marketing', restricted: false, prospectVisible: true,  managerOnly: false, adminOnly: false },
-  { to: '/requests',          icon: Megaphone,  label: 'Partner Requests',    restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
-  { to: '/marketing-requests', icon: Megaphone, label: 'Marketing Requests', restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
-  { to: '/users',              icon: Users,      label: 'User Management',    restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
-  { to: '/media',              icon: ImageIcon,  label: 'Media Library',      restricted: false, prospectVisible: false, managerOnly: false, adminOnly: true  },
+  { to: '/dashboard',         icon: LayoutDashboard, label: 'Dashboard',           restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, badgeType: undefined },
+  { to: '/assets',            icon: BookOpen,        label: 'Asset Library',       restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, badgeType: undefined },
+  { to: '/distributors',      icon: MapPin,          label: 'Distributors',        restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, badgeType: undefined },
+  { to: '/trainings',         icon: GraduationCap,   label: 'Digital Training',    restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, badgeType: undefined },
+  { to: '/creator',           icon: Sparkles,        label: 'AI Creator',          restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, badgeType: undefined },
+  { to: '/retailer',          icon: Megaphone,       label: 'In-store Marketing',  restricted: false, tier23: true,  prospectVisible: true,  managerOnly: false, adminOnly: false, badgeType: undefined },
+  { to: '/requests',          icon: Users,           label: 'Partner Requests',    restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  badgeType: 'new_registration' },
+  { to: '/marketing-requests',icon: Megaphone,       label: 'Marketing Requests',  restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  badgeType: 'marketing_request' },
+  { to: '/media',             icon: ImageIcon,       label: 'Media Library',       restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  badgeType: undefined },
+  { to: '/users',             icon: Users,           label: 'User Management',     restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  badgeType: undefined },
 ]
 
 interface Props {
@@ -31,17 +31,18 @@ interface Props {
 export default function Sidebar({ onClose }: Props) {
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
+  const { countUnreadByType } = useNotifications()
+
   const isRestricted = ['tier1', 'tier2', 'tier3'].includes(user?.role ?? '')
   const role: string | undefined = user?.role
   const isAdminRole = role === 'tier5' || role === 'admin'
   const isProspectRole = role === 'tier4'
   const isPending = user?.status === 'pending'
   const visibleNav = NAV.filter(item => {
-    // Pending users and prospects only see the dashboard
     if (isPending || isProspectRole) return item.to === '/dashboard'
     if (item.adminOnly) return isAdminRole
     if (item.managerOnly) return role === 'tier2' || isAdminRole
-    if (isRestricted) return item.restricted
+    if (isRestricted) return item.restricted || (item.tier23 && (role === 'tier2' || role === 'tier3'))
     return true
   })
 
@@ -70,26 +71,35 @@ export default function Sidebar({ onClose }: Props) {
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         <ul className="space-y-0.5">
-          {visibleNav.map(({ to, icon: Icon, label }) => (
-            <li key={to}>
-              <NavLink
-                to={to}
-                onClick={onClose}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
-                    isActive
-                      ? 'bg-portal-accent text-white'
-                      : 'text-on-canvas-subtle hover:text-on-canvas hover:bg-surface-elevated',
-                  )
-                }
-              >
-                <Icon className="w-4 h-4 flex-shrink-0" />
-                {label}
-              </NavLink>
-            </li>
-          ))}
+          {visibleNav.map(({ to, icon: Icon, label, badgeType }) => {
+            const badgeCount = badgeType ? countUnreadByType(badgeType) : 0
+            return (
+              <li key={to}>
+                <NavLink
+                  to={to}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
+                      isActive
+                        ? 'bg-portal-accent text-white'
+                        : 'text-on-canvas-subtle hover:text-on-canvas hover:bg-surface-elevated',
+                    )
+                  }
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span className="flex-1">{label}</span>
+                  {badgeCount > 0 && (
+                    <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-portal-accent text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                      {badgeCount > 99 ? '99+' : badgeCount}
+                    </span>
+                  )}
+                </NavLink>
+              </li>
+            )
+          })}
         </ul>
+
       </nav>
 
       {/* Theme toggle */}

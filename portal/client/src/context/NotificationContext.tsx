@@ -15,6 +15,7 @@ export interface Notification {
 interface NotificationContextValue {
   notifications: Notification[]
   unreadCount: number
+  countUnreadByType: (type: string) => number
   markRead: (id: number) => void
   markAllRead: () => void
 }
@@ -22,6 +23,7 @@ interface NotificationContextValue {
 const NotificationContext = createContext<NotificationContextValue>({
   notifications: [],
   unreadCount: 0,
+  countUnreadByType: () => 0,
   markRead: () => {},
   markAllRead: () => {},
 })
@@ -48,6 +50,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     return () => clearInterval(interval)
   }, [fetchNotifications])
 
+  function countUnreadByType(type: string) {
+    return notifications.filter(n => n.type === type && n.read === 0).length
+  }
+
   function markRead(id: number) {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: 1 } : n))
     setUnreadCount(prev => Math.max(0, prev - 1))
@@ -61,7 +67,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   }
 
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, markRead, markAllRead }}>
+    <NotificationContext.Provider value={{ notifications, unreadCount, countUnreadByType, markRead, markAllRead }}>
       {children}
     </NotificationContext.Provider>
   )

@@ -88,7 +88,7 @@ router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
            NULL as file_size, NULL as dimensions, s3_key, NULL as description,
            NULL as subtitle, NULL as campaign, NULL as mime_type, created_by as uploaded_by,
            created_at, approved
-    FROM ai_images WHERE approved = 0
+    FROM ai_images
   `).all() as Record<string, unknown>[]
 
   const media = db.prepare(`
