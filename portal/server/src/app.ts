@@ -23,6 +23,7 @@ import certificatesRouter from './routes/certificates.js'
 import trainingOptionsRouter from './routes/training-options.js'
 import creatorRouter from './routes/creator.js'
 import mediaRouter from './routes/media.js'
+import referenceImagesRouter from './routes/reference-images.js'
 
 const app = express()
 
@@ -69,6 +70,7 @@ app.use('/api/certificates', certificatesRouter)
 app.use('/api/training-options', trainingOptionsRouter)
 app.use('/api/creator', creatorRouter)
 app.use('/api/media', mediaRouter)
+app.use('/api/reference-images', referenceImagesRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))
 

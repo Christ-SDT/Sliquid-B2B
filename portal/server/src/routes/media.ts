@@ -83,7 +83,7 @@ router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
 
   const ai = db.prepare(`
     SELECT id, 'ai' as _source, prompt as label,
-           COALESCE(brand, 'Creator Creations') as brand, type,
+           COALESCE(brand, 'User Generated Content') as brand, type,
            s3_url as file_url, s3_url as thumbnail_url,
            NULL as file_size, NULL as dimensions, s3_key, NULL as description,
            NULL as subtitle, NULL as campaign, NULL as mime_type, created_by as uploaded_by,
@@ -276,7 +276,7 @@ router.put('/item/:source/:id', requireAuth, requireRole('tier5', 'admin'), (req
       const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
       return res.json({
         ...row, _source: 'ai', label: row.prompt,
-        brand: row.brand ?? 'Creator Creations',
+        brand: row.brand ?? 'User Generated Content',
         file_url: row.s3_url, thumbnail_url: row.s3_url,
         uploaded_by: row.created_by, approved: row.approved,
       })

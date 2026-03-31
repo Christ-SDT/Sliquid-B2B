@@ -729,6 +729,27 @@ const migrations: Migration[] = [
         "UPDATE woo_settings SET value = 'imagen-4.0-generate-001' WHERE key = 'ai_model' AND value = 'imagen-3.0-generate-002'"
       ).run()
     }
+  },
+  {
+    version: 33,
+    name: 'reference_images_table',
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS reference_images (
+          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+          filename    TEXT NOT NULL,
+          label       TEXT NOT NULL,
+          s3_key      TEXT NOT NULL UNIQUE,
+          file_url    TEXT NOT NULL,
+          file_size   TEXT,
+          size_bytes  INTEGER DEFAULT 0,
+          mime_type   TEXT,
+          uploaded_by TEXT,
+          created_at  TEXT DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_reference_images_created_at ON reference_images(created_at);
+      `)
+    }
   }
 ]
 

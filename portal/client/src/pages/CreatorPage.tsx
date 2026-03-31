@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback, FormEvent } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { AiImage } from '@/types'
-import { Sparkles, Send, Download, Trash2, Loader2, Bot, AlertCircle, ImagePlus, X } from 'lucide-react'
+import { Sparkles, Send, Download, Trash2, Loader2, Bot, AlertCircle, ImagePlus, X, Search, Images } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 // ─── Lampy loading messages ───────────────────────────────────────────────────
 
@@ -84,6 +85,139 @@ function isImageFile(file: File) {
   return file.type.startsWith('image/')
 }
 
+// ─── Gallery types ────────────────────────────────────────────────────────────
+
+interface GalleryImg {
+  id: number
+  label: string
+  filename: string
+  file_url: string
+  mime_type: string
+}
+
+// ─── GalleryPickerModal ───────────────────────────────────────────────────────
+
+const GALLERY_BASE = (import.meta.env.VITE_API_URL ?? '') + '/api'
+
+interface GalleryPickerModalProps {
+  images: GalleryImg[]
+  loading: boolean
+  onClose: () => void
+  onInsert: (img: GalleryImg) => void
+}
+
+function GalleryPickerModal({ images, loading, onClose, onInsert }: GalleryPickerModalProps) {
+  const [search, setSearch] = useState('')
+  const [pickedId, setPickedId] = useState<number | null>(null)
+  const [inserting, setInserting] = useState(false)
+
+  const filtered = images.filter(i =>
+    !search || i.label.toLowerCase().includes(search.toLowerCase()) || i.filename.toLowerCase().includes(search.toLowerCase())
+  )
+
+  async function handleInsert() {
+    const img = images.find(i => i.id === pickedId)
+    if (!img) return
+    setInserting(true)
+    try {
+      onInsert(img)
+    } finally {
+      setInserting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60">
+      <div className="bg-surface border border-portal-border rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[85vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <Images className="w-4 h-4 text-portal-accent" />
+            <h2 className="text-on-canvas font-semibold text-sm">Reference Gallery</h2>
+          </div>
+          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Search */}
+        <div className="px-5 py-3 border-b border-portal-border flex-shrink-0">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted pointer-events-none" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search images…"
+              className="w-full bg-surface-elevated border border-portal-border rounded-lg pl-9 pr-3 py-2 text-on-canvas text-sm placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* Grid */}
+        <div className="flex-1 overflow-y-auto p-5 min-h-0">
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-6 h-6 text-portal-accent animate-spin" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-16">
+              <Images className="w-8 h-8 text-on-canvas-muted/30 mx-auto mb-2" />
+              <p className="text-on-canvas-muted text-sm">{search ? 'No images match your search' : 'No reference images — upload some in Reference Gallery'}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
+              {filtered.map(img => {
+                const isPicked = pickedId === img.id
+                return (
+                  <div
+                    key={img.id}
+                    onClick={() => setPickedId(isPicked ? null : img.id)}
+                    className={cn(
+                      'relative aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all',
+                      isPicked ? 'border-portal-accent ring-2 ring-portal-accent/30' : 'border-portal-border hover:border-portal-accent/50',
+                    )}
+                  >
+                    <img src={img.file_url} alt={img.label} className="w-full h-full object-cover" loading="lazy" />
+                    {isPicked && (
+                      <div className="absolute inset-0 bg-portal-accent/20 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-full bg-portal-accent flex items-center justify-center">
+                          <Search className="w-3.5 h-3.5 text-white" />
+                        </div>
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
+                      <p className="text-white text-[10px] font-medium truncate">{img.label}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-4 border-t border-portal-border flex items-center justify-between flex-shrink-0">
+          <span className="text-on-canvas-muted text-xs">{pickedId ? '1 image selected' : 'Select an image'}</span>
+          <div className="flex gap-2">
+            <button onClick={onClose} className="px-4 py-2 text-sm text-on-canvas-subtle hover:text-on-canvas border border-portal-border rounded-lg transition-colors">
+              Cancel
+            </button>
+            <button
+              onClick={handleInsert}
+              disabled={!pickedId || inserting}
+              className="px-4 py-2 text-sm font-medium bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {inserting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              Insert Selected
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function LampyAvatar() {
@@ -103,8 +237,11 @@ export default function CreatorPage() {
   const [submitting, setSubmitting] = useState(false)
   const [refImage, setRefImage] = useState<RefImage | null>(null)
   const [dragOver, setDragOver] = useState(false)
+  const [galleryOpen, setGalleryOpen] = useState(false)
+  const [galleryImages, setGalleryImages] = useState<GalleryImg[]>([])
+  const [galleryLoaded, setGalleryLoaded] = useState(false)
+  const [galleryBusy, setGalleryBusy] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const dragCounter = useRef(0)
 
   // Load past AI images as chat history on mount
@@ -147,7 +284,39 @@ export default function CreatorPage() {
 
   function clearRefImage() {
     setRefImage(null)
-    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  // ── Gallery picker ─────────────────────────────────────────────────────────
+
+  async function fetchGallery() {
+    setGalleryBusy(true)
+    try {
+      const token = localStorage.getItem('portal_token') ?? ''
+      const res = await fetch(`${GALLERY_BASE}/reference-images`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data: { images: GalleryImg[] } = await res.json()
+        setGalleryImages(data.images)
+        setGalleryLoaded(true)
+      }
+    } catch { /* silently ignore */ } finally {
+      setGalleryBusy(false)
+    }
+  }
+
+  async function handleGalleryInsert(img: GalleryImg) {
+    try {
+      const res = await fetch(img.file_url)
+      const blob = await res.blob()
+      const file = new File([blob], img.filename, { type: img.mime_type || blob.type || 'image/jpeg' })
+      const ref = await readFileAsBase64(file)
+      setRefImage(ref)
+    } catch {
+      // fallback: use the URL directly as preview
+      setRefImage({ data: '', mimeType: img.mime_type || 'image/jpeg', preview: img.file_url })
+    }
+    setGalleryOpen(false)
   }
 
   // ── Drag-and-drop ──────────────────────────────────────────────────────────
@@ -186,7 +355,6 @@ export default function CreatorPage() {
     const capturedRef = refImage
     setPrompt('')
     setRefImage(null)
-    if (fileInputRef.current) fileInputRef.current.value = ''
     setSubmitting(true)
 
     const ts = Date.now()
@@ -401,20 +569,11 @@ export default function CreatorPage() {
 
         {/* Input bar */}
         <form onSubmit={handleSubmit} className="flex gap-2">
-          {/* Hidden file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
-          />
-
-          {/* Image attach button */}
+          {/* Image attach button — opens Reference Gallery picker */}
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
-            title="Attach a reference image"
+            onClick={() => { setGalleryOpen(true); if (!galleryLoaded) fetchGallery() }}
+            title="Choose a reference image from gallery"
             className={`flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border transition-colors
               ${refImage
                 ? 'border-portal-accent bg-portal-accent/10 text-portal-accent'
@@ -450,6 +609,16 @@ export default function CreatorPage() {
           </button>
         </form>
       </div>
+
+      {/* Gallery Picker Modal */}
+      {galleryOpen && (
+        <GalleryPickerModal
+          images={galleryImages}
+          loading={galleryBusy}
+          onClose={() => setGalleryOpen(false)}
+          onInsert={handleGalleryInsert}
+        />
+      )}
     </div>
   )
 }

@@ -100,7 +100,7 @@ describe('GET /api/media', () => {
     expect(res.status).toBe(200)
     const aiItem = res.body.find((i: any) => i._source === 'ai')
     expect(aiItem).toBeTruthy()
-    expect(aiItem.brand).toBe('Creator Creations')
+    expect(aiItem.brand).toBe('User Generated Content')
     expect(aiItem.label).toBe('test prompt')
   })
 

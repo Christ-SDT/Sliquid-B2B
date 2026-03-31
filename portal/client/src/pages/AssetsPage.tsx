@@ -40,7 +40,7 @@ const BRAND_OPTIONS = ['Sliquid', 'RIDE', 'Ride Rocco', 'Sliquid Science']
 // Display names (maps DB value → human label)
 const BRAND_DISPLAY: Record<string, string> = { 'RIDE': 'Ride Lube' }
 // Preferred sort order (by DB value)
-const BRAND_ORDER = ['Sliquid', 'RIDE', 'Ride Rocco', 'Sliquid Science', 'Creator Creations']
+const BRAND_ORDER = ['Sliquid', 'RIDE', 'Ride Rocco', 'Sliquid Science', 'User Generated Content']
 
 function displayBrand(brand: string): string {
   return BRAND_DISPLAY[brand] ?? brand
@@ -1540,7 +1540,7 @@ export default function AssetsPage() {
           ...img,
           _source: 'ai' as const,
           displayName: img.prompt.length > 60 ? img.prompt.slice(0, 60) + '…' : img.prompt,
-          brand: 'Creator Creations',
+          brand: 'User Generated Content',
           type: 'AI Generated',
           file_url: img.s3_url,
           thumbnail_url: img.s3_url,
