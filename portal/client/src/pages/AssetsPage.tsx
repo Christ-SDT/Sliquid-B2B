@@ -4,10 +4,30 @@ import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
 import { Asset, Creative, AiImage } from '@/types'
 import {
-  Search, FolderOpen, Download,
+  Search, FolderOpen, Download, ExternalLink,
   FileImage, FileText, Share2, Image, Video, Mail, Printer, Megaphone, BookOpen,
   Plus, Trash2, X, Loader2, Pencil, ChevronDown, ChevronRight, Folder, ArrowLeft, LayoutGrid, Sparkles, Upload,
 } from 'lucide-react'
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function triggerDownload(url: string, name: string) {
+  const ext = url.split('?')[0].split('.').pop() ?? ''
+  const filename = ext ? `${name}.${ext}` : name
+  fetch(url)
+    .then(r => r.blob())
+    .then(blob => {
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+    })
+    .catch(() => window.open(url, '_blank'))
+}
 
 // ─── Brand constants ──────────────────────────────────────────────────────────
 
@@ -1071,18 +1091,27 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
             )}
           </div>
 
-          {/* View / Download */}
-          <a
-            href={item.file_url}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-3 bg-portal-accent hover:bg-portal-accent/90
-                       text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            View / Download
-          </a>
+          {/* View + Download */}
+          <div className="flex gap-2">
+            <a
+              href={item.file_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-surface-elevated border border-portal-border
+                         hover:bg-portal-border text-on-canvas rounded-lg text-sm font-medium transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              View
+            </a>
+            <button
+              onClick={() => triggerDownload(item.file_url, item.displayName)}
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-portal-accent hover:bg-portal-accent/90
+                         text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Download
+            </button>
+          </div>
 
           {/* Admin controls */}
           {(onEdit || onDelete) && (

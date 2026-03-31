@@ -4,6 +4,26 @@ import { useAuth } from '@/context/AuthContext'
 import { AiImage } from '@/types'
 import { Sparkles, Send, Download, Trash2, Loader2, Bot, AlertCircle, ImagePlus, X } from 'lucide-react'
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function triggerDownload(url: string, name: string) {
+  const ext = url.split('?')[0].split('.').pop() ?? ''
+  const filename = ext ? `${name}.${ext}` : name
+  fetch(url)
+    .then(r => r.blob())
+    .then(blob => {
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+    })
+    .catch(() => window.open(url, '_blank'))
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface RefImage {
@@ -297,16 +317,13 @@ export default function CreatorPage() {
                     loading="lazy"
                   />
                   <div className="px-4 py-2.5 flex items-center justify-between gap-3 border-t border-portal-border">
-                    <a
-                      href={img.s3_url}
-                      download
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => triggerDownload(img.s3_url, `sliquid-ai-${img.id}`)}
                       className="flex items-center gap-1.5 text-portal-accent hover:text-portal-accent/80 text-sm font-medium transition-colors"
                     >
                       <Download className="w-4 h-4" />
                       Download
-                    </a>
+                    </button>
                     {img.user_id === user?.id && (
                       <button
                         onClick={() => handleDelete(img.id)}

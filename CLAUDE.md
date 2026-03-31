@@ -358,11 +358,11 @@ All endpoints require `requireAuth + requireRole('tier5', 'admin')`.
 ### Registered Quizzes (in `trainings` DB table)
 | Order | ID | Title | Video |
 |---|---|---|---|
-| 1 | `h2o-vs-sassy` | H2O vs Sassy | YouTube `https://youtu.be/r9ttBy_WlfA` |
-| 2 | `sea-vs-tsunami` | Sea vs Tsunami | YouTube `https://youtu.be/lFVvtQfOb8Y` |
-| 3 | `satin` | Sliquid Satin | YouTube `https://youtu.be/jNNoSLSxQ80` |
-| 4 | `swirl` | Sliquid Swirl | YouTube `https://youtu.be/omRDQuBJO-k` |
-| 5 | `silver-vs-silk` | Silver vs Silk | YouTube `https://youtu.be/m5hA4P7IDTM` |
+| 1 | `h2o-vs-sassy` | H2O vs Sassy | YouTube `https://youtu.be/Zqo167w7KXY` |
+| 2 | `sea-vs-tsunami` | Sea vs Tsunami | YouTube `https://youtu.be/LQE50bXMq_A` |
+| 3 | `satin` | Sliquid Satin | YouTube `https://youtu.be/qfGlB4YRslQ` |
+| 4 | `swirl` | Sliquid Swirl | YouTube `https://youtu.be/xEb-3YutbH0` |
+| 5 | `silver-vs-silk` | Silver vs Silk | YouTube `https://youtu.be/iaAi0TcqG6U` |
 | 6 | `sizzle-vs-sparks` | Sizzle vs Spark | YouTube `https://youtu.be/yt3FzssdPh0` |
 | 7 | `splash` | Sliquid Splash | YouTube `https://youtu.be/6SHy8fWy3r8` |
 | 8 | `soul` | Sliquid Soul | YouTube `https://youtu.be/PdsWwZDBOmw` |
