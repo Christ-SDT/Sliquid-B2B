@@ -84,7 +84,7 @@ function fakeGeminiResponse(base64 = FAKE_BASE64, mimeType = 'image/png') {
   }
 }
 
-/** Minimal Imagen 3 response */
+/** Minimal Imagen 4 response */
 function fakeImagenResponse(base64 = FAKE_BASE64) {
   return { generatedImages: [{ image: { imageBytes: base64 } }] }
 }
@@ -96,7 +96,7 @@ function fakeGeminiNoImageResponse() {
   }
 }
 
-function seedAiImage(userId: number, prompt = 'test prompt', model = 'gemini-3.1-flash-image-preview') {
+function seedAiImage(userId: number, prompt = 'test prompt', model = 'imagen-4.0-generate-001') {
   const key = `ai-images/${userId}/${Date.now()}.png`
   const result = db.prepare(
     'INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key, model, approved) VALUES (?, ?, ?, ?, ?, ?, 1)'
@@ -259,13 +259,14 @@ describe('POST /api/creator/generate — Gemini API call shape', () => {
     expect(args.config.systemInstruction).toMatch(/sliquid/i)
   })
 
-  it('does not include imageConfig or tools in config', async () => {
+  it('includes imageConfig with 2K size and does not include tools or thinkingConfig', async () => {
     await request(app)
       .post('/api/creator/generate')
       .set('Authorization', bearerToken(tier1Id, 'tier1'))
       .send({ prompt: 'a bottle' })
     const { config } = mockGenerateContent.mock.calls[0][0]
-    expect(config).not.toHaveProperty('imageConfig')
+    expect(config).toHaveProperty('imageConfig')
+    expect((config as any).imageConfig.imageSize).toBe('2K')
     expect(config).not.toHaveProperty('tools')
     expect(config).not.toHaveProperty('thinkingConfig')
   })
@@ -354,14 +355,14 @@ describe('POST /api/creator/generate — Gemini API call shape', () => {
   })
 
   it('stores the settings model in model column when overridden', async () => {
-    setActiveModel('imagen-3.0-generate-002')
+    setActiveModel('imagen-4.0-generate-001')
     // Override to Imagen — generation uses the Imagen path, records the model
     await request(app)
       .post('/api/creator/generate')
       .set('Authorization', bearerToken(tier1Id, 'tier1'))
       .send({ prompt: 'model override test' })
     const row = db.prepare('SELECT model FROM ai_images WHERE user_id = ?').get(tier1Id) as any
-    expect(row.model).toBe('imagen-3.0-generate-002')
+    expect(row.model).toBe('imagen-4.0-generate-001')
   })
 
   it('tier1 can generate', async () => {
@@ -704,21 +705,21 @@ describe('GET /api/creator/settings', () => {
     expect(res.status).toBe(403)
   })
 
-  it('returns default model (imagen-3.0-generate-002) when no DB setting', async () => {
+  it('returns default model (imagen-4.0-generate-001) when no DB setting', async () => {
     const res = await request(app)
       .get('/api/creator/settings')
       .set('Authorization', bearerToken(adminId, 'tier5'))
     expect(res.status).toBe(200)
-    expect(res.body.model).toBe('imagen-3.0-generate-002')
+    expect(res.body.model).toBe('imagen-4.0-generate-001')
   })
 
   it('returns stored model when DB row exists', async () => {
-    setActiveModel('imagen-3.0-generate-002')
+    setActiveModel('imagen-4.0-generate-001')
     const res = await request(app)
       .get('/api/creator/settings')
       .set('Authorization', bearerToken(adminId, 'tier5'))
     expect(res.status).toBe(200)
-    expect(res.body.model).toBe('imagen-3.0-generate-002')
+    expect(res.body.model).toBe('imagen-4.0-generate-001')
   })
 })
 
@@ -776,40 +777,40 @@ describe('POST /api/creator/settings', () => {
     expect(res.body).toEqual({ ok: true, model: 'gemini-3.1-flash-image-preview' })
   })
 
-  it('accepts imagen-3.0-generate-002 as a valid model', async () => {
+  it('accepts imagen-4.0-generate-001 as a valid model', async () => {
     const res = await request(app)
       .post('/api/creator/settings')
       .set('Authorization', bearerToken(adminId, 'tier5'))
-      .send({ model: 'imagen-3.0-generate-002' })
+      .send({ model: 'imagen-4.0-generate-001' })
     expect(res.status).toBe(200)
-    expect(res.body).toEqual({ ok: true, model: 'imagen-3.0-generate-002' })
+    expect(res.body).toEqual({ ok: true, model: 'imagen-4.0-generate-001' })
   })
 
   it('persists the model to woo_settings in the DB', async () => {
     await request(app)
       .post('/api/creator/settings')
       .set('Authorization', bearerToken(adminId, 'tier5'))
-      .send({ model: 'imagen-3.0-generate-002' })
+      .send({ model: 'imagen-4.0-generate-001' })
     const row = db.prepare("SELECT value FROM woo_settings WHERE key = 'ai_model'").get() as any
-    expect(row.value).toBe('imagen-3.0-generate-002')
+    expect(row.value).toBe('imagen-4.0-generate-001')
   })
 
   it('subsequent GET /settings returns the newly saved model', async () => {
     await request(app)
       .post('/api/creator/settings')
       .set('Authorization', bearerToken(adminId, 'tier5'))
-      .send({ model: 'imagen-3.0-generate-002' })
+      .send({ model: 'imagen-4.0-generate-001' })
     const res = await request(app)
       .get('/api/creator/settings')
       .set('Authorization', bearerToken(adminId, 'tier5'))
-    expect(res.body.model).toBe('imagen-3.0-generate-002')
+    expect(res.body.model).toBe('imagen-4.0-generate-001')
   })
 
   it('overwrites previous setting when called twice', async () => {
     await request(app)
       .post('/api/creator/settings')
       .set('Authorization', bearerToken(adminId, 'tier5'))
-      .send({ model: 'imagen-3.0-generate-002' })
+      .send({ model: 'imagen-4.0-generate-001' })
     await request(app)
       .post('/api/creator/settings')
       .set('Authorization', bearerToken(adminId, 'tier5'))

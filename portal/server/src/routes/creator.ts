@@ -92,7 +92,7 @@ PHOTOGRAPHY STYLE:
 
 // ─── Model constants ──────────────────────────────────────────────────────────
 
-const MODEL_IMAGEN  = 'imagen-3.0-generate-002'
+const MODEL_IMAGEN  = 'imagen-4.0-generate-001'
 const MODEL_GEMINI  = 'gemini-3.1-flash-image-preview'
 const VALID_MODELS  = [MODEL_IMAGEN, MODEL_GEMINI] as const
 
@@ -181,6 +181,7 @@ router.post('/generate', requireAuth, async (req, res) => {
         config: {
           systemInstruction: BRAND_BRIEF,
           responseModalities: ['IMAGE', 'TEXT'] as any,
+          imageConfig: { imageSize: '2K' } as any,  // 2048×2048 — 4× more pixels vs default 1K
         },
       })
 

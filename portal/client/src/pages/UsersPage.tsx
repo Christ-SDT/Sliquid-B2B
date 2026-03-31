@@ -317,20 +317,20 @@ function UserRow({
 
 const AI_MODELS = [
   {
-    id: 'imagen-3.0-generate-002',
-    label: 'Imagen 3',
-    description: 'Stable · Original model · Best reliability',
+    id: 'imagen-4.0-generate-001',
+    label: 'Imagen 4',
+    description: 'Current generation · Best quality · ~$0.04/image · Recommended',
   },
   {
     id: 'gemini-3.1-flash-image-preview',
     label: 'Gemini 3.1 Flash',
-    description: 'Image generation · Detailed product photography · Recommended',
+    description: 'Google Search grounded · 2K resolution · ~$0.05–$0.15/image',
   },
 ]
 
 function AiModelPanel() {
-  const [activeModel, setActiveModel] = useState('imagen-3.0-generate-002')
-  const [selected, setSelected] = useState('imagen-3.0-generate-002')
+  const [activeModel, setActiveModel] = useState('imagen-4.0-generate-001')
+  const [selected, setSelected] = useState('imagen-4.0-generate-001')
   const [loading, setLoading] = useState(true)
   const [saveState, setSaveState] = useState<SaveState>('idle')
 
