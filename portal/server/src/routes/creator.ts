@@ -43,7 +43,7 @@ PHOTOGRAPHY STYLE:
 // ─── Model constants ──────────────────────────────────────────────────────────
 
 const MODEL_IMAGEN  = 'imagen-3.0-generate-002'
-const MODEL_GEMINI  = 'gemini-3.1-flash-image-preview'
+const MODEL_GEMINI  = 'gemini-3-flash-preview'
 const VALID_MODELS  = [MODEL_IMAGEN, MODEL_GEMINI] as const
 
 function getActiveModel(): string {

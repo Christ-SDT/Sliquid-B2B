@@ -133,6 +133,7 @@ export default function QuizPage() {
 
   const [videoModalOpen, setVideoModalOpen] = useState(false)
   const [modalKey, setModalKey] = useState(0)
+  const [rewatchingFromCompletion, setRewatchingFromCompletion] = useState(false)
 
   // ─── SCORM state ────────────────────────────────────────────────────────────
   const scormData = useRef<Record<string, string>>({})
@@ -173,6 +174,7 @@ export default function QuizPage() {
       ytModalRef.current.pauseVideo()
     }
     setVideoModalOpen(false)
+    setRewatchingFromCompletion(false)
   }, [isYouTube])
 
   // ─── Escape closes modal ────────────────────────────────────────────────────
@@ -512,9 +514,22 @@ export default function QuizPage() {
       )}
 
       {/* ── Completion overlay ──────────────────────────────────────────────── */}
-      {finish && (
-        <div className="absolute inset-0 bg-portal-bg/95 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-surface border border-portal-border rounded-2xl p-8 w-full max-w-sm mx-4 text-center shadow-2xl">
+      {finish && !rewatchingFromCompletion && (
+        <div
+          className="absolute inset-0 bg-portal-bg/95 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setFinish(null)}
+        >
+          <div
+            className="relative bg-surface border border-portal-border rounded-2xl p-8 w-full max-w-sm mx-4 text-center shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setFinish(null)}
+              className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-surface-elevated text-on-canvas-muted hover:text-on-canvas transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
             {finish.passed
               ? <CheckCircle2 className="w-14 h-14 text-emerald-400 mx-auto mb-4" />
               : <XCircle className="w-14 h-14 text-amber-400 mx-auto mb-4" />
@@ -561,7 +576,7 @@ export default function QuizPage() {
             <div className="flex flex-col gap-2">
               {finish.passed && nextQuiz && (
                 <button
-                  onClick={() => navigate(`/quiz/${nextQuiz.quiz_id}`)}
+                  onClick={() => { setFinish(null); navigate(`/quiz/${nextQuiz.quiz_id}`) }}
                   className="w-full py-2.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
                 >
                   Go to Next Module
@@ -589,7 +604,7 @@ export default function QuizPage() {
               )}
               {quiz.video_path && (
                 <button
-                  onClick={openVideoModal}
+                  onClick={() => { setRewatchingFromCompletion(true); openVideoModal() }}
                   className="w-full py-2.5 bg-surface-elevated hover:bg-portal-border text-on-canvas-subtle rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Video className="w-3.5 h-3.5" />
