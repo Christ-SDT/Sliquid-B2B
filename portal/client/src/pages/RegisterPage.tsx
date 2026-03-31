@@ -65,8 +65,11 @@ export default function RegisterPage() {
               <CheckCircle className="w-7 h-7 text-emerald-400" />
             </div>
             <h2 className="text-on-canvas text-xl font-semibold mb-2">Account submitted!</h2>
-            <p className="text-on-canvas-muted text-sm mb-6">
+            <p className="text-on-canvas-muted text-sm mb-2">
               Your account is pending review. You'll receive full access once a Sliquid admin approves your registration.
+            </p>
+            <p className="text-on-canvas-muted text-sm mb-6">
+              A confirmation email has been sent to <span className="text-on-canvas-subtle">{email}</span>.
             </p>
             <Link
               to="/login"

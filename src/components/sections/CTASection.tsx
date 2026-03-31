@@ -1,5 +1,11 @@
 import { useState } from 'react'
+import emailjs from '@emailjs/browser'
 import { sanitizeText } from '@/utils/sanitize'
+import {
+  EMAILJS_PUBLIC_KEY,
+  EMAILJS_SERVICE_ID,
+  EMAILJS_NEWSLETTER_TID,
+} from '@/utils/constants'
 
 export default function CTASection() {
   const [email, setEmail] = useState('')
@@ -15,8 +21,16 @@ export default function CTASection() {
       return
     }
     setError('')
-    // TODO: POST to newsletter endpoint.
-    // Server must enforce per-IP rate limiting (e.g. 5 submissions/hour).
+    if (EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_NEWSLETTER_TID) {
+      emailjs
+        .send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_NEWSLETTER_TID,
+          { subscriber_email: clean },
+          { publicKey: EMAILJS_PUBLIC_KEY },
+        )
+        .catch((err) => console.error('[emailjs] newsletter send failed:', err))
+    }
     setSubmitted(true)
   }
 

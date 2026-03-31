@@ -104,7 +104,8 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'),
 
     if (req.body.notify === 'true') {
       notifyUsers('new_asset', 'New in Product Library', `${title} (${brand}) has been added to the Product Library.`, '/assets')
-      sendBroadcastEmail({ subject: `New in Product Library: ${title}`, bodyHtml: `<p>${title} (${brand}) has been added to the Product Library.</p>`, link: '/assets' })
+      sendBroadcastEmail({ assetName: title, brand })
+        .catch((err: unknown) => console.error('[email] Broadcast failed:', err))
     }
     res.status(201).json(db.prepare('SELECT * FROM creatives WHERE id = ?').get(lastInsertRowid))
   } catch (err: any) {
@@ -177,7 +178,8 @@ router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.a
 
   if (notify === 'true' && items.length > 0) {
     notifyUsers('new_asset', 'New in Product Library', `${items.length} new file${items.length > 1 ? 's' : ''} (${brand}) added to the Product Library.`, '/assets')
-    sendBroadcastEmail({ subject: `${items.length} new file${items.length > 1 ? 's' : ''} added to Product Library`, bodyHtml: `<p>${items.length} new ${brand} file${items.length > 1 ? 's' : ''} added to the Product Library.</p>`, link: '/assets' })
+    sendBroadcastEmail({ assetName: `${items.length} new file${items.length > 1 ? 's' : ''}`, brand })
+      .catch((err: unknown) => console.error('[email] Broadcast failed:', err))
   }
 
   res.status(items.length > 0 ? 201 : 500).json({ items, count: items.length, ...(errors.length > 0 && { errors }) })

@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth } from '../middleware/auth.js'
+import { sendRewardConfirmEmail } from '../email.js'
 
 const router = Router()
 
@@ -80,6 +81,16 @@ router.post('/reward', requireAuth, (req, res) => {
     state.trim(),
     zip.trim()
   )
+
+  const addressStr = [address1.trim(), address2?.trim(), city.trim(), state.trim(), zip.trim()]
+    .filter(Boolean).join(', ')
+  sendRewardConfirmEmail({
+    toName: user.name,
+    toEmail: user.email,
+    product: product.trim(),
+    shirtSize,
+    address: addressStr,
+  }).catch(err => console.error('[email] Reward confirm email failed:', err))
 
   res.status(201).json({ message: 'Submitted successfully' })
 })

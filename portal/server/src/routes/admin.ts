@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
+import { sendApprovalEmail, sendDeclineEmail } from '../email.js'
 
 const router = Router()
 
@@ -52,14 +53,23 @@ router.post('/users/:id/approve', requireAuth, requireRole('tier5', 'admin'), (r
   const id = parseInt(req.params.id)
   const result = db.prepare("UPDATE users SET role = ?, status = 'active' WHERE id = ?").run(role, id)
   if (result.changes === 0) { res.status(404).json({ message: 'User not found' }); return }
-  const user = db.prepare('SELECT id, name, email, company, role, status, created_at FROM users WHERE id = ?').get(id)
+  const user = db.prepare('SELECT id, name, email, company, role, status, created_at FROM users WHERE id = ?').get(id) as { name: string; email: string; role: string } | undefined
+  if (user) {
+    sendApprovalEmail({ name: user.name, email: user.email, role: user.role })
+      .catch(err => console.error('[email] Approval email failed:', err))
+  }
   res.json(user)
 })
 
 router.post('/users/:id/decline', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const id = parseInt(req.params.id)
+  const user = db.prepare('SELECT name, email FROM users WHERE id = ?').get(id) as { name: string; email: string } | undefined
   const result = db.prepare("UPDATE users SET status = 'declined' WHERE id = ?").run(id)
   if (result.changes === 0) { res.status(404).json({ message: 'User not found' }); return }
+  if (user) {
+    sendDeclineEmail({ name: user.name, email: user.email })
+      .catch(err => console.error('[email] Decline email failed:', err))
+  }
   res.json({ id, status: 'declined' })
 })
 

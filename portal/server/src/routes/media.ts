@@ -129,7 +129,8 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
     if (notify === 'true') {
       const name = (row.label as string) ?? file.originalname
       notifyUsers('new_asset', 'New Media Added', `${name} has been added to the Media Library.`, '/media')
-      sendBroadcastEmail({ subject: `New Media Added: ${name}`, bodyHtml: `<p>${name} has been added to the Media Library.</p>`, link: '/media' })
+      sendBroadcastEmail({ assetName: name, brand: '' })
+        .catch((err: unknown) => console.error('[email] Broadcast failed:', err))
     }
 
     res.status(201).json({ ...row, _source: 'media', thumbnail_url: row.file_url })
@@ -183,7 +184,8 @@ router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.a
 
   if (notify === 'true' && items.length > 0) {
     notifyUsers('new_asset', 'New Media Added', `${items.length} new file${items.length > 1 ? 's' : ''} added to the Media Library.`, '/media')
-    sendBroadcastEmail({ subject: `${items.length} new file${items.length > 1 ? 's' : ''} added to Media Library`, bodyHtml: `<p>${items.length} new file${items.length > 1 ? 's' : ''} added to the Media Library.</p>`, link: '/media' })
+    sendBroadcastEmail({ assetName: `${items.length} new file${items.length > 1 ? 's' : ''}`, brand: resolvedBrand })
+      .catch((err: unknown) => console.error('[email] Broadcast failed:', err))
   }
 
   res.status(items.length > 0 ? 201 : 500).json({ items, count: items.length, ...(errors.length > 0 && { errors }) })

@@ -1,6 +1,13 @@
 import { useState } from 'react'
+import emailjs from '@emailjs/browser'
 import type { ContactFormData, ContactFormErrors } from '@/types'
 import { sanitizeFormData } from '@/utils/sanitize'
+import {
+  EMAILJS_PUBLIC_KEY,
+  EMAILJS_SERVICE_ID,
+  EMAILJS_CONTACT_ADMIN_TID,
+  EMAILJS_CONTACT_REPLY_TID,
+} from '@/utils/constants'
 
 function validate(data: ContactFormData): ContactFormErrors {
   const errors: ContactFormErrors = {}
@@ -83,12 +90,37 @@ export default function ContactPage() {
     }
     setSubmitting(true)
     try {
-      /*
-       * Server MUST enforce per-IP rate limiting (e.g. 5 req/hour)
-       * and CSRF protection before processing form data.
-       * Replace the delay below with: await fetch('/api/contact', { method: 'POST', body: JSON.stringify(sanitized) })
-       */
-      await new Promise((resolve) => setTimeout(resolve, 800))
+      if (EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID) {
+        const sends: Promise<unknown>[] = []
+        if (EMAILJS_CONTACT_ADMIN_TID) {
+          sends.push(
+            emailjs.send(
+              EMAILJS_SERVICE_ID,
+              EMAILJS_CONTACT_ADMIN_TID,
+              {
+                from_name: sanitized.name,
+                from_email: sanitized.email,
+                company: sanitized.company,
+                phone: sanitized.phone ?? '',
+                subject: sanitized.subject,
+                message: sanitized.message,
+              },
+              { publicKey: EMAILJS_PUBLIC_KEY },
+            ),
+          )
+        }
+        if (EMAILJS_CONTACT_REPLY_TID) {
+          sends.push(
+            emailjs.send(
+              EMAILJS_SERVICE_ID,
+              EMAILJS_CONTACT_REPLY_TID,
+              { to_name: sanitized.name, reply_to: sanitized.email },
+              { publicKey: EMAILJS_PUBLIC_KEY },
+            ),
+          )
+        }
+        await Promise.all(sends)
+      }
       setSubmitted(true)
     } finally {
       setSubmitting(false)

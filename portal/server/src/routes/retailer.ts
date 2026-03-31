@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { notifyAdmins } from '../notifications.js'
+import { sendMarketingRequestEmails } from '../email.js'
 
 const router = Router()
 
@@ -28,6 +29,14 @@ router.post('/apply', requireAuth, (req, res) => {
     `${contact_name} (${business_name}) submitted a request: ${requested_items}`,
     '/users',
   )
+
+  sendMarketingRequestEmails({
+    name: req.user!.name,
+    email: req.user!.email,
+    company: business_name,
+    requestedItems: requested_items,
+    notes: request_notes ?? '',
+  }).catch(err => console.error('[email] Marketing request emails failed:', err))
 
   res.status(201).json({ id: result.lastInsertRowid, status: 'pending' })
 })

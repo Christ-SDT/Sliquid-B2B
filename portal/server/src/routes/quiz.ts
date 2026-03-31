@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { randomBytes } from 'crypto'
 import { db } from '../database.js'
 import { requireAuth } from '../middleware/auth.js'
-import { sendQuizPassEmail } from '../email.js'
+import { sendQuizPassEmail, sendCertificateEmail } from '../email.js'
 
 const router = Router()
 
@@ -57,6 +57,15 @@ router.post('/complete', requireAuth, (req, res) => {
             'INSERT INTO certificates (certificate_number, user_id, issued_to) VALUES (?, ?, ?)'
           ).run(certNumber, user.id, user.name)
           console.log(`[cert] Issued certificate ${certNumber} to user ${user.id} (${user.name})`)
+          const completionDate = new Date().toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric',
+          })
+          sendCertificateEmail({
+            toName: user.name,
+            toEmail: user.email,
+            certNumber,
+            completionDate,
+          }).catch(err => console.error('[email] Certificate email failed:', err))
         }
       }
     }

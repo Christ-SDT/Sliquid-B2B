@@ -199,6 +199,13 @@ export const EXECUTIVES: readonly Executive[] = [
   },
 ] as const
 
+// ─── EmailJS configuration ────────────────────────────────────────────────────
+export const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined
+export const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined
+export const EMAILJS_CONTACT_ADMIN_TID = import.meta.env.VITE_EMAILJS_CONTACT_ADMIN_TID as string | undefined
+export const EMAILJS_CONTACT_REPLY_TID = import.meta.env.VITE_EMAILJS_CONTACT_REPLY_TID as string | undefined
+export const EMAILJS_NEWSLETTER_TID = import.meta.env.VITE_EMAILJS_NEWSLETTER_TID as string | undefined
+
 // Sliquid product image constants used directly in section components
 export const IMG_HERO = '/images/semi-finalv2-sliquidb2b.png'
 export const IMG_BRANDS_HERO =

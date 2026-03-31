@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import rateLimit from 'express-rate-limit'
 import { db } from '../database.js'
 import { requireAuth, JWT_SECRET } from '../middleware/auth.js'
+import { sendRegistrationConfirm } from '../email.js'
 
 const router = Router()
 
@@ -64,6 +65,10 @@ router.post('/register', loginLimiter, async (req, res) => {
   ).run(name, email, company, password_hash, role, status)
   const userId = result.lastInsertRowid as number
   const token = jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: '7d' })
+
+  sendRegistrationConfirm({ name, email, company })
+    .catch(err => console.error('[email] Registration email failed:', err))
+
   res.status(201).json({
     token,
     user: { id: userId, name, email, role, company },
