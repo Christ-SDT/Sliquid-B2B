@@ -674,6 +674,17 @@ const migrations: Migration[] = [
         70, 15, 102,
       )
     }
+  },
+  {
+    version: 28,
+    name: 'update_training_video_urls',
+    up: () => {
+      db.prepare("UPDATE trainings SET video_path = 'https://youtu.be/Zqo167w7KXY' WHERE quiz_id = 'h2o-vs-sassy'").run()
+      db.prepare("UPDATE trainings SET video_path = 'https://youtu.be/LQE50bXMq_A' WHERE quiz_id = 'sea-vs-tsunami'").run()
+      db.prepare("UPDATE trainings SET video_path = 'https://youtu.be/iaAi0TcqG6U' WHERE quiz_id = 'silver-vs-silk'").run()
+      db.prepare("UPDATE trainings SET video_path = 'https://youtu.be/qfGlB4YRslQ' WHERE quiz_id = 'satin'").run()
+      db.prepare("UPDATE trainings SET video_path = 'https://youtu.be/xEb-3YutbH0' WHERE quiz_id = 'swirl'").run()
+    }
   }
 ]
 

@@ -244,8 +244,10 @@ export default function CreatorPage() {
             <div className="bg-surface border border-portal-border rounded-2xl rounded-tl-none px-4 py-3 max-w-sm">
               <p className="text-on-canvas text-sm">
                 Hi! I'm <span className="font-semibold text-portal-accent">Lampy</span>, Sliquid's AI image creator.
-                Describe the product image you'd like and I'll generate it.
+                To begin, click the photo icon in the bottom left corner and select the product you would like to feature in your image.
+                In your prompt, provide the size, aesthetic, and overall tone you are looking for in the image. Be as thorough as possible.
                 You can also <span className="text-portal-accent font-medium">attach a reference image</span> or drag one onto this window to guide the style.
+                Your creations are saved to the Asset Library.
                 Your creations are saved to the Asset Library.
               </p>
             </div>

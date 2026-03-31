@@ -211,8 +211,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 18 | `rename_sizzle_vs_sparks_to_spark` | Updates `sizzle-vs-sparks` title from "Sizzle vs Sparks" → "Sizzle vs Spark" in trainings table |
 | 19 | `replace_distributors` | Adds `notes TEXT` column; deletes all old fake distributors; seeds 13 real distributors. `region` = filter category (US/Canada/UK/Mexico/US, Canada); `state` = display locations (CO, MI, AZ etc.) |
 | 20 | `remove_body_spa_and_secret_amor` | Deletes Body Spa and Secret Amor (Secreto Amor MX) distributor rows |
+| 28 | `update_training_video_urls` | Updates video_path for h2o-vs-sassy, sea-vs-tsunami, silver-vs-silk, satin, swirl |
 
-**Next migration version: 21**
+**Next migration version: 29**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
