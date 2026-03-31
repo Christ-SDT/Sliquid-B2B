@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, DragEvent, ChangeEvent } from 'react'
-import { Images, Upload, Search, Pencil, Trash2, X, Check, AlertCircle, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Images, Upload, Search, Pencil, Trash2, X, Check, AlertCircle, Loader2, ChevronDown, ChevronUp, Copy, ExternalLink, Maximize2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -261,6 +261,8 @@ function EditModal({ img, onClose, onSaved }: EditModalProps) {
   const [label, setLabel] = useState(img.label)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [lightbox, setLightbox] = useState(false)
 
   async function save() {
     if (!label.trim()) return
@@ -282,42 +284,142 @@ function EditModal({ img, onClose, onSaved }: EditModalProps) {
     }
   }
 
+  function copyUrl() {
+    navigator.clipboard.writeText(img.file_url).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60">
-      <div className="bg-surface border border-portal-border rounded-2xl shadow-2xl w-full max-w-sm">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
-          <h2 className="text-on-canvas font-semibold text-sm">Rename Image</h2>
-          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas transition-colors"><X className="w-4 h-4" /></button>
-        </div>
-        <div className="px-5 py-4 space-y-3">
-          {error && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-              <p className="text-red-400 text-xs">{error}</p>
-            </div>
-          )}
-          <input
-            type="text"
-            value={label}
-            onChange={e => setLabel(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && save()}
-            autoFocus
-            className="w-full bg-surface-elevated border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
+    <>
+      {/* Lightbox */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setLightbox(false)}
+        >
+          <button
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            onClick={() => setLightbox(false)}
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+          <img
+            src={img.file_url}
+            alt={img.label}
+            className="max-w-full max-h-full object-contain rounded-xl"
+            onClick={e => e.stopPropagation()}
           />
         </div>
-        <div className="px-5 pb-4 flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-on-canvas-subtle hover:text-on-canvas border border-portal-border rounded-lg transition-colors">Cancel</button>
-          <button
-            onClick={save}
-            disabled={saving || !label.trim()}
-            className="px-4 py-2 text-sm font-medium bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
-          >
-            {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            Save
-          </button>
+      )}
+
+      <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60">
+        <div className="bg-surface border border-portal-border rounded-2xl shadow-2xl w-full max-w-lg">
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
+            <h2 className="text-on-canvas font-semibold text-sm">Edit Image</h2>
+            <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="px-5 py-4 space-y-4">
+            {/* Preview */}
+            <div className="relative group cursor-pointer rounded-xl overflow-hidden bg-surface-elevated border border-portal-border" onClick={() => setLightbox(true)}>
+              <img
+                src={img.file_url}
+                alt={img.label}
+                className="w-full h-48 object-cover"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity w-9 h-9 rounded-full bg-black/60 flex items-center justify-center">
+                  <Maximize2 className="w-4 h-4 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Metadata row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-surface-elevated border border-portal-border rounded-lg px-3 py-2">
+                <p className="text-on-canvas-muted text-[10px] font-semibold uppercase tracking-wider mb-0.5">Size</p>
+                <p className="text-on-canvas text-sm font-medium">{img.file_size || '—'}</p>
+              </div>
+              <div className="bg-surface-elevated border border-portal-border rounded-lg px-3 py-2">
+                <p className="text-on-canvas-muted text-[10px] font-semibold uppercase tracking-wider mb-0.5">Date Added</p>
+                <p className="text-on-canvas text-sm font-medium">{formatDate(img.created_at)}</p>
+              </div>
+            </div>
+
+            {/* Label */}
+            <div>
+              <label className="block text-on-canvas-muted text-[10px] font-semibold uppercase tracking-wider mb-1.5">Name</label>
+              {error && (
+                <div className="flex items-center gap-2 px-3 py-2 mb-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                  <p className="text-red-400 text-xs">{error}</p>
+                </div>
+              )}
+              <input
+                type="text"
+                value={label}
+                onChange={e => setLabel(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && save()}
+                autoFocus
+                className="w-full bg-surface-elevated border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
+              />
+            </div>
+
+            {/* File URL */}
+            <div>
+              <label className="block text-on-canvas-muted text-[10px] font-semibold uppercase tracking-wider mb-1.5">File URL</label>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-0 bg-surface-elevated border border-portal-border rounded-lg px-3 py-2">
+                  <p className="text-on-canvas text-xs font-mono truncate">{img.file_url}</p>
+                </div>
+                <button
+                  onClick={copyUrl}
+                  title="Copy URL"
+                  className={cn(
+                    'flex-shrink-0 flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border transition-colors',
+                    copied
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                      : 'border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-portal-accent/50',
+                  )}
+                >
+                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? 'Copied' : 'Copy URL'}
+                </button>
+                <a
+                  href={img.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Open in new tab"
+                  className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-portal-accent/50 transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-5 pb-4 flex justify-end gap-2">
+            <button onClick={onClose} className="px-4 py-2 text-sm text-on-canvas-subtle hover:text-on-canvas border border-portal-border rounded-lg transition-colors">
+              Cancel
+            </button>
+            <button
+              onClick={save}
+              disabled={saving || !label.trim()}
+              className="px-4 py-2 text-sm font-medium bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              Save
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
