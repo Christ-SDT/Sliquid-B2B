@@ -355,7 +355,7 @@ describe('PUT /api/media/item/:source/:id', () => {
     expect(res.body._source).toBe('marketing')
   })
 
-  it('returns 400 when trying to edit an AI image', async () => {
+  it('can update brand/type on an AI image', async () => {
     const aiId = db.prepare(
       'INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key) VALUES (?, ?, ?, ?, ?)'
     ).run(adminId, 'Admin', 'test', 'https://bucket/ai.png', 'ai-images/ai.png').lastInsertRowid
@@ -363,8 +363,10 @@ describe('PUT /api/media/item/:source/:id', () => {
     const res = await request(app)
       .put(`/api/media/item/ai/${aiId}`)
       .set('Authorization', bearerToken(adminId, 'tier5'))
-      .send({ label: 'New prompt' })
-    expect(res.status).toBe(400)
+      .send({ brand: 'Ride Lube', type: 'product' })
+    expect(res.status).toBe(200)
+    expect(res.body._source).toBe('ai')
+    expect(res.body.brand).toBe('Ride Lube')
   })
 
   it('returns 404 for non-existent item', async () => {

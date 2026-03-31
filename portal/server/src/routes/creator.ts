@@ -2,6 +2,8 @@ import { Router } from 'express'
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { GoogleGenAI } from '@google/genai'
 import { randomUUID } from 'crypto'
+import fs from 'fs'
+import path from 'path'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 
@@ -18,6 +20,54 @@ function getS3Client() {
     },
   })
 }
+
+// ─── Label image helpers (Gemini path) ───────────────────────────────────────
+
+const LABELS_DIR = path.join(process.cwd(), 'labels')
+const MAX_LABEL_IMAGES = 5
+const STOP_WORDS = new Set([
+  'a', 'an', 'the', 'on', 'in', 'at', 'of', 'for', 'to', 'and', 'or', 'with', 'by',
+  'bottle', 'bottles', 'shelf', 'photo', 'image', 'picture', 'product', 'lifestyle', 'setting',
+])
+
+function getPromptKeywords(prompt: string): string[] {
+  return [...new Set(
+    prompt.toLowerCase().split(/\s+/)
+      .map(w => w.replace(/[^a-z0-9]/g, ''))
+      .filter(w => w.length > 1 && !STOP_WORDS.has(w))
+  )]
+}
+
+function getLabelImageParts(prompt: string): Array<{ inlineData: { data: string; mimeType: string } }> {
+  try {
+    if (!fs.existsSync(LABELS_DIR)) return []
+    const allFiles = (fs.readdirSync(LABELS_DIR) as string[]).filter(
+      f => /\.(png|jpg|jpeg|webp)$/i.test(f)
+    )
+    if (allFiles.length === 0) return []
+    const keywords = getPromptKeywords(prompt)
+    if (keywords.length === 0) return []
+    const matched = allFiles
+      .filter(f => keywords.some(kw => f.toLowerCase().includes(kw)))
+      .slice(0, MAX_LABEL_IMAGES)
+    const parts: Array<{ inlineData: { data: string; mimeType: string } }> = []
+    for (const filename of matched) {
+      try {
+        const data = fs.readFileSync(path.join(LABELS_DIR, filename))
+        const ext = path.extname(filename).toLowerCase().slice(1)
+        const mimeType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`
+        parts.push({ inlineData: { data: Buffer.from(data).toString('base64'), mimeType } })
+      } catch {
+        // skip unreadable files
+      }
+    }
+    return parts
+  } catch {
+    return []
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 const BRAND_BRIEF =
   `You are a professional product photographer for Sliquid, an intimate wellness brand.
@@ -43,13 +93,15 @@ PHOTOGRAPHY STYLE:
 // ─── Model constants ──────────────────────────────────────────────────────────
 
 const MODEL_IMAGEN  = 'imagen-3.0-generate-002'
-const MODEL_GEMINI  = 'gemini-3-flash-preview'
+const MODEL_GEMINI  = 'gemini-3.1-flash-image-preview'
 const VALID_MODELS  = [MODEL_IMAGEN, MODEL_GEMINI] as const
 
 function getActiveModel(): string {
   try {
     const row = db.prepare("SELECT value FROM woo_settings WHERE key = 'ai_model'").get() as any
-    return row?.value ?? MODEL_GEMINI
+    const stored = row?.value
+    // Validate stored value; fall back to Imagen if missing or unrecognized
+    return stored && (VALID_MODELS as readonly string[]).includes(stored) ? stored : MODEL_IMAGEN
   } catch {
     return MODEL_IMAGEN
   }
@@ -94,30 +146,51 @@ router.post('/generate', requireAuth, async (req, res) => {
     const activeModel = getActiveModel()
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
-    // ── Build parts: optional user reference image first, then the prompt ──
-    const imageParts = referenceImage?.data
-      ? [{ inlineData: { data: referenceImage.data, mimeType: referenceImage.mimeType } }]
-      : []
+    let imageBytes: string
+    let mimeType: string
 
-    const textPart = imageParts.length > 0
-      ? `REFERENCE IMAGE PROVIDED ABOVE: Copy the exact product appearance (bottle shape, label, colors, typography) from the reference.\n\nScene to create: ${prompt.trim()}\n\nOnly the background, environment, and lighting should change from the reference.`
-      : prompt.trim()
+    if (activeModel === MODEL_IMAGEN) {
+      // ── Imagen 3 path (generateImages) ────────────────────────────────────
+      const enrichedPrompt = `${BRAND_BRIEF}\n\nUser request: ${prompt.trim()}`
+      const response = await ai.models.generateImages({
+        model: MODEL_IMAGEN,
+        prompt: enrichedPrompt,
+        config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
+      })
+      const imgBytes = response.generatedImages?.[0]?.image?.imageBytes
+      if (!imgBytes) return res.status(500).json({ error: 'No image returned from AI' })
+      imageBytes = typeof imgBytes === 'string' ? imgBytes : Buffer.from(imgBytes).toString('base64')
+      mimeType = 'image/jpeg'
+    } else {
+      // ── Gemini path (generateContent) ─────────────────────────────────────
+      // Label images: load matching product label images from the local labels/ dir
+      const labelParts = getLabelImageParts(prompt.trim())
+      // User-provided reference image (optional)
+      const userRefParts = referenceImage?.data
+        ? [{ inlineData: { data: referenceImage.data, mimeType: referenceImage.mimeType } }]
+        : []
+      const allImageParts = [...labelParts, ...userRefParts]
 
-    // ── Gemini image generation ──
-    const response = await ai.models.generateContent({
-      model: MODEL_GEMINI,
-      contents: [{ role: 'user', parts: [...imageParts, { text: textPart }] }],
-      config: {
-        systemInstruction: BRAND_BRIEF,
-        responseModalities: ['IMAGE', 'TEXT'] as any,
-      },
-    })
+      const textContent = allImageParts.length > 0
+        ? `${allImageParts.length} reference image${allImageParts.length > 1 ? 's' : ''} provided above.\n\nScene to create: ${prompt.trim()}`
+        : prompt.trim()
 
-    const parts = (response as any).candidates?.[0]?.content?.parts ?? []
-    const imagePart = parts.find((p: any) => p.inlineData?.data)
-    const imageBytes = imagePart?.inlineData?.data
-    const mimeType = imagePart?.inlineData?.mimeType ?? 'image/png'
-    if (!imageBytes) return res.status(500).json({ error: 'No image returned from AI' })
+      const response = await ai.models.generateContent({
+        model: MODEL_GEMINI,
+        contents: [{ role: 'user', parts: [...allImageParts, { text: textContent }] }],
+        config: {
+          systemInstruction: BRAND_BRIEF,
+          responseModalities: ['IMAGE', 'TEXT'] as any,
+        },
+      })
+
+      const parts = (response as any).candidates?.[0]?.content?.parts ?? []
+      const imagePart = parts.find((p: any) => p.inlineData?.data)
+      const imgBytes = imagePart?.inlineData?.data
+      if (!imgBytes) return res.status(500).json({ error: 'No image returned from AI' })
+      imageBytes = imgBytes
+      mimeType = imagePart?.inlineData?.mimeType ?? 'image/png'
+    }
 
     // Upload to S3
     const s3 = getS3Client()

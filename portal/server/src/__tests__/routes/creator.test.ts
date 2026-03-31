@@ -8,6 +8,7 @@ import { bearerToken } from '../helpers/auth.js'
 
 const mockS3Send = vi.hoisted(() => vi.fn().mockResolvedValue({}))
 const mockGenerateContent = vi.hoisted(() => vi.fn())
+const mockGenerateImages = vi.hoisted(() => vi.fn())
 
 // fs mock functions — hoisted so they exist before any import runs
 const mockExistsSync   = vi.hoisted(() => vi.fn())
@@ -28,7 +29,7 @@ vi.mock('@aws-sdk/client-s3', () => ({
 
 vi.mock('@google/genai', () => ({
   GoogleGenAI: vi.fn(() => ({
-    models: { generateContent: mockGenerateContent },
+    models: { generateContent: mockGenerateContent, generateImages: mockGenerateImages },
   })),
 }))
 
@@ -83,6 +84,11 @@ function fakeGeminiResponse(base64 = FAKE_BASE64, mimeType = 'image/png') {
   }
 }
 
+/** Minimal Imagen 3 response */
+function fakeImagenResponse(base64 = FAKE_BASE64) {
+  return { generatedImages: [{ image: { imageBytes: base64 } }] }
+}
+
 /** Gemini response with no image — only text parts */
 function fakeGeminiNoImageResponse() {
   return {
@@ -93,7 +99,7 @@ function fakeGeminiNoImageResponse() {
 function seedAiImage(userId: number, prompt = 'test prompt', model = 'gemini-3.1-flash-image-preview') {
   const key = `ai-images/${userId}/${Date.now()}.png`
   const result = db.prepare(
-    'INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key, model) VALUES (?, ?, ?, ?, ?, ?)'
+    'INSERT INTO ai_images (user_id, created_by, prompt, s3_url, s3_key, model, approved) VALUES (?, ?, ?, ?, ?, ?, 1)'
   ).run(userId, 'Test User', prompt, `https://test-bucket.s3.us-east-1.amazonaws.com/${key}`, key, model)
   return result.lastInsertRowid as number
 }
@@ -120,12 +126,15 @@ beforeAll(() => {
 
 beforeEach(() => {
   restoreFs() // reset fs mocks to pass-through before each test
-  mockGenerateContent.mockClear() // clear call history so mock.calls[0] always belongs to this test
+  mockGenerateContent.mockClear()
+  mockGenerateImages.mockClear()
   mockS3Send.mockClear()
   resetDb()
   ;({ adminId, tier1Id, tier2Id, tier4Id } = seedTestUsers())
   mockGenerateContent.mockResolvedValue(fakeGeminiResponse())
+  mockGenerateImages.mockResolvedValue(fakeImagenResponse())
   mockS3Send.mockResolvedValue({})
+  // Default model after resetDb() is Imagen (no DB row → getActiveModel() returns MODEL_IMAGEN)
 })
 
 afterEach(() => {
@@ -210,6 +219,8 @@ describe('POST /api/creator/generate — auth & validation', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('POST /api/creator/generate — Gemini API call shape', () => {
+  beforeEach(() => setActiveModel('gemini-3.1-flash-image-preview'))
+
   it('calls generateContent (not generateImages)', async () => {
     await request(app)
       .post('/api/creator/generate')
@@ -344,7 +355,7 @@ describe('POST /api/creator/generate — Gemini API call shape', () => {
 
   it('stores the settings model in model column when overridden', async () => {
     setActiveModel('imagen-3.0-generate-002')
-    // Even when settings say Imagen, generation still calls Gemini — but records the setting
+    // Override to Imagen — generation uses the Imagen path, records the model
     await request(app)
       .post('/api/creator/generate')
       .set('Authorization', bearerToken(tier1Id, 'tier1'))
@@ -400,6 +411,8 @@ describe('POST /api/creator/generate — Gemini API call shape', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('POST /api/creator/generate — label images', () => {
+  beforeEach(() => setActiveModel('gemini-3.1-flash-image-preview'))
+
   function mockLabelsDir(files: string[]) {
     mockExistsSync.mockReturnValue(true)
     mockReaddirSync.mockReturnValue(files as any)
@@ -548,6 +561,8 @@ describe('POST /api/creator/generate — label images', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('POST /api/creator/generate — referenceImage', () => {
+  beforeEach(() => setActiveModel('gemini-3.1-flash-image-preview'))
+
   it('succeeds without referenceImage', async () => {
     const res = await request(app)
       .post('/api/creator/generate')
@@ -689,12 +704,12 @@ describe('GET /api/creator/settings', () => {
     expect(res.status).toBe(403)
   })
 
-  it('returns default model (gemini-3.1-flash-image-preview) when no DB setting', async () => {
+  it('returns default model (imagen-3.0-generate-002) when no DB setting', async () => {
     const res = await request(app)
       .get('/api/creator/settings')
       .set('Authorization', bearerToken(adminId, 'tier5'))
     expect(res.status).toBe(200)
-    expect(res.body.model).toBe('gemini-3.1-flash-image-preview')
+    expect(res.body.model).toBe('imagen-3.0-generate-002')
   })
 
   it('returns stored model when DB row exists', async () => {

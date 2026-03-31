@@ -709,6 +709,15 @@ const migrations: Migration[] = [
         db.exec("UPDATE ai_images SET approved = 1")
       }
     }
+  },
+  {
+    version: 31,
+    name: 'reset_ai_model_to_imagen',
+    up: () => {
+      // Reset to Imagen 3 — previous deployments may have stored a Gemini model
+      // that is geo-blocked on Railway. Imagen 3 is available globally.
+      db.prepare("INSERT OR REPLACE INTO woo_settings (key, value) VALUES ('ai_model', 'imagen-3.0-generate-002')").run()
+    }
   }
 ]
 
