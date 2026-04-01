@@ -322,9 +322,14 @@ const AI_MODELS = [
     description: 'Current generation · Best quality · ~$0.04/image · Recommended',
   },
   {
+    id: 'gemini-2.5-flash-image',
+    label: 'Gemini 2.5 Flash — Nano Banana',
+    description: 'Text & image-to-image · Conversational editing · May be geo-restricted on Railway',
+  },
+  {
     id: 'gemini-3.1-flash-image-preview',
     label: 'Gemini 3.1 Flash',
-    description: 'Google Search grounded · 2K resolution · ~$0.05–$0.15/image',
+    description: 'Google Search grounded · 2K resolution · May be geo-restricted on Railway',
   },
 ]
 

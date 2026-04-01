@@ -9,6 +9,7 @@ import { bearerToken } from '../helpers/auth.js'
 const mockS3Send = vi.hoisted(() => vi.fn().mockResolvedValue({}))
 const mockGenerateContent = vi.hoisted(() => vi.fn())
 const mockGenerateImages = vi.hoisted(() => vi.fn())
+const mockEditImage = vi.hoisted(() => vi.fn())
 
 // fs mock functions — hoisted so they exist before any import runs
 const mockExistsSync   = vi.hoisted(() => vi.fn())
@@ -29,8 +30,10 @@ vi.mock('@aws-sdk/client-s3', () => ({
 
 vi.mock('@google/genai', () => ({
   GoogleGenAI: vi.fn(() => ({
-    models: { generateContent: mockGenerateContent, generateImages: mockGenerateImages },
+    models: { generateContent: mockGenerateContent, generateImages: mockGenerateImages, editImage: mockEditImage },
   })),
+  // StyleReferenceImage is used as a class; stub it as a plain constructor
+  StyleReferenceImage: vi.fn().mockImplementation(() => ({})),
 }))
 
 vi.mock('fs', async (importOriginal) => {
@@ -128,11 +131,13 @@ beforeEach(() => {
   restoreFs() // reset fs mocks to pass-through before each test
   mockGenerateContent.mockClear()
   mockGenerateImages.mockClear()
+  mockEditImage.mockClear()
   mockS3Send.mockClear()
   resetDb()
   ;({ adminId, tier1Id, tier2Id, tier4Id } = seedTestUsers())
   mockGenerateContent.mockResolvedValue(fakeGeminiResponse())
   mockGenerateImages.mockResolvedValue(fakeImagenResponse())
+  mockEditImage.mockResolvedValue(fakeImagenResponse())
   mockS3Send.mockResolvedValue({})
   // Default model after resetDb() is Imagen (no DB row → getActiveModel() returns MODEL_IMAGEN)
 })
@@ -220,6 +225,19 @@ describe('POST /api/creator/generate — auth & validation', () => {
 
 describe('POST /api/creator/generate — Gemini API call shape', () => {
   beforeEach(() => setActiveModel('gemini-3.1-flash-image-preview'))
+
+  it('Nano Banana (gemini-2.5-flash-image) also routes through generateContent', async () => {
+    setActiveModel('gemini-2.5-flash-image')
+    const res = await request(app)
+      .post('/api/creator/generate')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ prompt: 'a bottle' })
+    expect(res.status).toBe(200)
+    expect(mockGenerateContent).toHaveBeenCalledOnce()
+    expect(mockGenerateImages).not.toHaveBeenCalled()
+    const args = mockGenerateContent.mock.calls[0][0]
+    expect(args.model).toBe('gemini-2.5-flash-image')
+  })
 
   it('calls generateContent (not generateImages)', async () => {
     await request(app)
@@ -777,6 +795,15 @@ describe('POST /api/creator/settings', () => {
     expect(res.body).toEqual({ ok: true, model: 'gemini-3.1-flash-image-preview' })
   })
 
+  it('accepts gemini-2.5-flash-image (Nano Banana) as a valid model', async () => {
+    const res = await request(app)
+      .post('/api/creator/settings')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ model: 'gemini-2.5-flash-image' })
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual({ ok: true, model: 'gemini-2.5-flash-image' })
+  })
+
   it('accepts imagen-4.0-generate-001 as a valid model', async () => {
     const res = await request(app)
       .post('/api/creator/settings')
@@ -958,5 +985,133 @@ describe('DELETE /api/creator/:id', () => {
     expect(DeleteObjectCommand).toHaveBeenCalledWith(
       expect.objectContaining({ Key: row.s3_key })
     )
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/creator/generate — Imagen 4 path (generateImages + editImage)
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('POST /api/creator/generate — Imagen 4 path', () => {
+  // Default beforeEach already sets Imagen as active (no DB row → MODEL_IMAGEN fallback)
+
+  it('calls generateImages (not editImage or generateContent) when no reference image', async () => {
+    const res = await request(app)
+      .post('/api/creator/generate')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ prompt: 'a bottle on a marble counter' })
+    expect(res.status).toBe(200)
+    expect(mockGenerateImages).toHaveBeenCalledOnce()
+    expect(mockEditImage).not.toHaveBeenCalled()
+    expect(mockGenerateContent).not.toHaveBeenCalled()
+  })
+
+  it('calls editImage (not generateImages) when referenceImage base64 is provided', async () => {
+    const res = await request(app)
+      .post('/api/creator/generate')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({
+        prompt: 'underwater sea turtle scene',
+        referenceImage: { data: REF_BASE64, mimeType: 'image/jpeg' },
+      })
+    expect(res.status).toBe(200)
+    expect(mockEditImage).toHaveBeenCalledOnce()
+    expect(mockGenerateImages).not.toHaveBeenCalled()
+  })
+
+  it('calls editImage when referenceImageUrl is provided (server fetches URL)', async () => {
+    // Mock global fetch to simulate a successful URL fetch
+    const originalFetch = global.fetch
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      arrayBuffer: () => Promise.resolve(Buffer.from(REF_BASE64, 'base64').buffer),
+      headers: { get: () => 'image/jpeg' },
+    }) as any
+
+    try {
+      const res = await request(app)
+        .post('/api/creator/generate')
+        .set('Authorization', bearerToken(tier1Id, 'tier1'))
+        .send({
+          prompt: 'underwater sea turtle scene',
+          referenceImageUrl: 'https://test-bucket.s3.us-east-1.amazonaws.com/ref.jpg',
+        })
+      expect(res.status).toBe(200)
+      expect(mockEditImage).toHaveBeenCalledOnce()
+      expect(mockGenerateImages).not.toHaveBeenCalled()
+    } finally {
+      global.fetch = originalFetch
+    }
+  })
+
+  it('falls back to generateImages when referenceImageUrl fetch fails', async () => {
+    const originalFetch = global.fetch
+    global.fetch = vi.fn().mockRejectedValue(new Error('network error')) as any
+
+    try {
+      const res = await request(app)
+        .post('/api/creator/generate')
+        .set('Authorization', bearerToken(tier1Id, 'tier1'))
+        .send({
+          prompt: 'a bottle',
+          referenceImageUrl: 'https://test-bucket.s3.us-east-1.amazonaws.com/bad.jpg',
+        })
+      expect(res.status).toBe(200)
+      expect(mockGenerateImages).toHaveBeenCalledOnce()
+      expect(mockEditImage).not.toHaveBeenCalled()
+    } finally {
+      global.fetch = originalFetch
+    }
+  })
+
+  it('uses the correct Imagen model name in generateImages', async () => {
+    await request(app)
+      .post('/api/creator/generate')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ prompt: 'a bottle' })
+    const args = mockGenerateImages.mock.calls[0][0]
+    expect(args.model).toBe('imagen-4.0-generate-001')
+  })
+
+  it('uses the correct Imagen model name in editImage', async () => {
+    await request(app)
+      .post('/api/creator/generate')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({
+        prompt: 'underwater scene',
+        referenceImage: { data: REF_BASE64, mimeType: 'image/jpeg' },
+      })
+    const args = mockEditImage.mock.calls[0][0]
+    expect(args.model).toBe('imagen-4.0-generate-001')
+  })
+
+  it('returns 500 when editImage returns no image', async () => {
+    mockEditImage.mockResolvedValueOnce({ generatedImages: [] })
+    const res = await request(app)
+      .post('/api/creator/generate')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({
+        prompt: 'underwater scene',
+        referenceImage: { data: REF_BASE64, mimeType: 'image/jpeg' },
+      })
+    expect(res.status).toBe(500)
+    expect(res.body.error).toMatch(/no image/i)
+  })
+
+  it('stores imagen-4.0-generate-001 as model in DB row', async () => {
+    await request(app)
+      .post('/api/creator/generate')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ prompt: 'model column test' })
+    const row = db.prepare('SELECT model FROM ai_images WHERE user_id = ?').get(tier1Id) as any
+    expect(row.model).toBe('imagen-4.0-generate-001')
+  })
+
+  it('s3_key always has .jpg extension (Imagen always returns jpeg)', async () => {
+    const res = await request(app)
+      .post('/api/creator/generate')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ prompt: 'extension check' })
+    expect(res.body.s3_key).toMatch(/\.jpg$/)
   })
 })

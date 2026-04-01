@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { GoogleGenAI } from '@google/genai'
+import { GoogleGenAI, StyleReferenceImage } from '@google/genai'
 import { randomUUID } from 'crypto'
 import fs from 'fs'
 import path from 'path'
@@ -92,9 +92,10 @@ PHOTOGRAPHY STYLE:
 
 // ─── Model constants ──────────────────────────────────────────────────────────
 
-const MODEL_IMAGEN  = 'imagen-4.0-generate-001'
-const MODEL_GEMINI  = 'gemini-3.1-flash-image-preview'
-const VALID_MODELS  = [MODEL_IMAGEN, MODEL_GEMINI] as const
+const MODEL_IMAGEN       = 'imagen-4.0-generate-001'
+const MODEL_GEMINI       = 'gemini-3.1-flash-image-preview'
+const MODEL_GEMINI_NANO  = 'gemini-2.5-flash-image'
+const VALID_MODELS  = [MODEL_IMAGEN, MODEL_GEMINI, MODEL_GEMINI_NANO] as const
 
 function getActiveModel(): string {
   try {
@@ -151,14 +152,50 @@ router.post('/generate', requireAuth, async (req, res) => {
     let mimeType: string
 
     if (activeModel === MODEL_IMAGEN) {
-      // ── Imagen 3 path (generateImages) ────────────────────────────────────
+      // ── Imagen 4 path ──────────────────────────────────────────────────────
       const enrichedPrompt = `${BRAND_BRIEF}\n\nUser request: ${prompt.trim()}`
-      const response = await ai.models.generateImages({
-        model: MODEL_IMAGEN,
-        prompt: enrichedPrompt,
-        config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
-      })
-      const imgBytes = response.generatedImages?.[0]?.image?.imageBytes
+
+      // Resolve reference image (URL fetch or base64 upload)
+      let refBytes: string | null = null
+      let refMime = 'image/jpeg'
+      if (referenceImage?.data) {
+        refBytes = referenceImage.data
+        refMime = referenceImage.mimeType
+      } else if (referenceImageUrl) {
+        try {
+          const imgRes = await fetch(referenceImageUrl)
+          if (imgRes.ok) {
+            const buffer = Buffer.from(await imgRes.arrayBuffer())
+            refMime = imgRes.headers.get('content-type')?.split(';')[0] ?? 'image/jpeg'
+            refBytes = buffer.toString('base64')
+          }
+        } catch (err) {
+          console.error('[creator] failed to fetch referenceImageUrl for Imagen:', err)
+        }
+      }
+
+      let imgBytes: string | Uint8Array | undefined
+      if (refBytes) {
+        // editImage: use reference as style guidance
+        const styleRef = new StyleReferenceImage()
+        styleRef.referenceImage = { imageBytes: refBytes, mimeType: refMime }
+        styleRef.referenceId = 1
+        const response = await ai.models.editImage({
+          model: MODEL_IMAGEN,
+          prompt: enrichedPrompt,
+          referenceImages: [styleRef],
+        })
+        imgBytes = response.generatedImages?.[0]?.image?.imageBytes
+      } else {
+        // generateImages: text-to-image (no reference)
+        const response = await ai.models.generateImages({
+          model: MODEL_IMAGEN,
+          prompt: enrichedPrompt,
+          config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
+        })
+        imgBytes = response.generatedImages?.[0]?.image?.imageBytes
+      }
+
       if (!imgBytes) return res.status(500).json({ error: 'No image returned from AI' })
       imageBytes = typeof imgBytes === 'string' ? imgBytes : Buffer.from(imgBytes).toString('base64')
       mimeType = 'image/jpeg'
@@ -193,7 +230,7 @@ router.post('/generate', requireAuth, async (req, res) => {
         : prompt.trim()
 
       const response = await ai.models.generateContent({
-        model: MODEL_GEMINI,
+        model: activeModel,
         contents: [{ role: 'user', parts: [...allImageParts, { text: textContent }] }],
         config: {
           systemInstruction: BRAND_BRIEF,
