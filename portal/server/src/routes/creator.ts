@@ -129,9 +129,10 @@ router.post('/settings', requireAuth, requireRole('tier5', 'admin'), (req, res) 
 router.post('/generate', requireAuth, async (req, res) => {
   if (req.user!.role === 'tier4') return res.status(403).json({ error: 'Forbidden' })
 
-  const { prompt, referenceImage } = req.body as {
+  const { prompt, referenceImage, referenceImageUrl } = req.body as {
     prompt?: string
     referenceImage?: { data: string; mimeType: string }
+    referenceImageUrl?: string
   }
   if (!prompt?.trim()) return res.status(400).json({ error: 'prompt is required' })
 
@@ -165,9 +166,25 @@ router.post('/generate', requireAuth, async (req, res) => {
       // ── Gemini path (generateContent) ─────────────────────────────────────
       // Label images: load matching product label images from the local labels/ dir
       const labelParts = getLabelImageParts(prompt.trim())
+
+      // Resolve reference image: base64 upload takes precedence; fall back to URL fetch
+      let resolvedRef = referenceImage?.data ? referenceImage : null
+      if (!resolvedRef && referenceImageUrl) {
+        try {
+          const imgRes = await fetch(referenceImageUrl)
+          if (imgRes.ok) {
+            const buffer = Buffer.from(await imgRes.arrayBuffer())
+            const mimeType = imgRes.headers.get('content-type')?.split(';')[0] ?? 'image/jpeg'
+            resolvedRef = { data: buffer.toString('base64'), mimeType }
+          }
+        } catch (err) {
+          console.error('[creator] failed to fetch referenceImageUrl:', err)
+        }
+      }
+
       // User-provided reference image (optional)
-      const userRefParts = referenceImage?.data
-        ? [{ inlineData: { data: referenceImage.data, mimeType: referenceImage.mimeType } }]
+      const userRefParts = resolvedRef
+        ? [{ inlineData: { data: resolvedRef.data, mimeType: resolvedRef.mimeType } }]
         : []
       const allImageParts = [...labelParts, ...userRefParts]
 

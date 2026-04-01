@@ -53,9 +53,10 @@ function triggerDownload(url: string, name: string) {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface RefImage {
-  data: string       // base64, no prefix
+  data: string       // base64, no prefix (empty for gallery images)
   mimeType: string
-  preview: string    // object URL for display
+  preview: string    // object URL or S3 URL for display
+  sourceUrl?: string // gallery images only — server fetches this to avoid CORS
 }
 
 type ChatMsg =
@@ -305,17 +306,16 @@ export default function CreatorPage() {
     }
   }
 
-  async function handleGalleryInsert(img: GalleryImg) {
-    try {
-      const res = await fetch(img.file_url)
-      const blob = await res.blob()
-      const file = new File([blob], img.filename, { type: img.mime_type || blob.type || 'image/jpeg' })
-      const ref = await readFileAsBase64(file)
-      setRefImage(ref)
-    } catch {
-      // fallback: use the URL directly as preview
-      setRefImage({ data: '', mimeType: img.mime_type || 'image/jpeg', preview: img.file_url })
-    }
+  function handleGalleryInsert(img: GalleryImg) {
+    // Don't fetch the S3 URL from the browser — CORS blocks it.
+    // Store the URL and let the server fetch it when generating.
+    // img tags can still display S3 URLs fine (CORS only affects fetch/XHR).
+    setRefImage({
+      data: '',
+      mimeType: img.mime_type || 'image/jpeg',
+      preview: img.file_url,
+      sourceUrl: img.file_url,
+    })
     setGalleryOpen(false)
   }
 
@@ -370,7 +370,13 @@ export default function CreatorPage() {
     try {
       const body: Record<string, unknown> = { prompt: userText }
       if (capturedRef) {
-        body.referenceImage = { data: capturedRef.data, mimeType: capturedRef.mimeType }
+        if (capturedRef.sourceUrl) {
+          // Gallery image — pass URL to server; server fetches it (no CORS issue)
+          body.referenceImageUrl = capturedRef.sourceUrl
+        } else if (capturedRef.data) {
+          // User-uploaded file — send base64 directly
+          body.referenceImage = { data: capturedRef.data, mimeType: capturedRef.mimeType }
+        }
       }
       const result = await api.post<AiImage>('/creator/generate', body)
       setMessages(prev => prev.map(m =>
