@@ -2,7 +2,7 @@ import type { TopBarLink, NavLink, StrategyCard, StatItem, Brand, NewsArticle, E
 
 export const TOP_BAR_LINKS: readonly TopBarLink[] = [
   { label: 'Sliquid Retail', href: 'https://sliquid.com', external: true },
-  { label: 'RIDE Lube', href: 'https://ridebodyworx.com', external: true },
+  { label: 'RIDE Lube', href: 'https://ridelube.com/', external: true },
   { label: 'Partner Login', href: '/partner-login', highlighted: true },
 ] as const
 
@@ -20,7 +20,7 @@ export const STRATEGY_CARDS: readonly StrategyCard[] = [
     description:
       'Get wholesale solutions and displays that deliver high sell-through rates and improved customer satisfaction.',
     imageUrl:
-      'https://sliquid.com/wp-content/uploads/2025/03/Organics-Natural-Group.png',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/2a337a21-ebc9-4ccb-a59d-1db2c16e4232.png',
     imageAlt: 'Sliquid Organics Natural lubricant collection on a clean surface',
     linkHref: '/contact?type=retailer',
     linkLabel: 'See our catalog',
@@ -31,7 +31,7 @@ export const STRATEGY_CARDS: readonly StrategyCard[] = [
     description:
       'Recommend body-safe, glycerin-free lubricants that align with pelvic health and wellness plans.',
     imageUrl:
-      'https://sliquid.com/wp-content/uploads/2025/03/Master-Soothe-Group-w-reflections.png',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/2a337a21-ebc9-4ccb-a59d-1db2c16e4232.png',
     imageAlt: 'Sliquid Soothe intimate wellness product group with reflections',
     linkHref: '/contact?type=practitioner',
     linkLabel: 'View formulations',
@@ -42,7 +42,7 @@ export const STRATEGY_CARDS: readonly StrategyCard[] = [
     description:
       'Collaborate to develop logistics strategies that meet the goals of our mutual clients worldwide.',
     imageUrl:
-      'https://sliquid.com/wp-content/uploads/2025/03/RideRocco-WaterBased-Group.png',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/ea6d3eef-451d-4510-a5bc-55a42ab2c4fc.png',
     imageAlt: 'RIDE Lube water-based lubricant product lineup',
     linkHref: '/contact?type=distributor',
     linkLabel: 'Partner with us',
@@ -64,8 +64,8 @@ export const BRANDS: readonly Brand[] = [
     description:
       'Sliquid pioneered clean intimate wellness starting in 2002. Every formula is glycerin-free, paraben-free, and crafted with body-safe ingredients — from the bestselling H2O water-based lubricant to the USDA-certified Organics line. With 100+ SKUs spanning lubricants, cleansers, and massage oils, Sliquid is the trusted standard for retailers and healthcare practitioners worldwide.',
     imageUrl:
-      'https://sliquid.com/wp-content/uploads/2025/03/Silver-Studio-Collection.png',
-    imageAlt: 'Sliquid Silver studio collection of body-safe lubricants',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/assets/f6e32f00-e762-42f9-939b-6688b92dc20a.jpg',
+    imageAlt: 'Sliquid H2O apart of the Naturals collection of body-safe lubricants',
     siteUrl: 'https://sliquid.com',
   },
   {
@@ -75,7 +75,7 @@ export const BRANDS: readonly Brand[] = [
     description:
       'RIDE Lube is built for performance. The lineup — water-based, silicone, hybrid, and specialty formulas — is engineered for thickness, slipperiness, and endurance with ingredients chosen for sensitive skin. Inclusive by design, RIDE Lube serves a broad audience including the LGBTQ+ community and features the Buck Angel T-Collection developed specifically for transgender individuals. A high-velocity SKU for adult retailers seeking a loyal, performance-driven customer base.',
     imageUrl:
-      'https://sliquid.com/wp-content/uploads/2025/03/Master_RIDE-LUBE-WATERBASEDGROUP-1000x1000-1.jpg',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/assets/cc7de5ef-c5ef-45e7-925e-8d5a2bce5693.png',
     imageAlt: 'RIDE Lube water-based lubricant product group',
     siteUrl: 'https://ridelube.com',
   },
@@ -86,7 +86,7 @@ export const BRANDS: readonly Brand[] = [
     description:
       'Developed in partnership with adult industry icon Rocco Steele, Ride Rocco is a premium lubricant collection that demands shelf presence. Water-based, silicone, and the unique Seed hybrid formula deliver the long-lasting endurance Rocco\'s audience expects, all manufactured to the same body-safe standards as RIDE Lube. The co-branded packaging drives impulse purchase and connects with a dedicated, passionate fan base that follows Rocco across platforms.',
     imageUrl:
-      'https://sliquid.com/wp-content/uploads/2025/03/RideRocco-WaterBased-Group.png',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/assets/e4db1796-d86e-4db6-9df6-6e4cb0bf28bb.jpg',
     imageAlt: 'Ride Rocco signature water-based lubricant collection',
     siteUrl: 'https://riderocco.com',
   },
@@ -146,7 +146,7 @@ export const FEATURED_NEWS: readonly NewsArticle[] = [
     id: 'news-5',
     title: 'Cynthia Elliott on Leading Through Change',
     excerpt:
-      "CEO Cynthia Elliott shares her vision for Sliquid's next chapter — a wellness-forward brand built on the foundation Dean created, designed for a world that is finally ready for honest conversations about intimate health.",
+      "CEO Cynthia Elliott shares her vision for Sliquid's next chapter — a wellness-forward brand built on the foundation of made by women for women.",
     category: 'Leadership',
     date: '2025-07-10',
     imageUrl:
@@ -209,6 +209,6 @@ export const EMAILJS_NEWSLETTER_TID = import.meta.env.VITE_EMAILJS_NEWSLETTER_TI
 // Sliquid product image constants used directly in section components
 export const IMG_HERO = '/images/semi-finalv2-sliquidb2b.png'
 export const IMG_BRANDS_HERO =
-  'https://sliquid.com/wp-content/uploads/2025/03/H2OGroup-850x850-1.webp'
+  'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/8bcc5e5c-78e3-4c89-a88e-d8af8e810284.png'
 export const IMG_CEO =
   'https://sliquid.com/wp-content/uploads/2025/10/c4ocr69L_400x400.jpg'
