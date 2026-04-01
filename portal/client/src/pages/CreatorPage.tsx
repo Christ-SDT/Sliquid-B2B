@@ -104,27 +104,34 @@ interface GalleryPickerModalProps {
   images: GalleryImg[]
   loading: boolean
   onClose: () => void
-  onInsert: (img: GalleryImg) => void
+  onInsert: (imgs: GalleryImg[]) => void
+  maxPick?: number
 }
 
-function GalleryPickerModal({ images, loading, onClose, onInsert }: GalleryPickerModalProps) {
+function GalleryPickerModal({ images, loading, onClose, onInsert, maxPick = 1 }: GalleryPickerModalProps) {
   const [search, setSearch] = useState('')
-  const [pickedId, setPickedId] = useState<number | null>(null)
-  const [inserting, setInserting] = useState(false)
+  const [pickedIds, setPickedIds] = useState<Set<number>>(new Set())
 
   const filtered = images.filter(i =>
     !search || i.label.toLowerCase().includes(search.toLowerCase()) || i.filename.toLowerCase().includes(search.toLowerCase())
   )
 
-  async function handleInsert() {
-    const img = images.find(i => i.id === pickedId)
-    if (!img) return
-    setInserting(true)
-    try {
-      onInsert(img)
-    } finally {
-      setInserting(false)
-    }
+  function togglePick(id: number) {
+    setPickedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) { next.delete(id); return next }
+      if (next.size >= maxPick) {
+        if (maxPick === 1) { next.clear(); next.add(id); return next }
+        return prev // at max
+      }
+      next.add(id); return next
+    })
+  }
+
+  function handleInsert() {
+    const imgs = images.filter(i => pickedIds.has(i.id))
+    if (imgs.length === 0) return
+    onInsert(imgs)
   }
 
   return (
@@ -169,21 +176,24 @@ function GalleryPickerModal({ images, loading, onClose, onInsert }: GalleryPicke
           ) : (
             <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
               {filtered.map(img => {
-                const isPicked = pickedId === img.id
+                const isPicked = pickedIds.has(img.id)
                 return (
                   <div
                     key={img.id}
-                    onClick={() => setPickedId(isPicked ? null : img.id)}
+                    onClick={() => togglePick(img.id)}
                     className={cn(
                       'relative aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all',
-                      isPicked ? 'border-portal-accent ring-2 ring-portal-accent/30' : 'border-portal-border hover:border-portal-accent/50',
+                      pickedIds.has(img.id) ? 'border-portal-accent ring-2 ring-portal-accent/30' : 'border-portal-border hover:border-portal-accent/50',
                     )}
                   >
                     <img src={img.file_url} alt={img.label} className="w-full h-full object-cover" loading="lazy" />
-                    {isPicked && (
+                    {pickedIds.has(img.id) && (
                       <div className="absolute inset-0 bg-portal-accent/20 flex items-center justify-center">
                         <div className="w-7 h-7 rounded-full bg-portal-accent flex items-center justify-center">
-                          <Search className="w-3.5 h-3.5 text-white" />
+                          {maxPick > 1
+                            ? <span className="text-white text-xs font-bold">{[...pickedIds].indexOf(img.id) + 1}</span>
+                            : <Search className="w-3.5 h-3.5 text-white" />
+                          }
                         </div>
                       </div>
                     )}
@@ -199,17 +209,20 @@ function GalleryPickerModal({ images, loading, onClose, onInsert }: GalleryPicke
 
         {/* Footer */}
         <div className="px-5 py-4 border-t border-portal-border flex items-center justify-between flex-shrink-0">
-          <span className="text-on-canvas-muted text-xs">{pickedId ? '1 image selected' : 'Select an image'}</span>
+          <span className="text-on-canvas-muted text-xs">
+            {pickedIds.size === 0
+              ? maxPick > 1 ? `Select up to ${maxPick}` : 'Select an image'
+              : `${pickedIds.size} image${pickedIds.size > 1 ? 's' : ''} selected`}
+          </span>
           <div className="flex gap-2">
             <button onClick={onClose} className="px-4 py-2 text-sm text-on-canvas-subtle hover:text-on-canvas border border-portal-border rounded-lg transition-colors">
               Cancel
             </button>
             <button
               onClick={handleInsert}
-              disabled={!pickedId || inserting}
+              disabled={pickedIds.size === 0}
               className="px-4 py-2 text-sm font-medium bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              {inserting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               Insert Selected
             </button>
           </div>
@@ -233,10 +246,12 @@ function LampyAvatar() {
 
 export default function CreatorPage() {
   const { user } = useAuth()
+  const isAdmin = user?.role === 'tier5'
+  const MAX_REFS = isAdmin ? 5 : 1
   const [messages, setMessages] = useState<ChatMsg[]>([])
   const [prompt, setPrompt] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [refImage, setRefImage] = useState<RefImage | null>(null)
+  const [refImages, setRefImages] = useState<RefImage[]>([])
   const [dragOver, setDragOver] = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [galleryImages, setGalleryImages] = useState<GalleryImg[]>([])
@@ -264,12 +279,12 @@ export default function CreatorPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Revoke object URL when refImage changes to avoid memory leaks
+  // Revoke blob URLs when refImages changes to avoid memory leaks
   useEffect(() => {
     return () => {
-      if (refImage?.preview.startsWith('blob:')) URL.revokeObjectURL(refImage.preview)
+      refImages.forEach(r => { if (r.preview.startsWith('blob:')) URL.revokeObjectURL(r.preview) })
     }
-  }, [refImage])
+  }, [refImages])
 
   // ── File handling ──────────────────────────────────────────────────────────
 
@@ -277,14 +292,15 @@ export default function CreatorPage() {
     if (!isImageFile(file)) return
     try {
       const ref = await readFileAsBase64(file)
-      setRefImage(ref)
-    } catch {
-      // silently ignore bad files
-    }
-  }, [])
+      setRefImages(prev => {
+        if (prev.length >= MAX_REFS) return prev  // at cap — ignore extra
+        return [...prev, ref]
+      })
+    } catch { /* silently ignore bad files */ }
+  }, [MAX_REFS])
 
-  function clearRefImage() {
-    setRefImage(null)
+  function removeRefImage(idx: number) {
+    setRefImages(prev => prev.filter((_, i) => i !== idx))
   }
 
   // ── Gallery picker ─────────────────────────────────────────────────────────
@@ -306,15 +322,18 @@ export default function CreatorPage() {
     }
   }
 
-  function handleGalleryInsert(img: GalleryImg) {
-    // Don't fetch the S3 URL from the browser — CORS blocks it.
-    // Store the URL and let the server fetch it when generating.
-    // img tags can still display S3 URLs fine (CORS only affects fetch/XHR).
-    setRefImage({
-      data: '',
-      mimeType: img.mime_type || 'image/jpeg',
-      preview: img.file_url,
-      sourceUrl: img.file_url,
+  function handleGalleryInsert(imgs: GalleryImg[]) {
+    setRefImages(prev => {
+      const slots = MAX_REFS - prev.length
+      return [
+        ...prev,
+        ...imgs.slice(0, slots).map(img => ({
+          data: '',
+          mimeType: img.mime_type || 'image/jpeg',
+          preview: img.file_url,
+          sourceUrl: img.file_url,
+        })),
+      ]
     })
     setGalleryOpen(false)
   }
@@ -341,8 +360,8 @@ export default function CreatorPage() {
     e.preventDefault()
     dragCounter.current = 0
     setDragOver(false)
-    const file = e.dataTransfer.files[0]
-    if (file) handleFile(file)
+    const files = Array.from(e.dataTransfer.files)
+    files.forEach(f => handleFile(f))
   }
 
   // ── Submit ─────────────────────────────────────────────────────────────────
@@ -352,9 +371,9 @@ export default function CreatorPage() {
     if (!prompt.trim() || submitting) return
 
     const userText = prompt.trim()
-    const capturedRef = refImage
+    const capturedRefs = refImages
     setPrompt('')
-    setRefImage(null)
+    setRefImages([])
     setSubmitting(true)
 
     const ts = Date.now()
@@ -363,20 +382,17 @@ export default function CreatorPage() {
 
     setMessages(prev => [
       ...prev,
-      { key: userKey, role: 'user', text: userText, refPreview: capturedRef?.preview },
+      { key: userKey, role: 'user', text: userText, refPreview: capturedRefs[0]?.preview },
       { key: lampyKey, role: 'lampy-loading' },
     ])
 
     try {
       const body: Record<string, unknown> = { prompt: userText }
-      if (capturedRef) {
-        if (capturedRef.sourceUrl) {
-          // Gallery image — pass URL to server; server fetches it (no CORS issue)
-          body.referenceImageUrl = capturedRef.sourceUrl
-        } else if (capturedRef.data) {
-          // User-uploaded file — send base64 directly
-          body.referenceImage = { data: capturedRef.data, mimeType: capturedRef.mimeType }
-        }
+      if (capturedRefs.length > 0) {
+        const urls = capturedRefs.filter(r => r.sourceUrl).map(r => r.sourceUrl!)
+        const b64s = capturedRefs.filter(r => r.data).map(r => ({ data: r.data, mimeType: r.mimeType }))
+        if (urls.length > 0) body.referenceImageUrls = urls
+        if (b64s.length > 0) body.referenceImages = b64s
       }
       const result = await api.post<AiImage>('/creator/generate', body)
       setMessages(prev => prev.map(m =>
@@ -549,26 +565,28 @@ export default function CreatorPage() {
       {/* Input area */}
       <div className="pt-3 border-t border-portal-border flex-shrink-0 space-y-2">
 
-        {/* Reference image preview strip — shown when an image is attached */}
-        {refImage && (
-          <div className="flex items-center gap-2 px-1">
-            <div className="relative flex-shrink-0">
-              <img
-                src={refImage.preview}
-                alt="Reference"
-                className="w-14 h-14 rounded-lg object-cover border border-portal-accent/40"
-              />
-              <button
-                type="button"
-                onClick={clearRefImage}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-surface border border-portal-border
-                           flex items-center justify-center text-on-canvas-muted hover:text-red-400 hover:border-red-400 transition-colors"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
+        {/* Reference image preview strip — shown when images are attached */}
+        {refImages.length > 0 && (
+          <div className="flex items-center gap-2 px-1 flex-wrap">
+            {refImages.map((ref, idx) => (
+              <div key={idx} className="relative flex-shrink-0">
+                <img
+                  src={ref.preview}
+                  alt="Reference"
+                  className="w-14 h-14 rounded-lg object-cover border border-portal-accent/40"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeRefImage(idx)}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-surface border border-portal-border
+                             flex items-center justify-center text-on-canvas-muted hover:text-red-400 hover:border-red-400 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
             <p className="text-on-canvas-muted text-xs">
-              Reference image attached — Lampy will use this as a visual guide
+              {refImages.length === 1 ? 'Reference image attached' : `${refImages.length} reference images attached`} — Lampy will use {refImages.length === 1 ? 'this' : 'these'} as a visual guide
             </p>
           </div>
         )}
@@ -581,7 +599,7 @@ export default function CreatorPage() {
             onClick={() => { setGalleryOpen(true); if (!galleryLoaded) fetchGallery() }}
             title="Choose a reference image from gallery"
             className={`flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border transition-colors
-              ${refImage
+              ${refImages.length > 0
                 ? 'border-portal-accent bg-portal-accent/10 text-portal-accent'
                 : 'border-portal-border bg-surface text-on-canvas-muted hover:border-portal-accent hover:text-portal-accent'
               }`}
@@ -623,6 +641,7 @@ export default function CreatorPage() {
           loading={galleryBusy}
           onClose={() => setGalleryOpen(false)}
           onInsert={handleGalleryInsert}
+          maxPick={MAX_REFS - refImages.length}
         />
       )}
     </div>

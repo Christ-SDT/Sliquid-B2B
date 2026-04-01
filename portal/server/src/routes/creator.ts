@@ -130,10 +130,14 @@ router.post('/settings', requireAuth, requireRole('tier5', 'admin'), (req, res) 
 router.post('/generate', requireAuth, async (req, res) => {
   if (req.user!.role === 'tier4') return res.status(403).json({ error: 'Forbidden' })
 
-  const { prompt, referenceImage, referenceImageUrl } = req.body as {
+  const { prompt, referenceImage, referenceImageUrl, referenceImages, referenceImageUrls } = req.body as {
     prompt?: string
+    // legacy single-image params (kept for backward compat)
     referenceImage?: { data: string; mimeType: string }
     referenceImageUrl?: string
+    // multi-image params (up to 5)
+    referenceImages?: Array<{ data: string; mimeType: string }>
+    referenceImageUrls?: string[]
   }
   if (!prompt?.trim()) return res.status(400).json({ error: 'prompt is required' })
 
@@ -148,6 +152,39 @@ router.post('/generate', requireAuth, async (req, res) => {
     const activeModel = getActiveModel()
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
+    // ── Normalise all reference inputs into one array (max 5) ────────────────
+    type RefResolved = { data: string; mimeType: string }
+    const MAX_REFS = 5
+
+    // Collect base64 refs (array first, fall back to legacy single)
+    const b64Refs: RefResolved[] = (
+      referenceImages?.filter(r => r.data) ??
+      (referenceImage?.data ? [referenceImage] : [])
+    ).slice(0, MAX_REFS)
+
+    // Collect URL refs (array first, fall back to legacy single)
+    const urlList: string[] = (
+      referenceImageUrls?.length ? referenceImageUrls : referenceImageUrl ? [referenceImageUrl] : []
+    ).slice(0, MAX_REFS - b64Refs.length)
+
+    // Fetch all URL refs server-side (no browser CORS restriction)
+    const fetchedRefs: RefResolved[] = (
+      await Promise.all(urlList.map(async url => {
+        try {
+          const r = await fetch(url)
+          if (!r.ok) return null
+          const buf = Buffer.from(await r.arrayBuffer())
+          const mime = r.headers.get('content-type')?.split(';')[0] ?? 'image/jpeg'
+          return { data: buf.toString('base64'), mimeType: mime }
+        } catch (err) {
+          console.error('[creator] failed to fetch reference URL:', err)
+          return null
+        }
+      }))
+    ).filter((r): r is RefResolved => r !== null)
+
+    const allRefs: RefResolved[] = [...b64Refs, ...fetchedRefs].slice(0, MAX_REFS)
+
     let imageBytes: string
     let mimeType: string
 
@@ -155,35 +192,19 @@ router.post('/generate', requireAuth, async (req, res) => {
       // ── Imagen 4 path ──────────────────────────────────────────────────────
       const enrichedPrompt = `${BRAND_BRIEF}\n\nUser request: ${prompt.trim()}`
 
-      // Resolve reference image (URL fetch or base64 upload)
-      let refBytes: string | null = null
-      let refMime = 'image/jpeg'
-      if (referenceImage?.data) {
-        refBytes = referenceImage.data
-        refMime = referenceImage.mimeType
-      } else if (referenceImageUrl) {
-        try {
-          const imgRes = await fetch(referenceImageUrl)
-          if (imgRes.ok) {
-            const buffer = Buffer.from(await imgRes.arrayBuffer())
-            refMime = imgRes.headers.get('content-type')?.split(';')[0] ?? 'image/jpeg'
-            refBytes = buffer.toString('base64')
-          }
-        } catch (err) {
-          console.error('[creator] failed to fetch referenceImageUrl for Imagen:', err)
-        }
-      }
-
       let imgBytes: string | Uint8Array | undefined
-      if (refBytes) {
-        // editImage: use reference as style guidance
-        const styleRef = new StyleReferenceImage()
-        styleRef.referenceImage = { imageBytes: refBytes, mimeType: refMime }
-        styleRef.referenceId = 1
+      if (allRefs.length > 0) {
+        // editImage: pass all refs as StyleReferenceImages
+        const styleRefs = allRefs.map((ref, i) => {
+          const sr = new StyleReferenceImage()
+          sr.referenceImage = { imageBytes: ref.data, mimeType: ref.mimeType }
+          sr.referenceId = i + 1
+          return sr
+        })
         const response = await ai.models.editImage({
           model: MODEL_IMAGEN,
           prompt: enrichedPrompt,
-          referenceImages: [styleRef],
+          referenceImages: styleRefs,
         })
         imgBytes = response.generatedImages?.[0]?.image?.imageBytes
       } else {
@@ -201,28 +222,11 @@ router.post('/generate', requireAuth, async (req, res) => {
       mimeType = 'image/jpeg'
     } else {
       // ── Gemini path (generateContent) ─────────────────────────────────────
-      // Label images: load matching product label images from the local labels/ dir
       const labelParts = getLabelImageParts(prompt.trim())
 
-      // Resolve reference image: base64 upload takes precedence; fall back to URL fetch
-      let resolvedRef = referenceImage?.data ? referenceImage : null
-      if (!resolvedRef && referenceImageUrl) {
-        try {
-          const imgRes = await fetch(referenceImageUrl)
-          if (imgRes.ok) {
-            const buffer = Buffer.from(await imgRes.arrayBuffer())
-            const mimeType = imgRes.headers.get('content-type')?.split(';')[0] ?? 'image/jpeg'
-            resolvedRef = { data: buffer.toString('base64'), mimeType }
-          }
-        } catch (err) {
-          console.error('[creator] failed to fetch referenceImageUrl:', err)
-        }
-      }
-
-      // User-provided reference image (optional)
-      const userRefParts = resolvedRef
-        ? [{ inlineData: { data: resolvedRef.data, mimeType: resolvedRef.mimeType } }]
-        : []
+      const userRefParts = allRefs.map(ref => ({
+        inlineData: { data: ref.data, mimeType: ref.mimeType },
+      }))
       const allImageParts = [...labelParts, ...userRefParts]
 
       const textContent = allImageParts.length > 0
@@ -235,7 +239,7 @@ router.post('/generate', requireAuth, async (req, res) => {
         config: {
           systemInstruction: BRAND_BRIEF,
           responseModalities: ['IMAGE', 'TEXT'] as any,
-          imageConfig: { imageSize: '2K' } as any,  // 2048×2048 — 4× more pixels vs default 1K
+          imageConfig: { imageSize: '2K' } as any,
         },
       })
 
