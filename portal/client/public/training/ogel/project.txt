@@ -308,12 +308,12 @@
 "interactionId":"33245",
 "quizId":203,
 "title":"",
-"text":"1. What is the primary purpose of Sliquid Massage Oil?",
+"text":"1. What is Sliquid Organics O Gel designed for?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si33414"],
+"correctAnswers":["si33516"],
 "score":{
 "weight":10,
 "penalty":0
@@ -598,12 +598,12 @@
 "interactionId":"35096",
 "quizId":203,
 "title":"",
-"text":"2. What is the base oil used in all Balance Collection massage products?",
+"text":"2. How should a retail employee describe O Gel’s formulation philosophy?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si35242"],
+"correctAnswers":["si35250"],
 "score":{
 "weight":10,
 "penalty":0
@@ -888,12 +888,12 @@
 "interactionId":"35424",
 "quizId":203,
 "title":"",
-"text":"3. Which combination of oils helps create the ultra-luxurious glide of this massage formula?",
+"text":"3. Which ingredients create the signature cooling-to-tingling sensation in O Gel?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si35562"],
+"correctAnswers":["si35570"],
 "score":{
 "weight":10,
 "penalty":0
@@ -1178,12 +1178,12 @@
 "interactionId":"35752",
 "quizId":203,
 "title":"",
-"text":"4. Which ingredients help condition the skin and leave it soft after massage?",
+"text":"4. What is the role of vasodilator ingredients in O Gel?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si35898"],
+"correctAnswers":["si35906"],
 "score":{
 "weight":10,
 "penalty":0
@@ -1468,12 +1468,12 @@
 "interactionId":"36080",
 "quizId":203,
 "title":"",
-"text":"5. Which botanical extracts help soothe and moisturize the skin?",
+"text":"5. Why is O Gel formulated without L-arginine?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36218"],
+"correctAnswers":["si36234"],
 "score":{
 "weight":10,
 "penalty":0
@@ -1758,12 +1758,12 @@
 "interactionId":"36408",
 "quizId":203,
 "title":"",
-"text":"6. Why is Sweet Almond Oil specifically chosen as the base oil in this massage formula?",
+"text":"6. Which botanical ingredients help soothe and moisturize delicate skin?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36562"],
+"correctAnswers":["si36554"],
 "score":{
 "weight":10,
 "penalty":0
@@ -2048,12 +2048,12 @@
 "interactionId":"36736",
 "quizId":203,
 "title":"",
-"text":"7. Which scent options are available in the Sliquid Massage Oil collection?",
+"text":"7. Which statement accurately reflects O Gel’s formulation standards?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36882"],
+"correctAnswers":["si36890"],
 "score":{
 "weight":10,
 "penalty":0
@@ -2338,12 +2338,12 @@
 "interactionId":"37738",
 "quizId":203,
 "title":"",
-"text":"8. What important compatibility information should retail staff share with customers?",
+"text":"8. How should retail staff position O Gel to customers?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si37884"],
+"correctAnswers":["si37892"],
 "score":{
 "weight":10,
 "penalty":0
