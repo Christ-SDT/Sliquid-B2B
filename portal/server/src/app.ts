@@ -36,16 +36,31 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 console.log('[cors] Allowed origins:', allowedOrigins)
 
-app.use(cors({
+// Paths that are fully public — allow any origin (no auth, no sensitive data)
+const PUBLIC_PATHS = ['/api/products/catalog']
+
+const strictCors = cors({
   origin: (origin, callback) => {
-    // Allow server-to-server requests (no origin header) and listed origins
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true)
     } else {
       callback(new Error(`CORS: origin ${origin} not allowed`))
     }
   },
-}))
+})
+
+app.use((req, res, next) => {
+  const isPublic = PUBLIC_PATHS.some(p => req.path === p || req.path.startsWith(p + '/'))
+  if (isPublic) {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    if (req.method === 'OPTIONS') { res.status(204).end(); return }
+    next()
+    return
+  }
+  strictCors(req, res, next)
+})
 app.use(express.json({ limit: '20mb' }))
 
 app.use('/api/auth', authRouter)

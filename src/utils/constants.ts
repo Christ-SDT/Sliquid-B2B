@@ -18,42 +18,42 @@ export const STRATEGY_CARDS: readonly StrategyCard[] = [
     id: 'retailers',
     title: 'Retailers',
     description:
-      'Get wholesale solutions and displays that deliver high sell-through rates and improved customer satisfaction.',
+      'Streamline your workflow, elevate your in-store and online presence, and connect directly with our marketing team so you can move faster, sell smarter, and grow with confidence.',
     imageUrl:
-      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/2a337a21-ebc9-4ccb-a59d-1db2c16e4232.png',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/639390b2-41ab-4004-a7f4-6c3ac042405d.png',
     imageAlt: 'Sliquid Organics Natural lubricant collection on a clean surface',
-    linkHref: '/contact?type=retailer',
-    linkLabel: 'See our catalog',
+    linkHref: '/catalog',
+    linkLabel: 'Browse our catalog',
   },
   {
     id: 'health-practitioners',
     title: 'Health Practitioners',
     description:
-      'Recommend body-safe, glycerin-free lubricants that align with pelvic health and wellness plans.',
+      'Support your practice with access to clinical resources, educational sheets, and patient-ready samples, designed to complement your care and help you better serve your patients.',
     imageUrl:
-      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/2a337a21-ebc9-4ccb-a59d-1db2c16e4232.png',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/52c0b1b8-d5aa-4e7e-a2fa-fbe1e8828c87.png',
     imageAlt: 'Sliquid Soothe intimate wellness product group with reflections',
-    linkHref: '/contact?type=practitioner',
-    linkLabel: 'View formulations',
+    linkHref: '/health-practitioners',
+    linkLabel: 'Learn about our program',
   },
   {
     id: 'global-distributors',
     title: 'Global Distributors',
     description:
-      'Collaborate to develop logistics strategies that meet the goals of our mutual clients worldwide.',
+      'Equip your marketing and sales teams with ready-to-use resources to share with customers, driving stronger sell-through while strengthening collaboration with the Sliquid marketing team.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/ea6d3eef-451d-4510-a5bc-55a42ab2c4fc.png',
     imageAlt: 'RIDE Lube water-based lubricant product lineup',
     linkHref: '/contact?type=distributor',
-    linkLabel: 'Partner with us',
+    linkLabel: 'Request more info',
   },
 ] as const
 
 export const STATS: readonly StatItem[] = [
-  { value: '20+', label: 'Years defining the standard for clean intimacy products.' },
-  { value: '100+', label: 'SKUs formulated for every body type and sensitivity.' },
-  { value: '50+', label: 'Countries reached through our distribution network.' },
+  { value: '20+', label: 'years in the industry, making it one of the few true legacy brands in intimate wellness.' },
+  { value: '100+', label: 'SKUs across multiple collections, covering lubricants, bath & body, and wellness categories.' },
   { value: '1M+', label: 'Customers who trust Sliquid for body-safe wellness.' },
+  { value: '0', label: 'unnecessary ingredients philosophy, formulated with 0 glycerin, 0 parabens, and 0 sugar derivatives, which is a defining differentiator in the category.' },
 ] as const
 
 export const BRANDS: readonly Brand[] = [
@@ -205,6 +205,7 @@ export const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as str
 export const EMAILJS_CONTACT_ADMIN_TID = import.meta.env.VITE_EMAILJS_CONTACT_ADMIN_TID as string | undefined
 export const EMAILJS_CONTACT_REPLY_TID = import.meta.env.VITE_EMAILJS_CONTACT_REPLY_TID as string | undefined
 export const EMAILJS_NEWSLETTER_TID = import.meta.env.VITE_EMAILJS_NEWSLETTER_TID as string | undefined
+export const EMAILJS_HP_TID = import.meta.env.VITE_EMAILJS_HP_TID as string | undefined
 
 // Sliquid product image constants used directly in section components
 export const IMG_HERO = '/images/semi-finalv2-sliquidb2b.png'

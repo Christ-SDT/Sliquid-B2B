@@ -33,11 +33,10 @@ export default function StrategySection() {
             id="strategy-heading"
             className="text-text-dark text-[36px] font-semibold tracking-[-0.5px] mb-4"
           >
-            Our strategy is to advance your inventory
+            A Smarter Way to Grow Together
           </h2>
           <p className="text-text-gray text-base leading-relaxed">
-            Offer your customers the cleanest formulations by working with Sliquid
-            to advance your unique business needs.
+            A smarter way to grow together means more than just access to tools, it means having Sliquid’s marketing team as an extension of your own, ready to support, strategize, and help you drive results.
           </p>
         </div>
 

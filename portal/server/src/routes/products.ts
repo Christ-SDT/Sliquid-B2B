@@ -93,6 +93,20 @@ router.post('/import', requireAuth, requireRole('tier5', 'admin'), (req, res) =>
   res.json({ inserted, updated, errors })
 })
 
+// Public catalog — no auth required; omits wholesale pricing (price, case_cost)
+router.get('/catalog', (req, res) => {
+  const { brand, category, search } = req.query
+  let sql = `SELECT id, name, brand, category, image_url, in_stock, unit_size,
+               unit_msrp, case_pack, case_weight, unit_dimensions, case_dimensions, description
+             FROM products WHERE 1=1`
+  const params: any[] = []
+  if (brand) { sql += ' AND brand = ?'; params.push(brand) }
+  if (category) { sql += ' AND category = ?'; params.push(category) }
+  if (search) { sql += ' AND name LIKE ?'; params.push(`%${search}%`) }
+  sql += ' ORDER BY brand, name'
+  res.json(db.prepare(sql).all(...params))
+})
+
 router.get('/:id', requireAuth, (req, res) => {
   const product = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id)
   if (!product) { res.status(404).json({ message: 'Not found' }); return }
@@ -100,15 +114,72 @@ router.get('/:id', requireAuth, (req, res) => {
 })
 
 router.post('/', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
-  const { name, brand, category, sku, description, price, image_url, in_stock } = req.body
-  if (!name || !brand || !category || !sku || !price) {
-    res.status(400).json({ message: 'Missing required fields' })
+  const {
+    name, brand, category, sku, description, price, image_url, in_stock,
+    unit_size, case_pack, case_cost, unit_msrp, vendor_number, upc,
+    case_weight, unit_dimensions, case_dimensions,
+  } = req.body
+  if (!name || !brand || !sku || price == null) {
+    res.status(400).json({ message: 'name, brand, sku, and price are required' })
     return
   }
-  const result = db.prepare(
-    'INSERT INTO products (name, brand, category, sku, description, price, image_url, in_stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-  ).run(name, brand, category, sku, description ?? null, price, image_url ?? null, in_stock ?? 1)
-  res.status(201).json({ id: result.lastInsertRowid })
+  const result = db.prepare(`
+    INSERT INTO products
+      (name, brand, category, sku, description, price, image_url, in_stock,
+       unit_size, case_pack, case_cost, unit_msrp, vendor_number, upc,
+       case_weight, unit_dimensions, case_dimensions)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    name, brand, category ?? 'Uncategorized', sku,
+    description ?? null, Number(price), image_url ?? null, in_stock ?? 1,
+    unit_size ?? null, case_pack ? Number(case_pack) : null, case_cost ? Number(case_cost) : null,
+    unit_msrp ? Number(unit_msrp) : null, vendor_number ?? null, upc ?? null,
+    case_weight ?? null, unit_dimensions ?? null, case_dimensions ?? null
+  )
+  const created = db.prepare('SELECT * FROM products WHERE id = ?').get(result.lastInsertRowid)
+  res.status(201).json(created)
+})
+
+router.put('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const existing = db.prepare('SELECT id FROM products WHERE id = ?').get(req.params.id)
+  if (!existing) { res.status(404).json({ message: 'Not found' }); return }
+
+  const {
+    name, brand, category, sku, description, price, image_url, in_stock,
+    unit_size, case_pack, case_cost, unit_msrp, vendor_number, upc,
+    case_weight, unit_dimensions, case_dimensions,
+  } = req.body
+
+  if (!name || !brand || !sku || price == null) {
+    res.status(400).json({ message: 'name, brand, sku, and price are required' })
+    return
+  }
+
+  db.prepare(`
+    UPDATE products SET
+      name = ?, brand = ?, category = ?, sku = ?, description = ?, price = ?,
+      image_url = ?, in_stock = ?, unit_size = ?, case_pack = ?, case_cost = ?,
+      unit_msrp = ?, vendor_number = ?, upc = ?, case_weight = ?,
+      unit_dimensions = ?, case_dimensions = ?
+    WHERE id = ?
+  `).run(
+    name, brand, category ?? 'Uncategorized', sku,
+    description ?? null, Number(price), image_url ?? null, in_stock ?? 1,
+    unit_size ?? null, case_pack ? Number(case_pack) : null, case_cost ? Number(case_cost) : null,
+    unit_msrp ? Number(unit_msrp) : null, vendor_number ?? null, upc ?? null,
+    case_weight ?? null, unit_dimensions ?? null, case_dimensions ?? null,
+    req.params.id
+  )
+
+  const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id)
+  res.json(updated)
+})
+
+router.delete('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const existing = db.prepare('SELECT id FROM products WHERE id = ?').get(req.params.id)
+  if (!existing) { res.status(404).json({ message: 'Not found' }); return }
+  db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id)
+  res.json({ ok: true })
 })
 
 export default router

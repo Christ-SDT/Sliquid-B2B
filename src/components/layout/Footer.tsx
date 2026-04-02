@@ -47,6 +47,16 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link to="/catalog" className="text-sm text-gray-400 hover:text-white transition-colors duration-150">
+                  Product Catalog
+                </Link>
+              </li>
+              <li>
+                <Link to="/health-practitioners" className="text-sm text-gray-400 hover:text-white transition-colors duration-150">
+                  Health Practitioners
+                </Link>
+              </li>
             </ul>
           </div>
 

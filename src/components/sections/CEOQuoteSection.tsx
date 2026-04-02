@@ -12,11 +12,7 @@ export default function CEOQuoteSection() {
               className="text-text-dark text-[32px] font-medium leading-[1.4]"
               style={{ fontStyle: 'normal' }}
             >
-              &ldquo;Dean built something extraordinary — a company rooted in
-              integrity, inclusion, and the belief that clean products change
-              lives. It is our honor to carry that mission forward and bring
-              Sliquid&rsquo;s wellness vision to every partner and customer
-              around the world.&rdquo;
+              From the beginning, Sliquid has created solutions for women, by women, rooted in care, trust, and a true understanding of intimate wellness. Our retail and medical partners are an extension of that mission, and your success reflects the impact we&rsquo;re making together. When our partners grow, we grow, and that shared purpose drives everything we do.
             </p>
             <footer className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
               <img
