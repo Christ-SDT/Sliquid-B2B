@@ -14,42 +14,42 @@ const KEY_INGREDIENTS = [
     name: 'Purified Water',
     tag: 'Base',
     description:
-      'The foundation of all water-based formulas. Triple-filtered and deionized — pure, contaminant-free, and the carrier for every water-soluble formula.',
+      'The foundation of every water-based formula. Triple-filtered and deionized, it serves as a pure, contaminant-free carrier for all water-soluble ingredients.',
   },
   {
     id: 'aloe-vera',
     name: 'Organic Aloe Barbadensis Leaf Juice',
     tag: 'Soothing Base',
     description:
-      'Naturally lubricating and healing, sourced from aloe vera leaves. Anti-inflammatory and pH-friendly for sensitive mucosal tissue.',
+      'Sourced directly from aloe vera leaves, this naturally lubricating and healing ingredient is anti-inflammatory and pH-friendly for sensitive mucosal tissue.',
   },
   {
     id: 'vitamin-e',
     name: 'Natural Tocopherols (Vitamin E)',
     tag: 'Antioxidant',
     description:
-      'Conditions skin and provides antioxidant support. Extends shelf life naturally while protecting sensitive tissue without synthetic preservatives.',
+      'Conditions skin and delivers antioxidant support. Extends shelf life naturally while protecting sensitive tissue without the need for synthetic preservatives.',
   },
   {
     id: 'citric-acid',
     name: 'Citric Acid',
     tag: 'pH Balancer',
     description:
-      'Calibrates formula pH to match the body\'s natural range (3.8–4.5). Acts as a natural antiseptic and pH buffer — critical for vaginal microbiome health.',
+      'Calibrates each formula to match the body\'s natural pH range of 3.8 to 4.5. Acts as a natural antiseptic and pH buffer, critical for supporting vaginal microbiome health.',
   },
   {
     id: 'potassium-sorbate',
     name: 'Potassium Sorbate & Sodium Benzoate',
     tag: 'Preservative',
     description:
-      'The gentlest non-toxic preservatives available. Extend shelf life and prevent contamination without the hormonal disruption risks of parabens.',
+      'Two of the gentlest non-toxic preservatives available. They extend shelf life and prevent contamination without the hormonal disruption risks associated with parabens.',
   },
   {
     id: 'plant-cellulose',
     name: 'Plant Cellulose',
     tag: 'Natural Thickener',
     description:
-      'Derived from cotton — vegan-friendly and gluten-free. Provides the signature silky glide without synthetic polymers or petrochemical derivatives.',
+      'Derived from cotton and completely vegan and gluten-free. Delivers the signature silky glide Sliquid is known for, without synthetic polymers or petrochemical derivatives.',
   },
 ]
 
@@ -347,10 +347,10 @@ export default function HealthPractitionersPage() {
             Medical Partners Program
           </p>
           <h1 className="text-text-dark text-[34px] md:text-[46px] font-bold tracking-tight leading-tight mb-5">
-            Partner with Sliquid as a Health Practitioner
+            The Wellness Brand Healthcare Providers Trust
           </h1>
           <p className="text-text-gray text-base md:text-lg leading-relaxed mb-8">
-            Sliquid supports healthcare providers with clinical-grade resources, complimentary patient samples, and educational materials — helping you give better recommendations and build patient trust in intimate wellness.
+            Sliquid equips healthcare providers with clinical-grade resources, complimentary patient samples, and educational materials to help you make confident recommendations and build lasting patient trust in intimate wellness.
           </p>
           <a
             href="#apply"
@@ -366,10 +366,10 @@ export default function HealthPractitionersPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <h2 id="ingredients-heading" className="text-text-dark text-[28px] md:text-[32px] font-bold tracking-tight mb-4">
-              What's Inside Every Sliquid Formula
+              Ingredients You Can Trust
             </h2>
             <p className="text-text-gray text-base leading-relaxed">
-              Every ingredient is selected for clinical compatibility. No glycerin, no parabens, no artificial fragrance — safe to recommend to even the most sensitive patients.
+              Every ingredient is chosen for clinical compatibility. No glycerin, no parabens, no artificial fragrance, just clean formulas safe enough to recommend to your most sensitive patients.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

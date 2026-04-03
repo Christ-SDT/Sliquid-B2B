@@ -11,11 +11,10 @@ export default function BrandsSection() {
             id="brands-heading"
             className="text-text-dark text-[32px] font-semibold mb-4"
           >
-            Expanding the family with specialized lines
+            More brands. More reach. More opportunity.
           </h2>
           <p className="text-text-gray text-base leading-relaxed mb-6">
-            See how we are broadening our catalog to include RIDE Lube&apos;s
-            performance formulas and the Ride Rocco signature collection.
+            The Sliquid family doesn&apos;t stop there. With RIDE Lube&apos;s LGBTQ+ focused branding and the Ride Rocco signature collection, our portfolio gives partners access to a broader, more specialized range of wellness products.
           </p>
           <Link
             to="/our-brands"

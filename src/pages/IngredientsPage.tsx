@@ -28,11 +28,11 @@ const CERTIFICATIONS = [
       'No animal-derived ingredients, no animal testing — ever. All products are certified vegan.',
   },
   {
-    id: 'iso',
-    icon: '📋',
-    title: 'ISO Certified Manufacturing',
+    id: 'Made in the USA',
+    icon: '🇺🇸',
+    title: 'Made in the USA',
     description:
-      'Produced in an ISO 22716-certified facility following GMP guidelines for cosmetics.',
+      'Every Sliquid product is formulated and manufactured domestically, ensuring consistent quality and oversight from start to finish.',
   },
   {
     id: 'transparent',

@@ -40,25 +40,25 @@ const VALUES = [
     id: 'clean',
     title: 'Clean by conviction',
     description:
-      'Sliquid has never used glycerin, parabens, or artificial fragrance — not because regulators required it, but because we believed from day one that what goes on your body matters as much as what goes in it. That conviction has not changed in over two decades.',
+      'Sliquid has never used glycerin, parabens, or artificial fragrance or flavors. Our founding belief is simple:  what goes on your body matters as much as what goes in it. That standard has remained unchanged for more than two decades.',
   },
   {
     id: 'inclusive',
     title: 'Inclusive by design',
     description:
-      'Intimacy is for every body. Our formulas are developed for all genders, orientations, and body chemistries. From glycerin-free pH-balanced lubricants designed for vaginal health to the Buck Angel T-Collection formulated specifically for transgender individuals, inclusion is not a marketing position — it is a formulation requirement.',
+      'Intimacy is for every body. Our formulas are developed for all genders, orientations, and body chemistries. From glycerin-free pH-balanced lubricants designed for vaginal health to the T-Collection formulated specifically for transgender individuals, inclusion is not a marketing position, it is our compnay culture.',
   },
   {
     id: 'transparent',
     title: 'Transparent always',
     description:
-      'Every ingredient in every formula is disclosed — on the label and on our website. No "fragrance" catch-alls, no proprietary blends, no hidden additives. Our partners can answer any customer question about what is in the bottle, because we make that information easy to find.',
+      'Every ingredient in every formula is disclosed on the label and on our website. No "fragrance" catch-alls, no proprietary blends, no hidden additives. As we always say, "If it not on the label it\'s not in the bottle." Our partners can answer any customer question about what is in the bottle, because we make that information easy to find.',
   },
   {
     id: 'partnership',
     title: 'Partners in the truest sense',
     description:
-      'We do not just ship product. We support our retail and practitioner partners with training resources, merchandising assets, and a B2B team that is genuinely invested in your sell-through. When you carry Sliquid, you are offering your customers something better — and we make sure you can explain why.',
+      'We do not just ship product. We support our retail and practitioner partners with training resources, merchandising assets, and a B2B team that is genuinely invested in your sell-through. When you carry Sliquid, you are offering your customers something better and we make sure you can explain why.',
   },
 ]
 
@@ -72,11 +72,11 @@ export default function AboutUsPage() {
             Our Story
           </p>
           <h1 className="text-text-dark text-[42px] font-semibold tracking-[-0.5px] leading-tight max-w-xl">
-            Healthier happens together™
+            Healthier happens together.
           </h1>
           <p className="text-text-gray text-lg mt-4 max-w-2xl leading-relaxed">
             For over two decades, Sliquid has been redefining what clean,
-            body-safe intimacy products look like — and building a global
+            body-safe intimacy products look like, all while building a global
             community of partners who share that vision.
           </p>
         </div>
@@ -91,16 +91,10 @@ export default function AboutUsPage() {
             </h2>
             <div className="space-y-4 text-text-gray text-base leading-relaxed">
               <p>
-                Sliquid exists to make intimacy wellness accessible, safe, and
-                stigma-free for every body. We believe that what goes on your body
-                matters as much as what goes in it — which is why we have never
-                compromised on ingredients, transparency, or inclusion.
+                Sliquid’s mission is to create clean, safe, and inclusive intimate wellness products that empower every body by prioritizing transparency, innovation, and uncompromising care. We are committed to developing thoughtfully formulated products that support both safety and pleasure, without ever compromising on ingredients or integrity. By offering simple, accessible solutions tailored to personal needs, we strive to remove stigma and redefine what intimate wellness looks like for all.
               </p>
               <p>
-                Our B2B partners are an extension of that mission. When retailers,
-                healthcare providers, and distributors carry Sliquid, they are
-                offering their customers something genuinely better — products
-                formulated without the shortcuts that define most of the market.
+                Our B2B partners are an extension of that mission. When you carry Sliquid, you offer your customers and clients genuinely better products that are thoughtfully formulated without the shortcuts.
               </p>
               <p>
                 That trust is earned through complete ingredient transparency,
@@ -142,45 +136,24 @@ export default function AboutUsPage() {
                 The Foundation
               </p>
               <h2 className="text-text-dark text-[32px] font-semibold mb-6">
-                Built on Dean's vision, carried forward by Cynthia
+                A Vision Rooted in Purpose
               </h2>
               <div className="space-y-4 text-text-gray text-base leading-relaxed">
                 <p>
-                  Dean Elliott co-founded Sliquid in 2002 with a straightforward
-                  conviction: intimate products should be made with the same care
-                  and transparency as anything else you put on your body. At a
-                  time when glycerin, parabens, and artificial fragrances were
-                  industry standard, Dean chose a different path — and built a
-                  company around it.
+                  Cynthia Wielgosz Elliott co-founded Sliquid in 2002 with a clear and personal conviction: intimate wellness should be rooted in care, accessibility, and a deep understanding of women&apos;s health. At a time when shortcuts defined the category, she helped shape a different path by building a brand grounded in clean formulations, inclusion, and purpose.
                 </p>
                 <p>
-                  Following Dean's passing in 2024, co-founder Cynthia Elliott
-                  stepped into the role of CEO. Cynthia has been central to
-                  Sliquid's identity, culture, and partnerships from the beginning.
-                  Under her leadership, the company completed its most significant
-                  brand refresh in 2025 — a wellness-forward evolution that honors
-                  what Dean built while positioning Sliquid for the next chapter of
-                  intimacy wellness.
+                  Following co-founder Dean Elliott&apos;s passing in 2024, Cynthia stepped fully into the role of CEO, carrying forward not only the company&apos;s legacy, but the vision she helped create from the very beginning. A champion of women&apos;s wellness and an advocate for meaningful partnerships, she has placed Sliquid&apos;s retail, medical, and distribution partners at the center of the brand&apos;s growth, recognizing their success as essential to Sliquid&apos;s own.
                 </p>
                 <p>
-                  The mission has not changed. The standards have not changed.
-                  What has changed is the scale of the ambition — and the clarity
-                  of the vision for what Sliquid can become.
+                  The mission remains unchanged. The standards remain uncompromising. What has evolved is the scale of the vision. A vision that expands globally, strengthens every channel from wholesale to e-commerce to medical, and positions Sliquid for a new era of intentional, inclusive growth under her leadership.
                 </p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white rounded-card p-6 text-center shadow-sm">
-                <p className="text-[42px] font-bold text-sliquid-blue leading-none">22+</p>
-                <p className="text-text-gray text-sm mt-2">Years under the Elliott family's leadership</p>
-              </div>
-              <div className="bg-white rounded-card p-6 text-center shadow-sm">
                 <p className="text-[42px] font-bold text-sliquid-blue leading-none">3</p>
                 <p className="text-text-gray text-sm mt-2">Brands in the portfolio</p>
-              </div>
-              <div className="bg-white rounded-card p-6 text-center shadow-sm">
-                <p className="text-[42px] font-bold text-sliquid-blue leading-none">2025</p>
-                <p className="text-text-gray text-sm mt-2">Wellness rebrand completed</p>
               </div>
               <div className="bg-white rounded-card p-6 text-center shadow-sm">
                 <p className="text-[42px] font-bold text-sliquid-blue leading-none">1M+</p>
@@ -191,7 +164,7 @@ export default function AboutUsPage() {
         </div>
       </div>
 
-      {/* Values */}
+      Values
       <div className="max-w-[1240px] mx-auto px-6 py-20">
         <div className="mb-12">
           <p className="text-sliquid-blue font-semibold text-sm uppercase tracking-wider mb-2">
@@ -219,7 +192,7 @@ export default function AboutUsPage() {
         </div>
       </div>
 
-      {/* Timeline */}
+      Timeline
       <div className="bg-bg-off-white py-16">
         <div className="max-w-[1240px] mx-auto px-6">
           <h2 className="text-text-dark text-[32px] font-semibold mb-12">
@@ -258,8 +231,7 @@ export default function AboutUsPage() {
             Executive team
           </h2>
           <p className="text-text-gray text-base mt-3 max-w-xl leading-relaxed">
-            The people driving Sliquid's mission of clean, body-safe intimacy
-            wellness for every body, everywhere.
+            The people driving Sliquid's mission of intimate wellness
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

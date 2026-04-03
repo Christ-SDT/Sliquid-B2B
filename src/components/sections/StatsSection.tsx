@@ -14,11 +14,7 @@ export default function StatsSection() {
               A truly integrated health &amp; wellness ecosystem
             </h2>
             <p className="text-text-gray text-[17px] leading-relaxed">
-              As part of the Sliquid family, our enterprise assets—in retail, in
-              pharmacies, and online—enable us to maximize the impact of our
-              products and fuel your ability to deliver truly healthy benefits.
-              Our extensive physical footprint augments our capabilities that make
-              healthier intimacy happen together.
+              As part of the Sliquid family, you gain access to a growing network spanning retail and digital channels. Our physical and digital footprint works alongside our product innovation to help you deliver genuinely healthy, meaningful benefits to your customers.
             </p>
           </div>
 

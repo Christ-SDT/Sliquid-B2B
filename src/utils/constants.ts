@@ -20,7 +20,7 @@ export const STRATEGY_CARDS: readonly StrategyCard[] = [
     description:
       'Streamline your workflow, elevate your in-store and online presence, and connect directly with our marketing team so you can move faster, sell smarter, and grow with confidence.',
     imageUrl:
-      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/639390b2-41ab-4004-a7f4-6c3ac042405d.png',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/2a120f2f-d045-457e-8990-f809d3606151.jpg',
     imageAlt: 'Sliquid Organics Natural lubricant collection on a clean surface',
     linkHref: '/catalog',
     linkLabel: 'Browse our catalog',
@@ -31,7 +31,7 @@ export const STRATEGY_CARDS: readonly StrategyCard[] = [
     description:
       'Support your practice with access to clinical resources, educational sheets, and patient-ready samples, designed to complement your care and help you better serve your patients.',
     imageUrl:
-      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/52c0b1b8-d5aa-4e7e-a2fa-fbe1e8828c87.png',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/aa1ba35b-f7e9-4a07-a0f3-20b918622165.jpeg',
     imageAlt: 'Sliquid Soothe intimate wellness product group with reflections',
     linkHref: '/health-practitioners',
     linkLabel: 'Learn about our program',
@@ -62,7 +62,7 @@ export const BRANDS: readonly Brand[] = [
     name: 'Sliquid',
     tagline: 'The original body-safe intimacy brand',
     description:
-      'Sliquid pioneered clean intimate wellness starting in 2002. Every formula is glycerin-free, paraben-free, and crafted with body-safe ingredients — from the bestselling H2O water-based lubricant to the USDA-certified Organics line. With 100+ SKUs spanning lubricants, cleansers, and massage oils, Sliquid is the trusted standard for retailers and healthcare practitioners worldwide.',
+      'Sliquid has been pioneering clean intimate wellness since 2002. Every formula is glycerin-free, paraben-free, and crafted with body-safe ingredients, from the bestselling H2O water-based lubricant to our award-winning bath and body line. With 100+ SKUs spanning lubricants, cleansers, and massage oils, Sliquid is the trusted standard for retailers and healthcare practitioners worldwide.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/assets/f6e32f00-e762-42f9-939b-6688b92dc20a.jpg',
     imageAlt: 'Sliquid H2O apart of the Naturals collection of body-safe lubricants',
@@ -73,7 +73,7 @@ export const BRANDS: readonly Brand[] = [
     name: 'RIDE Lube',
     tagline: 'High performance products for men',
     description:
-      'RIDE Lube is built for performance. The lineup — water-based, silicone, hybrid, and specialty formulas — is engineered for thickness, slipperiness, and endurance with ingredients chosen for sensitive skin. Inclusive by design, RIDE Lube serves a broad audience including the LGBTQ+ community and features the Buck Angel T-Collection developed specifically for transgender individuals. A high-velocity SKU for adult retailers seeking a loyal, performance-driven customer base.',
+      'RIDE Lube is engineered for performance. The lineup includes water-based, silicone, hybrid, and specialty formulas, each designed for thickness, slipperiness, and endurance using ingredients suited for sensitive skin. Inclusive by design, RIDE Lube serves a broad audience including the LGBTQ+ community and features the Buck Angel T-Collection, developed specifically for transgender individuals. A high-velocity SKU for adult retailers seeking a loyal, performance-driven customer base.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/assets/cc7de5ef-c5ef-45e7-925e-8d5a2bce5693.png',
     imageAlt: 'RIDE Lube water-based lubricant product group',
@@ -84,7 +84,7 @@ export const BRANDS: readonly Brand[] = [
     name: 'Ride Rocco',
     tagline: 'The gold standard of lube',
     description:
-      'Developed in partnership with adult industry icon Rocco Steele, Ride Rocco is a premium lubricant collection that demands shelf presence. Water-based, silicone, and the unique Seed hybrid formula deliver the long-lasting endurance Rocco\'s audience expects, all manufactured to the same body-safe standards as RIDE Lube. The co-branded packaging drives impulse purchase and connects with a dedicated, passionate fan base that follows Rocco across platforms.',
+      'Developed in partnership with adult industry icon Rocco Steele, Ride Rocco is a premium lubricant collection built for shelf presence. Available in water-based, silicone, and the unique Seed hybrid formula, each product delivers the long-lasting endurance Rocco\'s audience expects, all manufactured to the same body-safe standards as RIDE Lube. The co-branded packaging drives impulse purchases and connects retailers with a dedicated, passionate fan base that follows Rocco across platforms.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/assets/e4db1796-d86e-4db6-9df6-6e4cb0bf28bb.jpg',
     imageAlt: 'Ride Rocco signature water-based lubricant collection',
@@ -210,6 +210,6 @@ export const EMAILJS_HP_TID = import.meta.env.VITE_EMAILJS_HP_TID as string | un
 // Sliquid product image constants used directly in section components
 export const IMG_HERO = '/images/semi-finalv2-sliquidb2b.png'
 export const IMG_BRANDS_HERO =
-  'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/8bcc5e5c-78e3-4c89-a88e-d8af8e810284.png'
+  'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/a0db976e-7593-4a93-b0e2-6adfedd2179c.png'
 export const IMG_CEO =
   'https://sliquid.com/wp-content/uploads/2025/10/c4ocr69L_400x400.jpg'

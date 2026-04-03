@@ -27,7 +27,7 @@ export default function CEOQuoteSection() {
                   Cynthia Elliott
                 </span>
                 <span className="block text-text-gray text-sm">
-                  Co-Founder &amp; CEO, Sliquid
+                  Co-Founder &amp; CEO
                 </span>
               </cite>
             </footer>
