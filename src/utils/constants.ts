@@ -42,7 +42,7 @@ export const STRATEGY_CARDS: readonly StrategyCard[] = [
     description:
       'Equip your marketing and sales teams with ready-to-use resources to share with customers, driving stronger sell-through while strengthening collaboration with the Sliquid marketing team.',
     imageUrl:
-      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/ea6d3eef-451d-4510-a5bc-55a42ab2c4fc.png',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/9e502b65-1010-4628-bb3e-433525359746.jpeg',
     imageAlt: 'RIDE Lube water-based lubricant product lineup',
     linkHref: '/contact?type=distributor',
     linkLabel: 'Request more info',
