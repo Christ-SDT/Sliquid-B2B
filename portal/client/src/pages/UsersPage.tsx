@@ -3,7 +3,7 @@ import { api } from '@/api/client'
 import { TIER_LABEL } from '@/types'
 import {
   Search, Users, RefreshCw, CheckCircle, XCircle, Loader2, Cpu,
-  X, Award, GraduationCap, ExternalLink, ShieldCheck,
+  X, Award, GraduationCap, ExternalLink, ShieldCheck, Trash2,
 } from 'lucide-react'
 
 interface PortalUser {
@@ -60,12 +60,14 @@ function UserDetailModal({
   onClose,
   onRoleChange,
   onCompanyChange,
+  onDeleted,
 }: {
   user: PortalUser
   stores: Store[]
   onClose: () => void
   onRoleChange: (id: number, role: string) => void
   onCompanyChange: (id: number, company: string) => void
+  onDeleted: (id: number) => void
 }) {
   const [selectedRole, setSelectedRole]       = useState(user.role)
   const [roleSaveState, setRoleSaveState]     = useState<SaveState>('idle')
@@ -74,6 +76,10 @@ function UserDetailModal({
   const [selectedCompany, setSelectedCompany]     = useState(user.company ?? '')
   const [companySaveState, setCompanySaveState]   = useState<SaveState>('idle')
   const [companyError, setCompanyError]           = useState('')
+
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting]           = useState(false)
+  const [deleteError, setDeleteError]     = useState('')
 
   const roleChanged    = selectedRole    !== user.role
   const companyChanged = selectedCompany !== (user.company ?? '')
@@ -103,6 +109,20 @@ function UserDetailModal({
     } catch (err: any) {
       setCompanyError(err.message ?? 'Failed to save')
       setCompanySaveState('error')
+    }
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      await api.delete(`/admin/users/${user.id}`)
+      onDeleted(user.id)
+      onClose()
+    } catch (err: any) {
+      setDeleteError(err.message ?? 'Failed to delete')
+      setDeleting(false)
+      setConfirmDelete(false)
     }
   }
 
@@ -261,6 +281,44 @@ function UserDetailModal({
               </div>
             )}
           </div>
+
+          {/* ── Delete User ── */}
+          {user.role !== 'tier5' && user.role !== 'admin' && (
+            <div className="border-t border-portal-border pt-4">
+              <p className="text-on-canvas-muted text-xs mb-3">
+                Permanently remove this user and all their data. This cannot be undone.
+              </p>
+              {deleteError && (
+                <p className="text-red-400 text-xs mb-2">{deleteError}</p>
+              )}
+              {confirmDelete ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 disabled:opacity-50"
+                  >
+                    {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    Yes, delete permanently
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    className="px-3 py-1.5 text-sm text-on-canvas-muted hover:text-on-canvas border border-portal-border rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-red-500/40 text-red-400 rounded-lg text-sm hover:bg-red-500/10 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Delete user
+                </button>
+              )}
+            </div>
+          )}
 
         </div>
       </div>
@@ -664,6 +722,11 @@ export default function UsersPage() {
     setSelectedUser(prev => prev?.id === id ? { ...prev, company } : prev)
   }
 
+  function handleUserDeleted(id: number) {
+    setUsers(prev => prev.filter(u => u.id !== id))
+    setSelectedUser(null)
+  }
+
   const filtered = users.filter(u => {
     if (!search) return true
     const q = search.toLowerCase()
@@ -767,6 +830,7 @@ export default function UsersPage() {
           onClose={() => setSelectedUser(null)}
           onRoleChange={handleRoleChange}
           onCompanyChange={handleCompanyChange}
+          onDeleted={handleUserDeleted}
         />
       )}
     </div>

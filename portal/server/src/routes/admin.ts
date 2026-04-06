@@ -73,6 +73,22 @@ router.post('/users/:id/decline', requireAuth, requireRole('tier5', 'admin'), (r
   res.json({ id, status: 'declined' })
 })
 
+router.delete('/users/:id', requireAuth, requireRole('tier5', 'admin'), (req: any, res) => {
+  const id = parseInt(req.params.id)
+  if (id === req.user?.id) {
+    res.status(400).json({ message: 'You cannot delete your own account' })
+    return
+  }
+  const target = db.prepare('SELECT role FROM users WHERE id = ?').get(id) as { role: string } | undefined
+  if (!target) { res.status(404).json({ message: 'User not found' }); return }
+  if (target.role === 'tier5' || target.role === 'admin') {
+    res.status(403).json({ message: 'Admin accounts cannot be deleted' })
+    return
+  }
+  db.prepare('DELETE FROM users WHERE id = ?').run(id)
+  res.json({ id, deleted: true })
+})
+
 router.put('/users/:id/company', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const { company } = req.body as { company?: string }
   if (!company?.trim()) {

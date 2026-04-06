@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Passed – Sliquid B2B Portal</title>
+</head>
+<!--
+  Template ID : portal_quiz_pass
+  Variables   : {{user_name}}, {{quiz_title}}, {{score}}, {{portal_url}}, {{to_email}}
+-->
+<body style="margin:0;padding:0;background-color:#f7efe3;font-family:Inter,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f7efe3;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+          <!-- HEADER -->
+          <tr>
+            <td style="background-color:#0A84C0;border-radius:8px 8px 0 0;padding:28px 40px;">
+              <p style="margin:0;font-size:26px;font-weight:300;letter-spacing:0.05em;color:#ffffff;line-height:1;">sliquid</p>
+              <p style="margin:4px 0 0;font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.75);">B2B Partner Portal</p>
+            </td>
+          </tr>
+
+          <!-- SCORE BANNER -->
+          <tr>
+            <td style="background-color:#0870a3;border-left:1px solid #0A84C0;border-right:1px solid #0A84C0;padding:18px 40px;text-align:center;">
+              <p style="margin:0;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.8);">Module Complete</p>
+              <p style="margin:6px 0 0;font-size:42px;font-weight:700;color:#ffffff;line-height:1;">{{score}}%</p>
+            </td>
+          </tr>
+
+          <!-- CARD BODY -->
+          <tr>
+            <td style="background-color:#fefaf4;border-left:1px solid #ddc9ae;border-right:1px solid #ddc9ae;padding:40px 40px 32px;">
+
+              <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#2c1a0a;">Nice work, {{user_name}}!</h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#6b4c30;line-height:1.6;">
+                You passed the <strong style="color:#2c1a0a;">{{quiz_title}}</strong> module with a score of <strong style="color:#2c1a0a;">{{score}}%</strong>. Keep going — you're one step closer to becoming a Sliquid Certified Expert.
+              </p>
+
+              <!-- Divider -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
+                <tr><td style="border-top:1px solid #ddc9ae;"></td></tr>
+              </table>
+
+              <!-- Info row -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+                <tr>
+                  <td width="50%" style="padding-right:12px;">
+                    <p style="margin:0 0 4px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#a08060;">Module</p>
+                    <p style="margin:0;font-size:14px;font-weight:600;color:#2c1a0a;">{{quiz_title}}</p>
+                  </td>
+                  <td width="50%" style="padding-left:12px;">
+                    <p style="margin:0 0 4px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#a08060;">Score</p>
+                    <p style="margin:0;font-size:14px;font-weight:600;color:#2c1a0a;">{{score}} / 100</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="background-color:#0A84C0;border-radius:6px;">
+                    <a href="{{portal_url}}/trainings" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:0.02em;">Continue Training →</a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background-color:#f0e5d4;border:1px solid #ddc9ae;border-top:none;border-radius:0 0 8px 8px;padding:20px 40px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#a08060;">
+                This email was sent by the Sliquid B2B Partner Portal.<br />
+                Questions? Contact <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -42,7 +42,7 @@ router.get('/', requireAuth, (req, res) => {
   if (brand) { sql += ' AND brand = ?'; params.push(brand) }
   if (type) { sql += ' AND type = ?'; params.push(type) }
   if (search) { sql += ' AND name LIKE ?'; params.push(`%${search}%`) }
-  sql += ' ORDER BY brand, name'
+  sql += ' ORDER BY featured DESC, brand, name'
   res.json(db.prepare(sql).all(...params))
 })
 
@@ -265,6 +265,17 @@ router.delete('/:id', requireAuth, requireRole('tier5', 'admin'), async (req, re
   if (row.s3_key) await deleteS3Object(row.s3_key)
   db.prepare('DELETE FROM assets WHERE id = ?').run(req.params.id)
   res.json({ ok: true })
+})
+
+// ─── PUT /:id/featured — toggle star ─────────────────────────────────────────
+
+router.put('/:id/featured', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const id = parseInt(req.params.id)
+  const row = db.prepare('SELECT featured FROM assets WHERE id = ?').get(id) as { featured: number } | undefined
+  if (!row) { res.status(404).json({ message: 'Not found' }); return }
+  const newValue = row.featured ? 0 : 1
+  db.prepare('UPDATE assets SET featured = ? WHERE id = ?').run(newValue, id)
+  res.json({ id, featured: newValue })
 })
 
 export default router

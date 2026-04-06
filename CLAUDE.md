@@ -28,7 +28,7 @@ The project has two top-level parts:
 - **Framework:** Node.js + Express + TypeScript
 - **Database:** `better-sqlite3` SQLite (single file at `DB_PATH`, default `./data/portal.db`)
 - **Auth:** `bcryptjs` for password hashing, `jsonwebtoken` for JWT (7-day expiry)
-- **Email:** `nodemailer` via `portal/server/src/email.ts`; gracefully skips if `SMTP_HOST` not set
+- **Email:** `@emailjs/nodejs` via `portal/server/src/email.ts`; gracefully skips if `EMAILJS_PUBLIC_KEY` / `EMAILJS_PRIVATE_KEY` / `EMAILJS_SERVICE_ID` not set
 - **Deployment:** Railway via `portal/server/Dockerfile` (node:22-slim + python3/make/g++ for native modules)
 
 ### Key File Paths
@@ -58,7 +58,7 @@ The project has two top-level parts:
 | `portal/server/src/index.ts` | Express app + route mounting + WC polling interval |
 | `portal/server/src/database.ts` | DB init, migrations, seed |
 | `portal/server/src/middleware/auth.ts` | `requireAuth` + `requireRole(...roles)` |
-| `portal/server/src/email.ts` | nodemailer email sender |
+| `portal/server/src/email.ts` | EmailJS email sender (`@emailjs/nodejs`) |
 | `portal/server/src/woocommerce.ts` | WooCommerceService class + `runWooSync()` |
 | `portal/server/src/routes/woo.ts` | WooCommerce API routes |
 | `portal/server/src/routes/stores.ts` | Public GET /api/stores + admin POST/DELETE |
@@ -86,12 +86,12 @@ Create `portal/server/.env` for local development:
 ```
 JWT_SECRET=any-local-secret
 DB_PATH=./data/portal.db
-# Optional — skip for no email
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=you@example.com
-SMTP_PASS=yourpassword
-SMTP_FROM=noreply@sliquid.com
+# Optional — skip for no email (EmailJS)
+EMAILJS_PUBLIC_KEY=your_public_key
+EMAILJS_PRIVATE_KEY=your_private_key
+EMAILJS_SERVICE_ID=your_service_id
+# Optional — override portal URL used in email links (default: https://sliquid-portal.pages.dev)
+PORTAL_URL=https://your-portal-url.pages.dev
 # Optional — override WooCommerce credentials (env takes precedence over DB settings)
 WC_URL=https://your-store.com
 WC_CONSUMER_KEY=ck_xxx
@@ -213,7 +213,7 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 20 | `remove_body_spa_and_secret_amor` | Deletes Body Spa and Secret Amor (Secreto Amor MX) distributor rows |
 | 28 | `update_training_video_urls` | Updates video_path for h2o-vs-sassy, sea-vs-tsunami, silver-vs-silk, satin, swirl |
 
-**Next migration version: 29**
+**Next migration version: 34**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -353,7 +353,7 @@ All endpoints require `requireAuth + requireRole('tier5', 'admin')`.
 - **SCORM packages:** placed at `portal/client/public/training/<quiz-id>/index.html`
 - **SCORM shim:** `QuizPage.tsx` installs `window.API` (SCORM 1.2) before the iframe loads; captures `cmi.core.score.raw` on `LMSFinish`
 - **Quiz registry:** `portal/client/src/quizzes/index.ts` — add entries here when adding new quizzes
-- **Pass threshold:** score ≥ 70 triggers a completion email (if SMTP configured)
+- **Pass threshold:** score ≥ 70 triggers a completion email (if EmailJS configured)
 - **Certificate auto-issuance:** after any passing result, server checks if all `trainings` rows have a corresponding passed `quiz_results` row for that user — if so and no cert exists, auto-generates one (see Certification System below)
 
 ### Registered Quizzes (in `trainings` DB table)
@@ -828,7 +828,7 @@ portal/server/src/__tests__/
 - Config: `portal/server/railway.toml` — `builder = "dockerfile"` only (no healthcheckPath)
 - Volume: mount at `/data`, set `DB_PATH=/data/portal.db`
 - Required env vars: `JWT_SECRET`, `ALLOWED_ORIGINS` (comma-separated Cloudflare URLs)
-- Optional env vars: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `WC_URL`, `WC_CONSUMER_KEY`, `WC_CONSUMER_SECRET`
+- Optional env vars: `EMAILJS_PUBLIC_KEY`, `EMAILJS_PRIVATE_KEY`, `EMAILJS_SERVICE_ID`, `PORTAL_URL`, `WC_URL`, `WC_CONSUMER_KEY`, `WC_CONSUMER_SECRET`
 
 ---
 

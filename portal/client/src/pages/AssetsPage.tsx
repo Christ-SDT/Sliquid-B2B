@@ -6,7 +6,7 @@ import { Asset, Creative, AiImage } from '@/types'
 import {
   Search, FolderOpen, Download, ExternalLink, Eye,
   FileImage, FileText, Share2, Image, Video, Mail, Printer, Megaphone, BookOpen,
-  Plus, Trash2, X, Loader2, Pencil, ChevronDown, ChevronRight, Folder, ArrowLeft, LayoutGrid, Sparkles, Upload,
+  Plus, Trash2, X, Loader2, Pencil, ChevronDown, ChevronRight, Folder, ArrowLeft, LayoutGrid, Sparkles, Upload, Star,
 } from 'lucide-react'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -83,6 +83,7 @@ type AiLibraryItem = AiImage & {
   thumbnail_url: string
   file_size?: null
   dimensions?: null
+  featured?: number
 }
 
 type LibraryItem =
@@ -1372,17 +1373,25 @@ interface BrandSectionProps {
   onToggle: () => void
   onShowAll: (section: string) => void
   onSelectItem: (item: LibraryItem) => void
+  isAdmin: boolean
+  onToggleFeatured: (item: LibraryItem) => void
 }
 
-function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSelectItem }: BrandSectionProps) {
+function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSelectItem, isAdmin, onToggleFeatured }: BrandSectionProps) {
   const sections = Array.from(sectionMap.entries())
   const [activeSection, setActiveSection] = useState('__all__')
 
   const allItems = Array.from(sectionMap.values()).flat()
   const totalItems = allItems.length
-  const activeSectionItems = activeSection === '__all__'
-    ? allItems
-    : (sectionMap.get(activeSection) ?? allItems)
+
+  // Featured items always sort first within the active view
+  function sortFeaturedFirst(items: LibraryItem[]): LibraryItem[] {
+    return [...items].sort((a, b) => ((b.featured ?? 0) - (a.featured ?? 0)))
+  }
+
+  const activeSectionItems = sortFeaturedFirst(
+    activeSection === '__all__' ? allItems : (sectionMap.get(activeSection) ?? allItems)
+  )
 
   return (
     <div className="bg-surface border border-portal-border rounded-2xl overflow-hidden">
@@ -1447,16 +1456,18 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
               ))}
             </div>
 
-            {/* Preview strip — up to 4 clickable thumbnails */}
+            {/* Preview strip — up to 8 clickable thumbnails (2 rows of 4) */}
             <div className="grid grid-cols-4 gap-3">
-              {activeSectionItems.slice(0, 4).map(item => {
+              {activeSectionItems.slice(0, 8).map(item => {
                 const Icon = TYPE_ICONS[item.type] ?? FolderOpen
+                const isFeatured = !!(item.featured)
                 return (
-                  <button
+                  <div
                     key={`${item._source}-${item.id}`}
+                    className="relative aspect-video bg-portal-bg rounded-xl border overflow-hidden
+                               hover:scale-[1.02] transition-all group cursor-pointer
+                               border-portal-border hover:border-portal-accent/40"
                     onClick={() => onSelectItem(item)}
-                    className="aspect-video bg-portal-bg rounded-xl border border-portal-border overflow-hidden
-                               hover:border-portal-accent/40 hover:scale-[1.02] transition-all group"
                   >
                     {item.thumbnail_url
                       ? <img
@@ -1473,12 +1484,32 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
                         </div>
                       )
                     }
-                  </button>
+                    {/* Star button — always visible when starred; shown on hover for admin */}
+                    {(isAdmin || isFeatured) && (
+                      <button
+                        onClick={e => { e.stopPropagation(); if (isAdmin) onToggleFeatured(item) }}
+                        title={isAdmin ? (isFeatured ? 'Remove from featured' : 'Feature this item') : 'Featured'}
+                        className={`absolute top-1.5 left-1.5 p-1 rounded-full transition-all
+                          ${isFeatured
+                            ? 'opacity-100 bg-black/40'
+                            : 'opacity-0 group-hover:opacity-100 bg-black/40'
+                          }
+                          ${isAdmin ? 'cursor-pointer hover:scale-110' : 'cursor-default pointer-events-none'}
+                        `}
+                      >
+                        <Star
+                          className="w-3.5 h-3.5"
+                          fill={isFeatured ? '#facc15' : 'none'}
+                          stroke={isFeatured ? '#facc15' : 'white'}
+                        />
+                      </button>
+                    )}
+                  </div>
                 )
               })}
-              {/* Filler slots */}
-              {activeSectionItems.length < 4 && (
-                [...Array(4 - Math.min(activeSectionItems.length, 4))].map((_, i) => (
+              {/* Filler slots to complete the last row */}
+              {activeSectionItems.length < 8 && activeSectionItems.length % 4 !== 0 && (
+                [...Array(4 - (activeSectionItems.length % 4))].map((_, i) => (
                   <div key={`filler-${i}`} className="aspect-video bg-portal-bg/40 rounded-xl border border-portal-border/30" />
                 ))
               )}
@@ -1487,8 +1518,8 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
             {/* Footer: count + Show all [section] */}
             <div className="flex items-center justify-between">
               <p className="text-on-canvas-muted text-sm">
-                {activeSectionItems.length > 4
-                  ? `Showing 4 of ${activeSectionItems.length} files`
+                {activeSectionItems.length > 8
+                  ? `Showing 8 of ${activeSectionItems.length} files`
                   : `${activeSectionItems.length} ${activeSectionItems.length === 1 ? 'file' : 'files'}`
                 }
               </p>
@@ -1571,6 +1602,19 @@ export default function AssetsPage() {
     setAllItems(prev => prev.map(i =>
       i._source === updated._source && i.id === updated.id ? updated : i
     ))
+  }
+
+  async function handleToggleFeatured(item: LibraryItem) {
+    if (item._source === 'ai') return // AI items don't support featured
+    const endpoint = item._source === 'asset' ? `/assets/${item.id}/featured` : `/creatives/${item.id}/featured`
+    try {
+      const result = await api.put<{ id: number; featured: number }>(endpoint, {})
+      setAllItems(prev => prev.map(i =>
+        i._source === item._source && i.id === item.id ? { ...i, featured: result.featured } : i
+      ))
+    } catch (err) {
+      console.error('[featured] toggle failed', err)
+    }
   }
 
   async function handleDelete(item: LibraryItem) {
@@ -1680,6 +1724,8 @@ export default function AssetsPage() {
               onToggle={() => toggleBrand(brand)}
               onShowAll={section => setOpenExplorer({ brand, section })}
               onSelectItem={item => setDetailItem(item)}
+              isAdmin={adminUser}
+              onToggleFeatured={handleToggleFeatured}
             />
           ))}
         </div>

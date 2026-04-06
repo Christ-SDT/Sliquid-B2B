@@ -60,6 +60,7 @@ export interface Asset {
   dimensions?: string | null
   s3_key?: string | null
   created_at?: string
+  featured?: number
 }
 
 export interface Distributor {
@@ -119,6 +120,7 @@ export interface Creative {
   file_size?: string | null
   s3_key?: string | null
   created_at?: string
+  featured?: number
 }
 
 export interface AiImage {

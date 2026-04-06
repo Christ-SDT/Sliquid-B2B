@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { isAdmin as checkAdmin } from '@/types'
 import {
   Image as ImageIcon, Upload, Copy, Check, Pencil, Trash2, X, ExternalLink,
-  Search, Loader2, AlertCircle, Save, ChevronDown, Sparkles, CheckCircle2,
+  Search, Loader2, AlertCircle, Save, ChevronDown, Sparkles, CheckCircle2, CheckCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -861,6 +861,8 @@ export default function MediaPage() {
   const [search, setSearch] = useState('')
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
   const [showUpload, setShowUpload] = useState(false)
+  const [showAllPending, setShowAllPending] = useState(false)
+  const [approvingAll, setApprovingAll] = useState(false)
 
   const isAdmin = user ? checkAdmin(user.role) : false
 
@@ -896,6 +898,19 @@ export default function MediaPage() {
   function handleUpdated(updated: MediaItem) {
     setItems(prev => prev.map(i => (i._source === updated._source && i.id === updated.id) ? updated : i))
     setSelectedItem(updated)
+  }
+
+  async function handleApproveAll() {
+    if (!pendingAi.length) return
+    setApprovingAll(true)
+    for (const img of pendingAi) {
+      try {
+        await api.post(`/creator/${img.id}/approve`, {})
+        setItems(prev => prev.map(i => (i._source === 'ai' && i.id === img.id) ? { ...i, approved: 1 } : i))
+      } catch { /* continue */ }
+    }
+    setApprovingAll(false)
+    setShowAllPending(false)
   }
 
   return (
@@ -968,18 +983,35 @@ export default function MediaPage() {
         {/* Pending AI Creations */}
         {!loading && pendingAi.length > 0 && (
           <div className="bg-surface border border-portal-border rounded-xl overflow-hidden">
+            {/* Section header */}
             <div className="flex items-center gap-2.5 px-4 py-3 border-b border-portal-border bg-violet-500/5">
-              <Sparkles className="w-4 h-4 text-violet-400" />
-              <h2 className="text-on-canvas font-semibold text-sm">Pending AI Creations</h2>
-              <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 font-medium">
+              <Sparkles className="w-4 h-4 text-violet-400 flex-shrink-0" />
+              <h2 className="text-on-canvas font-semibold text-sm flex-1">Pending AI Creations</h2>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 font-medium">
                 {pendingAi.length} awaiting review
               </span>
+              {/* Approve All */}
+              <button
+                onClick={handleApproveAll}
+                disabled={approvingAll}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-xs font-medium transition-colors"
+              >
+                {approvingAll ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCheck className="w-3 h-3" />}
+                {approvingAll ? 'Approving…' : 'Approve All'}
+              </button>
+              {/* Collapse / expand toggle */}
+              <button
+                onClick={() => setShowAllPending(p => !p)}
+                className="flex items-center gap-1 text-xs text-on-canvas-subtle hover:text-on-canvas transition-colors ml-1"
+              >
+                {showAllPending ? 'Show less' : `View all (${pendingAi.length})`}
+                <ChevronDown className={cn('w-3.5 h-3.5 transition-transform', showAllPending && 'rotate-180')} />
+              </button>
             </div>
-            <p className="text-on-canvas-muted text-xs px-4 pt-3 pb-1">
-              Review AI-generated images before they appear in the Asset Library under Creator Creations.
-            </p>
+
+            {/* Grid — collapsed shows 4, expanded shows all */}
             <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {pendingAi.map(img => (
+              {(showAllPending ? pendingAi : pendingAi.slice(0, 8)).map(img => (
                 <div
                   key={`ai-pending-${img.id}`}
                   className="relative aspect-square rounded-xl overflow-hidden bg-portal-bg border border-violet-500/30 cursor-pointer group"
@@ -1002,6 +1034,18 @@ export default function MediaPage() {
                 </div>
               ))}
             </div>
+
+            {/* "View all" footer when collapsed and there are more than 4 */}
+            {!showAllPending && pendingAi.length > 8 && (
+              <div className="px-4 pb-4">
+                <button
+                  onClick={() => setShowAllPending(true)}
+                  className="w-full py-2 text-xs text-on-canvas-subtle hover:text-on-canvas border border-portal-border rounded-lg hover:border-portal-accent/40 transition-colors"
+                >
+                  + {pendingAi.length - 8} more — View all pending
+                </button>
+              </div>
+            )}
           </div>
         )}
 

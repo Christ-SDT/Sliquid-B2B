@@ -750,7 +750,15 @@ const migrations: Migration[] = [
         CREATE INDEX IF NOT EXISTS idx_reference_images_created_at ON reference_images(created_at);
       `)
     }
-  }
+  },
+  {
+    version: 34,
+    name: 'add_featured_to_assets_and_creatives',
+    up: () => db.exec(`
+      ALTER TABLE assets    ADD COLUMN featured INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE creatives ADD COLUMN featured INTEGER NOT NULL DEFAULT 0;
+    `),
+  },
 ]
 
 function runMigrations(): void {
