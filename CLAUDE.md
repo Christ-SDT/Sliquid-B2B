@@ -212,8 +212,10 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 19 | `replace_distributors` | Adds `notes TEXT` column; deletes all old fake distributors; seeds 13 real distributors. `region` = filter category (US/Canada/UK/Mexico/US, Canada); `state` = display locations (CO, MI, AZ etc.) |
 | 20 | `remove_body_spa_and_secret_amor` | Deletes Body Spa and Secret Amor (Secreto Amor MX) distributor rows |
 | 28 | `update_training_video_urls` | Updates video_path for h2o-vs-sassy, sea-vs-tsunami, silver-vs-silk, satin, swirl |
+| 34 | `add_featured_to_assets_and_creatives` | Adds `featured INTEGER NOT NULL DEFAULT 0` to `assets` and `creatives` tables |
+| 35 | `add_password_reset_tokens` | Adds `reset_token TEXT` and `reset_token_expires TEXT` to `users` table |
 
-**Next migration version: 34**
+**Next migration version: 36**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -233,6 +235,8 @@ Managed in `portal/server/src/database.ts`. Rules:
 | POST | `/login` | — | Returns `{ token, user }`; stamps `last_login` on the user row |
 | POST | `/register` | — | Accepts `name, email, company, password, role` |
 | GET | `/me` | requireAuth | Returns current user |
+| POST | `/forgot-password` | — | Accepts `email`; generates reset token (1hr expiry); sends `portal_password_reset` email; always returns `{ ok: true }` (no enumeration) |
+| POST | `/reset-password` | — | Accepts `token, password`; validates token + expiry; updates password hash; clears token fields |
 
 ### Products — `/api/products`
 | Method | Path | Auth | Description |

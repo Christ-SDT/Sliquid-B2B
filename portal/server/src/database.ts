@@ -759,6 +759,14 @@ const migrations: Migration[] = [
       ALTER TABLE creatives ADD COLUMN featured INTEGER NOT NULL DEFAULT 0;
     `),
   },
+  {
+    version: 35,
+    name: 'add_password_reset_tokens',
+    up: () => db.exec(`
+      ALTER TABLE users ADD COLUMN reset_token TEXT;
+      ALTER TABLE users ADD COLUMN reset_token_expires TEXT;
+    `),
+  },
 ]
 
 function runMigrations(): void {

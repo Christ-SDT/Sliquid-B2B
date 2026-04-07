@@ -167,6 +167,22 @@ export async function sendMarketingRequestEmails(opts: {
   console.log(`[email] Marketing request emails sent for ${email}`)
 }
 
+// ─── Password reset ───────────────────────────────────────────────────────────
+
+export async function sendPasswordResetEmail(opts: {
+  toName: string
+  toEmail: string
+  resetUrl: string
+}): Promise<void> {
+  const { toName, toEmail, resetUrl } = opts
+  await sendEmail('portal_password_reset', {
+    user_name: toName,
+    reset_url: resetUrl,
+    to_email: toEmail,
+  })
+  console.log(`[email] Password reset email sent to ${toEmail}`)
+}
+
 // ─── Asset broadcast ──────────────────────────────────────────────────────────
 
 export async function sendBroadcastEmail(opts: {

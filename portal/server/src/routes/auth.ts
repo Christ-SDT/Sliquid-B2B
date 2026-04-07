@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import { randomBytes } from 'crypto'
 import rateLimit from 'express-rate-limit'
 import { db } from '../database.js'
 import { requireAuth, JWT_SECRET } from '../middleware/auth.js'
-import { sendRegistrationConfirm } from '../email.js'
+import { sendRegistrationConfirm, sendPasswordResetEmail } from '../email.js'
 import { notifyAdmins } from '../notifications.js'
 
 const router = Router()
@@ -85,6 +86,59 @@ router.post('/register', loginLimiter, async (req, res) => {
 
 router.get('/me', requireAuth, (req, res) => {
   res.json(req.user)
+})
+
+// ─── Forgot password ──────────────────────────────────────────────────────────
+
+const resetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many password reset requests. Please try again in 15 minutes.' },
+})
+
+router.post('/forgot-password', resetLimiter, async (req, res) => {
+  const { email } = req.body
+  if (!email) { res.status(400).json({ message: 'Email is required' }); return }
+
+  // Always return 200 to prevent email enumeration
+  const user = db.prepare('SELECT id, name FROM users WHERE email = ?').get(email) as { id: number; name: string } | undefined
+  if (!user) { res.json({ ok: true }); return }
+
+  const token = randomBytes(32).toString('hex')
+  const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString() // 1 hour
+
+  db.prepare('UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?').run(token, expires, user.id)
+
+  const PORTAL_URL = process.env.PORTAL_URL ?? 'https://sliquid-portal.pages.dev'
+  const resetUrl = `${PORTAL_URL}/reset-password?token=${token}`
+
+  sendPasswordResetEmail({ toName: user.name, toEmail: email, resetUrl })
+    .catch(err => console.error('[email] Password reset email failed:', err))
+
+  res.json({ ok: true })
+})
+
+// ─── Reset password ───────────────────────────────────────────────────────────
+
+router.post('/reset-password', async (req, res) => {
+  const { token, password } = req.body
+  if (!token || !password) { res.status(400).json({ message: 'Token and password are required' }); return }
+  if (password.length < 8) { res.status(400).json({ message: 'Password must be at least 8 characters' }); return }
+
+  const user = db.prepare('SELECT id, reset_token_expires FROM users WHERE reset_token = ?').get(token) as { id: number; reset_token_expires: string } | undefined
+  if (!user) { res.status(400).json({ message: 'Invalid or expired reset link' }); return }
+
+  if (new Date(user.reset_token_expires) < new Date()) {
+    db.prepare('UPDATE users SET reset_token = NULL, reset_token_expires = NULL WHERE id = ?').run(user.id)
+    res.status(400).json({ message: 'Reset link has expired. Please request a new one.' }); return
+  }
+
+  const password_hash = await bcrypt.hash(password, 10)
+  db.prepare('UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?').run(password_hash, user.id)
+
+  res.json({ ok: true })
 })
 
 export default router
