@@ -10,15 +10,17 @@ const configured = !!(PUBLIC_KEY && PRIVATE_KEY && SERVICE_ID)
 const PORTAL_URL = process.env.PORTAL_URL ?? 'https://sliquid-portal.pages.dev'
 const SUPPORT_EMAIL = 'support@sliquid.com'
 
-async function sendEmail(templateId: string, params: Record<string, string>): Promise<void> {
+// Returns true if the email was actually sent, false if skipped (not configured)
+async function sendEmail(templateId: string, params: Record<string, string>): Promise<boolean> {
   if (!configured) {
-    console.log(`[email] EmailJS not configured — skipping template ${templateId}`)
-    return
+    console.warn(`[email] EmailJS not configured — skipping template ${templateId}`)
+    return false
   }
   await emailjs.send(SERVICE_ID!, templateId, params, {
     publicKey: PUBLIC_KEY!,
     privateKey: PRIVATE_KEY!,
   })
+  return true
 }
 
 // ─── Quiz pass ────────────────────────────────────────────────────────────────
@@ -30,14 +32,14 @@ export async function sendQuizPassEmail(opts: {
   score: number
 }): Promise<void> {
   const { toName, toEmail, quizTitle, score } = opts
-  await sendEmail('portal_quiz_pass', {
+  const sent = await sendEmail('portal_quiz_pass', {
     user_name: toName,
     quiz_title: quizTitle,
     score: String(score),
     portal_url: PORTAL_URL,
     to_email: toEmail,
   })
-  console.log(`[email] Quiz pass email sent to ${toEmail} (${quizTitle}, ${score}%)`)
+  if (sent) console.log(`[email] Quiz pass email sent to ${toEmail} (${quizTitle}, ${score}%)`)
 }
 
 // ─── Certificate issued ────────────────────────────────────────────────────────
@@ -49,14 +51,14 @@ export async function sendCertificateEmail(opts: {
   completionDate: string
 }): Promise<void> {
   const { toName, toEmail, certNumber, completionDate } = opts
-  await sendEmail('portal_cert_issued', {
+  const sent = await sendEmail('portal_cert_issued', {
     user_name: toName,
     cert_number: certNumber,
     completion_date: completionDate,
     verify_url: `${PORTAL_URL}/verify`,
     to_email: toEmail,
   })
-  console.log(`[email] Certificate email sent to ${toEmail} (${certNumber})`)
+  if (sent) console.log(`[email] Certificate email sent to ${toEmail} (${certNumber})`)
 }
 
 // ─── Registration ─────────────────────────────────────────────────────────────
@@ -68,7 +70,7 @@ export async function sendRegistrationConfirm(opts: {
 }): Promise<void> {
   const { name, email, company } = opts
   // User confirmation (template 4)
-  await sendEmail('portal_register_confirm', {
+  const sent = await sendEmail('portal_register_confirm', {
     user_name: name,
     user_email: email,
     to_email: email,
@@ -79,7 +81,7 @@ export async function sendRegistrationConfirm(opts: {
     user_email: email,
     user_company: company,
   })
-  console.log(`[email] Registration emails sent for ${email}`)
+  if (sent) console.log(`[email] Registration emails sent for ${email}`)
 }
 
 // ─── Approval / decline ───────────────────────────────────────────────────────
@@ -98,13 +100,13 @@ export async function sendApprovalEmail(opts: {
   role: string
 }): Promise<void> {
   const { name, email, role } = opts
-  await sendEmail('portal_approved', {
+  const sent = await sendEmail('portal_approved', {
     user_name: name,
     role_label: TIER_LABEL[role] ?? role,
     portal_url: PORTAL_URL,
     to_email: email,
   })
-  console.log(`[email] Approval email sent to ${email} (${role})`)
+  if (sent) console.log(`[email] Approval email sent to ${email} (${role})`)
 }
 
 export async function sendDeclineEmail(opts: {
@@ -112,12 +114,12 @@ export async function sendDeclineEmail(opts: {
   email: string
 }): Promise<void> {
   const { name, email } = opts
-  await sendEmail('portal_declined', {
+  const sent = await sendEmail('portal_declined', {
     user_name: name,
     support_email: SUPPORT_EMAIL,
     to_email: email,
   })
-  console.log(`[email] Decline email sent to ${email}`)
+  if (sent) console.log(`[email] Decline email sent to ${email}`)
 }
 
 // ─── Reward claim ─────────────────────────────────────────────────────────────
@@ -130,14 +132,14 @@ export async function sendRewardConfirmEmail(opts: {
   address: string
 }): Promise<void> {
   const { toName, toEmail, product, shirtSize, address } = opts
-  await sendEmail('portal_reward_confirm', {
+  const sent = await sendEmail('portal_reward_confirm', {
     user_name: toName,
     product,
     shirt_size: shirtSize,
     address,
     to_email: toEmail,
   })
-  console.log(`[email] Reward confirmation email sent to ${toEmail}`)
+  if (sent) console.log(`[email] Reward confirmation email sent to ${toEmail}`)
 }
 
 // ─── Marketing request ────────────────────────────────────────────────────────
@@ -151,7 +153,7 @@ export async function sendMarketingRequestEmails(opts: {
 }): Promise<void> {
   const { name, email, company, requestedItems, notes } = opts
   // User confirmation (template 11)
-  await sendEmail('portal_marketing_user', {
+  const sent = await sendEmail('portal_marketing_user', {
     user_name: name,
     requested_items: requestedItems,
     to_email: email,
@@ -164,7 +166,7 @@ export async function sendMarketingRequestEmails(opts: {
     requested_items: requestedItems,
     notes: notes || '—',
   })
-  console.log(`[email] Marketing request emails sent for ${email}`)
+  if (sent) console.log(`[email] Marketing request emails sent for ${email}`)
 }
 
 // ─── Password reset ───────────────────────────────────────────────────────────
@@ -175,12 +177,12 @@ export async function sendPasswordResetEmail(opts: {
   resetUrl: string
 }): Promise<void> {
   const { toName, toEmail, resetUrl } = opts
-  await sendEmail('portal_password_reset', {
+  const sent = await sendEmail('portal_password_reset', {
     user_name: toName,
     reset_url: resetUrl,
     to_email: toEmail,
   })
-  console.log(`[email] Password reset email sent to ${toEmail}`)
+  if (sent) console.log(`[email] Password reset email sent to ${toEmail}`)
 }
 
 // ─── Asset broadcast ──────────────────────────────────────────────────────────

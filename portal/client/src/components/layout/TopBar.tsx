@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone, Package, Archive, Receipt, BarChart3, Users2, Images } from 'lucide-react'
+import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone, Package, Archive, Receipt, BarChart3, Users2, Images, Activity } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { useNotifications } from '@/context/NotificationContext'
@@ -200,8 +200,9 @@ export default function TopBar({ onMenuClick }: Props) {
                     { to: '/inventory',          icon: Archive,  label: 'Inventory'         },
                     { to: '/invoices',           icon: Receipt,  label: 'Invoices'          },
                     { to: '/stats',              icon: BarChart3, label: 'Analytics'        },
-                    { to: '/reference-gallery',  icon: Images,   label: 'Reference Gallery' },
-                    { to: '/store-users',        icon: Users2,   label: 'My Store'          },
+                    { to: '/reference-gallery',  icon: Images,    label: 'Reference Gallery' },
+                    { to: '/store-users',        icon: Users2,    label: 'My Store'          },
+                    { to: '/logs',               icon: Activity,  label: 'Server Logs'       },
                   ].map(({ to, icon: Icon, label }) => (
                     <button
                       key={to}

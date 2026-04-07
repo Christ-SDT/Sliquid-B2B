@@ -1,7 +1,11 @@
 import express from 'express'
 import cors from 'cors'
+// Logger must be imported before anything else so console interception is
+// in place before routes/database start emitting logs
+import './logger.js'
 import './database.js'
 
+import logsRouter from './routes/logs.js'
 import authRouter from './routes/auth.js'
 import productsRouter from './routes/products.js'
 import assetsRouter from './routes/assets.js'
@@ -86,6 +90,7 @@ app.use('/api/training-options', trainingOptionsRouter)
 app.use('/api/creator', creatorRouter)
 app.use('/api/media', mediaRouter)
 app.use('/api/reference-images', referenceImagesRouter)
+app.use('/api/logs', logsRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))
 

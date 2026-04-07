@@ -23,6 +23,7 @@ import CertificateVerify from '@/pages/CertificateVerify'
 import CreatorPage from '@/pages/CreatorPage'
 import MediaPage from '@/pages/MediaPage'
 import ReferenceGalleryPage from '@/pages/ReferenceGalleryPage'
+import LogsPage from '@/pages/LogsPage'
 
 export default function App() {
   return (
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="creator" element={<CreatorPage />} />
             <Route path="media" element={<MediaPage />} />
             <Route path="reference-gallery" element={<ReferenceGalleryPage />} />
+            <Route path="logs" element={<LogsPage />} />
           </Route>
           <Route path="/verify" element={<CertificateVerify />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
