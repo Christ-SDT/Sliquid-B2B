@@ -1,24 +1,38 @@
 import emailjs from '@emailjs/nodejs'
 import { db } from './database.js'
 
-const PUBLIC_KEY = process.env.EMAILJS_PUBLIC_KEY
-const PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY
-const SERVICE_ID = process.env.EMAILJS_SERVICE_ID
-
-const configured = !!(PUBLIC_KEY && PRIVATE_KEY && SERVICE_ID)
-
 const PORTAL_URL = process.env.PORTAL_URL ?? 'https://sliquid-portal.pages.dev'
 const SUPPORT_EMAIL = 'support@sliquid.com'
 
+// Read credentials lazily so they are evaluated at call time, not at module-init
+// time. This avoids ESM hoisting edge cases with dotenv and Railway env vars.
+function getConfig() {
+  const publicKey  = process.env.EMAILJS_PUBLIC_KEY
+  const privateKey = process.env.EMAILJS_PRIVATE_KEY
+  const serviceId  = process.env.EMAILJS_SERVICE_ID
+  return { publicKey, privateKey, serviceId, configured: !!(publicKey && privateKey && serviceId) }
+}
+
+// Log configuration status once at startup (after event loop tick so dotenv has run)
+setTimeout(() => {
+  const { configured } = getConfig()
+  if (configured) {
+    console.log('[email] EmailJS configured ✓ (ready to send)')
+  } else {
+    console.warn('[email] EmailJS NOT configured — EMAILJS_PUBLIC_KEY / EMAILJS_PRIVATE_KEY / EMAILJS_SERVICE_ID missing')
+  }
+}, 0)
+
 // Returns true if the email was actually sent, false if skipped (not configured)
 async function sendEmail(templateId: string, params: Record<string, string>): Promise<boolean> {
+  const { configured, publicKey, privateKey, serviceId } = getConfig()
   if (!configured) {
     console.warn(`[email] EmailJS not configured — skipping template ${templateId}`)
     return false
   }
-  await emailjs.send(SERVICE_ID!, templateId, params, {
-    publicKey: PUBLIC_KEY!,
-    privateKey: PRIVATE_KEY!,
+  await emailjs.send(serviceId!, templateId, params, {
+    publicKey: publicKey!,
+    privateKey: privateKey!,
   })
   return true
 }
@@ -191,8 +205,8 @@ export async function sendBroadcastEmail(opts: {
   assetName: string
   brand: string
 }): Promise<void> {
-  if (!configured) {
-    console.log('[email] EmailJS not configured — skipping broadcast email:', opts.assetName)
+  if (!getConfig().configured) {
+    console.warn('[email] EmailJS not configured — skipping broadcast email:', opts.assetName)
     return
   }
 
