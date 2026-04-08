@@ -85,7 +85,14 @@ router.delete('/users/:id', requireAuth, requireRole('tier5', 'admin'), (req: an
     res.status(403).json({ message: 'Admin accounts cannot be deleted' })
     return
   }
-  db.prepare('DELETE FROM users WHERE id = ?').run(id)
+  // Delete child rows that lack ON DELETE CASCADE before removing the user
+  const deleteUser = db.transaction((userId: number) => {
+    db.prepare('DELETE FROM quiz_results WHERE user_id = ?').run(userId)
+    db.prepare('DELETE FROM retailer_applications WHERE user_id = ?').run(userId)
+    db.prepare('UPDATE invoices SET partner_id = NULL WHERE partner_id = ?').run(userId)
+    db.prepare('DELETE FROM users WHERE id = ?').run(userId)
+  })
+  deleteUser(id)
   res.json({ id, deleted: true })
 })
 
