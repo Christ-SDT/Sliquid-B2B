@@ -6,7 +6,7 @@ import { EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_HP_TID } from '@/utils/
 // ─── Static data ──────────────────────────────────────────────────────────────
 
 const HP_IMAGE =
-  'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/52c0b1b8-d5aa-4e7e-a2fa-fbe1e8828c87.png'
+  'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/87ed7738-8b0b-425e-a09c-cb563cdd99c0.jpg'
 
 const KEY_INGREDIENTS = [
   {

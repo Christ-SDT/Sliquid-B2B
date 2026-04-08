@@ -13,7 +13,7 @@ export default function OurBrandsPage() {
             The brands behind Sliquid HQ
           </h1>
           <p className="text-text-gray text-lg mt-4 max-w-2xl leading-relaxed">
-            Three complementary brands united by one commitment — premium,
+            Three complementary brands. One commitment to premium,
             body-safe intimacy products you can trust.
           </p>
         </div>

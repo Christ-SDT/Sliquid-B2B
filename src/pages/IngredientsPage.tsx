@@ -11,7 +11,7 @@ const CERTIFICATIONS = [
     icon: '✓',
     title: 'Paraben-Free',
     description:
-      'We never use parabens — a class of synthetic preservatives linked to hormonal disruption.',
+      'We never use parabens, a class of synthetic preservatives linked to hormonal disruption.',
   },
   {
     id: 'body-safe',
@@ -25,7 +25,7 @@ const CERTIFICATIONS = [
     icon: '🌱',
     title: 'Vegan & Cruelty-Free',
     description:
-      'No animal-derived ingredients, no animal testing — ever. All products are certified vegan.',
+      'No animal-derived ingredients and no animal testing, ever. All products are certified vegan.',
   },
   {
     id: 'Made in the USA',
@@ -49,7 +49,7 @@ const KEY_INGREDIENTS = [
     name: 'Purified Water',
     tag: 'Base',
     description:
-      'The foundation of all water-based formulas. Triple-filtered and deionized — it makes up 96% of Naturals H2O and serves as the pure, contaminant-free carrier for every water-soluble formula.',
+      'The foundation of all water-based formulas. Triple-filtered and deionized, it makes up 96% of Naturals H2O and serves as the pure, contaminant-free carrier for every water-soluble formula.',
   },
   {
     id: 'aloe-vera',
@@ -61,14 +61,14 @@ const KEY_INGREDIENTS = [
   {
     id: 'plant-cellulose',
     name: 'Plant Cellulose',
-    tag: 'Thickener — Naturals H2O',
+    tag: 'Thickener (Naturals H2O)',
     description:
       'Derived from cotton, plant cellulose is a natural, vegan-friendly, and gluten-free thickening agent. It gives Naturals H2O its signature silky glide and smooth consistency without synthetic polymers.',
   },
   {
     id: 'agar-agar',
     name: 'Organic Agar Agar',
-    tag: 'Thickener — Organics',
+    tag: 'Thickener (Organics)',
     description:
       'Sourced from red algae, Agar Agar is a naturally occurring plant-based material used to create the body and thickness of the Organics Natural lubricant. A clean, seaweed-derived alternative to synthetic gelling agents.',
   },
@@ -96,21 +96,21 @@ const KEY_INGREDIENTS = [
   {
     id: 'hibiscus',
     name: 'Organic Hibiscus Extract',
-    tag: 'Emollient — Organics',
+    tag: 'Emollient (Organics)',
     description:
       'Added to Sliquid Organics as a restorative and healing emollient. Hibiscus is known to restore elasticity and suppleness to the skin, making it especially beneficial for sensitive or irritated tissue.',
   },
   {
     id: 'green-tea',
     name: 'Organic Green Tea Extract',
-    tag: 'Anti-Inflammatory — Organics',
+    tag: 'Anti-Inflammatory (Organics)',
     description:
       'A botanical anti-inflammatory included in the Organics Natural formula. Green tea extract helps calm irritation and provides antioxidant support, further protecting sensitive skin from environmental stressors.',
   },
   {
     id: 'sunflower-seed',
     name: 'Organic Sunflower Seed Extract',
-    tag: 'Skin Tonic — Organics',
+    tag: 'Skin Tonic (Organics)',
     description:
       'Used in Sliquid Organics as a gentle cleansing and calming tonic. Sunflower seed extract is rich in vitamins and fatty acids that nourish and soothe skin without disrupting the natural barrier.',
   },
@@ -126,14 +126,14 @@ const KEY_INGREDIENTS = [
     name: 'Potassium Sorbate & Sodium Benzoate',
     tag: 'Preservative',
     description:
-      'The gentlest, most body-safe, non-toxic, non-irritating preservatives available for intimate products. Used together to extend shelf life, prevent contamination, and fight unwanted bacteria and mold — keeping formulas safer for women without the risks of parabens.',
+      'The gentlest, most body-safe, non-toxic, non-irritating preservatives available for intimate products. Used together to extend shelf life, prevent contamination, and fight unwanted bacteria and mold. They keep formulas safer for women without the risks of parabens.',
   },
   {
     id: 'dimethicone',
     name: 'Dimethicone',
     tag: 'Silicone Base',
     description:
-      'The primary base in silicone formulas. Inert, non-absorbable, and hypoallergenic — it provides ultra-long-lasting glide without water absorption. Compatible with latex, not with silicone toys.',
+      'The primary base in silicone formulas. Inert, non-absorbable, and hypoallergenic, it provides ultra-long-lasting glide without water absorption. Compatible with latex but not with silicone toys.',
   },
 ]
 
@@ -142,13 +142,13 @@ const AVOIDED_INGREDIENTS = [
     id: 'glycerin',
     name: 'Glycerin',
     reason:
-      'A sugar alcohol that can feed Candida yeast and disrupt the vaginal microbiome, increasing the risk of yeast infections. Present in the majority of mass-market lubricants — and absent from every Sliquid formula.',
+      'A sugar alcohol that can feed Candida yeast and disrupt the vaginal microbiome, increasing the risk of yeast infections. Present in the majority of mass-market lubricants yet absent from every Sliquid formula.',
   },
   {
     id: 'parabens',
     name: 'Parabens',
     reason:
-      'Synthetic preservatives (methylparaben, propylparaben, etc.) that act as xenoestrogens — mimicking estrogen in the body. Linked to hormonal disruption and found in breast tumor tissue in multiple studies.',
+      'Synthetic preservatives (methylparaben, propylparaben, etc.) that act as xenoestrogens, mimicking estrogen in the body. Linked to hormonal disruption and found in breast tumor tissue in multiple studies.',
   },
   {
     id: 'propylene-glycol',
@@ -160,7 +160,7 @@ const AVOIDED_INGREDIENTS = [
     id: 'nonoxynol-9',
     name: 'Nonoxynol-9',
     reason:
-      'A spermicidal surfactant that strips away the vaginal epithelium with repeated use, increasing susceptibility to STIs. Once standard in "safe sex" lubricants — now widely contraindicated by healthcare providers.',
+      'A spermicidal surfactant that strips away the vaginal epithelium with repeated use, increasing susceptibility to STIs. Once standard in "safe sex" lubricants, it is now widely contraindicated by healthcare providers.',
   },
   {
     id: 'benzocaine',
@@ -189,7 +189,7 @@ export default function IngredientsPage() {
             Ingredients you can trust
           </h1>
           <p className="text-text-gray text-lg mt-4 max-w-2xl leading-relaxed">
-            We hold our formulations to a higher standard — no harmful additives,
+            We hold our formulations to a higher standard. No harmful additives,
             no shortcuts, no compromises. Here is exactly what that means.
           </p>
         </div>
@@ -205,7 +205,7 @@ export default function IngredientsPage() {
             <p>
               Sliquid was founded on the belief that intimacy products should be
               as clean and safe as any other product you put on your body. In 2002,
-              that meant going against the industry norm — rejecting glycerin,
+              that meant going against the industry norm by rejecting glycerin,
               parabens, and artificial fragrances at a time when they were
               ubiquitous.
             </p>
@@ -213,7 +213,7 @@ export default function IngredientsPage() {
               Today, our ingredient philosophy remains unchanged. We source the
               highest-quality organic and natural ingredients, submit every
               formula to rigorous testing, and disclose every component on our
-              label — no exceptions.
+              label, with no exceptions.
             </p>
           </div>
         </div>
@@ -292,7 +292,7 @@ export default function IngredientsPage() {
               Our Hard Nos
             </p>
             <h2 className="text-text-dark text-[32px] font-semibold">
-              Ingredients we never use — and why
+              Ingredients we never use and why
             </h2>
             <p className="text-text-gray text-base mt-3 max-w-2xl leading-relaxed">
               Knowing what is not in a product is just as important as knowing
@@ -327,9 +327,9 @@ export default function IngredientsPage() {
               Need help matching formulas to your customers?
             </h2>
             <p className="text-text-gray text-base leading-relaxed">
-              Our B2B team can walk you through the full product matrix —
-              water-based, silicone, hybrid, and organic — and recommend the
-              right SKUs for your specific retail or clinical context.
+              Our B2B team can walk you through the full product matrix,
+              covering water-based, silicone, hybrid, and organic formulas,
+              and recommend the right SKUs for your specific retail or clinical context.
             </p>
           </div>
           <a

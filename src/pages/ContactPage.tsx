@@ -168,7 +168,7 @@ export default function ContactPage() {
           </h1>
           <p className="text-text-gray text-lg mt-4 max-w-xl leading-relaxed">
             Whether you are opening a wholesale account, exploring distribution,
-            or looking for clinical-grade recommendations — our B2B team is
+            or looking for clinical-grade recommendations, our B2B team is
             ready to help.
           </p>
         </div>
@@ -214,7 +214,7 @@ export default function ContactPage() {
                     step: '01',
                     title: 'We review your inquiry',
                     detail:
-                      'Our B2B team reads every message. We will match your inquiry to the right person — sales, distribution, or clinical partnerships.',
+                      'Our B2B team reads every message and will match your inquiry to the right person in sales, distribution, or clinical partnerships.',
                   },
                   {
                     step: '02',
@@ -266,13 +266,13 @@ export default function ContactPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span>Dallas, TX — Headquarters</span>
+                  <span>Dallas, TX (Headquarters)</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <svg className="w-4 h-4 text-sliquid-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Monday – Friday, 9am – 5pm CT</span>
+                  <span>Monday through Friday, 9am to 5pm CT</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <svg className="w-4 h-4 text-sliquid-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">

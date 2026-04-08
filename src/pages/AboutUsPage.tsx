@@ -1,40 +1,5 @@
 import { EXECUTIVES } from '@/utils/constants'
 
-const TIMELINE = [
-  {
-    year: '2002',
-    event: 'Founded in Dallas, TX by Dean Elliott with a mission to create body-safe intimacy products.',
-  },
-  {
-    year: '2008',
-    event: 'Launched the Organics line — the first USDA-certified organic personal lubricant.',
-  },
-  {
-    year: '2015',
-    event: 'Expanded into international distribution across Europe and Asia Pacific.',
-  },
-  {
-    year: '2019',
-    event: 'Launched RIDE Lube, a high-performance lubricants brand engineered for demanding use across all body types.',
-  },
-  {
-    year: '2022',
-    event: 'Celebrated 20 years with 100+ SKUs and distribution in 50+ countries worldwide.',
-  },
-  {
-    year: '2024',
-    event: 'Co-Founder Cynthia Elliott assumed the role of CEO, carrying forward the company\'s mission following the passing of founder Dean Elliott.',
-  },
-  {
-    year: '2025',
-    event: 'Sliquid completed a comprehensive brand refresh — embracing a wellness-forward identity, updated packaging, and an expanded product lineup to reflect the evolving intimacy wellness market.',
-  },
-  {
-    year: '2025',
-    event: 'Launched the Sliquid HQ B2B portal, expanding direct partnership opportunities globally.',
-  },
-]
-
 const VALUES = [
   {
     id: 'clean',
@@ -164,7 +129,7 @@ export default function AboutUsPage() {
         </div>
       </div>
 
-      Values
+      {/* Values */}
       <div className="max-w-[1240px] mx-auto px-6 py-20">
         <div className="mb-12">
           <p className="text-sliquid-blue font-semibold text-sm uppercase tracking-wider mb-2">
@@ -189,35 +154,6 @@ export default function AboutUsPage() {
               </p>
             </div>
           ))}
-        </div>
-      </div>
-
-      Timeline
-      <div className="bg-bg-off-white py-16">
-        <div className="max-w-[1240px] mx-auto px-6">
-          <h2 className="text-text-dark text-[32px] font-semibold mb-12">
-            Our journey
-          </h2>
-          <div className="relative">
-            {/* Vertical line */}
-            <div className="absolute left-[60px] top-0 bottom-0 w-px bg-gray-200 hidden sm:block" />
-            <div className="space-y-10">
-              {TIMELINE.map((item, i) => (
-                <div key={`${item.year}-${i}`} className="flex gap-8 items-start">
-                  <div className="flex-shrink-0 w-[60px] text-right">
-                    <span className="text-sliquid-blue font-bold text-sm">
-                      {item.year}
-                    </span>
-                  </div>
-                  {/* Dot */}
-                  <div className="flex-shrink-0 w-3 h-3 rounded-full bg-sliquid-blue mt-0.5 relative z-10 hidden sm:block" />
-                  <p className="text-text-gray text-base leading-relaxed">
-                    {item.event}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
