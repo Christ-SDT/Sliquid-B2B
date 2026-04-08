@@ -70,18 +70,18 @@ export const BRANDS: readonly Brand[] = [
   },
   {
     id: 'ride-lube',
-    name: 'RIDE Lube',
+    name: 'RIDE LUBE',
     tagline: 'High performance products for men',
     description:
       'RIDE Lube is engineered for performance. The lineup includes water-based, silicone, hybrid, and specialty formulas, each designed for thickness, slipperiness, and endurance using ingredients suited for sensitive skin. Inclusive by design, RIDE Lube serves a broad audience including the LGBTQ+ community and features the Buck Angel T-Collection, developed specifically for transgender individuals. A high-velocity SKU for adult retailers seeking a loyal, performance-driven customer base.',
     imageUrl:
-      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/assets/cc7de5ef-c5ef-45e7-925e-8d5a2bce5693.png',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/41526e2b-c50c-4068-bff8-ae34dce1148f.jpeg',
     imageAlt: 'RIDE Lube water-based lubricant product group',
     siteUrl: 'https://ridelube.com',
   },
   {
     id: 'ride-rocco',
-    name: 'Ride Rocco',
+    name: 'RIDE ROCCO',
     tagline: 'The gold standard of lube',
     description:
       'Developed in partnership with adult industry icon Rocco Steele, Ride Rocco is a premium lubricant collection built for shelf presence. Available in water-based, silicone, and the unique Seed hybrid formula, each product delivers the long-lasting endurance Rocco\'s audience expects, all manufactured to the same body-safe standards as RIDE Lube. The co-branded packaging drives impulse purchases and connects retailers with a dedicated, passionate fan base that follows Rocco across platforms.',
