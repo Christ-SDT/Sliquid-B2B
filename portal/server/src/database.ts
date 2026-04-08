@@ -767,6 +767,21 @@ const migrations: Migration[] = [
       ALTER TABLE users ADD COLUMN reset_token_expires TEXT;
     `),
   },
+  {
+    version: 36,
+    name: 'update_training_video_urls_apr2026',
+    up: () => {
+      const updates: [string, string][] = [
+        ['https://youtu.be/oFE_6P0v7T4', 'h2o-vs-sassy'],
+        ['https://youtu.be/_XbDm9uKrSQ', 'satin'],
+        ['https://youtu.be/QovdEUoCkec', 'swirl'],
+        ['https://youtu.be/dIV60dcWay4', 'silver-vs-silk'],
+        ['https://youtu.be/_UNhAXv5R2g', 'ogel'],
+      ]
+      const stmt = db.prepare('UPDATE trainings SET video_path = ? WHERE quiz_id = ?')
+      for (const [url, id] of updates) stmt.run(url, id)
+    },
+  },
 ]
 
 function runMigrations(): void {
