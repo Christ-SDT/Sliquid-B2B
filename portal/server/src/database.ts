@@ -790,6 +790,16 @@ const migrations: Migration[] = [
       db.prepare("DELETE FROM trainings WHERE quiz_id = 'sizzle-vs-sparks'").run()
     },
   },
+  {
+    version: 38,
+    name: 'add_sizzle_vs_sparks',
+    up: () => {
+      db.prepare(`
+        INSERT INTO trainings (quiz_id, title, video_path, sort_order)
+        VALUES ('sizzle-vs-sparks', 'Sizzle vs Spark', 'https://youtu.be/yt3FzssdPh0', 5)
+      `).run()
+    },
+  },
 ]
 
 function runMigrations(): void {

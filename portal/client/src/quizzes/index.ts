@@ -41,6 +41,16 @@ export const QUIZZES: Quiz[] = [
     videoPath: 'https://youtu.be/lFVvtQfOb8Y',
   },
   {
+    id: 'sizzle-vs-sparks',
+    title: 'Sizzle vs Spark',
+    description:
+      'Discover the differences between Sizzle and Spark product lines — formulations, sensations, and how to guide customers to the right choice.',
+    path: '/training/sizzle-vs-sparks/index.html',
+    passingScore: 70,
+    estimatedMinutes: 15,
+    videoPath: 'https://youtu.be/yt3FzssdPh0',
+  },
+  {
     id: 'splash',
     title: 'Sliquid Splash',
     description:
