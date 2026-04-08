@@ -782,6 +782,14 @@ const migrations: Migration[] = [
       for (const [url, id] of updates) stmt.run(url, id)
     },
   },
+  {
+    version: 37,
+    name: 'remove_sizzle_vs_sparks',
+    up: () => {
+      db.prepare("DELETE FROM quiz_results WHERE quiz_id = 'sizzle-vs-sparks'").run()
+      db.prepare("DELETE FROM trainings WHERE quiz_id = 'sizzle-vs-sparks'").run()
+    },
+  },
 ]
 
 function runMigrations(): void {
