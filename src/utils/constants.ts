@@ -74,7 +74,7 @@ export const BRANDS: readonly Brand[] = [
     name: 'RIDE LUBE',
     tagline: 'High performance products for men',
     description:
-      'RIDE Lube is engineered for performance. The lineup includes water-based, silicone, hybrid, and specialty formulas, each designed for thickness, slipperiness, and endurance using ingredients suited for sensitive skin. Inclusive by design, RIDE Lube serves a broad audience including the LGBTQ+ community and features the Buck Angel T-Collection, developed specifically for transgender individuals. A high-velocity SKU for adult retailers seeking a loyal, performance-driven customer base.',
+      'RIDE Lube is engineered for performance. The lineup includes water-based, silicone, hybrid, and specialty formulas, each designed for thickness, slipperiness, and endurance using ingredients suited for sensitive skin. Inclusive by design, RIDE Lube serves a broad audience including the LGBTQ+ community and features the T-Collection, developed specifically for transgender individuals. A high-velocity SKU for adult retailers seeking a loyal, performance-driven customer base.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/41526e2b-c50c-4068-bff8-ae34dce1148f.jpeg',
     imageAlt: 'RIDE Lube water-based lubricant product group',

@@ -96,21 +96,21 @@ const KEY_INGREDIENTS = [
   {
     id: 'hibiscus',
     name: 'Organic Hibiscus Extract',
-    tag: 'Emollient (Organics)',
+    tag: 'Emollient',
     description:
       'Added to Sliquid Organics as a restorative and healing emollient. Hibiscus is known to restore elasticity and suppleness to the skin, making it especially beneficial for sensitive or irritated tissue.',
   },
   {
     id: 'green-tea',
     name: 'Organic Green Tea Extract',
-    tag: 'Anti-Inflammatory (Organics)',
+    tag: 'Anti-Inflammatory',
     description:
       'A botanical anti-inflammatory included in the Organics Natural formula. Green tea extract helps calm irritation and provides antioxidant support, further protecting sensitive skin from environmental stressors.',
   },
   {
     id: 'sunflower-seed',
     name: 'Organic Sunflower Seed Extract',
-    tag: 'Skin Tonic (Organics)',
+    tag: 'Skin Tonic',
     description:
       'Used in Sliquid Organics as a gentle cleansing and calming tonic. Sunflower seed extract is rich in vitamins and fatty acids that nourish and soothe skin without disrupting the natural barrier.',
   },
@@ -256,8 +256,7 @@ export default function IngredientsPage() {
             Key ingredients we use
           </h2>
           <p className="text-text-gray text-base mt-3 max-w-2xl leading-relaxed">
-            Every ingredient is selected for a reason. Here is a breakdown of
-            the core components across our formula families and what they do.
+            Each ingredient is intentionally selected based on its functional role within the formulation. Below is an overview of the core components utilized across our product families and their respective benefits.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
