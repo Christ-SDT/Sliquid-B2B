@@ -18,21 +18,21 @@ const CERTIFICATIONS = [
     icon: '🛡',
     title: 'Body-Safe',
     description:
-      'Every formulation is pH-matched to the body and hypoallergenic tested for sensitive skin.',
+      'Every formulation is pH-balanced to the body and hypoallergenic tested for sensitive skin.',
   },
   {
     id: 'vegan',
     icon: '🌱',
     title: 'Vegan & Cruelty-Free',
     description:
-      'No animal-derived ingredients and no animal testing, ever. All products are certified vegan.',
+      'No animal-derived ingredients and no animal testing, ever.',
   },
   {
     id: 'Made in the USA',
     icon: '🇺🇸',
     title: 'Made in the USA',
     description:
-      'Every Sliquid product is formulated and manufactured domestically, ensuring consistent quality and oversight from start to finish.',
+      'Every Sliquid product is formulated and manufactured domestically, delivering consistent quality and oversight from start to finish.',
   },
   {
     id: 'transparent',
@@ -49,35 +49,35 @@ const KEY_INGREDIENTS = [
     name: 'Purified Water',
     tag: 'Base',
     description:
-      'The foundation of all water-based formulas. Purified through our 9-stage reverse osmosis filtration system, which includes a deionization step, it makes up 96% of Naturals H2O and serves as the pure, contaminant-free carrier for every water-soluble formula.',
+      'The foundation of all water-based formulas. Purified through our 9-stage reverse osmosis filtration system, which includes a deionization step, it makes up 96% of Naturals H2O and serves as the pure, carrier for every water-soluble formula.',
   },
   {
     id: 'aloe-vera',
     name: 'Organic Aloe Barbadensis Leaf Juice',
-    tag: 'Soothing Base',
+    tag: 'Base',
     description:
       'The base ingredient for the Organics line, sourced directly from the leaves of the aloe vera plant. Naturally lubricating and healing, it has been used for centuries to soothe and protect skin. Anti-inflammatory and pH-friendly for sensitive tissue.',
   },
   {
     id: 'plant-cellulose',
     name: 'Plant Cellulose',
-    tag: 'Thickener (Naturals H2O)',
+    tag: 'Thickener',
     description:
-      'Derived from cotton, plant cellulose is a natural, vegan-friendly, and gluten-free thickening agent. It gives Naturals H2O its signature silky glide and smooth consistency without synthetic polymers.',
+      'A natural, vegan-friendly, and gluten-free thickening agent. It provides a signature silky glide and smooth consistency without synthetic polymers.',
   },
   {
     id: 'agar-agar',
     name: 'Organic Agar Agar',
-    tag: 'Thickener (Organics)',
+    tag: 'Thickener',
     description:
-      'Sourced from red algae, Agar Agar is a naturally occurring plant-based material used to create the body and thickness of the Organics Natural lubricant. A clean, seaweed-derived alternative to synthetic gelling agents.',
+      'Sourced from red algae, Agar Agar is a naturally occurring plant-based material used to create the body and thickness of the lubricant. A clean, seaweed-derived alternative to synthetic gelling agents.',
   },
   {
     id: 'guar-gum',
     name: 'Organic Guar Gum (Cyamopsis)',
-    tag: 'Formula Stabilizer',
+    tag: 'Stabilizer',
     description:
-      'Derived from the guar bean, this non-toxic natural additive enables plant cellulose fiber to move and feel incredibly slippery while stabilizing the overall formula. Used in both the Naturals and Organics lines to condition texture and improve glide.',
+      'Derived from the guar bean, this non-toxic natural additive enables plant cellulose fiber to move and feel incredibly slippery while stabilizing the overall formula.',
   },
   {
     id: 'vitamin-e',
