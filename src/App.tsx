@@ -9,6 +9,7 @@ import ContactPage from '@/pages/ContactPage'
 import PartnerLoginPage from '@/pages/PartnerLoginPage'
 import HealthPractitionersPage from '@/pages/HealthPractitionersPage'
 import ProductCatalogPage from '@/pages/ProductCatalogPage'
+import MapPolicyPage from '@/pages/MapPolicyPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="partner-login" element={<PartnerLoginPage />} />
         <Route path="health-practitioners" element={<HealthPractitionersPage />} />
         <Route path="catalog" element={<ProductCatalogPage />} />
+        <Route path="map-policy" element={<MapPolicyPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

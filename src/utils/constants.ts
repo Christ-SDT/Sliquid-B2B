@@ -3,13 +3,14 @@ import type { TopBarLink, NavLink, StrategyCard, StatItem, Brand, NewsArticle, E
 export const TOP_BAR_LINKS: readonly TopBarLink[] = [
   { label: 'Sliquid Retail', href: 'https://sliquid.com', external: true },
   { label: 'RIDE Lube', href: 'https://ridelube.com/', external: true },
-  { label: 'Partner Login', href: '/partner-login', highlighted: true },
+  { label: 'Partner Portal', href: '/partner-login', highlighted: true },
 ] as const
 
 export const NAV_LINKS: readonly NavLink[] = [
   { label: 'Our Brands', href: '/our-brands' },
   { label: 'Ingredients', href: '/ingredients' },
   { label: 'About Us', href: '/about' },
+  { label: 'MAP Policy', href: '/map-policy' },
   { label: 'Contact', href: '/contact' },
 ] as const
 
@@ -86,7 +87,7 @@ export const BRANDS: readonly Brand[] = [
     description:
       'Developed in partnership with adult industry icon Rocco Steele, Ride Rocco is a premium lubricant collection built for shelf presence. Available in water-based, silicone, and the unique Seed hybrid formula, each product delivers the long-lasting endurance Rocco\'s audience expects, all manufactured to the same body-safe standards as RIDE Lube. The co-branded packaging drives impulse purchases and connects retailers with a dedicated, passionate fan base that follows Rocco across platforms.',
     imageUrl:
-      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/assets/e4db1796-d86e-4db6-9df6-6e4cb0bf28bb.jpg',
+      'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/b32c470a-09df-4ef6-af3b-a298284a109c.png',
     imageAlt: 'Ride Rocco signature water-based lubricant collection',
     siteUrl: 'https://riderocco.com',
   },
