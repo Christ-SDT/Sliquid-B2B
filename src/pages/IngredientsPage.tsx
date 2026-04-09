@@ -49,7 +49,7 @@ const KEY_INGREDIENTS = [
     name: 'Purified Water',
     tag: 'Base',
     description:
-      'The foundation of all water-based formulas. Triple-filtered and deionized, it makes up 96% of Naturals H2O and serves as the pure, contaminant-free carrier for every water-soluble formula.',
+      'The foundation of all water-based formulas. Purified through our 9-stage reverse osmosis filtration system, which includes a deionization step, it makes up 96% of Naturals H2O and serves as the pure, contaminant-free carrier for every water-soluble formula.',
   },
   {
     id: 'aloe-vera',

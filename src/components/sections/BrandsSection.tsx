@@ -53,7 +53,7 @@ export default function BrandsSection() {
                         px-7 py-5 text-left"
           >
             <strong className="block text-xl text-text-dark">
-              RIDE Lube &amp; Ride Rocco
+              RIDE LUBE &amp; RIDE ROCCO
             </strong>
             <span className="text-sm text-text-gray">
               Performance lubricants &amp; signature collections

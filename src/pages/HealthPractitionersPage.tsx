@@ -14,7 +14,7 @@ const KEY_INGREDIENTS = [
     name: 'Purified Water',
     tag: 'Base',
     description:
-      'The foundation of every water-based formula. Triple-filtered and deionized, it serves as a pure, contaminant-free carrier for all water-soluble ingredients.',
+      'The foundation of every water-based formula. Purified through our 9-stage reverse osmosis filtration system, which includes a deionization step, it serves as a pure, contaminant-free carrier for all water-soluble ingredients.',
   },
   {
     id: 'aloe-vera',

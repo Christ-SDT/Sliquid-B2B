@@ -250,13 +250,21 @@ export default function ProductCatalogPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const filtered = products.filter(p => {
-    const matchesBrand = activeBrand === 'All' || p.brand === activeBrand
-    const matchesSearch = !search ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      (p.category ?? '').toLowerCase().includes(search.toLowerCase())
-    return matchesBrand && matchesSearch
-  })
+  const BRAND_ORDER: Record<string, number> = { Sliquid: 0, RIDE: 1, 'Ride Rocco': 2 }
+
+  const filtered = products
+    .filter(p => {
+      const matchesBrand = activeBrand === 'All' || p.brand === activeBrand
+      const matchesSearch = !search ||
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.category ?? '').toLowerCase().includes(search.toLowerCase())
+      return matchesBrand && matchesSearch
+    })
+    .sort((a, b) => {
+      const orderA = BRAND_ORDER[a.brand] ?? 99
+      const orderB = BRAND_ORDER[b.brand] ?? 99
+      return orderA - orderB
+    })
 
   return (
     <main className="bg-white min-h-screen">
