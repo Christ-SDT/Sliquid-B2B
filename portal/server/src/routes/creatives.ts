@@ -233,13 +233,13 @@ router.put('/:id/file', requireAuth, requireRole('tier5', 'admin'), upload.singl
 // ─── PUT /:id — JSON metadata update ─────────────────────────────────────────
 
 router.put('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
-  const { title, brand, type, campaign, thumbnail_url, file_url, description, dimensions, file_size } = req.body
+  const { title, brand, type, campaign, thumbnail_url, file_url, description, dimensions, file_size, featured } = req.body
   if (!title || !brand || !type || !file_url) {
     res.status(400).json({ message: 'Missing required fields' }); return
   }
   const result = db.prepare(
-    'UPDATE creatives SET title=?, brand=?, type=?, campaign=?, thumbnail_url=?, file_url=?, description=?, dimensions=?, file_size=? WHERE id=?'
-  ).run(title, brand, type, campaign ?? null, thumbnail_url ?? null, file_url, description ?? null, dimensions ?? null, file_size ?? null, req.params.id)
+    'UPDATE creatives SET title=?, brand=?, type=?, campaign=?, thumbnail_url=?, file_url=?, description=?, dimensions=?, file_size=?, featured=? WHERE id=?'
+  ).run(title, brand, type, campaign ?? null, thumbnail_url ?? null, file_url, description ?? null, dimensions ?? null, file_size ?? null, featured ?? 0, req.params.id)
   if (result.changes === 0) { res.status(404).json({ message: 'Not found' }); return }
   res.json(db.prepare('SELECT * FROM creatives WHERE id = ?').get(req.params.id))
 })

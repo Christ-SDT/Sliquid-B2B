@@ -108,10 +108,7 @@ export default function AboutUsPage() {
                   Cynthia Wielgosz Elliott co-founded Sliquid in 2002 with a clear and personal conviction: intimate wellness should be rooted in care, accessibility, and a deep understanding of women&apos;s health. At a time when shortcuts defined the category, she helped shape a different path by building a brand grounded in clean formulations, inclusion, and purpose.
                 </p>
                 <p>
-                  Following co-founder Dean Elliott&apos;s passing in 2024, Cynthia stepped fully into the role of CEO, carrying forward not only the company&apos;s legacy, but the vision she helped create from the very beginning. A champion of women&apos;s wellness and an advocate for meaningful partnerships, she has placed Sliquid&apos;s retail, medical, and distribution partners at the center of the brand&apos;s growth, recognizing their success as essential to Sliquid&apos;s own.
-                </p>
-                <p>
-                  The mission remains unchanged. The standards remain uncompromising. What has evolved is the scale of the vision. A vision that expands globally, strengthens every channel from wholesale to e-commerce to medical, and positions Sliquid for a new era of intentional, inclusive growth under her leadership.
+                  A champion of women&apos;s wellness and an advocate for meaningful partnerships, Cynthia has placed Sliquid&apos;s retail, medical, and distribution partners at the center of the brand&apos;s growth, recognizing their success as essential to Sliquid&apos;s own.The mission remains unchanged. The standards remain uncompromised. What has evolved is the scale of the vision. A vision that expands globally, strengthens every channel from wholesale to e-commerce to medical, and positions Sliquid for a new era of intentional, inclusive growth under her leadership.
                 </p>
               </div>
             </div>

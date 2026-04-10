@@ -231,13 +231,13 @@ router.put('/:id/file', requireAuth, requireRole('tier5', 'admin'), upload.singl
 // ─── PUT /:id — JSON metadata update ─────────────────────────────────────────
 
 router.put('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
-  const { name, brand, type, file_url, thumbnail_url, file_size, dimensions } = req.body
+  const { name, brand, type, file_url, thumbnail_url, file_size, dimensions, featured } = req.body
   if (!name || !brand || !type || !file_url) {
     res.status(400).json({ message: 'Missing required fields' }); return
   }
   const result = db.prepare(
-    'UPDATE assets SET name=?, brand=?, type=?, file_url=?, thumbnail_url=?, file_size=?, dimensions=? WHERE id=?'
-  ).run(name, brand, type, file_url, thumbnail_url ?? null, file_size ?? null, dimensions ?? null, req.params.id)
+    'UPDATE assets SET name=?, brand=?, type=?, file_url=?, thumbnail_url=?, file_size=?, dimensions=?, featured=? WHERE id=?'
+  ).run(name, brand, type, file_url, thumbnail_url ?? null, file_size ?? null, dimensions ?? null, featured ?? 0, req.params.id)
   if (result.changes === 0) { res.status(404).json({ message: 'Not found' }); return }
   res.json(db.prepare('SELECT * FROM assets WHERE id = ?').get(req.params.id))
 })

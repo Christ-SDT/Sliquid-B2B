@@ -731,6 +731,7 @@ function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
   const [campaign, setCampaign] = useState(
     'campaign' in item ? (item.campaign ?? '') : ''
   )
+  const [featured, setFeatured] = useState<number>(item.featured ?? 0)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -802,6 +803,7 @@ function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
           thumbnail_url: thumbnailUrl || null,
           file_size: fileSize || null,
           dimensions: dimensions || null,
+          featured,
         })
         onSaved({ ...updated, _source: 'asset', displayName: updated.name })
       } else {
@@ -813,6 +815,7 @@ function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
           dimensions: dimensions || null,
           description: description || null,
           campaign: campaign || null,
+          featured,
         })
         onSaved({ ...updated, _source: 'creative', displayName: updated.title })
       }
@@ -1002,6 +1005,27 @@ function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
               />
             </div>
           </div>
+
+          {/* Featured / starred toggle */}
+          {item._source !== 'ai' && (
+            <button
+              type="button"
+              onClick={() => setFeatured(f => f ? 0 : 1)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors
+                ${featured
+                  ? 'bg-amber-500/10 border-amber-500/40 text-amber-400'
+                  : 'bg-surface-elevated border-portal-border text-on-canvas-subtle hover:border-portal-accent hover:text-on-canvas'
+                }`}
+            >
+              <Star className={`w-4 h-4 flex-shrink-0 ${featured ? 'fill-amber-400' : ''}`} />
+              <div className="text-left">
+                <p className="text-sm font-medium leading-none mb-0.5">
+                  {featured ? 'Starred — shows first in gallery' : 'Not starred'}
+                </p>
+                <p className="text-xs opacity-60">Click to {featured ? 'remove star' : 'star this item'}</p>
+              </div>
+            </button>
+          )}
 
           <div className="flex gap-3 pt-2">
             <button

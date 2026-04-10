@@ -4,7 +4,7 @@ const CERTIFICATIONS = [
     icon: '🚫',
     title: 'Glycerin-Free',
     description:
-      'None of our formulas contain glycerin, which can feed yeast and disrupt vaginal pH balance.',
+      'None of our formulas contain glycerin, which can feed yeast and disrupt pH balance.',
   },
   {
     id: 'paraben-free',
@@ -49,7 +49,7 @@ const KEY_INGREDIENTS = [
     name: 'Purified Water',
     tag: 'Base',
     description:
-      'The foundation of all water-based formulas. Purified through our 9-stage reverse osmosis filtration system, which includes a deionization step, it makes up 96% of Naturals H2O and serves as the pure, carrier for every water-soluble formula.',
+      'The foundation of all water-based formulas. Purified through our 9-stage reverse osmosis filtration system, which includes a deionization step, it makes up approximately 96% of Naturals H2O and serves as the pure, carrier for every water-soluble formula.',
   },
   {
     id: 'aloe-vera',
@@ -70,7 +70,7 @@ const KEY_INGREDIENTS = [
     name: 'Organic Agar Agar',
     tag: 'Thickener',
     description:
-      'Sourced from red algae, Agar Agar is a naturally occurring plant-based material used to create the body and thickness of the lubricant. A clean, seaweed-derived alternative to synthetic gelling agents.',
+      'Sourced from red algae, Agar Agar is a naturally occurring plant-based material used to create the viscosity of the lubricant. A clean, seaweed-derived alternative to synthetic gelling agents.',
   },
   {
     id: 'guar-gum',
@@ -89,7 +89,7 @@ const KEY_INGREDIENTS = [
   {
     id: 'flax-extract',
     name: 'Organic Flax Extract',
-    tag: 'Organics Line',
+    tag: 'Moisturizer',
     description:
       'Used in Sliquid Organics formulas as a plant-derived moisturizer and restorative emollient. Rich in omega fatty acids, it helps restore skin elasticity and supports long-lasting hydration.',
   },
@@ -105,35 +105,35 @@ const KEY_INGREDIENTS = [
     name: 'Organic Green Tea Extract',
     tag: 'Anti-Inflammatory',
     description:
-      'A botanical anti-inflammatory included in the Organics Natural formula. Green tea extract helps calm irritation and provides antioxidant support, further protecting sensitive skin from environmental stressors.',
+      'A botanical anti-inflammatory included in the Organics ingredient deck. Green tea extract helps calm irritation and provides antioxidant support, further protecting sensitive skin from environmental stressors.',
   },
   {
     id: 'sunflower-seed',
     name: 'Organic Sunflower Seed Extract',
     tag: 'Skin Tonic',
     description:
-      'Used in Sliquid Organics as a gentle cleansing and calming tonic. Sunflower seed extract is rich in vitamins and fatty acids that nourish and soothe skin without disrupting the natural barrier.',
+      'Used in Sliquid Organics as a gentle cleansing and calming tonic. Sunflower seed extract is rich in vitamins and fatty acids that nourish and soothe skin without disrupting natural barriers.',
   },
   {
     id: 'citric-acid',
     name: 'Citric Acid',
-    tag: 'pH Balancer',
+    tag: 'pH Buffer',
     description:
-      'A mild organic acid derived from citrus fruits, used to calibrate the pH of every formula to match the body\'s natural range. Functions as a natural antiseptic and pH buffer, and works in concert with potassium sorbate to safely extend shelf life. Used across all Sliquid lines.',
+      'Used across all Sliquid water-based products. A mild organic acid derived from the cassava root, used to buffer the pH of every formula to match the body\'s natural range. Functions as a natural antiseptic and pH buffer, and works in concert with potassium sorbate to safely extend shelf life. ',
   },
   {
     id: 'potassium-sorbate',
     name: 'Potassium Sorbate & Sodium Benzoate',
     tag: 'Preservative',
     description:
-      'The gentlest, most body-safe, non-toxic, non-irritating preservatives available for intimate products. Used together to extend shelf life, prevent contamination, and fight unwanted bacteria and mold. They keep formulas safer for women without the risks of parabens.',
+      'A gentle, body-safe, non-toxic, non-irritating preservatives commonly used cosmetic and food products. Used together to support shelf life, and combat environmental bacteria and mold.',
   },
   {
     id: 'dimethicone',
-    name: 'Dimethicone',
-    tag: 'Silicone Base',
+    name: 'Cyclopentasiloxane, Dimethicone & Dimethiconol',
+    tag: 'Glide',
     description:
-      'The primary base in silicone formulas. Inert, non-absorbable, and hypoallergenic, it provides ultra-long-lasting glide without water absorption. Compatible with latex but not with silicone toys.',
+      'Our proprietary blend of silcones, which are inert, non-absorbable, and hypoallergenic. They provide ultra-long-lasting glideand and hydrophobic (water-proof) properties. Compatible with latex but not with silicone toys.',
   },
 ]
 
@@ -142,7 +142,7 @@ const AVOIDED_INGREDIENTS = [
     id: 'glycerin',
     name: 'Glycerin',
     reason:
-      'A sugar alcohol that can feed Candida yeast and disrupt the vaginal microbiome, increasing the risk of yeast infections. Present in the majority of mass-market lubricants yet absent from every Sliquid formula.',
+      'A sugar alcohol that can feed Candida yeast and disrupt the vaginal microbiome, increasing the risk of infections. Present in the majority of mass-market lubricants, yet absent from every Sliquid formula.',
   },
   {
     id: 'parabens',
@@ -154,25 +154,25 @@ const AVOIDED_INGREDIENTS = [
     id: 'propylene-glycol',
     name: 'Propylene Glycol',
     reason:
-      'A common solvent and humectant that can cause contact dermatitis and irritation in sensitive individuals. Frequently found in budget lubricants as a cheap glycerin substitute.',
+      'A common solvent and humectant that can cause contact dermatitis and irritation in sensitive individuals.',
   },
   {
     id: 'nonoxynol-9',
     name: 'Nonoxynol-9',
     reason:
-      'A spermicidal surfactant that strips away the vaginal epithelium with repeated use, increasing susceptibility to STIs. Once standard in "safe sex" lubricants, it is now widely contraindicated by healthcare providers.',
+      'A spermicidal surfactant that may strip away the vaginal epithelium with repeated use, increasing susceptibility to STIs. Once standard in "safe sex" lubricants, it is now widely contraindicated by healthcare providers.',
   },
   {
     id: 'benzocaine',
     name: 'Benzocaine / Numbing Agents',
     reason:
-      'Topical anesthetics mask pain signals that exist to protect tissue from injury. Sliquid does not use desensitizing agents in formulas intended for general intimate use.',
+      'Topical anesthetics mask pain signals that exist to protect tissue from injury. Sliquid does not use desensitizing agents in any lubricant formula.',
   },
   {
     id: 'artificial-fragrance',
     name: 'Artificial Fragrance',
     reason:
-      '"Fragrance" on an ingredient label can legally represent hundreds of undisclosed chemicals. Many are known allergens and endocrine disruptors. Sliquid uses no artificial fragrances in any formula.',
+      '"Fragrance" on an ingredient label can legally represent hundreds of undisclosed chemicals. Many are known allergens and endocrine disruptors.',
   },
 ]
 
@@ -211,7 +211,7 @@ export default function IngredientsPage() {
             </p>
             <p>
               Today, our ingredient philosophy remains unchanged. We source the
-              highest-quality organic and natural ingredients, submit every
+              highest-quality natural and organic ingredients, submit every
               formula to rigorous testing, and disclose every component on our
               label, with no exceptions.
             </p>
@@ -256,7 +256,7 @@ export default function IngredientsPage() {
             Key ingredients we use
           </h2>
           <p className="text-text-gray text-base mt-3 max-w-2xl leading-relaxed">
-            Each ingredient is intentionally selected based on its functional role within the formulation. Below is an overview of the core components utilized across our product families and their respective benefits.
+            Each ingredient is intentionally selected based on its functional role within the formulation. Below is an overview of the core components utilized across our products and their respective benefits.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -296,7 +296,7 @@ export default function IngredientsPage() {
             <p className="text-text-gray text-base mt-3 max-w-2xl leading-relaxed">
               Knowing what is not in a product is just as important as knowing
               what is. These are the ingredients most commonly found in
-              competitor formulas that Sliquid has rejected since day one.
+              competitor formulas that Sliquid has rejected.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -327,8 +327,8 @@ export default function IngredientsPage() {
             </h2>
             <p className="text-text-gray text-base leading-relaxed">
               Our B2B team can walk you through the full product matrix,
-              covering water-based, silicone, hybrid, and organic formulas,
-              and recommend the right SKUs for your specific retail or clinical context.
+              covering water-based, silicone, and hybrid formulas,
+              in order to recommend the right SKUs for your specific retail, distributor or clinical context.
             </p>
           </div>
           <a
