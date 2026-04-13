@@ -126,7 +126,7 @@ const KEY_INGREDIENTS = [
     name: 'Potassium Sorbate & Sodium Benzoate',
     tag: 'Preservative',
     description:
-      'A gentle, body-safe, non-toxic, non-irritating preservatives commonly used cosmetic and food products. Used together to support shelf life, and combat environmental bacteria and mold.',
+      'Gentle, body-safe, non-toxic, non-irritating preservatives commonly used cosmetic and food products. Used together to support shelf life, and combat environmental bacteria and mold.',
   },
   {
     id: 'dimethicone',

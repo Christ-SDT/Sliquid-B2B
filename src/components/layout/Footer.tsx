@@ -25,7 +25,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-sm leading-relaxed max-w-sm text-gray-400">
-              Healthier happens together™ — Sliquid Business is dedicated to
+              Healthier happens together. Sliquid is dedicated to
               providing the cleanest, safest intimacy products to retailers and
               healthcare providers worldwide.
             </p>
