@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
-import { Megaphone, ChevronDown, Loader2, Mail } from 'lucide-react'
+import { Megaphone, ChevronDown, Loader2, Mail, CheckCircle, XCircle, Clock } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,11 +18,7 @@ type MarketingRequest = {
   user_email: string | null
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  pending:  'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  approved: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  declined: 'bg-red-500/15 text-red-400 border-red-500/30',
-}
+type TabKey = 'all' | 'pending' | 'approved' | 'declined'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -45,12 +41,26 @@ function buildMailtoLink(r: MarketingRequest): string {
   return `mailto:${r.user_email ?? ''}?subject=${subject}&body=${body}`
 }
 
+const STATUS_BADGE: Record<string, string> = {
+  pending:  'bg-amber-500/15 text-amber-400 border border-amber-500/30',
+  approved: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+  declined: 'bg-red-500/15 text-red-400 border border-red-500/30',
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  pending: 'Pending',
+  approved: 'Approved',
+  declined: 'Declined',
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MarketingRequestsPage() {
   const [requests, setRequests] = useState<MarketingRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<number | null>(null)
+  const [activeTab, setActiveTab] = useState<TabKey>('all')
+  const [updating, setUpdating] = useState<number | null>(null)
 
   useEffect(() => {
     api.get<MarketingRequest[]>('/retailer/applications')
@@ -60,34 +70,72 @@ export default function MarketingRequestsPage() {
   }, [])
 
   async function handleStatusChange(id: number, status: string) {
+    setUpdating(id)
     try {
       await api.put(`/retailer/applications/${id}/status`, { status })
       setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r))
     } catch (err) {
       console.error(err)
+    } finally {
+      setUpdating(null)
     }
   }
 
-  const pending = requests.filter(r => r.status === 'pending').length
+  const counts = {
+    all: requests.length,
+    pending: requests.filter(r => r.status === 'pending').length,
+    approved: requests.filter(r => r.status === 'approved').length,
+    declined: requests.filter(r => r.status === 'declined').length,
+  }
+
+  const visibleRequests = activeTab === 'all'
+    ? requests
+    : requests.filter(r => r.status === activeTab)
+
+  const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
+    { key: 'all',      label: 'All',      icon: <Megaphone className="w-3.5 h-3.5" /> },
+    { key: 'pending',  label: 'Pending',  icon: <Clock className="w-3.5 h-3.5" /> },
+    { key: 'approved', label: 'Approved', icon: <CheckCircle className="w-3.5 h-3.5" /> },
+    { key: 'declined', label: 'Declined', icon: <XCircle className="w-3.5 h-3.5" /> },
+  ]
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-on-canvas text-2xl font-bold flex items-center gap-3">
-            <Megaphone className="w-6 h-6 text-portal-accent" />
-            Marketing Requests
-          </h1>
-          <p className="text-on-canvas-muted text-sm mt-1">
-            In-store marketing asset and training requests submitted by partners.
-          </p>
-        </div>
-        {pending > 0 && (
-          <span className="flex-shrink-0 px-3 py-1 bg-amber-500/15 border border-amber-500/30 text-amber-400 text-sm font-semibold rounded-full">
-            {pending} pending
-          </span>
-        )}
+      <div>
+        <h1 className="text-on-canvas text-2xl font-bold flex items-center gap-3">
+          <Megaphone className="w-6 h-6 text-portal-accent" />
+          Marketing Requests
+        </h1>
+        <p className="text-on-canvas-muted text-sm mt-1">
+          In-store marketing asset and training requests submitted by partners.
+        </p>
+      </div>
+
+      {/* Tabs */}
+      <div className="grid grid-cols-4 gap-3">
+        {TABS.map(tab => {
+          const isActive = activeTab === tab.key
+          const accentColors: Record<TabKey, string> = {
+            all:      isActive ? 'bg-portal-accent/10 border-portal-accent text-portal-accent' : 'bg-surface border-portal-border text-on-canvas-muted hover:border-slate-500',
+            pending:  isActive ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-surface border-portal-border text-on-canvas-muted hover:border-amber-500/50',
+            approved: isActive ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400' : 'bg-surface border-portal-border text-on-canvas-muted hover:border-emerald-500/50',
+            declined: isActive ? 'bg-red-500/10 border-red-500 text-red-400' : 'bg-surface border-portal-border text-on-canvas-muted hover:border-red-500/50',
+          }
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex flex-col items-start gap-2 p-4 rounded-xl border transition-colors text-left ${accentColors[tab.key]}`}
+            >
+              <div className="flex items-center gap-2">
+                {tab.icon}
+                <span className="text-xs font-medium">{tab.label}</span>
+              </div>
+              <span className="text-2xl font-bold leading-none">{counts[tab.key]}</span>
+            </button>
+          )
+        })}
       </div>
 
       {/* Requests list */}
@@ -96,14 +144,16 @@ export default function MarketingRequestsPage() {
           <div className="p-10 flex items-center justify-center">
             <Loader2 className="w-5 h-5 text-portal-accent animate-spin" />
           </div>
-        ) : requests.length === 0 ? (
+        ) : visibleRequests.length === 0 ? (
           <div className="p-10 text-center">
             <Megaphone className="w-8 h-8 text-on-canvas-muted/30 mx-auto mb-3" />
-            <p className="text-on-canvas-muted text-sm">No requests yet.</p>
+            <p className="text-on-canvas-muted text-sm">
+              {activeTab === 'all' ? 'No requests yet.' : `No ${activeTab} requests.`}
+            </p>
           </div>
         ) : (
           <div className="divide-y divide-portal-border">
-            {requests.map(r => (
+            {visibleRequests.map(r => (
               <div key={r.id} className="px-6 py-4">
                 {/* Row header */}
                 <div className="flex items-start gap-4">
@@ -124,19 +174,10 @@ export default function MarketingRequestsPage() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {/* Status selector */}
-                    <div className="relative">
-                      <select
-                        value={r.status}
-                        onChange={e => handleStatusChange(r.id, e.target.value)}
-                        className={`appearance-none pl-3 pr-7 py-1.5 rounded-lg border text-xs font-medium cursor-pointer focus:outline-none transition-colors ${STATUS_STYLES[r.status] ?? STATUS_STYLES.pending}`}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="declined">Declined</option>
-                      </select>
-                      <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
-                    </div>
+                    {/* Status badge */}
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${STATUS_BADGE[r.status] ?? STATUS_BADGE.pending}`}>
+                      {STATUS_LABEL[r.status] ?? r.status}
+                    </span>
 
                     {/* Email button */}
                     {r.user_email && (
@@ -154,36 +195,77 @@ export default function MarketingRequestsPage() {
                     {/* Expand toggle */}
                     <button
                       onClick={() => setExpanded(expanded === r.id ? null : r.id)}
-                      className="text-on-canvas-muted hover:text-on-canvas text-xs underline-offset-2 hover:underline transition-colors"
+                      className="text-on-canvas-muted hover:text-on-canvas transition-colors"
+                      title={expanded === r.id ? 'Collapse' : 'Expand'}
                     >
-                      {expanded === r.id ? 'Less' : 'Details'}
+                      <ChevronDown className={`w-4 h-4 transition-transform ${expanded === r.id ? 'rotate-180' : ''}`} />
                     </button>
                   </div>
                 </div>
 
-                {/* Expanded details */}
+                {/* Expanded details + action buttons */}
                 {expanded === r.id && (
-                  <div className="mt-4 pt-4 border-t border-portal-border/50 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Address</p>
-                      <p className="text-on-canvas-subtle whitespace-pre-line">{r.address}</p>
-                    </div>
-                    <div>
-                      <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Items Requested</p>
-                      <p className="text-on-canvas-subtle">{r.requested_items}</p>
-                    </div>
-                    {r.request_notes && (
-                      <div className="sm:col-span-2">
-                        <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Notes</p>
-                        <p className="text-on-canvas-subtle">{r.request_notes}</p>
-                      </div>
-                    )}
-                    {r.reviewed_at && (
+                  <div className="mt-4 pt-4 border-t border-portal-border/50 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Reviewed</p>
-                        <p className="text-on-canvas-subtle">{fmt(r.reviewed_at)}</p>
+                        <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Address</p>
+                        <p className="text-on-canvas-subtle whitespace-pre-line">{r.address}</p>
                       </div>
-                    )}
+                      <div>
+                        <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Items Requested</p>
+                        <p className="text-on-canvas-subtle">{r.requested_items}</p>
+                      </div>
+                      {r.request_notes && (
+                        <div className="sm:col-span-2">
+                          <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Notes</p>
+                          <p className="text-on-canvas-subtle">{r.request_notes}</p>
+                        </div>
+                      )}
+                      {r.reviewed_at && (
+                        <div>
+                          <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Reviewed</p>
+                          <p className="text-on-canvas-subtle">{fmt(r.reviewed_at)}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-3 pt-1">
+                      <p className="text-on-canvas-muted text-xs mr-1">Move to:</p>
+                      {r.status !== 'approved' && (
+                        <button
+                          onClick={() => handleStatusChange(r.id, 'approved')}
+                          disabled={updating === r.id}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/40
+                                     text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold transition-colors disabled:opacity-50"
+                        >
+                          {updating === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                          Confirm Approved
+                        </button>
+                      )}
+                      {r.status !== 'pending' && (
+                        <button
+                          onClick={() => handleStatusChange(r.id, 'pending')}
+                          disabled={updating === r.id}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/40
+                                     text-amber-400 hover:bg-amber-500/20 text-xs font-semibold transition-colors disabled:opacity-50"
+                        >
+                          {updating === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
+                          Move to Pending
+                        </button>
+                      )}
+                      {r.status !== 'declined' && (
+                        <button
+                          onClick={() => handleStatusChange(r.id, 'declined')}
+                          disabled={updating === r.id}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/40
+                                     text-red-400 hover:bg-red-500/20 text-xs font-semibold transition-colors disabled:opacity-50"
+                        >
+                          {updating === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                          Decline
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

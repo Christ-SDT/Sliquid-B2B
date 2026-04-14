@@ -28,6 +28,7 @@ import trainingOptionsRouter from './routes/training-options.js'
 import creatorRouter from './routes/creator.js'
 import mediaRouter from './routes/media.js'
 import referenceImagesRouter from './routes/reference-images.js'
+import medicalMarketingRouter from './routes/medical-marketing.js'
 
 const app = express()
 
@@ -90,6 +91,7 @@ app.use('/api/training-options', trainingOptionsRouter)
 app.use('/api/creator', creatorRouter)
 app.use('/api/media', mediaRouter)
 app.use('/api/reference-images', referenceImagesRouter)
+app.use('/api/medical-marketing', medicalMarketingRouter)
 app.use('/api/logs', logsRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))

@@ -2,7 +2,7 @@ export interface User {
   id: number
   email: string
   name: string
-  role: 'tier1' | 'tier2' | 'tier3' | 'tier4' | 'tier5'
+  role: 'tier1' | 'tier2' | 'tier3' | 'tier4' | 'tier5' | 'tier6'
   company?: string
   status?: string
 }
@@ -13,10 +13,11 @@ export const TIER_LABEL: Record<string, string> = {
   tier3: 'Distributor',
   tier4: 'Prospect',
   tier5: 'Admin',
+  tier6: 'Medical Partner',
 }
 
 export function isLimitedTier(role: string): boolean {
-  return role === 'tier1' || role === 'tier2' || role === 'tier3'
+  return role === 'tier1' || role === 'tier2' || role === 'tier3' || role === 'tier6'
 }
 
 export function isProspect(role: string): boolean {

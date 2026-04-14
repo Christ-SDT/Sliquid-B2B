@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { sendApprovalEmail, sendDeclineEmail } from '../email.js'
+import { notifyUser } from '../notifications.js'
 
 const router = Router()
 
@@ -28,7 +29,7 @@ router.get('/users', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
 
 router.put('/users/:id/role', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const { role } = req.body
-  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4', 'tier5']
+  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4', 'tier5', 'tier6']
   if (!validRoles.includes(role)) {
     res.status(400).json({ message: 'Invalid role' })
     return
@@ -45,9 +46,9 @@ router.put('/users/:id/role', requireAuth, requireRole('tier5', 'admin'), (req, 
 
 router.post('/users/:id/approve', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const { role } = req.body
-  const validRoles = ['tier1', 'tier2']
+  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4', 'tier6']
   if (!validRoles.includes(role)) {
-    res.status(400).json({ message: 'Role must be tier1 (Retail Store Employee) or tier2 (Retail Management)' })
+    res.status(400).json({ message: 'Invalid role for approval' })
     return
   }
   const id = parseInt(req.params.id)
@@ -57,6 +58,8 @@ router.post('/users/:id/approve', requireAuth, requireRole('tier5', 'admin'), (r
   if (user) {
     sendApprovalEmail({ name: user.name, email: user.email, role: user.role })
       .catch(err => console.error('[email] Approval email failed:', err))
+    notifyUser(id, 'account_approved', 'Your account has been approved!',
+      'Welcome to the Sliquid Partner Portal. You can now log in and access your account.', '/dashboard')
   }
   res.json(user)
 })
@@ -69,6 +72,8 @@ router.post('/users/:id/decline', requireAuth, requireRole('tier5', 'admin'), (r
   if (user) {
     sendDeclineEmail({ name: user.name, email: user.email })
       .catch(err => console.error('[email] Decline email failed:', err))
+    notifyUser(id, 'account_declined', 'Registration Update',
+      'Your registration request was not approved at this time. Please contact support@sliquid.com for more information.')
   }
   res.json({ id, status: 'declined' })
 })

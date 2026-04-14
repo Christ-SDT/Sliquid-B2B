@@ -800,6 +800,134 @@ const migrations: Migration[] = [
       `).run()
     },
   },
+  {
+    version: 39,
+    name: 'seed_medical_partner_demo',
+    up: () => {
+      const existing = db.prepare("SELECT id FROM users WHERE email = 'medical@demo.com'").get()
+      if (!existing) {
+        db.prepare('INSERT INTO users (name, email, password_hash, role, company, status) VALUES (?, ?, ?, ?, ?, ?)')
+          .run('Demo Medical Partner', 'medical@demo.com', bcrypt.hashSync('medical123', 10), 'tier6', 'Demo Medical Practice', 'active')
+      }
+    },
+  },
+  {
+    version: 40,
+    name: 'medical_marketing_tables',
+    up: () => {
+      db.prepare(`
+        CREATE TABLE IF NOT EXISTS medical_marketing_items (
+          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+          name        TEXT NOT NULL,
+          subtitle    TEXT,
+          description TEXT,
+          specs       TEXT NOT NULL DEFAULT '[]',
+          variants    TEXT NOT NULL DEFAULT '[]',
+          image_url   TEXT,
+          s3_key      TEXT,
+          icon_name   TEXT NOT NULL DEFAULT 'Package',
+          sort_order  INTEGER NOT NULL DEFAULT 0
+        )
+      `).run()
+
+      db.prepare(`
+        CREATE TABLE IF NOT EXISTS medical_training_options (
+          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+          label       TEXT NOT NULL,
+          subtitle    TEXT,
+          description TEXT,
+          specs       TEXT NOT NULL DEFAULT '[]',
+          icon_name   TEXT NOT NULL DEFAULT 'Users',
+          sort_order  INTEGER NOT NULL DEFAULT 0
+        )
+      `).run()
+
+      db.prepare(`
+        CREATE TABLE IF NOT EXISTS medical_applications (
+          id              INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          contact_name    TEXT NOT NULL,
+          email           TEXT NOT NULL,
+          business_name   TEXT NOT NULL,
+          address         TEXT NOT NULL,
+          requested_items TEXT NOT NULL,
+          request_notes   TEXT,
+          status          TEXT NOT NULL DEFAULT 'pending',
+          submitted_at    TEXT NOT NULL DEFAULT (datetime('now')),
+          reviewed_at     TEXT
+        )
+      `).run()
+
+      // Seed initial medical marketing items
+      const existingCount = (db.prepare('SELECT COUNT(*) as c FROM medical_marketing_items').get() as { c: number }).c
+      if (existingCount === 0) {
+        const seedItems = [
+          {
+            name: 'Clinical Brochures',
+            subtitle: 'Full-color, tri-fold',
+            description: 'Professional brochures designed for healthcare settings, covering the science behind Sliquid intimate wellness products.',
+            specs: JSON.stringify(['Tri-fold format', 'Professional clinical design', 'Ideal for exam rooms & waiting areas']),
+            variants: JSON.stringify(['Naturals Collection', 'Organics Collection', 'Medical Overview']),
+            icon_name: 'Flag',
+          },
+          {
+            name: 'Patient Education Cards',
+            subtitle: '4" × 6" glossy',
+            description: 'Concise patient-facing cards designed for exam rooms or waiting areas, highlighting key product benefits and ingredients.',
+            specs: JSON.stringify(['4" × 6" format', 'Glossy finish', 'Rack-friendly design']),
+            variants: JSON.stringify([]),
+            icon_name: 'LayoutGrid',
+          },
+          {
+            name: 'Informational Posters',
+            subtitle: '18" × 24"',
+            description: 'Clinic-ready posters with clean, clinical design for exam rooms and waiting areas, covering Sliquid product lines.',
+            specs: JSON.stringify(['18" × 24" format', 'Clinical design', 'Moisture-resistant coating']),
+            variants: JSON.stringify(['Naturals Line', 'Organics Line', 'Full Collection']),
+            icon_name: 'Megaphone',
+          },
+          {
+            name: 'Product Sample Kit',
+            subtitle: 'Assorted travel sizes',
+            description: 'A curated set of Sliquid\'s most recommended products for medical professionals to evaluate and recommend to patients.',
+            specs: JSON.stringify(['Assorted travel sizes', 'Medical professional use only', 'Includes product guide insert']),
+            variants: JSON.stringify([]),
+            icon_name: 'Package',
+          },
+        ]
+        const insertItem = db.prepare(
+          'INSERT INTO medical_marketing_items (name, subtitle, description, specs, variants, icon_name, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)'
+        )
+        seedItems.forEach((item, i) => {
+          insertItem.run(item.name, item.subtitle, item.description, item.specs, item.variants, item.icon_name, i)
+        })
+
+        // Seed medical training options
+        const seedOpts = [
+          {
+            label: 'Virtual CE Session',
+            subtitle: 'Live online presentation',
+            description: 'A live, interactive virtual session led by Sliquid medical education specialists. Continuing education credits available for qualifying professionals.',
+            specs: JSON.stringify(['Zoom or Teams compatible', 'CE credit documentation available', 'Q&A with medical education team', 'Flexible scheduling']),
+            icon_name: 'Monitor',
+          },
+          {
+            label: 'In-Office Presentation',
+            subtitle: 'On-site clinical education',
+            description: 'A Sliquid medical education representative visits your practice for an in-depth product overview and clinical discussion.',
+            specs: JSON.stringify(['Available in select regions', 'Includes product samples', 'Staff education materials provided', 'Lunch-and-learn format available']),
+            icon_name: 'Users',
+          },
+        ]
+        const insertOpt = db.prepare(
+          'INSERT INTO medical_training_options (label, subtitle, description, specs, icon_name, sort_order) VALUES (?, ?, ?, ?, ?, ?)'
+        )
+        seedOpts.forEach((opt, i) => {
+          insertOpt.run(opt.label, opt.subtitle, opt.description, opt.specs, opt.icon_name, i)
+        })
+      }
+    },
+  },
 ]
 
 function runMigrations(): void {

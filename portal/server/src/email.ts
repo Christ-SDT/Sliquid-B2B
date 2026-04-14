@@ -106,6 +106,7 @@ const TIER_LABEL: Record<string, string> = {
   tier3: 'Distributor',
   tier4: 'Prospect',
   tier5: 'Admin',
+  tier6: 'Medical Partner',
 }
 
 export async function sendApprovalEmail(opts: {
@@ -181,6 +182,33 @@ export async function sendMarketingRequestEmails(opts: {
     notes: notes || '—',
   })
   if (sent) console.log(`[email] Marketing request emails sent for ${email}`)
+}
+
+// ─── Medical marketing request ────────────────────────────────────────────────
+
+export async function sendMedicalMarketingRequestEmails(opts: {
+  name: string
+  email: string
+  company: string
+  requestedItems: string
+  notes: string
+}): Promise<void> {
+  const { name, email, company, requestedItems, notes } = opts
+  // User confirmation
+  const sent = await sendEmail('portal_medical_user', {
+    user_name: name,
+    requested_items: requestedItems,
+    to_email: email,
+  })
+  // Admin notification
+  await sendEmail('portal_medical_admin', {
+    user_name: name,
+    user_email: email,
+    company,
+    requested_items: requestedItems,
+    notes: notes || '—',
+  })
+  if (sent) console.log(`[email] Medical marketing request emails sent for ${email}`)
 }
 
 // ─── Password reset ───────────────────────────────────────────────────────────

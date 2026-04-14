@@ -3,7 +3,7 @@ import { api } from '@/api/client'
 import { TIER_LABEL } from '@/types'
 import {
   Search, Users, RefreshCw, CheckCircle, XCircle, Loader2, Cpu,
-  X, Award, GraduationCap, ExternalLink, ShieldCheck, Trash2,
+  X, Award, GraduationCap, ExternalLink, ShieldCheck, Trash2, Clock,
 } from 'lucide-react'
 
 interface PortalUser {
@@ -12,6 +12,7 @@ interface PortalUser {
   email: string
   company?: string | null
   role: string
+  status?: string
   created_at?: string
   last_login?: string | null
   certificate_number?: string | null
@@ -48,6 +49,7 @@ function roleBadgeClass(role: string) {
     case 'tier4': return 'bg-orange-500 border-orange-500 text-white'
     case 'tier3': return 'bg-cyan-600 border-cyan-600 text-white'
     case 'tier2': return 'bg-emerald-600 border-emerald-600 text-white'
+    case 'tier6': return 'bg-rose-600 border-rose-600 text-white'
     default:      return 'bg-slate-500 border-slate-500 text-white'
   }
 }
@@ -61,6 +63,8 @@ function UserDetailModal({
   onRoleChange,
   onCompanyChange,
   onDeleted,
+  onApprove,
+  onDecline,
 }: {
   user: PortalUser
   stores: Store[]
@@ -68,6 +72,8 @@ function UserDetailModal({
   onRoleChange: (id: number, role: string) => void
   onCompanyChange: (id: number, company: string) => void
   onDeleted: (id: number) => void
+  onApprove: (id: number, role: string) => Promise<void>
+  onDecline: (id: number) => Promise<void>
 }) {
   const [selectedRole, setSelectedRole]       = useState(user.role)
   const [roleSaveState, setRoleSaveState]     = useState<SaveState>('idle')
@@ -80,6 +86,29 @@ function UserDetailModal({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting]           = useState(false)
   const [deleteError, setDeleteError]     = useState('')
+
+  const [actionWorking, setActionWorking] = useState(false)
+  const [confirmDecline, setConfirmDecline] = useState(false)
+
+  async function handleApprove() {
+    setActionWorking(true)
+    try {
+      await onApprove(user.id, selectedRole)
+    } finally {
+      setActionWorking(false)
+    }
+  }
+
+  async function handleDecline() {
+    if (!confirmDecline) { setConfirmDecline(true); return }
+    setActionWorking(true)
+    try {
+      await onDecline(user.id)
+      setConfirmDecline(false)
+    } finally {
+      setActionWorking(false)
+    }
+  }
 
   const roleChanged    = selectedRole    !== user.role
   const companyChanged = selectedCompany !== (user.company ?? '')
@@ -226,6 +255,7 @@ function UserDetailModal({
                 <option value="tier3">Distributor</option>
                 <option value="tier4">Prospect</option>
                 <option value="tier5">Admin</option>
+                <option value="tier6">Medical Partner</option>
               </select>
               {roleChanged && (
                 <button
@@ -241,6 +271,77 @@ function UserDetailModal({
               {roleSaveState === 'error' && <span className="text-red-400 text-xs flex-shrink-0">{roleError}</span>}
             </div>
           </div>
+
+          {/* ── Registration Status ── */}
+          {user.role !== 'tier5' && user.role !== 'admin' && (
+            <div>
+              <label className="block text-on-canvas-subtle text-xs font-medium mb-2">Registration Status</label>
+              <div className="space-y-2">
+                {/* Status badge */}
+                <div className="flex items-center gap-2">
+                  {(user.status === 'pending' || !user.status) && (
+                    <span className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium rounded-lg">
+                      <Clock className="w-3 h-3" /> Pending Approval
+                    </span>
+                  )}
+                  {user.status === 'active' && (
+                    <span className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium rounded-lg">
+                      <CheckCircle className="w-3 h-3" /> Approved
+                    </span>
+                  )}
+                  {user.status === 'declined' && (
+                    <span className="flex items-center gap-1.5 px-2.5 py-1 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium rounded-lg">
+                      <XCircle className="w-3 h-3" /> Declined
+                    </span>
+                  )}
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {user.status !== 'active' && (
+                    <button
+                      onClick={handleApprove}
+                      disabled={actionWorking}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500
+                                 disabled:opacity-60 text-white text-xs font-semibold transition-colors"
+                    >
+                      {actionWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                      {user.status === 'declined' ? 'Approve & Activate' : 'Confirm Approved'}
+                    </button>
+                  )}
+                  {user.status === 'active' && (
+                    <button
+                      onClick={handleApprove}
+                      disabled={actionWorking}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-portal-accent/10 border border-portal-accent/40
+                                 hover:bg-portal-accent/20 disabled:opacity-60 text-portal-accent text-xs font-semibold transition-colors"
+                    >
+                      {actionWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                      Update Role
+                    </button>
+                  )}
+                  {user.status !== 'declined' && (
+                    <button
+                      onClick={handleDecline}
+                      disabled={actionWorking}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-semibold transition-colors disabled:opacity-60
+                        ${confirmDecline
+                          ? 'bg-red-600 border-red-600 text-white hover:bg-red-500'
+                          : 'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20'}`}
+                    >
+                      {actionWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                      {confirmDecline ? 'Confirm Decline' : 'Decline'}
+                    </button>
+                  )}
+                  {confirmDecline && (
+                    <button onClick={() => setConfirmDecline(false)} className="text-on-canvas-muted text-xs hover:text-on-canvas transition-colors self-center">
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ── Certification ── */}
           <div>
@@ -350,6 +451,18 @@ function UserRow({
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-on-canvas text-sm font-medium">{user.name}</span>
+            {user.status === 'pending' && (
+              <span className="px-1.5 py-0.5 bg-amber-500/15 border border-amber-500/30
+                               rounded text-amber-400 text-[10px] font-medium">
+                Pending
+              </span>
+            )}
+            {user.status === 'declined' && (
+              <span className="px-1.5 py-0.5 bg-red-500/15 border border-red-500/30
+                               rounded text-red-400 text-[10px] font-medium">
+                Declined
+              </span>
+            )}
             {user.certificate_number && (
               <span className="px-1.5 py-0.5 bg-emerald-900/30 border border-emerald-700/40
                                rounded text-emerald-400 text-[10px] font-medium">
@@ -700,6 +813,8 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError]   = useState('')
   const [search, setSearch] = useState('')
+  const [filterRole, setFilterRole] = useState('')
+  const [filterStatus, setFilterStatus] = useState('')
   const [selectedUser, setSelectedUser] = useState<PortalUser | null>(null)
 
   useEffect(() => {
@@ -727,7 +842,21 @@ export default function UsersPage() {
     setSelectedUser(null)
   }
 
+  async function handleApprove(id: number, role: string) {
+    await api.post(`/admin/users/${id}/approve`, { role })
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, status: 'active', role } : u))
+    setSelectedUser(prev => prev?.id === id ? { ...prev, status: 'active', role } : prev)
+  }
+
+  async function handleDecline(id: number) {
+    await api.post(`/admin/users/${id}/decline`, {})
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, status: 'declined' } : u))
+    setSelectedUser(prev => prev?.id === id ? { ...prev, status: 'declined' } : prev)
+  }
+
   const filtered = users.filter(u => {
+    if (filterRole && u.role !== filterRole) return false
+    if (filterStatus && u.status !== filterStatus) return false
     if (!search) return true
     const q = search.toLowerCase()
     return (
@@ -760,17 +889,44 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted" />
-        <input
-          type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search by name, email or company…"
-          className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
-                     placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
-        />
+      {/* Search + Filters */}
+      <div className="flex flex-wrap gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name, email or company…"
+            className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
+                       placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+          />
+        </div>
+        <select
+          value={filterRole}
+          onChange={e => setFilterRole(e.target.value)}
+          className="bg-surface border border-portal-border rounded-lg px-3 py-2.5 text-on-canvas text-sm
+                     focus:outline-none focus:border-portal-accent transition-colors"
+        >
+          <option value="">All Roles</option>
+          <option value="tier1">Retail Store Employee</option>
+          <option value="tier2">Retail Management</option>
+          <option value="tier3">Distributor</option>
+          <option value="tier4">Prospect</option>
+          <option value="tier5">Admin</option>
+          <option value="tier6">Medical Partner</option>
+        </select>
+        <select
+          value={filterStatus}
+          onChange={e => setFilterStatus(e.target.value)}
+          className="bg-surface border border-portal-border rounded-lg px-3 py-2.5 text-on-canvas text-sm
+                     focus:outline-none focus:border-portal-accent transition-colors"
+        >
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+          <option value="declined">Declined</option>
+        </select>
       </div>
 
       {/* Users Table */}
@@ -831,6 +987,8 @@ export default function UsersPage() {
           onRoleChange={handleRoleChange}
           onCompanyChange={handleCompanyChange}
           onDeleted={handleUserDeleted}
+          onApprove={handleApprove}
+          onDecline={handleDecline}
         />
       )}
     </div>

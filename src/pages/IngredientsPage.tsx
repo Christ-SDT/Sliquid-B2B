@@ -253,7 +253,7 @@ export default function IngredientsPage() {
             What's Inside
           </p>
           <h2 className="text-text-dark text-[32px] font-semibold">
-            Key ingredients we use
+            Key Ingredients We Use
           </h2>
           <p className="text-text-gray text-base mt-3 max-w-2xl leading-relaxed">
             Each ingredient is intentionally selected based on its functional role within the formulation. Below is an overview of the core components utilized across our products and their respective benefits.

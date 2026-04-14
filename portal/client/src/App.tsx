@@ -24,6 +24,7 @@ import CreatorPage from '@/pages/CreatorPage'
 import MediaPage from '@/pages/MediaPage'
 import ReferenceGalleryPage from '@/pages/ReferenceGalleryPage'
 import LogsPage from '@/pages/LogsPage'
+import MedicalMarketingPage from '@/pages/MedicalMarketingPage'
 
 export default function App() {
   return (
@@ -54,6 +55,7 @@ export default function App() {
             <Route path="media" element={<MediaPage />} />
             <Route path="reference-gallery" element={<ReferenceGalleryPage />} />
             <Route path="logs" element={<LogsPage />} />
+            <Route path="medical-marketing" element={<MedicalMarketingPage />} />
           </Route>
           <Route path="/verify" element={<CertificateVerify />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

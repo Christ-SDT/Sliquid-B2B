@@ -25,3 +25,8 @@ export function notifyUsers(type: string, title: string, message: string, link?:
   ).all() as { id: number }[]
   insertForUsers(rows.map(r => r.id), type, title, message, link)
 }
+
+/** Notify a single specific user by ID — e.g. account approval/decline. */
+export function notifyUser(userId: number, type: string, title: string, message: string, link?: string) {
+  insertForUsers([userId], type, title, message, link)
+}
