@@ -13,7 +13,7 @@
 	</metadata>
 	<organizations default="Course_ID1_ORG">
 		<organization identifier="Course_ID1_ORG">
-			<title>H2O vs Sassy</title>
+			<title>Customer Service Skills</title>
 			<item identifier="Course_ID1_SCO" isvisible="true" identifierref="Course_ID1_SCO_RES">
 				<title>Course Object title</title>
 			</item>
@@ -33,12 +33,11 @@
 				<adlcp:location>metadata.xml</adlcp:location> 
 			</metadata>
 			
-			<file href="ar/KeyClick.mp3"/>
+			<file href="assets/htmlimages/Answer_checkbox_correct.png"/>
 		    <file href="index.html"/>
 			<file href="scormdriver.js"/>
 			<file href="browsersniff.js"/>
 			
-<file href="assets/htmlimages/Answer_checkbox_correct.png"/> 
 <file href="assets/htmlimages/Answer_checkbox_incorrect.png"/> 
 <file href="assets/htmlimages/Answer_radio_correct.png"/> 
 <file href="assets/htmlimages/Answer_radio_incorrect.png"/> 
@@ -53,11 +52,8 @@
 <file href="dist/vendors-main.chunk.js.br"/> 
 <file href="dr/029220.png"/> 
 <file href="dr/032892.png"/> 
-<file href="dr/035051.jpg"/> 
 <file href="dr/035059.svg"/> 
 <file href="dr/035062.svg"/> 
-<file href="dr/035071.png"/> 
-<file href="dr/0577.svg"/> 
 <file href="dr/loading.gif"/> 
 <file href="goodbye.html"/> 
 <file href="index.html"/> 

@@ -2168,22 +2168,6 @@
 
 },
 {
-"id":"si37892",
-"class":"TODO::Senthil",
-"instance":"Checkbox_48",
-"roles":{
-}
-
-},
-{
-"id":"si37900",
-"class":"TODO::Senthil",
-"instance":"Checkbox_49",
-"roles":{
-}
-
-},
-{
 "id":"si37916",
 "class":"TODO::Senthil",
 "instance":"Caption_39",
@@ -2338,12 +2322,12 @@
 "interactionId":"37738",
 "quizId":203,
 "title":"",
-"text":"Sliquid Silk is a __________ formula that combines water-based ingredients with a small amount of silicone for extended glide.",
+"text":"Both the Silk and Silver formulas can be used with silicone toys and devices.",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si37892"],
+"correctAnswers":["si37884"],
 "score":{
 "weight":10,
 "penalty":0

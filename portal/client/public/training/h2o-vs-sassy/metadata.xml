@@ -54,10 +54,10 @@
                 <vcard>
                     BEGIN:VCARD
                     VERSION:2.1
-                    FN: Author
-ORG: Company
-EMAIL;PREF;INTERNET: author@company.com
-URL:  www.company.com
+                    FN: Sliquid 
+ORG: Sliquid
+EMAIL;PREF;INTERNET: israel@sliquid.com
+URL:  www.sliquid.com
 
                     END:VCARD
                 </vcard>

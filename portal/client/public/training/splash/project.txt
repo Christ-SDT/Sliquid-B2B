@@ -1178,7 +1178,7 @@
 "interactionId":"35752",
 "quizId":203,
 "title":"",
-"text":"4. Which product is best suited for customers looking for a waterproof formula that lasts longer without reapplying?",
+"text":"4. Which of the following botanical extracts is included to help soothe and support the skin?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",

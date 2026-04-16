@@ -2338,7 +2338,7 @@
 "interactionId":"37738",
 "quizId":203,
 "title":"",
-"text":"In Sliquid Naturals Satin, ________ helps maintain proper pH balance ",
+"text":"In Sliquid Naturals Satin, ________ helps maintain proper pH balance. ",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
@@ -2762,9 +2762,9 @@
 
 },
 {
-"id":"Satin 2",
+"id":"Satin 3",
 "class":"project",
-"title":"Satin 2",
+"title":"Satin 3",
 "children":["Slide33220","Slide35401","Slide35729","Slide36057","Slide36385","Slide36713","Slide37041","Slide38043","Slide8353"],
 "roles":{
 "quiz":{

@@ -5,9 +5,9 @@
 "tags":"",
 "thumbnail":"",
 "source":"assets",
-"durationInFrames":900,
+"durationInFrames":810,
 "frameRate":30,
-"totalSlides":10,
+"totalSlides":9,
 "width":1366,
 "height":768,
 "responsive":true,
@@ -28,199 +28,6 @@
 ,
 "navigation":{
 "navid":"Slide34864"
-}
-
-}
-
-},
-{
-"id":"si35001",
-"class":"TODO::Senthil",
-"instance":"Slide_video_1",
-"roles":{
-}
-
-},
-{
-"id":"si35009",
-"class":"TODO::Senthil",
-"instance":"Video_Group_1",
-"roles":{
-}
-
-},
-{
-"id":"si35028",
-"class":"TODO::Senthil",
-"instance":"Web_Video_1",
-"video":{
-"title":"Video title- NI",
-"uri":"Video title- NI",
-"segmentDuration":0,
-"segments":[]
-}
-,
-"roles":{
-}
-
-},
-{
-"id":"si35035",
-"class":"TODO::Senthil",
-"instance":"Text_475",
-"roles":{
-"click":{
-"subtype":"button"
-}
-,
-"textData":{
-}
-
-}
-
-},
-{
-"id":"si35043",
-"class":"TODO::Senthil",
-"instance":"Text_476",
-"roles":{
-"click":{
-"subtype":"button"
-}
-,
-"textData":{
-}
-
-}
-
-},
-{
-"id":"si7944",
-"class":"TODO::Senthil",
-"instance":"Image_5",
-"roles":{
-}
-
-},
-{
-"id":"si7952",
-"class":"TODO::Senthil",
-"instance":"Image_Group_5",
-"roles":{
-}
-
-},
-{
-"id":"si7960",
-"class":"TODO::Senthil",
-"instance":"Image_1",
-"roles":{
-"click":{
-"subtype":"button"
-}
-,
-"textData":{
-}
-
-}
-
-},
-{
-"id":"si7972",
-"class":"TODO::Senthil",
-"instance":"Image_Group_Text_23",
-"roles":{
-}
-
-},
-{
-"id":"si7980",
-"class":"TODO::Senthil",
-"instance":"Text_129",
-"roles":{
-"click":{
-"subtype":"button"
-}
-,
-"textData":{
-}
-
-}
-
-},
-{
-"id":"si7990",
-"class":"TODO::Senthil",
-"instance":"Text_130",
-"roles":{
-"click":{
-"subtype":"button"
-}
-,
-"textData":{
-}
-
-}
-
-},
-{
-"id":"si8000",
-"class":"TODO::Senthil",
-"instance":"Button_95",
-"roles":{
-"click":{
-"subtype":"button"
-}
-,
-"textData":{
-}
-
-}
-
-},
-{
-"id":"si8016",
-"class":"TODO::Senthil",
-"instance":"Button_96",
-"roles":{
-"click":{
-"subtype":"button"
-}
-,
-"textData":{
-}
-
-}
-
-},
-{
-"id":"si8032",
-"class":"TODO::Senthil",
-"instance":"Button_97",
-"roles":{
-"click":{
-"subtype":"button"
-}
-,
-"textData":{
-}
-
-}
-
-},
-{
-"id":"Slide7926",
-"class":"Normal Slide",
-"instance":"Quiz 1",
-"thumbnail":"",
-"children":[],
-"roles":{
-"slide":{
-"durationInFrames":5539
-}
-,
-"navigation":{
-"navid":"Slide7926"
 }
 
 }
@@ -501,12 +308,12 @@
 "interactionId":"33245",
 "quizId":203,
 "title":"",
-"text":"Select the correct answer from the given options and then select 'Submit'.\nWhich of the following BEST describes Sliquid Naturals H20?",
+"text":"1. What is the main difference between Sliquid Naturals H2O and Sassy?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":[],
+"correctAnswers":["si33516"],
 "score":{
 "weight":10,
 "penalty":0
@@ -791,12 +598,12 @@
 "interactionId":"35096",
 "quizId":203,
 "title":"",
-"text":"Select the correct answer from the given options and then select 'Submit'.\nAccording to the product description, which ingredient contributes to Sliquid Naturals H2O being water-soluble and easy to clean?",
+"text":"Which product is best described as ideal for everyday intimacy and sensitive skin?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si35258"],
+"correctAnswers":["si35242"],
 "score":{
 "weight":10,
 "penalty":0
@@ -1081,12 +888,12 @@
 "interactionId":"35424",
 "quizId":203,
 "title":"",
-"text":"Select the correct answer from the given options and then select 'Submit'.\nWhich of the following is NOT listed as an ingredient in Sliquid Naturals H2O?",
+"text":"What ingredient provides the glide and viscosity in both H2O and Sassy?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si35586"],
+"correctAnswers":["si35570"],
 "score":{
 "weight":10,
 "penalty":0
@@ -1371,7 +1178,7 @@
 "interactionId":"35752",
 "quizId":203,
 "title":"",
-"text":"Select the correct answer from the given options and then select 'Submit'.\nAccording to the product description, what is the primary difference between Sliquid Naturals Sassy and Sliquid Naturals H2O?",
+"text":"Which statement is true about both H2O and Sassy?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
@@ -1661,12 +1468,12 @@
 "interactionId":"36080",
 "quizId":203,
 "title":"",
-"text":"Select the correct answer from the given options and then select 'Submit'.\nWhat ingredient is present in a higher concentration in Sliquid Naturals Sassy compared to Sliquid Naturals H2O, contributing to its thicker consistency?",
+"text":"Why might a customer choose Sassy over H2O?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36234"],
+"correctAnswers":["si36226"],
 "score":{
 "weight":10,
 "penalty":0
@@ -1951,12 +1758,12 @@
 "interactionId":"36408",
 "quizId":203,
 "title":"",
-"text":"Select the correct answer from the given options and then select 'Submit'.\nFor whom is Sliquid Naturals Sassy most suitable, according to the product description?",
+"text":"Which of the following ingredients helps maintain product purity and pH balance?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36562"],
+"correctAnswers":["si36546"],
 "score":{
 "weight":10,
 "penalty":0
@@ -2241,12 +2048,12 @@
 "interactionId":"36736",
 "quizId":203,
 "title":"",
-"text":"Select the correct answer from the given options and then select 'Submit'.\nWhich ingredient is MOST relevant to maintaining the pH balance and overall body-safe properties of H2O and Sassy?",
+"text":" If a customer asks which product is best for water play (like in the shower), what should you say?",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36874"],
+"correctAnswers":["si36898"],
 "score":{
 "weight":10,
 "penalty":0
@@ -2531,7 +2338,7 @@
 "interactionId":"37392",
 "quizId":203,
 "title":"",
-"text":"Select the correct answer from the given options and then select 'Submit'.\n\nSliquid Naturals Sassy gains its ultra-thick consistency from the inclusion of additional plant cellulose, a vegan-friendly thickening agent derived from cotton, while its extended shelf life and purity are ensured by the presence of both potassium sorbate and _________.",
+"text":"Both H2O and Sassy are vegan-friendly and __________-free, meaning they are not tested on animals.",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
@@ -2955,17 +2762,17 @@
 
 },
 {
-"id":"Sliquiz",
+"id":"Sliquiz H2o vs Sassy",
 "class":"project",
-"title":"Sliquiz",
-"children":["Slide7926","Slide33220","Slide35401","Slide35729","Slide36057","Slide36385","Slide36713","Slide37041","Slide37697","Slide8353"],
+"title":"Sliquiz H2o vs Sassy",
+"children":["Slide33220","Slide35401","Slide35729","Slide36057","Slide36385","Slide36713","Slide37041","Slide37697","Slide8353"],
 "roles":{
 "quiz":{
 "id":203,
 "branched":false,
 "submitAll":false,
 "review":true,
-"questions":["Slide33220q7","Slide35401q1","Slide35729q2","Slide36057q3","Slide36385q4","Slide36713q5","Slide37041q6","Slide37697q7"],
+"questions":["Slide33220q0","Slide35401q1","Slide35729q2","Slide36057q3","Slide36385q4","Slide36713q5","Slide37041q6","Slide37697q7"],
 "minScore":0,
 "maxScore":80,
 "passScore":40
@@ -3013,16 +2820,7 @@
 ,
 "exitNormalIfCompleted":false
 }
-,"eventVideos":[{
-"id":"si35028",
-"uri":"https://youtu.be/r9ttBy_WlfA"
-}
-]
 ,"toc":[{
-"id":"Slide7926",
-"title":"Quiz 1"
-}
-,{
 "id":"Slide33220",
 "title":"Multiple choice - 2"
 }

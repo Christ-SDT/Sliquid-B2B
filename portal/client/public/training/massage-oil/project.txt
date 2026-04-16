@@ -603,7 +603,7 @@
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si35242"],
+"correctAnswers":["si35250"],
 "score":{
 "weight":10,
 "penalty":0
@@ -893,7 +893,7 @@
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si35562"],
+"correctAnswers":["si35570"],
 "score":{
 "weight":10,
 "penalty":0
@@ -1473,7 +1473,7 @@
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36218"],
+"correctAnswers":["si36226"],
 "score":{
 "weight":10,
 "penalty":0
@@ -1763,7 +1763,7 @@
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36562"],
+"correctAnswers":["si36554"],
 "score":{
 "weight":10,
 "penalty":0
@@ -2053,7 +2053,7 @@
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36882"],
+"correctAnswers":["si36890"],
 "score":{
 "weight":10,
 "penalty":0
@@ -2343,7 +2343,7 @@
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si37884"],
+"correctAnswers":["si37892"],
 "score":{
 "weight":10,
 "penalty":0

@@ -1878,22 +1878,6 @@
 
 },
 {
-"id":"si36890",
-"class":"TODO::Senthil",
-"instance":"Checkbox_44",
-"roles":{
-}
-
-},
-{
-"id":"si36898",
-"class":"TODO::Senthil",
-"instance":"Checkbox_45",
-"roles":{
-}
-
-},
-{
 "id":"si36914",
 "class":"TODO::Senthil",
 "instance":"Caption_37",
@@ -2048,12 +2032,12 @@
 "interactionId":"36736",
 "quizId":203,
 "title":"",
-"text":"7. When helping a customer choose between Sizzle and Spark, what is the most important factor to consider?",
+"text":"7. Sliquid Spark is safe to use with silicone toys and devices.",
 "ikc":false,
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36890"],
+"correctAnswers":["si36882"],
 "score":{
 "weight":10,
 "penalty":0
