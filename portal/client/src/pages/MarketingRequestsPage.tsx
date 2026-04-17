@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
-import { Megaphone, ChevronDown, Loader2, Mail, CheckCircle, XCircle, Clock, Stethoscope } from 'lucide-react'
+import { Megaphone, ChevronDown, Loader2, Mail, CheckCircle, XCircle, Clock, Stethoscope, Search, Filter } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -41,6 +41,17 @@ function buildMailtoLink(r: MarketingRequest): string {
   return `mailto:${r.user_email ?? ''}?subject=${subject}&body=${body}`
 }
 
+function matchesSearch(r: MarketingRequest, q: string): boolean {
+  if (!q) return true
+  const s = q.toLowerCase()
+  return (
+    r.contact_name.toLowerCase().includes(s) ||
+    r.business_name.toLowerCase().includes(s) ||
+    (r.user_email ?? '').toLowerCase().includes(s) ||
+    (r.user_name ?? '').toLowerCase().includes(s)
+  )
+}
+
 const STATUS_BADGE: Record<string, string> = {
   pending:  'bg-amber-500/15 text-amber-400 border border-amber-500/30',
   approved: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
@@ -53,7 +64,7 @@ const STATUS_LABEL: Record<string, string> = {
   declined: 'Declined',
 }
 
-// ─── Request list (shared between physical + medical) ─────────────────────────
+// ─── Request list ─────────────────────────────────────────────────────────────
 
 function RequestList({
   requests,
@@ -212,6 +223,9 @@ export default function MarketingRequestsPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('all')
   const [updating, setUpdating] = useState<number | null>(null)
   const [medicalUpdating, setMedicalUpdating] = useState<number | null>(null)
+  const [search, setSearch] = useState('')
+  const [filterStatus, setFilterStatus] = useState('')
+  const [filterSort, setFilterSort] = useState('newest')
 
   useEffect(() => {
     api.get<MarketingRequest[]>('/retailer/applications')
@@ -230,6 +244,8 @@ export default function MarketingRequestsPage() {
     try {
       await api.put(`/retailer/applications/${id}/status`, { status })
       setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r))
+      setExpanded(null)
+      setActiveTab(status as TabKey)
     } catch (err) {
       console.error(err)
     } finally {
@@ -242,6 +258,7 @@ export default function MarketingRequestsPage() {
     try {
       await api.put(`/medical-marketing/applications/${id}/status`, { status })
       setMedicalRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r))
+      setExpanded(null)
     } catch (err) {
       console.error(err)
     } finally {
@@ -257,9 +274,20 @@ export default function MarketingRequestsPage() {
     medical:  medicalRequests.length,
   }
 
-  const visibleRequests = activeTab === 'all'
-    ? requests
-    : requests.filter(r => r.status === activeTab)
+  function applyFilters(list: MarketingRequest[], tabStatus?: string) {
+    let out = [...list]
+    if (tabStatus && tabStatus !== 'all') out = out.filter(r => r.status === tabStatus)
+    if (filterStatus) out = out.filter(r => r.status === filterStatus)
+    if (search) out = out.filter(r => matchesSearch(r, search))
+    out.sort((a, b) => {
+      const diff = new Date(a.submitted_at).getTime() - new Date(b.submitted_at).getTime()
+      return filterSort === 'newest' ? -diff : diff
+    })
+    return out
+  }
+
+  const visibleRequests = applyFilters(requests, activeTab === 'medical' ? undefined : activeTab)
+  const visibleMedical  = applyFilters(medicalRequests)
 
   const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
     { key: 'all',      label: 'All',      icon: <Megaphone className="w-3.5 h-3.5" /> },
@@ -313,17 +341,60 @@ export default function MarketingRequestsPage() {
         })}
       </div>
 
+      {/* Search + Filters */}
+      <div className="flex gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by name, business, practice, or email…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-surface border border-portal-border
+                       text-on-canvas placeholder:text-on-canvas-muted text-sm
+                       focus:outline-none focus:border-portal-accent transition-colors"
+          />
+        </div>
+
+        <div className="relative">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-canvas-muted pointer-events-none" />
+          <select
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value)}
+            className="pl-8 pr-8 py-2.5 rounded-xl bg-surface border border-portal-border
+                       text-on-canvas text-sm focus:outline-none focus:border-portal-accent
+                       transition-colors appearance-none cursor-pointer"
+          >
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="declined">Declined</option>
+          </select>
+        </div>
+
+        <select
+          value={filterSort}
+          onChange={e => setFilterSort(e.target.value)}
+          className="px-4 py-2.5 rounded-xl bg-surface border border-portal-border
+                     text-on-canvas text-sm focus:outline-none focus:border-portal-accent
+                     transition-colors appearance-none cursor-pointer"
+        >
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+
       {/* Requests list */}
       <div className="bg-surface border border-portal-border rounded-xl overflow-hidden">
         {activeTab === 'medical' ? (
           <RequestList
-            requests={medicalRequests}
+            requests={visibleMedical}
             loading={medicalLoading}
             expanded={expanded}
             setExpanded={setExpanded}
             updating={medicalUpdating}
             onStatusChange={handleMedicalStatusChange}
-            emptyLabel="No medical requests yet."
+            emptyLabel={(search || filterStatus) ? 'No medical requests match your filters.' : 'No medical requests yet.'}
           />
         ) : (
           <RequestList
@@ -333,7 +404,7 @@ export default function MarketingRequestsPage() {
             setExpanded={setExpanded}
             updating={updating}
             onStatusChange={handleStatusChange}
-            emptyLabel={activeTab === 'all' ? 'No requests yet.' : `No ${activeTab} requests.`}
+            emptyLabel={(search || filterStatus) ? 'No requests match your filters.' : activeTab === 'all' ? 'No requests yet.' : `No ${activeTab} requests.`}
           />
         )}
       </div>
