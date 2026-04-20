@@ -197,10 +197,16 @@ const styles = StyleSheet.create({
     backgroundColor: DARK_TEXT,
     marginBottom: 4,
   },
+  sigCursive: {
+    color: DARK_TEXT,
+    fontSize: 18,
+    fontFamily: 'Helvetica-Oblique',
+    marginBottom: 4,
+  },
   sigName: {
     color: DARK_TEXT,
-    fontSize: 16,
-    fontFamily: 'Helvetica-Oblique',
+    fontSize: 10,
+    fontFamily: 'Helvetica-Bold',
   },
   sigTitle: {
     color: MID_GRAY,
@@ -322,7 +328,8 @@ function CertificatePDF({ firstName, lastName, completionDate, certNumber, verif
         <View style={styles.bottomSection}>
           {/* Erik's signature block */}
           <View style={styles.sigBlock}>
-            <View style={[styles.sigLine, { marginTop: 36 }]} />
+            <Text style={styles.sigCursive}>Erik Vasquez</Text>
+            <View style={styles.sigLine} />
             <Text style={styles.sigName}>Erik Vasquez</Text>
             <Text style={styles.sigTitle}>Director of Marketing</Text>
           </View>
