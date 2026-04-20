@@ -20,6 +20,11 @@ Font.register({
   ],
 })
 
+Font.register({
+  family: 'MonsieurLaDoulaise',
+  src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/monsieurladoulaise/MonsieurLaDoulaise-Regular.ttf',
+})
+
 // ─── Colors ──────────────────────────────────────────────────────────────────
 const SLIQUID_BLUE = '#0A84C0'
 const SLIQUID_LIGHT_BLUE = '#E8F4FB'
@@ -199,8 +204,8 @@ const styles = StyleSheet.create({
   },
   sigCursive: {
     color: DARK_TEXT,
-    fontSize: 18,
-    fontFamily: 'Helvetica-Oblique',
+    fontSize: 26,
+    fontFamily: 'MonsieurLaDoulaise',
     marginBottom: 4,
   },
   sigName: {
