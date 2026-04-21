@@ -10,6 +10,11 @@ import {
   Font,
 } from '@react-pdf/renderer'
 import { api } from '@/api/client'
+import { CertificatePDFV2 } from './CertificateGeneratorV2'
+
+// ─── Active design — change 'classic' to 'modern' to switch the default ───────
+// This can also be toggled via the UI button below.
+const DEFAULT_VARIANT: 'classic' | 'modern' = 'modern'
 
 // ─── Font Registration ────────────────────────────────────────────────────────
 Font.register({
@@ -336,7 +341,7 @@ function CertificatePDF({ firstName, lastName, completionDate, certNumber, verif
             <Text style={styles.sigCursive}>Erik Vasquez</Text>
             <View style={styles.sigLine} />
             <Text style={styles.sigName}>Erik Vasquez</Text>
-            <Text style={styles.sigTitle}>Director of Marketing</Text>
+            <Text style={styles.sigTitle}>VP of Marketing</Text>
           </View>
 
           {/* Seal */}
@@ -384,6 +389,7 @@ export default function CertificateGenerator() {
   const [userData, setUserData] = useState<CertData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [variant, setVariant] = useState<'classic' | 'modern'>(DEFAULT_VARIANT)
 
   const fetchUserData = async () => {
     setLoading(true)
@@ -433,25 +439,58 @@ export default function CertificateGenerator() {
             ))}
           </div>
 
+          {/* Design toggle */}
+          <div className="flex gap-2 p-1 bg-portal-bg rounded-lg border border-portal-border">
+            <button
+              onClick={() => setVariant('classic')}
+              className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                variant === 'classic'
+                  ? 'bg-surface text-on-canvas shadow-sm'
+                  : 'text-on-canvas-muted hover:text-on-canvas'
+              }`}
+            >
+              Classic
+            </button>
+            <button
+              onClick={() => setVariant('modern')}
+              className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                variant === 'modern'
+                  ? 'bg-surface text-on-canvas shadow-sm'
+                  : 'text-on-canvas-muted hover:text-on-canvas'
+              }`}
+            >
+              Modern
+            </button>
+          </div>
+
           {/* Download link */}
           <PDFDownloadLink
+            key={variant}
             document={
-              <CertificatePDF
-                firstName={userData.firstName}
-                lastName={userData.lastName}
-                completionDate={userData.completionDate}
-                certNumber={userData.certificateNumber}
-                verifyUrl={verifyUrl}
-              />
+              variant === 'modern'
+                ? <CertificatePDFV2
+                    firstName={userData.firstName}
+                    lastName={userData.lastName}
+                    completionDate={userData.completionDate}
+                    certNumber={userData.certificateNumber}
+                    verifyUrl={verifyUrl}
+                  />
+                : <CertificatePDF
+                    firstName={userData.firstName}
+                    lastName={userData.lastName}
+                    completionDate={userData.completionDate}
+                    certNumber={userData.certificateNumber}
+                    verifyUrl={verifyUrl}
+                  />
             }
-            fileName={`Sliquid_Expert_${userData.firstName}_${userData.lastName}.pdf`}
+            fileName={`Sliquid_Expert_${userData.firstName}_${userData.lastName}_${variant}.pdf`}
           >
             {({ loading: pdfLoading }) => (
               <button
                 className="w-full flex items-center justify-center gap-2 py-2.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
                 disabled={pdfLoading}
               >
-                {pdfLoading ? 'Building PDF…' : '⬇  Download Certificate PDF'}
+                {pdfLoading ? 'Building PDF…' : `⬇  Download ${variant === 'modern' ? 'Modern' : 'Classic'} Certificate PDF`}
               </button>
             )}
           </PDFDownloadLink>
