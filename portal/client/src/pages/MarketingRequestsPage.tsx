@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
-import { Megaphone, ChevronDown, Loader2, Mail, CheckCircle, XCircle, Clock, Stethoscope, Search, Filter } from 'lucide-react'
+import { Megaphone, ChevronDown, Loader2, Mail, CheckCircle, XCircle, Clock, Stethoscope, Search, Filter, GraduationCap } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,7 +18,23 @@ type MarketingRequest = {
   user_email: string | null
 }
 
-type TabKey = 'all' | 'pending' | 'approved' | 'declined' | 'medical'
+type TabKey = 'pending' | 'approved' | 'declined' | 'rewards' | 'medical'
+
+type RewardClaim = {
+  id: number
+  full_name: string
+  product: string
+  shirt_size: string
+  address1: string
+  address2: string | null
+  city: string
+  state: string
+  zip: string
+  submitted_at: string
+  email: string
+  certificate_number: string
+  avg_score: number | null
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -212,15 +228,104 @@ function RequestList({
   )
 }
 
+// ─── Rewards list ─────────────────────────────────────────────────────────────
+
+function RewardsList({ rewards, loading }: { rewards: RewardClaim[]; loading: boolean }) {
+  const [expanded, setExpanded] = useState<number | null>(null)
+
+  if (loading) {
+    return (
+      <div className="p-10 flex items-center justify-center">
+        <Loader2 className="w-5 h-5 text-portal-accent animate-spin" />
+      </div>
+    )
+  }
+  if (rewards.length === 0) {
+    return (
+      <div className="p-10 text-center">
+        <GraduationCap className="w-8 h-8 text-on-canvas-muted/30 mx-auto mb-3" />
+        <p className="text-on-canvas-muted text-sm">No reward claims submitted yet.</p>
+      </div>
+    )
+  }
+  return (
+    <div className="divide-y divide-portal-border">
+      {rewards.map(r => (
+        <div key={r.id} className="px-6 py-4">
+          <div className="flex items-start gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-on-canvas font-medium text-sm">{r.full_name}</p>
+                <span className="text-on-canvas-muted text-xs">·</span>
+                <p className="text-on-canvas-muted text-xs">{r.email}</p>
+              </div>
+              <p className="text-on-canvas-muted text-xs mt-1">{fmt(r.submitted_at)}</p>
+              <div className="flex items-center gap-3 mt-2 flex-wrap">
+                <span className="text-on-canvas-subtle text-sm">
+                  <span className="text-on-canvas-muted text-xs uppercase tracking-wider mr-1">Product:</span>
+                  {r.product}
+                </span>
+                <span className="text-on-canvas-muted text-xs">·</span>
+                <span className="text-on-canvas-subtle text-sm">
+                  <span className="text-on-canvas-muted text-xs uppercase tracking-wider mr-1">Shirt:</span>
+                  {r.shirt_size}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                Cert: {r.certificate_number}
+              </span>
+              {r.avg_score != null && (
+                <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-portal-accent/10 text-portal-accent border border-portal-accent/30">
+                  Avg {r.avg_score}%
+                </span>
+              )}
+              <button
+                onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+                className="text-on-canvas-muted hover:text-on-canvas transition-colors"
+              >
+                <ChevronDown className={`w-4 h-4 transition-transform ${expanded === r.id ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+          </div>
+
+          {expanded === r.id && (
+            <div className="mt-4 pt-4 border-t border-portal-border/50">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Shipping Address</p>
+                  <p className="text-on-canvas-subtle">
+                    {r.address1}{r.address2 ? `, ${r.address2}` : ''}<br />
+                    {r.city}, {r.state} {r.zip}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Product Selected</p>
+                  <p className="text-on-canvas-subtle">{r.product}</p>
+                  <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1 mt-3">Shirt Size</p>
+                  <p className="text-on-canvas-subtle">{r.shirt_size}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MarketingRequestsPage() {
   const [requests, setRequests] = useState<MarketingRequest[]>([])
   const [medicalRequests, setMedicalRequests] = useState<MarketingRequest[]>([])
+  const [rewards, setRewards] = useState<RewardClaim[]>([])
   const [loading, setLoading] = useState(true)
   const [medicalLoading, setMedicalLoading] = useState(true)
+  const [rewardsLoading, setRewardsLoading] = useState(true)
   const [expanded, setExpanded] = useState<number | null>(null)
-  const [activeTab, setActiveTab] = useState<TabKey>('all')
+  const [activeTab, setActiveTab] = useState<TabKey>('pending')
   const [updating, setUpdating] = useState<number | null>(null)
   const [medicalUpdating, setMedicalUpdating] = useState<number | null>(null)
   const [search, setSearch] = useState('')
@@ -237,6 +342,11 @@ export default function MarketingRequestsPage() {
       .then(setMedicalRequests)
       .catch(console.error)
       .finally(() => setMedicalLoading(false))
+
+    api.get<RewardClaim[]>('/certificates/rewards')
+      .then(setRewards)
+      .catch(console.error)
+      .finally(() => setRewardsLoading(false))
   }, [])
 
   async function handleStatusChange(id: number, status: string) {
@@ -267,10 +377,10 @@ export default function MarketingRequestsPage() {
   }
 
   const counts = {
-    all:      requests.length,
     pending:  requests.filter(r => r.status === 'pending').length,
     approved: requests.filter(r => r.status === 'approved').length,
     declined: requests.filter(r => r.status === 'declined').length,
+    rewards:  rewards.length,
     medical:  medicalRequests.length,
   }
 
@@ -286,23 +396,23 @@ export default function MarketingRequestsPage() {
     return out
   }
 
-  const visibleRequests = applyFilters(requests, activeTab === 'medical' ? undefined : activeTab)
+  const visibleRequests = applyFilters(requests, activeTab === 'medical' || activeTab === 'rewards' ? undefined : activeTab)
   const visibleMedical  = applyFilters(medicalRequests)
 
   const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-    { key: 'all',      label: 'All',      icon: <Megaphone className="w-3.5 h-3.5" /> },
     { key: 'pending',  label: 'Pending',  icon: <Clock className="w-3.5 h-3.5" /> },
     { key: 'approved', label: 'Approved', icon: <CheckCircle className="w-3.5 h-3.5" /> },
     { key: 'declined', label: 'Declined', icon: <XCircle className="w-3.5 h-3.5" /> },
+    { key: 'rewards',  label: 'Rewards',  icon: <GraduationCap className="w-3.5 h-3.5" /> },
     { key: 'medical',  label: 'Medical',  icon: <Stethoscope className="w-3.5 h-3.5" /> },
   ]
 
   const accentColor = (key: TabKey, isActive: boolean): string => {
     const map: Record<TabKey, string> = {
-      all:      isActive ? 'bg-portal-accent/10 border-portal-accent text-portal-accent' : 'bg-surface border-portal-border text-on-canvas-muted hover:border-slate-500',
       pending:  isActive ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-surface border-portal-border text-on-canvas-muted hover:border-amber-500/50',
       approved: isActive ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400' : 'bg-surface border-portal-border text-on-canvas-muted hover:border-emerald-500/50',
       declined: isActive ? 'bg-red-500/10 border-red-500 text-red-400' : 'bg-surface border-portal-border text-on-canvas-muted hover:border-red-500/50',
+      rewards:  isActive ? 'bg-portal-accent/10 border-portal-accent text-portal-accent' : 'bg-surface border-portal-border text-on-canvas-muted hover:border-portal-accent/50',
       medical:  isActive ? 'bg-rose-500/10 border-rose-500 text-rose-400' : 'bg-surface border-portal-border text-on-canvas-muted hover:border-rose-500/50',
     }
     return map[key]
@@ -386,7 +496,9 @@ export default function MarketingRequestsPage() {
 
       {/* Requests list */}
       <div className="bg-surface border border-portal-border rounded-xl overflow-hidden">
-        {activeTab === 'medical' ? (
+        {activeTab === 'rewards' ? (
+          <RewardsList rewards={rewards} loading={rewardsLoading} />
+        ) : activeTab === 'medical' ? (
           <RequestList
             requests={visibleMedical}
             loading={medicalLoading}
@@ -404,7 +516,7 @@ export default function MarketingRequestsPage() {
             setExpanded={setExpanded}
             updating={updating}
             onStatusChange={handleStatusChange}
-            emptyLabel={(search || filterStatus) ? 'No requests match your filters.' : activeTab === 'all' ? 'No requests yet.' : `No ${activeTab} requests.`}
+            emptyLabel={(search || filterStatus) ? 'No requests match your filters.' : `No ${activeTab} requests.`}
           />
         )}
       </div>

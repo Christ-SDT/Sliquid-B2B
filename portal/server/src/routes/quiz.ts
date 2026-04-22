@@ -3,6 +3,7 @@ import { randomBytes } from 'crypto'
 import { db } from '../database.js'
 import { requireAuth } from '../middleware/auth.js'
 import { sendQuizPassEmail, sendCertificateEmail } from '../email.js'
+import { notifyAdmins } from '../notifications.js'
 
 const router = Router()
 
@@ -66,6 +67,14 @@ router.post('/complete', requireAuth, (req, res) => {
             certNumber,
             completionDate,
           }).catch(err => console.error('[email] Certificate email failed:', err))
+
+          // Notify admins that a certificate was issued
+          notifyAdmins(
+            'cert_issued',
+            'Certificate Issued',
+            `${user.name} completed all training modules and was issued certificate ${certNumber}.`,
+            '/users'
+          )
         }
       }
     }

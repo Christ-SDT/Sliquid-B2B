@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone, Package, Archive, Receipt, BarChart3, Users2, Images, Activity } from 'lucide-react'
+import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone, Package, Archive, Receipt, BarChart3, Users2, Images, Activity, GraduationCap, Award } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { useNotifications } from '@/context/NotificationContext'
@@ -25,10 +25,12 @@ function timeAgo(dateStr: string): string {
 }
 
 const NOTIF_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  low_stock:        AlertTriangle,
-  out_of_stock:     PackageX,
-  new_asset:        BookOpen,
+  low_stock:         AlertTriangle,
+  out_of_stock:      PackageX,
+  new_asset:         BookOpen,
   marketing_request: Megaphone,
+  cert_issued:       Award,
+  reward_claim:      GraduationCap,
 }
 
 const NOTIF_COLORS: Record<string, string> = {
@@ -36,6 +38,8 @@ const NOTIF_COLORS: Record<string, string> = {
   out_of_stock:      'text-red-400',
   new_asset:         'text-portal-accent',
   marketing_request: 'text-violet-400',
+  cert_issued:       'text-yellow-400',
+  reward_claim:      'text-emerald-400',
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────

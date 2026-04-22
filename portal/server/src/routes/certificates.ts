@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth } from '../middleware/auth.js'
 import { sendRewardConfirmEmail } from '../email.js'
+import { notifyAdmins } from '../notifications.js'
 
 const router = Router()
 
@@ -56,7 +57,7 @@ router.post('/reward', requireAuth, (req, res) => {
     return
   }
 
-  const cert = db.prepare('SELECT id FROM certificates WHERE user_id = ? AND is_valid = 1').get(user.id)
+  const cert = db.prepare('SELECT id, certificate_number FROM certificates WHERE user_id = ? AND is_valid = 1').get(user.id) as { id: number; certificate_number: string } | undefined
   if (!cert) {
     res.status(403).json({ message: 'No valid certificate found' })
     return
@@ -92,7 +93,47 @@ router.post('/reward', requireAuth, (req, res) => {
     address: addressStr,
   }).catch(err => console.error('[email] Reward confirm email failed:', err))
 
+  // Look up average quiz score across all passed results for this user
+  const scoreRow = db.prepare(
+    `SELECT ROUND(AVG(score)) as avg_score FROM quiz_results WHERE user_id = ? AND passed = 1`
+  ).get(user.id) as { avg_score: number | null }
+  const avgScore = scoreRow?.avg_score ?? 0
+
+  notifyAdmins(
+    'reward_claim',
+    'Reward Claim Submitted',
+    `${user.name} — Product: ${product.trim()} | Shirt: ${shirtSize} | Cert: ${cert.certificate_number} | Avg Score: ${avgScore}%`,
+    '/users'
+  )
+
   res.status(201).json({ message: 'Submitted successfully' })
+})
+
+// GET /api/certificates/rewards — admin: list all reward claims with user + cert info
+router.get('/rewards', requireAuth, (req, res) => {
+  const rows = db.prepare(`
+    SELECT
+      cr.id,
+      cr.full_name,
+      cr.product,
+      cr.shirt_size,
+      cr.address1,
+      cr.address2,
+      cr.city,
+      cr.state,
+      cr.zip,
+      cr.submitted_at,
+      u.email,
+      c.certificate_number,
+      ROUND(AVG(qr.score)) as avg_score
+    FROM cert_rewards cr
+    JOIN users u ON u.id = cr.user_id
+    JOIN certificates c ON c.user_id = cr.user_id AND c.is_valid = 1
+    LEFT JOIN quiz_results qr ON qr.user_id = cr.user_id AND qr.passed = 1
+    GROUP BY cr.id
+    ORDER BY cr.submitted_at DESC
+  `).all()
+  res.json(rows)
 })
 
 // GET /api/certificates/verify/:certNumber — public, no auth required
