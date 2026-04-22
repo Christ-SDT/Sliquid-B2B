@@ -940,6 +940,14 @@ const migrations: Migration[] = [
       `).run()
     },
   },
+  {
+    version: 42,
+    name: 'add_fulfilled_to_cert_rewards',
+    up: () => db.exec(`
+      ALTER TABLE cert_rewards ADD COLUMN fulfilled INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE cert_rewards ADD COLUMN fulfilled_at TEXT;
+    `),
+  },
 ]
 
 function runMigrations(): void {

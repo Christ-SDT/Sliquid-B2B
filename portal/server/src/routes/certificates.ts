@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth } from '../middleware/auth.js'
-import { sendRewardConfirmEmail } from '../email.js'
+import { sendRewardConfirmEmail, sendRewardAdminEmail } from '../email.js'
 import { notifyAdmins } from '../notifications.js'
 
 const router = Router()
@@ -99,6 +99,16 @@ router.post('/reward', requireAuth, (req, res) => {
   ).get(user.id) as { avg_score: number | null }
   const avgScore = scoreRow?.avg_score ?? 0
 
+  sendRewardAdminEmail({
+    userName: user.name,
+    userEmail: user.email,
+    certNumber: cert.certificate_number,
+    avgScore,
+    product: product.trim(),
+    shirtSize,
+    address: addressStr,
+  }).catch(err => console.error('[email] Reward admin email failed:', err))
+
   notifyAdmins(
     'reward_claim',
     'Reward Claim Submitted',
@@ -123,6 +133,8 @@ router.get('/rewards', requireAuth, (req, res) => {
       cr.state,
       cr.zip,
       cr.submitted_at,
+      cr.fulfilled,
+      cr.fulfilled_at,
       u.email,
       c.certificate_number,
       ROUND(AVG(qr.score)) as avg_score
@@ -131,9 +143,21 @@ router.get('/rewards', requireAuth, (req, res) => {
     JOIN certificates c ON c.user_id = cr.user_id AND c.is_valid = 1
     LEFT JOIN quiz_results qr ON qr.user_id = cr.user_id AND qr.passed = 1
     GROUP BY cr.id
-    ORDER BY cr.submitted_at DESC
+    ORDER BY cr.fulfilled ASC, cr.submitted_at DESC
   `).all()
   res.json(rows)
+})
+
+// PUT /api/certificates/rewards/:id/fulfilled — toggle fulfilled status
+router.put('/rewards/:id/fulfilled', requireAuth, (req, res) => {
+  const id = Number(req.params.id)
+  const { fulfilled } = req.body as { fulfilled: boolean }
+  db.prepare(`
+    UPDATE cert_rewards
+    SET fulfilled = ?, fulfilled_at = ?
+    WHERE id = ?
+  `).run(fulfilled ? 1 : 0, fulfilled ? new Date().toISOString() : null, id)
+  res.json({ ok: true })
 })
 
 // GET /api/certificates/verify/:certNumber — public, no auth required

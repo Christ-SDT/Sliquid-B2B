@@ -139,6 +139,28 @@ export async function sendDeclineEmail(opts: {
 
 // ─── Reward claim ─────────────────────────────────────────────────────────────
 
+export async function sendRewardAdminEmail(opts: {
+  userName: string
+  userEmail: string
+  certNumber: string
+  avgScore: number
+  product: string
+  shirtSize: string
+  address: string
+}): Promise<void> {
+  const { userName, userEmail, certNumber, avgScore, product, shirtSize, address } = opts
+  const sent = await sendEmail('portal_reward_admin', {
+    user_name: userName,
+    user_email: userEmail,
+    cert_number: certNumber,
+    avg_score: String(avgScore),
+    product,
+    shirt_size: shirtSize,
+    address,
+  })
+  if (sent) console.log(`[email] Reward admin email sent (${userName}, ${certNumber})`)
+}
+
 export async function sendRewardConfirmEmail(opts: {
   toName: string
   toEmail: string

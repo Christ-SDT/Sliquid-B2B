@@ -31,6 +31,8 @@ type RewardClaim = {
   state: string
   zip: string
   submitted_at: string
+  fulfilled: number
+  fulfilled_at: string | null
   email: string
   certificate_number: string
   avg_score: number | null
@@ -230,8 +232,30 @@ function RequestList({
 
 // ─── Rewards list ─────────────────────────────────────────────────────────────
 
-function RewardsList({ rewards, loading }: { rewards: RewardClaim[]; loading: boolean }) {
+function RewardsList({
+  rewards,
+  loading,
+  onToggle,
+}: {
+  rewards: RewardClaim[]
+  loading: boolean
+  onToggle: (id: number, fulfilled: boolean) => void
+}) {
   const [expanded, setExpanded] = useState<number | null>(null)
+  const [toggling, setToggling] = useState<number | null>(null)
+  const [rewardFilter, setRewardFilter] = useState<'all' | 'pending' | 'completed'>('pending')
+
+  const filtered = rewards.filter(r => {
+    if (rewardFilter === 'pending') return !r.fulfilled
+    if (rewardFilter === 'completed') return !!r.fulfilled
+    return true
+  })
+
+  async function handleToggle(id: number, currentFulfilled: boolean) {
+    setToggling(id)
+    await onToggle(id, !currentFulfilled)
+    setToggling(null)
+  }
 
   if (loading) {
     return (
@@ -240,77 +264,140 @@ function RewardsList({ rewards, loading }: { rewards: RewardClaim[]; loading: bo
       </div>
     )
   }
-  if (rewards.length === 0) {
-    return (
-      <div className="p-10 text-center">
-        <GraduationCap className="w-8 h-8 text-on-canvas-muted/30 mx-auto mb-3" />
-        <p className="text-on-canvas-muted text-sm">No reward claims submitted yet.</p>
-      </div>
-    )
-  }
-  return (
-    <div className="divide-y divide-portal-border">
-      {rewards.map(r => (
-        <div key={r.id} className="px-6 py-4">
-          <div className="flex items-start gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-on-canvas font-medium text-sm">{r.full_name}</p>
-                <span className="text-on-canvas-muted text-xs">·</span>
-                <p className="text-on-canvas-muted text-xs">{r.email}</p>
-              </div>
-              <p className="text-on-canvas-muted text-xs mt-1">{fmt(r.submitted_at)}</p>
-              <div className="flex items-center gap-3 mt-2 flex-wrap">
-                <span className="text-on-canvas-subtle text-sm">
-                  <span className="text-on-canvas-muted text-xs uppercase tracking-wider mr-1">Product:</span>
-                  {r.product}
-                </span>
-                <span className="text-on-canvas-muted text-xs">·</span>
-                <span className="text-on-canvas-subtle text-sm">
-                  <span className="text-on-canvas-muted text-xs uppercase tracking-wider mr-1">Shirt:</span>
-                  {r.shirt_size}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                Cert: {r.certificate_number}
-              </span>
-              {r.avg_score != null && (
-                <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-portal-accent/10 text-portal-accent border border-portal-accent/30">
-                  Avg {r.avg_score}%
-                </span>
-              )}
-              <button
-                onClick={() => setExpanded(expanded === r.id ? null : r.id)}
-                className="text-on-canvas-muted hover:text-on-canvas transition-colors"
-              >
-                <ChevronDown className={`w-4 h-4 transition-transform ${expanded === r.id ? 'rotate-180' : ''}`} />
-              </button>
-            </div>
-          </div>
 
-          {expanded === r.id && (
-            <div className="mt-4 pt-4 border-t border-portal-border/50">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Shipping Address</p>
-                  <p className="text-on-canvas-subtle">
-                    {r.address1}{r.address2 ? `, ${r.address2}` : ''}<br />
-                    {r.city}, {r.state} {r.zip}
-                  </p>
+  return (
+    <div>
+      {/* Reward-specific filter */}
+      <div className="px-6 py-3 border-b border-portal-border flex items-center gap-2">
+        {(['all', 'pending', 'completed'] as const).map(f => (
+          <button
+            key={f}
+            onClick={() => setRewardFilter(f)}
+            className={`px-3 py-1 rounded-lg text-xs font-medium border transition-colors capitalize ${
+              rewardFilter === f
+                ? f === 'pending'
+                  ? 'bg-portal-accent/10 border-portal-accent text-portal-accent'
+                  : f === 'completed'
+                    ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400'
+                    : 'bg-surface-elevated border-portal-border text-on-canvas'
+                : 'bg-surface border-portal-border text-on-canvas-muted hover:border-slate-500'
+            }`}
+          >
+            {f === 'pending' ? `Pending (${rewards.filter(r => !r.fulfilled).length})` :
+             f === 'completed' ? `Completed (${rewards.filter(r => !!r.fulfilled).length})` :
+             `All (${rewards.length})`}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="p-10 text-center">
+          <GraduationCap className="w-8 h-8 text-on-canvas-muted/30 mx-auto mb-3" />
+          <p className="text-on-canvas-muted text-sm">
+            {rewards.length === 0 ? 'No reward claims submitted yet.' : `No ${rewardFilter} reward claims.`}
+          </p>
+        </div>
+      ) : (
+        <div className="divide-y divide-portal-border">
+          {filtered.map(r => (
+            <div key={r.id} className="px-6 py-4">
+              <div className="flex items-start gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {/* Status dot — only shown when not fulfilled */}
+                    {!r.fulfilled && (
+                      <span className="w-2 h-2 rounded-full bg-portal-accent flex-shrink-0 animate-pulse" title="Awaiting fulfillment" />
+                    )}
+                    <p className="text-on-canvas font-medium text-sm">{r.full_name}</p>
+                    <span className="text-on-canvas-muted text-xs">·</span>
+                    <p className="text-on-canvas-muted text-xs">{r.email}</p>
+                  </div>
+                  <p className="text-on-canvas-muted text-xs mt-1">{fmt(r.submitted_at)}</p>
+                  <div className="flex items-center gap-3 mt-2 flex-wrap">
+                    <span className="text-on-canvas-subtle text-sm">
+                      <span className="text-on-canvas-muted text-xs uppercase tracking-wider mr-1">Product:</span>
+                      {r.product}
+                    </span>
+                    <span className="text-on-canvas-muted text-xs">·</span>
+                    <span className="text-on-canvas-subtle text-sm">
+                      <span className="text-on-canvas-muted text-xs uppercase tracking-wider mr-1">Shirt:</span>
+                      {r.shirt_size}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Product Selected</p>
-                  <p className="text-on-canvas-subtle">{r.product}</p>
-                  <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1 mt-3">Shirt Size</p>
-                  <p className="text-on-canvas-subtle">{r.shirt_size}</p>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    Cert: {r.certificate_number}
+                  </span>
+                  {r.avg_score != null && (
+                    <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-portal-accent/10 text-portal-accent border border-portal-accent/30">
+                      Avg {r.avg_score}%
+                    </span>
+                  )}
+                  <a
+                    href={`mailto:${r.email}?subject=${encodeURIComponent('Your Sliquid Reward — ' + r.certificate_number)}&body=${encodeURIComponent('Hi ' + r.full_name + ',\n\nThank you for completing the Sliquid Certified Expert Training! We are processing your reward and will be in touch shortly.\n\nProduct: ' + r.product + '\nShirt Size: ' + r.shirt_size + '\nCertificate: ' + r.certificate_number + '\n\nBest regards,\nTeam Sliquid')}`}
+                    title={`Email ${r.full_name}`}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-portal-border
+                               text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500 text-xs transition-colors"
+                  >
+                    <Mail className="w-3 h-3" />
+                    Email
+                  </a>
+                  <button
+                    onClick={() => handleToggle(r.id, !!r.fulfilled)}
+                    disabled={toggling === r.id}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors disabled:opacity-50 ${
+                      r.fulfilled
+                        ? 'border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
+                        : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                    }`}
+                  >
+                    {toggling === r.id
+                      ? <Loader2 className="w-3 h-3 animate-spin" />
+                      : r.fulfilled
+                        ? <XCircle className="w-3 h-3" />
+                        : <CheckCircle className="w-3 h-3" />}
+                    {r.fulfilled ? 'Mark Incomplete' : 'Mark Completed'}
+                  </button>
+                  <button
+                    onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+                    className="text-on-canvas-muted hover:text-on-canvas transition-colors"
+                  >
+                    <ChevronDown className={`w-4 h-4 transition-transform ${expanded === r.id ? 'rotate-180' : ''}`} />
+                  </button>
                 </div>
               </div>
+
+              {expanded === r.id && (
+                <div className="mt-4 pt-4 border-t border-portal-border/50">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Shipping Address</p>
+                      <p className="text-on-canvas-subtle">
+                        {r.address1}{r.address2 ? `, ${r.address2}` : ''}<br />
+                        {r.city}, {r.state} {r.zip}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1">Product Selected</p>
+                      <p className="text-on-canvas-subtle">{r.product}</p>
+                      <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1 mt-3">Shirt Size</p>
+                      <p className="text-on-canvas-subtle">{r.shirt_size}</p>
+                      {r.fulfilled && r.fulfilled_at && (
+                        <>
+                          <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-1 mt-3">Fulfilled On</p>
+                          <p className="text-on-canvas-subtle">{fmt(r.fulfilled_at)}</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          ))}
         </div>
-      ))}
+      )}
     </div>
   )
 }
@@ -363,6 +450,18 @@ export default function MarketingRequestsPage() {
     }
   }
 
+  async function handleToggleFulfilled(id: number, fulfilled: boolean) {
+    try {
+      await api.put(`/certificates/rewards/${id}/fulfilled`, { fulfilled })
+      setRewards(prev => prev.map(r => r.id === id
+        ? { ...r, fulfilled: fulfilled ? 1 : 0, fulfilled_at: fulfilled ? new Date().toISOString() : null }
+        : r
+      ))
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   async function handleMedicalStatusChange(id: number, status: string) {
     setMedicalUpdating(id)
     try {
@@ -380,7 +479,7 @@ export default function MarketingRequestsPage() {
     pending:  requests.filter(r => r.status === 'pending').length,
     approved: requests.filter(r => r.status === 'approved').length,
     declined: requests.filter(r => r.status === 'declined').length,
-    rewards:  rewards.length,
+    rewards:  rewards.filter(r => !r.fulfilled).length,
     medical:  medicalRequests.length,
   }
 
@@ -497,7 +596,7 @@ export default function MarketingRequestsPage() {
       {/* Requests list */}
       <div className="bg-surface border border-portal-border rounded-xl overflow-hidden">
         {activeTab === 'rewards' ? (
-          <RewardsList rewards={rewards} loading={rewardsLoading} />
+          <RewardsList rewards={rewards} loading={rewardsLoading} onToggle={handleToggleFulfilled} />
         ) : activeTab === 'medical' ? (
           <RequestList
             requests={visibleMedical}
