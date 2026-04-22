@@ -389,7 +389,7 @@ export default function CertificateGenerator() {
   const [userData, setUserData] = useState<CertData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [variant, setVariant] = useState<'classic' | 'modern'>(DEFAULT_VARIANT)
+  const variant = 'modern'
 
   const fetchUserData = async () => {
     setLoading(true)
@@ -439,30 +439,6 @@ export default function CertificateGenerator() {
             ))}
           </div>
 
-          {/* Design toggle */}
-          <div className="flex gap-2 p-1 bg-portal-bg rounded-lg border border-portal-border">
-            <button
-              onClick={() => setVariant('classic')}
-              className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                variant === 'classic'
-                  ? 'bg-surface text-on-canvas shadow-sm'
-                  : 'text-on-canvas-muted hover:text-on-canvas'
-              }`}
-            >
-              Classic
-            </button>
-            <button
-              onClick={() => setVariant('modern')}
-              className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                variant === 'modern'
-                  ? 'bg-surface text-on-canvas shadow-sm'
-                  : 'text-on-canvas-muted hover:text-on-canvas'
-              }`}
-            >
-              Modern
-            </button>
-          </div>
-
           {/* Download link */}
           <PDFDownloadLink
             key={variant}
@@ -483,14 +459,14 @@ export default function CertificateGenerator() {
                     verifyUrl={verifyUrl}
                   />
             }
-            fileName={`Sliquid_Expert_${userData.firstName}_${userData.lastName}_${variant}.pdf`}
+            fileName={`Sliquid_Expert_${userData.firstName}_${userData.lastName}.pdf`}
           >
             {({ loading: pdfLoading }) => (
               <button
                 className="w-full flex items-center justify-center gap-2 py-2.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
                 disabled={pdfLoading}
               >
-                {pdfLoading ? 'Building PDF…' : `⬇  Download ${variant === 'modern' ? 'Modern' : 'Classic'} Certificate PDF`}
+                {pdfLoading ? 'Building PDF…' : '⬇  Download Certificate PDF'}
               </button>
             )}
           </PDFDownloadLink>

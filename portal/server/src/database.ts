@@ -928,6 +928,18 @@ const migrations: Migration[] = [
       }
     },
   },
+  {
+    version: 41,
+    name: 'fix_certificate_completion_date_apr22',
+    up: () => {
+      // Update any certificates whose completion_date falls on 2026-04-17 to 2026-04-22
+      db.prepare(`
+        UPDATE certificates
+        SET completion_date = '2026-04-22 00:00:00'
+        WHERE completion_date LIKE '2026-04-17%'
+      `).run()
+    },
+  },
 ]
 
 function runMigrations(): void {
