@@ -7,6 +7,8 @@ import AboutUsPage from '@/pages/AboutUsPage'
 import InsightsPage from '@/pages/InsightsPage'
 import ContactPage from '@/pages/ContactPage'
 import PartnerLoginPage from '@/pages/PartnerLoginPage'
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
+import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import HealthPractitionersPage from '@/pages/HealthPractitionersPage'
 import ProductCatalogPage from '@/pages/ProductCatalogPage'
 import MapPolicyPage from '@/pages/MapPolicyPage'
@@ -24,6 +26,8 @@ export default function App() {
         <Route path="insights/:slug" element={<InsightsPage />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="partner-login" element={<PartnerLoginPage />} />
+        <Route path="forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="reset-password" element={<ResetPasswordPage />} />
         <Route path="health-practitioners" element={<HealthPractitionersPage />} />
         <Route path="catalog" element={<ProductCatalogPage />} />
         <Route path="map-policy" element={<MapPolicyPage />} />

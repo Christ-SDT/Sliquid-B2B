@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
 const PORTAL_URL = import.meta.env.VITE_PORTAL_URL ?? 'https://sliquid-portal.pages.dev'
@@ -18,6 +19,9 @@ export async function loginToPortal(email: string, password: string) {
 }
 
 export default function PartnerLoginPage() {
+  const location = useLocation()
+  const passwordWasReset = (location.state as { passwordReset?: boolean } | null)?.passwordReset === true
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -57,6 +61,13 @@ export default function PartnerLoginPage() {
             <p className="text-text-gray text-sm mt-1 text-center">Sign in to access your Sliquid partner resources.</p>
           </div>
 
+          {/* Password reset success banner */}
+          {passwordWasReset && (
+            <div className="mb-6 px-4 py-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm text-center">
+              Password updated successfully. You can now sign in.
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
@@ -78,9 +89,17 @@ export default function PartnerLoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-text-dark text-sm font-medium mb-1.5">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="password" className="block text-text-dark text-sm font-medium">
+                  Password
+                </label>
+                <Link
+                  to="/forgot-password"
+                  className="text-sliquid-blue hover:text-sliquid-dark-blue text-xs font-medium transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 id="password"
                 type="password"
