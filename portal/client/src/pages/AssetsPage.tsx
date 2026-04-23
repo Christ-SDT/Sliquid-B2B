@@ -1578,10 +1578,11 @@ interface ProductShot {
 }
 
 function ProductShotDetailModal({
-  shot, isAdmin, onClose, onEdit, onDelete,
+  shot, isAdmin, onBack, onClose, onEdit, onDelete,
 }: {
   shot: ProductShot
   isAdmin: boolean
+  onBack: () => void
   onClose: () => void
   onEdit: () => void
   onDelete: () => void
@@ -1610,7 +1611,7 @@ function ProductShotDetailModal({
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-portal-border">
             <button
-              onClick={onClose}
+              onClick={onBack}
               className="flex items-center gap-2 text-on-canvas-muted hover:text-on-canvas transition-colors text-sm"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -2288,7 +2289,7 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
           onClose={() => setShowModal(false)}
           onEdit={(shot) => { setShowModal(false); setEditTarget(shot); setEditLabel(shot.label) }}
           onDelete={(shot) => { setShowModal(false); setConfirmDeleteId(shot.id) }}
-          onSelect={(shot) => { setShowModal(false); setDetailShot(shot) }}
+          onSelect={(shot) => { setDetailShot(shot) }}
         />
       )}
 
@@ -2297,7 +2298,8 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
         <ProductShotDetailModal
           shot={detailShot}
           isAdmin={isAdmin}
-          onClose={() => setDetailShot(null)}
+          onBack={() => setDetailShot(null)}
+          onClose={() => { setDetailShot(null); setShowModal(false) }}
           onEdit={() => { setEditTarget(detailShot); setEditLabel(detailShot.label); setDetailShot(null) }}
           onDelete={() => { setConfirmDeleteId(detailShot.id); setDetailShot(null) }}
         />
