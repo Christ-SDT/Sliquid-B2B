@@ -1577,6 +1577,142 @@ interface ProductShot {
   created_at: string
 }
 
+function ProductShotDetailModal({
+  shot, isAdmin, onClose, onEdit, onDelete,
+}: {
+  shot: ProductShot
+  isAdmin: boolean
+  onClose: () => void
+  onEdit: () => void
+  onDelete: () => void
+}) {
+  const [viewerOpen, setViewerOpen] = useState(false)
+
+  function download() {
+    fetch(shot.file_url)
+      .then(r => r.blob())
+      .then(blob => {
+        const ext = shot.file_url.split('?')[0].split('.').pop() ?? 'jpg'
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = `${shot.label}.${ext}`
+        a.click()
+        URL.revokeObjectURL(a.href)
+      })
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+        <div className="relative bg-surface border border-portal-border rounded-2xl w-full max-w-lg shadow-xl overflow-hidden">
+
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-portal-border">
+            <button
+              onClick={onClose}
+              className="flex items-center gap-2 text-on-canvas-muted hover:text-on-canvas transition-colors text-sm"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </button>
+            <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Preview */}
+          <div className="bg-portal-bg flex items-center justify-center overflow-hidden" style={{ minHeight: 260 }}>
+            <img
+              src={shot.file_url}
+              alt={shot.label}
+              className="max-h-72 max-w-full object-contain"
+            />
+          </div>
+
+          {/* Metadata + actions */}
+          <div className="p-6 space-y-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-semibold text-portal-accent uppercase tracking-wider">Product Shots</span>
+                <span className="text-on-canvas-muted text-xs">·</span>
+                <span className="text-on-canvas-muted text-xs">Product Shot</span>
+              </div>
+              <h3 className="text-on-canvas text-lg font-semibold leading-tight">{shot.label}</h3>
+              <div className="flex items-center gap-2 mt-2">
+                {shot.file_size && <span className="text-on-canvas-muted text-xs">{shot.file_size}</span>}
+              </div>
+            </div>
+
+            {/* View + Download */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setViewerOpen(true)}
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-surface-elevated border border-portal-border
+                           hover:bg-portal-border text-on-canvas rounded-lg text-sm font-medium transition-colors"
+              >
+                <Eye className="w-4 h-4" />
+                View
+              </button>
+              <button
+                onClick={download}
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-portal-accent hover:bg-portal-accent/90
+                           text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download
+              </button>
+            </div>
+
+            {/* Admin controls */}
+            {isAdmin && (
+              <div className="flex gap-2">
+                <button
+                  onClick={onEdit}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-surface-elevated border border-portal-border
+                             hover:bg-portal-border text-on-canvas rounded-lg text-sm font-medium transition-colors"
+                >
+                  <Pencil className="w-4 h-4" />
+                  Edit
+                </button>
+                <button
+                  onClick={onDelete}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-500/10 border border-red-500/30
+                             hover:bg-red-500/20 text-red-400 rounded-lg text-sm font-medium transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Full-screen viewer */}
+      {viewerOpen && (
+        <div
+          className="fixed inset-0 z-[80] bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setViewerOpen(false)}
+        >
+          <button
+            onClick={() => setViewerOpen(false)}
+            className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            src={shot.file_url}
+            alt={shot.label}
+            className="max-h-[90vh] max-w-full object-contain rounded-xl"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
+    </>
+  )
+}
+
 function ProductShotsModal({
   shots, isAdmin, onClose, onEdit, onDelete, onSelect,
 }: {
@@ -1843,6 +1979,7 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [detailShot, setDetailShot] = useState<ProductShot | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadErrors, setUploadErrors] = useState<string[]>([])
   const [uploadCount, setUploadCount] = useState(0)
@@ -1988,9 +2125,12 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
             {shots.length > 0 && (
               <button
                 onClick={e => { e.stopPropagation(); setShowModal(true) }}
-                className="flex items-center gap-1 text-portal-accent text-xs hover:underline font-medium"
+                className="flex items-center gap-2 px-3 py-1.5 bg-surface-elevated border border-portal-border
+                           hover:border-portal-accent/40 rounded-lg text-on-canvas-subtle hover:text-on-canvas
+                           text-xs font-medium transition-colors"
               >
-                View All <ChevronRight className="w-3 h-3" />
+                <LayoutGrid className="w-3.5 h-3.5" />
+                View all Product Shots ({shots.length})
               </button>
             )}
             {isAdmin && (
@@ -2085,12 +2225,12 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
                   </div>
                 )}
 
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                  {shots.map(shot => (
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+                  {shots.slice(0, 8).map(shot => (
                     <div
                       key={shot.id}
                       className="group relative aspect-square rounded-xl overflow-hidden bg-portal-bg border border-portal-border cursor-pointer"
-                      onClick={() => setLightbox(shot)}
+                      onClick={() => setDetailShot(shot)}
                     >
                       <img
                         src={shot.file_url}
@@ -2148,44 +2288,19 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
           onClose={() => setShowModal(false)}
           onEdit={(shot) => { setShowModal(false); setEditTarget(shot); setEditLabel(shot.label) }}
           onDelete={(shot) => { setShowModal(false); setConfirmDeleteId(shot.id) }}
-          onSelect={(shot) => { setShowModal(false); setLightbox(shot) }}
+          onSelect={(shot) => { setShowModal(false); setDetailShot(shot) }}
         />
       )}
 
-      {/* Lightbox */}
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-[80] bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setLightbox(null)}
-        >
-          <button
-            onClick={() => setLightbox(null)}
-            className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-          <div className="max-w-4xl max-h-[85vh] flex flex-col items-center gap-3" onClick={e => e.stopPropagation()}>
-            <img
-              src={lightbox.file_url}
-              alt={lightbox.label}
-              className="max-h-[75vh] max-w-full object-contain rounded-xl"
-            />
-            <div className="flex items-center gap-4">
-              <p className="text-white font-medium text-sm">{lightbox.label}</p>
-              <span className="text-white/40 text-xs">{lightbox.file_size}</span>
-              <a
-                href={lightbox.file_url}
-                download={lightbox.filename}
-                onClick={e => e.stopPropagation()}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90
-                           text-white rounded-lg text-xs font-medium transition-colors"
-              >
-                <Download className="w-3.5 h-3.5" />
-                Download
-              </a>
-            </div>
-          </div>
-        </div>
+      {/* Detail modal */}
+      {detailShot && (
+        <ProductShotDetailModal
+          shot={detailShot}
+          isAdmin={isAdmin}
+          onClose={() => setDetailShot(null)}
+          onEdit={() => { setEditTarget(detailShot); setEditLabel(detailShot.label); setDetailShot(null) }}
+          onDelete={() => { setConfirmDeleteId(detailShot.id); setDetailShot(null) }}
+        />
       )}
 
       {/* Edit label modal */}
