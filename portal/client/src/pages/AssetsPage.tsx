@@ -1728,6 +1728,7 @@ function ProductShotsModal({
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const [downloading, setDownloading] = useState(false)
+  const [selectMode, setSelectMode] = useState(false)
 
   const filtered = shots.filter(s =>
     !search || s.label.toLowerCase().includes(search.toLowerCase()) || s.filename.toLowerCase().includes(search.toLowerCase())
@@ -1735,8 +1736,7 @@ function ProductShotsModal({
 
   const allFilteredSelected = filtered.length > 0 && filtered.every(s => selected.has(s.id))
 
-  function toggleSelect(id: number, e: React.MouseEvent) {
-    e.stopPropagation()
+  function toggleSelect(id: number) {
     setSelected(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
@@ -1815,6 +1815,16 @@ function ProductShotsModal({
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSelectMode(m => !m)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors
+                ${selectMode
+                  ? 'bg-portal-accent border-portal-accent text-white'
+                  : 'bg-surface-elevated border-portal-border text-on-canvas-subtle hover:border-portal-accent/40 hover:text-on-canvas'
+                }`}
+            >
+              Select
+            </button>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-canvas-muted" />
               <input
@@ -1894,7 +1904,11 @@ function ProductShotsModal({
                   <div
                     key={shot.id}
                     className="relative group cursor-pointer"
-                    onClick={() => !pendingDelete && onSelect(shot)}
+                    onClick={() => {
+                      if (pendingDelete) return
+                      if (selectMode) toggleSelect(shot.id)
+                      else onSelect(shot)
+                    }}
                   >
                     <div className={`aspect-square bg-portal-bg rounded-xl overflow-hidden border transition-all
                       ${isSelected
@@ -1910,7 +1924,7 @@ function ProductShotsModal({
                       {/* Select checkbox — always visible when selected, hover otherwise */}
                       <div
                         className={`absolute top-1.5 left-1.5 transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                        onClick={e => toggleSelect(shot.id, e)}
+                        onClick={e => { e.stopPropagation(); toggleSelect(shot.id) }}
                       >
                         <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shadow
                           ${isSelected ? 'bg-portal-accent border-portal-accent' : 'bg-black/50 border-white/70'}`}>
