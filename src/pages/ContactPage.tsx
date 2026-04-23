@@ -49,6 +49,12 @@ const PARTNERSHIP_TYPES = [
     description:
       'We work with regional and global distribution partners to expand access in markets where direct fulfillment is not available. Tell us about your territory and logistics capabilities.',
   },
+  {
+    id: 'medical',
+    title: 'Medical Professionals',
+    description:
+      'We partner with physicians, pelvic floor therapists, OB-GYNs, sex therapists, and other licensed healthcare providers who recommend intimate wellness products to their patients. Reach out to learn about our Medical Partners Program.',
+  },
 ]
 
 function FieldError({ id, message }: { id: string; message: string }) {
@@ -272,7 +278,7 @@ export default function ContactPage() {
                   <svg className="w-4 h-4 text-sliquid-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Monday through Friday, 9am to 5pm CT</span>
+                  <span>Monday through Friday, 9:30am to 6pm CT</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <svg className="w-4 h-4 text-sliquid-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
@@ -390,6 +396,7 @@ export default function ContactPage() {
                   <option value="retailer">Retailer Account</option>
                   <option value="media">Marketing & Media</option>
                   <option value="distributor">Distribution Partnership</option>
+                  <option value="medical">Medical Professional</option>
                   <option value="general">General Inquiry</option>
                 </select>
                 {errors.subject && <FieldError id="subject-error" message={errors.subject} />}
