@@ -948,6 +948,25 @@ const migrations: Migration[] = [
       ALTER TABLE cert_rewards ADD COLUMN fulfilled_at TEXT;
     `),
   },
+  {
+    version: 43,
+    name: 'product_shots_table',
+    up: () => db.exec(`
+      CREATE TABLE IF NOT EXISTS product_shots (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        filename    TEXT NOT NULL,
+        label       TEXT NOT NULL,
+        s3_key      TEXT NOT NULL,
+        file_url    TEXT NOT NULL,
+        file_size   TEXT NOT NULL DEFAULT '',
+        size_bytes  INTEGER NOT NULL DEFAULT 0,
+        mime_type   TEXT NOT NULL DEFAULT 'image/jpeg',
+        uploaded_by TEXT NOT NULL DEFAULT '',
+        created_at  TEXT DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_product_shots_created_at ON product_shots(created_at);
+    `),
+  },
 ]
 
 function runMigrations(): void {

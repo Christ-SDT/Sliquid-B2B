@@ -1563,6 +1563,720 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
   )
 }
 
+// ─── Product Shots ────────────────────────────────────────────────────────────
+
+interface ProductShot {
+  id: number
+  label: string
+  filename: string
+  file_url: string
+  file_size: string
+  size_bytes: number
+  mime_type: string
+  uploaded_by: string
+  created_at: string
+}
+
+function ProductShotsModal({
+  shots, isAdmin, onClose, onEdit, onDelete, onSelect,
+}: {
+  shots: ProductShot[]
+  isAdmin: boolean
+  onClose: () => void
+  onEdit: (s: ProductShot) => void
+  onDelete: (s: ProductShot) => void
+  onSelect: (s: ProductShot) => void
+}) {
+  const [search, setSearch] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
+  const [selected, setSelected] = useState<Set<number>>(new Set())
+  const [downloading, setDownloading] = useState(false)
+
+  const filtered = shots.filter(s =>
+    !search || s.label.toLowerCase().includes(search.toLowerCase()) || s.filename.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every(s => selected.has(s.id))
+
+  function toggleSelect(id: number, e: React.MouseEvent) {
+    e.stopPropagation()
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    if (allFilteredSelected) {
+      setSelected(prev => {
+        const next = new Set(prev)
+        filtered.forEach(s => next.delete(s.id))
+        return next
+      })
+    } else {
+      setSelected(prev => new Set([...prev, ...filtered.map(s => s.id)]))
+    }
+  }
+
+  async function handleDownload() {
+    const toDownload = filtered.filter(s => selected.has(s.id))
+    if (toDownload.length === 0) return
+    setDownloading(true)
+    try {
+      if (toDownload.length <= 5) {
+        // Individual downloads
+        for (const shot of toDownload) {
+          const res = await fetch(shot.file_url)
+          const blob = await res.blob()
+          const ext = shot.file_url.split('?')[0].split('.').pop() ?? 'jpg'
+          const a = document.createElement('a')
+          a.href = URL.createObjectURL(blob)
+          a.download = `${shot.label}.${ext}`
+          a.click()
+          URL.revokeObjectURL(a.href)
+          // Small stagger to avoid browser blocking multiple downloads
+          await new Promise(r => setTimeout(r, 300))
+        }
+      } else {
+        // ZIP download
+        const JSZip = (await import('jszip')).default
+        const zip = new JSZip()
+        await Promise.all(toDownload.map(async shot => {
+          const res = await fetch(shot.file_url)
+          const blob = await res.blob()
+          const ext = shot.file_url.split('?')[0].split('.').pop() ?? 'jpg'
+          zip.file(`${shot.label}.${ext}`, blob)
+        }))
+        const content = await zip.generateAsync({ type: 'blob' })
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(content)
+        a.download = `product-shots-${toDownload.length}.zip`
+        a.click()
+        URL.revokeObjectURL(a.href)
+      }
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  const selectedCount = filtered.filter(s => selected.has(s.id)).length
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative bg-surface border border-portal-border rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-xl">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-portal-border flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <Image className="w-5 h-5 text-portal-accent" />
+            <h2 className="text-on-canvas font-semibold">Product Shots</h2>
+            <span className="text-on-canvas-muted text-sm">
+              ({filtered.length} {filtered.length === 1 ? 'image' : 'images'})
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-canvas-muted" />
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search product shots…"
+                className="bg-surface-elevated border border-portal-border rounded-lg pl-8 pr-3 py-1.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors w-52"
+                autoFocus
+              />
+            </div>
+            <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Selection toolbar */}
+        {filtered.length > 0 && (
+          <div className="flex items-center justify-between px-6 py-2.5 border-b border-portal-border/50 bg-surface-elevated flex-shrink-0">
+            <button
+              onClick={toggleSelectAll}
+              className="flex items-center gap-2 text-xs text-on-canvas-subtle hover:text-on-canvas transition-colors"
+            >
+              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors
+                ${allFilteredSelected ? 'bg-portal-accent border-portal-accent' : 'border-portal-border'}`}>
+                {allFilteredSelected && <span className="text-white text-[10px] font-bold">✓</span>}
+              </div>
+              {allFilteredSelected ? 'Deselect all' : `Select all (${filtered.length})`}
+            </button>
+
+            {selectedCount > 0 && (
+              <div className="flex items-center gap-3">
+                <span className="text-on-canvas-muted text-xs">{selectedCount} selected</span>
+                <button
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90
+                             disabled:opacity-50 text-white rounded-lg text-xs font-medium transition-colors"
+                >
+                  {downloading
+                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    : <Download className="w-3.5 h-3.5" />
+                  }
+                  {downloading
+                    ? 'Preparing…'
+                    : selectedCount > 5
+                      ? `Download as ZIP (${selectedCount})`
+                      : `Download (${selectedCount})`
+                  }
+                </button>
+                <button
+                  onClick={() => setSelected(new Set())}
+                  className="text-xs text-on-canvas-muted hover:text-on-canvas transition-colors"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Scrollable grid */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-on-canvas-muted">
+              <Image className="w-10 h-10 mb-2 opacity-30" />
+              <p className="text-sm">{search ? 'No images match your search' : 'No product shots yet'}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              {filtered.map(shot => {
+                const pendingDelete = confirmDeleteId === shot.id
+                const isSelected = selected.has(shot.id)
+                return (
+                  <div
+                    key={shot.id}
+                    className="relative group cursor-pointer"
+                    onClick={() => !pendingDelete && onSelect(shot)}
+                  >
+                    <div className={`aspect-square bg-portal-bg rounded-xl overflow-hidden border transition-all
+                      ${isSelected
+                        ? 'border-portal-accent ring-2 ring-portal-accent/40'
+                        : 'border-portal-border group-hover:border-portal-accent/40'
+                      }`}>
+                      <img
+                        src={shot.file_url}
+                        alt={shot.label}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+
+                      {/* Select checkbox — always visible when selected, hover otherwise */}
+                      <div
+                        className={`absolute top-1.5 left-1.5 transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                        onClick={e => toggleSelect(shot.id, e)}
+                      >
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shadow
+                          ${isSelected ? 'bg-portal-accent border-portal-accent' : 'bg-black/50 border-white/70'}`}>
+                          {isSelected && <span className="text-white text-[10px] font-bold">✓</span>}
+                        </div>
+                      </div>
+
+                      {/* Admin controls */}
+                      {isAdmin && (
+                        <div
+                          className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={e => e.stopPropagation()}
+                        >
+                          {!pendingDelete && (
+                            <button
+                              onClick={() => onEdit(shot)}
+                              className="p-1.5 bg-black/70 hover:bg-portal-accent rounded text-white transition-colors"
+                              title="Rename"
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </button>
+                          )}
+                          {pendingDelete ? (
+                            <>
+                              <button
+                                onClick={() => { onDelete(shot); setConfirmDeleteId(null) }}
+                                className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-[10px] text-white font-medium transition-colors"
+                              >
+                                Delete
+                              </button>
+                              <button
+                                onClick={() => setConfirmDeleteId(null)}
+                                className="px-2 py-1 bg-black/70 hover:bg-black/90 rounded text-[10px] text-white font-medium transition-colors"
+                              >
+                                ✕
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => setConfirmDeleteId(shot.id)}
+                              className="p-1.5 bg-black/70 hover:bg-red-500 rounded text-white transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Label */}
+                    <p className="mt-1.5 text-on-canvas-subtle text-xs truncate px-0.5">{shot.label}</p>
+                    <p className="text-on-canvas-muted text-[10px] truncate px-0.5">{shot.file_size}</p>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
+  const [shots, setShots] = useState<ProductShot[]>([])
+  const [loading, setLoading] = useState(true)
+  const [expanded, setExpanded] = useState(false)
+  const [showModal, setShowModal] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadErrors, setUploadErrors] = useState<string[]>([])
+  const [uploadCount, setUploadCount] = useState(0)
+  const [editTarget, setEditTarget] = useState<ProductShot | null>(null)
+  const [editLabel, setEditLabel] = useState('')
+  const [editSaving, setEditSaving] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [lightbox, setLightbox] = useState<ProductShot | null>(null)
+  const [selected, setSelected] = useState<Set<number>>(new Set())
+  const [bulkDeleting, setBulkDeleting] = useState(false)
+  const [bulkConfirm, setBulkConfirm] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const API_BASE = (import.meta.env.VITE_API_URL ?? '') + '/api'
+  const token = () => localStorage.getItem('portal_token') ?? ''
+
+  useEffect(() => {
+    fetch(`${API_BASE}/product-shots`, { headers: { Authorization: `Bearer ${token()}` } })
+      .then(r => r.json())
+      .then(d => setShots(d.shots ?? []))
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [])
+
+  async function handleFiles(files: FileList | File[]) {
+    const arr = Array.from(files).filter(f => f.type.startsWith('image/'))
+    if (arr.length === 0) return
+    setUploading(true)
+    setUploadErrors([])
+    setUploadCount(0)
+    const form = new FormData()
+    arr.forEach(f => form.append('files', f))
+    try {
+      const res = await fetch(`${API_BASE}/product-shots/bulk-upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token()}` },
+        body: form,
+      })
+      const data = await res.json()
+      if (data.items?.length > 0) {
+        setShots(prev => [...(data.items as ProductShot[]), ...prev])
+        setUploadCount(data.count)
+      }
+      if (data.errors?.length > 0) setUploadErrors(data.errors)
+    } catch (err: any) {
+      setUploadErrors([err.message ?? 'Upload failed'])
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault()
+    if (e.dataTransfer.files) handleFiles(e.dataTransfer.files)
+  }
+
+  async function saveEdit() {
+    if (!editTarget || !editLabel.trim()) return
+    setEditSaving(true)
+    try {
+      const res = await fetch(`${API_BASE}/product-shots/${editTarget.id}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token()}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: editLabel.trim() }),
+      })
+      const updated = await res.json()
+      setShots(prev => prev.map(s => s.id === updated.id ? updated : s))
+      setEditTarget(null)
+    } catch (err: any) {
+      alert(err.message ?? 'Save failed')
+    } finally {
+      setEditSaving(false)
+    }
+  }
+
+  async function deleteShot(id: number) {
+    setDeleting(true)
+    try {
+      await fetch(`${API_BASE}/product-shots/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token()}` },
+      })
+      setShots(prev => prev.filter(s => s.id !== id))
+      if (lightbox?.id === id) setLightbox(null)
+    } finally {
+      setDeleting(false)
+      setConfirmDeleteId(null)
+    }
+  }
+
+  async function bulkDelete() {
+    const ids = Array.from(selected)
+    setBulkDeleting(true)
+    try {
+      await fetch(`${API_BASE}/product-shots/bulk-delete`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token()}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      })
+      setShots(prev => prev.filter(s => !ids.includes(s.id)))
+      setSelected(new Set())
+    } finally {
+      setBulkDeleting(false)
+      setBulkConfirm(false)
+    }
+  }
+
+  function toggleSelect(id: number) {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  return (
+    <>
+      {/* Section card */}
+      <div className="bg-surface border border-portal-border rounded-2xl overflow-hidden">
+        {/* Header */}
+        <button
+          onClick={() => setExpanded(e => !e)}
+          className="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-elevated transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-portal-accent/10 flex items-center justify-center flex-shrink-0">
+              <Image className="w-4 h-4 text-portal-accent" />
+            </div>
+            <div className="text-left">
+              <div className="flex items-center gap-2">
+                <span className="text-on-canvas font-semibold text-sm">Product Shots</span>
+                <span className="px-2 py-0.5 bg-portal-accent/10 text-portal-accent text-xs font-medium rounded-full">
+                  {shots.length}
+                </span>
+              </div>
+              <p className="text-on-canvas-muted text-xs mt-0.5">High-res product photography for all brands</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {shots.length > 0 && (
+              <button
+                onClick={e => { e.stopPropagation(); setShowModal(true) }}
+                className="flex items-center gap-1 text-portal-accent text-xs hover:underline font-medium"
+              >
+                View All <ChevronRight className="w-3 h-3" />
+              </button>
+            )}
+            {isAdmin && (
+              <button
+                onClick={e => { e.stopPropagation(); fileInputRef.current?.click() }}
+                disabled={uploading}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90
+                           disabled:opacity-50 text-white rounded-lg text-xs font-medium transition-colors"
+              >
+                {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                {uploading ? 'Uploading…' : 'Bulk Upload'}
+              </button>
+            )}
+            {isAdmin && selected.size > 0 && (
+              <button
+                onClick={e => { e.stopPropagation(); setBulkConfirm(true) }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 hover:bg-red-600
+                           text-white rounded-lg text-xs font-medium transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete {selected.size}
+              </button>
+            )}
+            {expanded
+              ? <ChevronDown className="w-4 h-4 text-on-canvas-muted" />
+              : <ChevronRight className="w-4 h-4 text-on-canvas-muted" />
+            }
+          </div>
+        </button>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/*"
+          className="hidden"
+          onChange={e => e.target.files && handleFiles(e.target.files)}
+        />
+
+        {/* Body */}
+        {expanded && (
+          <div className="border-t border-portal-border px-6 py-5">
+
+            {/* Upload feedback */}
+            {uploadCount > 0 && (
+              <div className="mb-4 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-xs">
+                {uploadCount} image{uploadCount > 1 ? 's' : ''} uploaded successfully.
+              </div>
+            )}
+            {uploadErrors.length > 0 && (
+              <div className="mb-4 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs space-y-0.5">
+                {uploadErrors.map((e, i) => <p key={i}>{e}</p>)}
+              </div>
+            )}
+
+            {/* Drop zone (admin only, shown when no shots) */}
+            {isAdmin && shots.length === 0 && !loading && (
+              <div
+                onDrop={onDrop}
+                onDragOver={e => e.preventDefault()}
+                className="border-2 border-dashed border-portal-border hover:border-portal-accent/50 rounded-xl
+                           flex flex-col items-center justify-center py-16 gap-3 transition-colors cursor-pointer"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="w-8 h-8 text-on-canvas-muted opacity-40" />
+                <p className="text-on-canvas-muted text-sm">Drop images here or click to upload</p>
+                <p className="text-on-canvas-muted/60 text-xs">JPEG, PNG, WebP, GIF, TIFF</p>
+              </div>
+            )}
+
+            {loading ? (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="aspect-square rounded-xl bg-portal-bg animate-pulse" />
+                ))}
+              </div>
+            ) : shots.length > 0 ? (
+              <>
+                {/* Drop zone strip for additional uploads */}
+                {isAdmin && (
+                  <div
+                    onDrop={onDrop}
+                    onDragOver={e => e.preventDefault()}
+                    className="mb-4 border border-dashed border-portal-border hover:border-portal-accent/40
+                               rounded-lg px-4 py-2.5 flex items-center gap-2 text-xs text-on-canvas-muted
+                               hover:text-portal-accent transition-colors cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    Drop more images here or click Bulk Upload
+                  </div>
+                )}
+
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                  {shots.map(shot => (
+                    <div
+                      key={shot.id}
+                      className="group relative aspect-square rounded-xl overflow-hidden bg-portal-bg border border-portal-border cursor-pointer"
+                      onClick={() => setLightbox(shot)}
+                    >
+                      <img
+                        src={shot.file_url}
+                        alt={shot.label}
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Label tooltip */}
+                      <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5 bg-black/60
+                                      opacity-0 group-hover:opacity-100 transition-opacity">
+                        <p className="text-white text-[10px] truncate leading-tight">{shot.label}</p>
+                      </div>
+                      {/* Admin actions */}
+                      {isAdmin && (
+                        <div className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={e => { e.stopPropagation(); setEditTarget(shot); setEditLabel(shot.label) }}
+                            className="w-6 h-6 bg-black/60 hover:bg-portal-accent rounded flex items-center justify-center"
+                          >
+                            <Pencil className="w-3 h-3 text-white" />
+                          </button>
+                          <button
+                            onClick={e => { e.stopPropagation(); setConfirmDeleteId(shot.id) }}
+                            className="w-6 h-6 bg-black/60 hover:bg-red-500 rounded flex items-center justify-center"
+                          >
+                            <Trash2 className="w-3 h-3 text-white" />
+                          </button>
+                        </div>
+                      )}
+                      {/* Select checkbox */}
+                      {isAdmin && (
+                        <div className="absolute top-1.5 left-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <input
+                            type="checkbox"
+                            checked={selected.has(shot.id)}
+                            onChange={e => { e.stopPropagation(); toggleSelect(shot.id) }}
+                            onClick={e => e.stopPropagation()}
+                            className="w-4 h-4 accent-portal-accent rounded cursor-pointer"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : null}
+          </div>
+        )}
+      </div>
+
+      {/* View All Modal */}
+      {showModal && (
+        <ProductShotsModal
+          shots={shots}
+          isAdmin={isAdmin}
+          onClose={() => setShowModal(false)}
+          onEdit={(shot) => { setShowModal(false); setEditTarget(shot); setEditLabel(shot.label) }}
+          onDelete={(shot) => { setShowModal(false); setConfirmDeleteId(shot.id) }}
+          onSelect={(shot) => { setShowModal(false); setLightbox(shot) }}
+        />
+      )}
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[80] bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            onClick={() => setLightbox(null)}
+            className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <div className="max-w-4xl max-h-[85vh] flex flex-col items-center gap-3" onClick={e => e.stopPropagation()}>
+            <img
+              src={lightbox.file_url}
+              alt={lightbox.label}
+              className="max-h-[75vh] max-w-full object-contain rounded-xl"
+            />
+            <div className="flex items-center gap-4">
+              <p className="text-white font-medium text-sm">{lightbox.label}</p>
+              <span className="text-white/40 text-xs">{lightbox.file_size}</span>
+              <a
+                href={lightbox.file_url}
+                download={lightbox.filename}
+                onClick={e => e.stopPropagation()}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90
+                           text-white rounded-lg text-xs font-medium transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Download
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit label modal */}
+      {editTarget && (
+        <div className="fixed inset-0 z-[90] bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-surface border border-portal-border rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <h3 className="text-on-canvas font-semibold text-base mb-4">Rename Image</h3>
+            <input
+              type="text"
+              value={editLabel}
+              onChange={e => setEditLabel(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditTarget(null) }}
+              className="w-full bg-surface-elevated border border-portal-border rounded-lg px-3 py-2 text-on-canvas
+                         text-sm focus:outline-none focus:border-portal-accent mb-4"
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setEditTarget(null)}
+                className="px-4 py-2 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveEdit}
+                disabled={editSaving || !editLabel.trim()}
+                className="px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-50
+                           text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                {editSaving ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirm modal */}
+      {confirmDeleteId !== null && (
+        <div className="fixed inset-0 z-[90] bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-surface border border-portal-border rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <h3 className="text-on-canvas font-semibold text-base mb-2">Delete image?</h3>
+            <p className="text-on-canvas-muted text-sm mb-5">This will permanently remove the image from S3. This cannot be undone.</p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="px-4 py-2 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteShot(confirmDeleteId)}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 disabled:opacity-50
+                           text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                {deleting ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk delete confirm */}
+      {bulkConfirm && (
+        <div className="fixed inset-0 z-[90] bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-surface border border-portal-border rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <h3 className="text-on-canvas font-semibold text-base mb-2">Delete {selected.size} images?</h3>
+            <p className="text-on-canvas-muted text-sm mb-5">All selected images will be permanently removed from S3. This cannot be undone.</p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setBulkConfirm(false)}
+                className="px-4 py-2 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={bulkDelete}
+                disabled={bulkDeleting}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 disabled:opacity-50
+                           text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                {bulkDeleting ? 'Deleting…' : `Delete ${selected.size}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AssetsPage() {
@@ -1714,6 +2428,9 @@ export default function AssetsPage() {
           )}
         </div>
       </div>
+
+      {/* Product Shots — always visible, independent of brand sections */}
+      <ProductShotsSection isAdmin={adminUser} />
 
       {/* Content */}
       {loading ? (
