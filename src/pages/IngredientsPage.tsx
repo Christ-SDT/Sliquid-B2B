@@ -172,7 +172,7 @@ const AVOIDED_INGREDIENTS = [
     id: 'artificial-fragrance',
     name: 'Artificial Fragrance',
     reason:
-      '"Fragrance" on an ingredient label can legally represent hundreds of undisclosed chemicals. Many are known allergens and endocrine disruptors.',
+      'Synthetic scents can be unnecessarily harsh, especially for sensitive skin, so we focus on keeping our products as gentle and body-aware as possible. By prioritizing clean, straightforward ingredients, we ensure a more natural experience that supports the body rather than overwhelming it.',
   },
 ]
 

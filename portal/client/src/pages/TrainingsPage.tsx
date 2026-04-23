@@ -251,7 +251,7 @@ function QuizCard({
         </div>
         {hasPassed && (
           <div className="flex-shrink-0">
-            <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-900/30 border border-emerald-700/40 rounded-full text-emerald-400 text-xs font-medium">
+            <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-600 border border-blue-500 rounded-full text-white text-xs font-medium">
               <CheckCircle2 className="w-3 h-3" />
               Passed
             </span>

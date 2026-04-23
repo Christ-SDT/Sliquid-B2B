@@ -17,7 +17,7 @@ const VALUES = [
     id: 'transparent',
     title: 'Transparent always',
     description:
-      'Every ingredient in every formula is disclosed on the label and on our website. No "fragrance" catch-alls, no proprietary blends, no hidden additives. As we always say, "If it not on the label it\'s not in the bottle." Our partners can answer any customer question about what is in the bottle, because we make that information easy to find.',
+      'Every ingredient in every formula is disclosed on the label and on our website. As we always say, "If it not on the label it\'s not in the bottle." Our partners can answer any customer question about what is in the bottle, because we make that information easy to find.',
   },
   {
     id: 'partnership',
