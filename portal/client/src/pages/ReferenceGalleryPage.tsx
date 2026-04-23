@@ -523,17 +523,18 @@ export default function ReferenceGalleryPage() {
 
   // ── Filtered + sorted ──────────────────────────────────────────────────────
 
-  const isSliquid = (i: RefImg) => {
+  const brandTier = (i: RefImg) => {
     const text = (i.label + ' ' + i.filename).toLowerCase()
-    return text.includes('sliquid') && !text.includes('ride') && !text.includes('rocco')
+    if (text.includes('ride')) return 2  // Ride / Ride Lube / Ride Rocco → bottom
+    if (text.includes('sliquid')) return 0 // Sliquid → top
+    return 1                               // everything else → middle
   }
 
   const filtered = images
     .filter(i => !search || i.label.toLowerCase().includes(search.toLowerCase()) || i.filename.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
-      // Sliquid-branded items always float to the top
-      const sliquidDiff = (isSliquid(b) ? 1 : 0) - (isSliquid(a) ? 1 : 0)
-      if (sliquidDiff !== 0) return sliquidDiff
+      const tierDiff = brandTier(a) - brandTier(b)
+      if (tierDiff !== 0) return tierDiff
       if (sortBy === 'name') return a.label.localeCompare(b.label)
       if (sortBy === 'size') return b.size_bytes - a.size_bytes
       return a.created_at < b.created_at ? 1 : -1

@@ -112,9 +112,16 @@ function GalleryPickerModal({ images, loading, onClose, onInsert, maxPick = 1 }:
   const [search, setSearch] = useState('')
   const [pickedIds, setPickedIds] = useState<Set<number>>(new Set())
 
-  const filtered = images.filter(i =>
-    !search || i.label.toLowerCase().includes(search.toLowerCase()) || i.filename.toLowerCase().includes(search.toLowerCase())
-  )
+  const galleryBrandTier = (i: GalleryImg) => {
+    const text = (i.label + ' ' + i.filename).toLowerCase()
+    if (text.includes('ride')) return 2
+    if (text.includes('sliquid')) return 0
+    return 1
+  }
+
+  const filtered = images
+    .filter(i => !search || i.label.toLowerCase().includes(search.toLowerCase()) || i.filename.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => galleryBrandTier(a) - galleryBrandTier(b))
 
   function togglePick(id: number) {
     setPickedIds(prev => {
