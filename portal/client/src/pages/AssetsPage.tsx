@@ -1590,10 +1590,13 @@ function ProductShotDetailModal({
   const [viewerOpen, setViewerOpen] = useState(false)
 
   function download() {
-    fetch(shot.file_url)
+    const token = localStorage.getItem('portal_token')
+    fetch(`${import.meta.env.VITE_API_URL}/api/product-shots/${shot.id}/download`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
       .then(r => r.blob())
       .then(blob => {
-        const ext = shot.file_url.split('?')[0].split('.').pop() ?? 'jpg'
+        const ext = shot.filename.split('.').pop() ?? 'jpg'
         const a = document.createElement('a')
         a.href = URL.createObjectURL(blob)
         a.download = `${shot.label}.${ext}`
@@ -1761,13 +1764,15 @@ function ProductShotsModal({
     const toDownload = filtered.filter(s => selected.has(s.id))
     if (toDownload.length === 0) return
     setDownloading(true)
+    const token = localStorage.getItem('portal_token')
+    const authHeaders: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {}
     try {
       if (toDownload.length <= 5) {
         // Individual downloads
         for (const shot of toDownload) {
-          const res = await fetch(shot.file_url)
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/product-shots/${shot.id}/download`, { headers: authHeaders })
           const blob = await res.blob()
-          const ext = shot.file_url.split('?')[0].split('.').pop() ?? 'jpg'
+          const ext = shot.filename.split('.').pop() ?? 'jpg'
           const a = document.createElement('a')
           a.href = URL.createObjectURL(blob)
           a.download = `${shot.label}.${ext}`
@@ -1781,9 +1786,9 @@ function ProductShotsModal({
         const JSZip = (await import('jszip')).default
         const zip = new JSZip()
         await Promise.all(toDownload.map(async shot => {
-          const res = await fetch(shot.file_url)
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/product-shots/${shot.id}/download`, { headers: authHeaders })
           const blob = await res.blob()
-          const ext = shot.file_url.split('?')[0].split('.').pop() ?? 'jpg'
+          const ext = shot.filename.split('.').pop() ?? 'jpg'
           zip.file(`${shot.label}.${ext}`, blob)
         }))
         const content = await zip.generateAsync({ type: 'blob' })

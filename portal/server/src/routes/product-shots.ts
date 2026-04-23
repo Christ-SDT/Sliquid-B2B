@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import multer from 'multer'
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+import { Readable } from 'stream'
 import { randomUUID } from 'crypto'
 import path from 'path'
 import { db } from '../database.js'
@@ -130,6 +131,25 @@ router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.a
   }
 
   res.status(items.length > 0 ? 201 : 500).json({ items, count: items.length, ...(errors.length > 0 && { errors }) })
+})
+
+// ─── GET /:id/download — proxy S3 file to avoid browser CORS ─────────────────
+
+router.get('/:id/download', requireAuth, async (req, res) => {
+  const row = db.prepare('SELECT * FROM product_shots WHERE id = ?').get(req.params.id) as any
+  if (!row) { res.status(404).json({ message: 'Not found' }); return }
+
+  try {
+    const s3 = getS3Client()
+    const response = await s3.send(new GetObjectCommand({ Bucket: process.env.S3_BUCKET!, Key: row.s3_key }))
+    res.setHeader('Content-Type', row.mime_type ?? 'application/octet-stream')
+    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(row.filename)}`)
+    if (response.ContentLength) res.setHeader('Content-Length', String(response.ContentLength))
+    ;(response.Body as Readable).pipe(res)
+  } catch (err: any) {
+    console.error('[product-shots] download error:', err)
+    res.status(500).json({ message: err.message ?? 'Download failed' })
+  }
 })
 
 // ─── PUT /:id — rename label ──────────────────────────────────────────────────
