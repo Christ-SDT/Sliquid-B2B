@@ -65,7 +65,10 @@ function MiniAssetsWidget() {
 
   useEffect(() => {
     api.get<Asset[]>('/assets')
-      .then(data => setAssets(data.slice(0, 4)))
+      .then(data => {
+        const sliquid = data.filter(a => a.brand === 'Sliquid')
+        setAssets((sliquid.length > 0 ? sliquid : data).slice(0, 4))
+      })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])

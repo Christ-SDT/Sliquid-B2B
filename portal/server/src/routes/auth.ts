@@ -25,10 +25,10 @@ router.post('/login', loginLimiter, (req, res) => {
     return
   }
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any
-  if (!user) { res.status(401).json({ message: 'Invalid credentials' }); return }
+  if (!user) { res.status(401).json({ message: 'Invalid email or password' }); return }
 
   const valid = bcrypt.compareSync(password, user.password_hash)
-  if (!valid) { res.status(401).json({ message: 'Invalid credentials' }); return }
+  if (!valid) { res.status(401).json({ message: 'Invalid email or password' }); return }
 
   if (user.status === 'declined') {
     res.status(403).json({ message: 'Your registration request was declined. Please contact support@sliquid.com.' })

@@ -1573,7 +1573,7 @@ export default function AssetsPage() {
   const [search, setSearch] = useState('')
   const [openExplorer, setOpenExplorer] = useState<{ brand: string; section: string } | null>(null)
   const [detailItem, setDetailItem] = useState<LibraryItem | null>(null)
-  const [expandedBrands, setExpandedBrands] = useState<Set<string>>(new Set())
+  const [expandedBrands, setExpandedBrands] = useState<Set<string>>(new Set(['Sliquid']))
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingItem, setEditingItem] = useState<LibraryItem | null>(null)
 
