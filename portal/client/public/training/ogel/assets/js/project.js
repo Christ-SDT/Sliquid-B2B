@@ -15470,7 +15470,7 @@ iflbx:false,
 ipflbx:true,
 sz:1,
 ccmn:'',
-ic:true,
+ic:false,
 si:[]
 ,
 te:true,
@@ -15631,7 +15631,7 @@ iflbx:false,
 ipflbx:true,
 sz:1,
 ccmn:'',
-ic:false,
+ic:true,
 si:[]
 ,
 te:true,
@@ -17970,7 +17970,7 @@ csfitb:false,
 quizNumberingEnabled:false,
 quizNumberingType:26,
 ail:['si35890','si35898','si35906','si35914'],
-cal:['si35898']
+cal:['si35906']
 },
 si36344:{
 name:'',
