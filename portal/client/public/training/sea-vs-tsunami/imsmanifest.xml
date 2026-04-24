@@ -33,12 +33,11 @@
 				<adlcp:location>metadata.xml</adlcp:location> 
 			</metadata>
 			
-			<file href="ar/KeyClick.mp3"/>
+			<file href="assets/htmlimages/Answer_checkbox_correct.png"/>
 		    <file href="index.html"/>
 			<file href="scormdriver.js"/>
 			<file href="browsersniff.js"/>
 			
-<file href="assets/htmlimages/Answer_checkbox_correct.png"/> 
 <file href="assets/htmlimages/Answer_checkbox_incorrect.png"/> 
 <file href="assets/htmlimages/Answer_radio_correct.png"/> 
 <file href="assets/htmlimages/Answer_radio_incorrect.png"/> 
@@ -53,11 +52,8 @@
 <file href="dist/vendors-main.chunk.js.br"/> 
 <file href="dr/029220.png"/> 
 <file href="dr/032892.png"/> 
-<file href="dr/035051.jpg"/> 
 <file href="dr/035059.svg"/> 
 <file href="dr/035062.svg"/> 
-<file href="dr/037713.png"/> 
-<file href="dr/0577.svg"/> 
 <file href="dr/loading.gif"/> 
 <file href="goodbye.html"/> 
 <file href="index.html"/> 
