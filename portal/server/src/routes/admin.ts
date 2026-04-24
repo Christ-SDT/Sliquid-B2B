@@ -35,7 +35,7 @@ router.put('/users/:id/role', requireAuth, requireRole('tier5', 'admin'), (req, 
     return
   }
   const id = parseInt(req.params.id)
-  const result = db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, id)
+  const result = db.prepare("UPDATE users SET role = ?, status = 'active' WHERE id = ?").run(role, id)
   if (result.changes === 0) {
     res.status(404).json({ message: 'User not found' })
     return

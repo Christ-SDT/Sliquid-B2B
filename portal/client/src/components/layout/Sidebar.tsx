@@ -39,7 +39,9 @@ export default function Sidebar({ onClose }: Props) {
   const role: string | undefined = user?.role
   const isAdminRole = role === 'tier5' || role === 'admin'
   const isProspectRole = role === 'tier4'
-  const isPending = user?.status === 'pending'
+  // Only treat as pending if the user is still in a prospect/unassigned state.
+  // If an admin has already assigned a real role, show the full nav regardless of status.
+  const isPending = user?.status === 'pending' && !isAdminRole && !isRestricted && !isProspectRole
   const visibleNav = NAV.filter(item => {
     if (isPending || isProspectRole) return item.to === '/dashboard'
     if (item.adminOnly) return isAdminRole
