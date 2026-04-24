@@ -12,6 +12,7 @@ import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import HealthPractitionersPage from '@/pages/HealthPractitionersPage'
 import ProductCatalogPage from '@/pages/ProductCatalogPage'
 import MapPolicyPage from '@/pages/MapPolicyPage'
+import RegisterPage from '@/pages/RegisterPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="health-practitioners" element={<HealthPractitionersPage />} />
         <Route path="catalog" element={<ProductCatalogPage />} />
         <Route path="map-policy" element={<MapPolicyPage />} />
+        <Route path="register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
 const PORTAL_URL = import.meta.env.VITE_PORTAL_URL ?? 'https://portal.sliquid.com'
-const INSIDER_URL = 'https://sliquid.com/retailers/become-a-sliquid-retailer/'
 
 export async function loginToPortal(email: string, password: string) {
   const res = await fetch(`${PORTAL_API}/api/auth/login`, {
@@ -136,14 +135,12 @@ export default function PartnerLoginPage() {
         <div className="mt-6 text-center">
           <p className="text-text-gray text-sm">
             Don't have an account?{' '}
-            <a
-              href={INSIDER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/register"
               className="text-sliquid-blue hover:text-sliquid-dark-blue font-medium transition-colors"
             >
-              Register with Sliquid
-            </a>
+              Create one
+            </Link>
           </p>
         </div>
 

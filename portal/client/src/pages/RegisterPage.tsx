@@ -153,7 +153,7 @@ export default function RegisterPage() {
                         setShowDropdown(true)
                       }}
                       onFocus={() => setShowDropdown(true)}
-                      placeholder="Search for your store…"
+                      placeholder="Enter or search for your store…"
                       autoComplete="off"
                       required={!company}
                       className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 pr-9 text-on-canvas text-sm
