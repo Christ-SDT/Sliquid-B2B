@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const API_BASE =
   (import.meta.env.VITE_API_URL as string | undefined) ??
   'https://sliquid-b2b-production.up.railway.app'
 
-const RETAILER_URL = 'https://sliquid.com/retailers/become-a-sliquid-retailer/'
 
 const BRAND_TABS = ['All', 'Sliquid', 'RIDE', 'Ride Rocco']
 
@@ -389,17 +389,15 @@ export default function ProductCatalogPage() {
             ))}
           </div>
 
-          <a
-            href={RETAILER_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to="/become-a-retailer"
             className="inline-flex items-center gap-2 bg-sliquid-blue hover:bg-sliquid-dark-blue
                        text-white font-semibold text-base px-8 py-3.5 rounded-xl
                        transition-colors duration-150 shadow-sm"
           >
             Apply to Become a Retailer
             <ArrowIcon className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
       </section>
 

@@ -207,6 +207,8 @@ export const EMAILJS_CONTACT_ADMIN_TID = import.meta.env.VITE_EMAILJS_CONTACT_AD
 export const EMAILJS_CONTACT_REPLY_TID = import.meta.env.VITE_EMAILJS_CONTACT_REPLY_TID as string | undefined
 export const EMAILJS_NEWSLETTER_TID = import.meta.env.VITE_EMAILJS_NEWSLETTER_TID as string | undefined
 export const EMAILJS_HP_TID = import.meta.env.VITE_EMAILJS_HP_TID as string | undefined
+export const EMAILJS_RETAILER_ADMIN_TID = import.meta.env.VITE_EMAILJS_RETAILER_ADMIN_TID as string | undefined
+export const EMAILJS_RETAILER_CONFIRM_TID = import.meta.env.VITE_EMAILJS_RETAILER_CONFIRM_TID as string | undefined
 
 // Sliquid product image constants used directly in section components
 export const IMG_HERO = '/images/semi-finalv2-sliquidb2b.png'

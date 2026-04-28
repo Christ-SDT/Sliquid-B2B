@@ -61,6 +61,8 @@ These templates are used by the main marketing site (`@emailjs/browser`). Set th
 | `b2b_contact_reply.html` | `VITE_EMAILJS_CONTACT_REPLY_TID` | Contact form submission (auto-reply to sender) | `to_name`, `reply_to` |
 | `b2b_newsletter.html` | `VITE_EMAILJS_NEWSLETTER_TID` | Newsletter signup | `subscriber_email` |
 | `b2b_hp_application.html` | `VITE_EMAILJS_HP_TID` | Health Practitioners application | `practice_type`, `practice_name`, `practice_address`, `practice_phone`, `practice_website`, `contact_name`, `relationship`, `email`, `contact_phone`, `preferred_contact`, `add_to_directory`, `to_email` |
+| `b2b_retailer_admin.html` | `VITE_EMAILJS_RETAILER_ADMIN_TID` | Retailer/distributor application (admin copy) | `company`, `contact_name`, `address`, `phone`, `email`, `website`, `brands`, `comments` |
+| `b2b_retailer_confirm.html` | `VITE_EMAILJS_RETAILER_CONFIRM_TID` | Retailer/distributor application (auto-reply to applicant) | `company`, `contact_name`, `brands`, `to_email` |
 
 **B2B site EmailJS env vars** (set in Cloudflare Pages → sliquid-b2b → Settings → Environment Variables):
 ```
@@ -70,6 +72,8 @@ VITE_EMAILJS_CONTACT_ADMIN_TID=b2b_contact_admin
 VITE_EMAILJS_CONTACT_REPLY_TID=b2b_contact_reply
 VITE_EMAILJS_NEWSLETTER_TID=b2b_newsletter
 VITE_EMAILJS_HP_TID=b2b_hp_application
+VITE_EMAILJS_RETAILER_ADMIN_TID=b2b_retailer_admin
+VITE_EMAILJS_RETAILER_CONFIRM_TID=b2b_retailer_confirm
 ```
 
 Note: the B2B site uses the same EmailJS account/service as the portal. Only the template IDs differ.

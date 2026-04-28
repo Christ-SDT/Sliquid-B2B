@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>We received your application — Sliquid</title>
+</head>
+<!--
+  Template ID : b2b_retailer_confirm
+  Subject     : Your Sliquid Retailer / Distributor Application
+  Variables   : {{contact_name}}, {{company}}, {{brands}}, {{to_email}}
+  Recipient   : the person who submitted the retailer / distributor application
+  To Email    : {{to_email}}  (set in EmailJS template settings)
+-->
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:Inter,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0f4f8;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+          <!-- HEADER -->
+          <tr>
+            <td style="background-color:#fefaf4;border-radius:8px 8px 0 0;border-bottom:1px solid #ddc9ae;padding:24px 40px;text-align:center;">
+              <img src="https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/reference-images/58439771-8fd8-454f-81eb-e2e5123dede5.png" alt="Sliquid" style="max-width:180px;height:auto;display:block;margin:0 auto;" />
+              <p style="margin:10px 0 0;font-size:22px;font-weight:700;color:#0A84C0;letter-spacing:2px;">SLIQUID</p>
+              <p style="margin:4px 0 0;font-size:11px;color:#a08060;letter-spacing:3px;text-transform:uppercase;">Retailer &amp; Distributor Program</p>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="background-color:#ffffff;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:40px 40px 32px;">
+
+              <!-- Success badge -->
+              <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+                <tr>
+                  <td style="background-color:#dcfce7;border:1px solid #86efac;border-radius:4px;padding:4px 12px;">
+                    <p style="margin:0;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#15803d;">✓ Application Received</p>
+                  </td>
+                </tr>
+              </table>
+
+              <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#1a202c;">Thanks for applying, {{contact_name}}!</h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#4a5568;line-height:1.7;">
+                We've received your application for <strong>{{company}}</strong> to become a Sliquid retailer or distributor. A member of our sales team will review your submission and reach out to you shortly.
+              </p>
+
+              <!-- Divider -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
+                <tr><td style="border-top:1px solid #e2e8f0;"></td></tr>
+              </table>
+
+              <!-- Summary box -->
+              <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#2b6cb0;text-transform:uppercase;letter-spacing:0.5px;">Brands You Selected</p>
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:28px;background-color:#f0f8ff;border:1px solid #bee3f8;border-radius:8px;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <p style="margin:0;font-size:14px;color:#2d3748;line-height:1.7;">{{brands}}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- What happens next -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:32px;background-color:#fefaf4;border-radius:8px;border:1px solid #ddc9ae;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 12px;font-size:13px;font-weight:700;color:#a08060;text-transform:uppercase;letter-spacing:0.5px;">What happens next</p>
+                    <p style="margin:0 0 8px;font-size:13px;color:#4a5568;line-height:1.6;">
+                      ① Our sales team reviews your application — typically within <strong>2–3 business days</strong>.
+                    </p>
+                    <p style="margin:0 0 8px;font-size:13px;color:#4a5568;line-height:1.6;">
+                      ② We'll reach out via email or phone to discuss next steps and answer any questions.
+                    </p>
+                    <p style="margin:0;font-size:13px;color:#4a5568;line-height:1.6;">
+                      ③ Once approved, you'll receive access to the Sliquid B2B Partner Portal with ordering, training, and marketing resources.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+                <tr>
+                  <td style="background-color:#0A84C0;border-radius:8px;">
+                    <a href="https://sliquid.com/b2b"
+                       style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">
+                      Learn More About Sliquid B2B
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;font-size:13px;color:#718096;line-height:1.6;">
+                Have questions in the meantime? Contact our sales team at
+                <a href="mailto:sales@sliquid.com" style="color:#0A84C0;text-decoration:none;">sales@sliquid.com</a>.
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background-color:#f7fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;padding:20px 40px;text-align:center;">
+              <p style="margin:0 0 4px;font-size:12px;color:#718096;">Submitted via sliquid.com/become-a-retailer</p>
+              <p style="margin:0;font-size:11px;color:#a0aec0;">© 2025 Sliquid. All rights reserved.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

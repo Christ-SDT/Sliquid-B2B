@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom'
 import { IMG_HERO } from '@/utils/constants'
 
-const INSIDER_URL = 'https://sliquid.com/retailers/become-a-sliquid-retailer/'
-
 export default function HeroSection() {
   return (
     <section
@@ -35,16 +33,14 @@ export default function HeroSection() {
               Your hub for product education, staff training, downloadable assets, and partner resources to support your business every step of the way.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <a
-                href={INSIDER_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/become-a-retailer"
                 className="inline-flex items-center justify-center bg-sliquid-blue
                            hover:bg-sliquid-dark-blue text-white font-semibold px-7 py-3.5
                            rounded-lg text-[15px] transition-colors duration-150"
               >
                 Become a Retailer
-              </a>
+              </Link>
               <Link
                 to="/partner-login#register"
                 className="inline-flex items-center justify-center border border-gray-300

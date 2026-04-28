@@ -10,6 +10,7 @@ import PartnerLoginPage from '@/pages/PartnerLoginPage'
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import HealthPractitionersPage from '@/pages/HealthPractitionersPage'
+import BecomeARetailerPage from '@/pages/BecomeARetailerPage'
 import ProductCatalogPage from '@/pages/ProductCatalogPage'
 import MapPolicyPage from '@/pages/MapPolicyPage'
 import RegisterPage from '@/pages/RegisterPage'
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="forgot-password" element={<ForgotPasswordPage />} />
         <Route path="reset-password" element={<ResetPasswordPage />} />
         <Route path="health-practitioners" element={<HealthPractitionersPage />} />
+        <Route path="become-a-retailer" element={<BecomeARetailerPage />} />
         <Route path="catalog" element={<ProductCatalogPage />} />
         <Route path="map-policy" element={<MapPolicyPage />} />
         <Route path="register" element={<RegisterPage />} />
