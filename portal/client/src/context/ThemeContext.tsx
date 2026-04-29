@@ -11,7 +11,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('portal_theme') as Theme) ?? 'dark'
+    return (localStorage.getItem('portal_theme') as Theme) ?? 'light'
   })
 
   useEffect(() => {
