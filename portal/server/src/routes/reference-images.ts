@@ -33,7 +33,7 @@ async function deleteS3Object(key: string) {
 
 // ─── GET / — list all reference images ───────────────────────────────────────
 
-router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
+router.get('/', requireAuth, (_req, res) => {
   const images = db.prepare(`
     SELECT * FROM reference_images ORDER BY created_at DESC
   `).all()
