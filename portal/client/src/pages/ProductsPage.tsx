@@ -157,6 +157,7 @@ function ProductFormModal({
   const [price, setPrice] = useState(product?.price != null ? String(product.price) : '')
   const [imageUrl, setImageUrl] = useState(product?.image_url ?? '')
   const [inStock, setInStock] = useState<number>(product?.in_stock ?? 1)
+  const [isNew, setIsNew] = useState<number>(product?.is_new ?? 0)
   const [unitSize, setUnitSize] = useState(product?.unit_size ?? '')
   const [casePack, setCasePack] = useState(product?.case_pack != null ? String(product.case_pack) : '')
   const [caseCost, setCaseCost] = useState(product?.case_cost != null ? String(product.case_cost) : '')
@@ -184,6 +185,7 @@ function ProductFormModal({
       price: parseFloat(price),
       image_url: imageUrl.trim() || null,
       in_stock: inStock,
+      is_new: isNew,
       unit_size: unitSize.trim() || null,
       case_pack: casePack ? parseInt(casePack) : null,
       case_cost: caseCost ? parseFloat(caseCost) : null,
@@ -395,6 +397,17 @@ function ProductFormModal({
               />
               <span className="text-on-canvas-subtle text-sm">In Stock</span>
             </label>
+
+            {/* Mark as New */}
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isNew === 1}
+                onChange={e => setIsNew(e.target.checked ? 1 : 0)}
+                className="w-4 h-4 accent-portal-accent"
+              />
+              <span className="text-on-canvas-subtle text-sm">Mark as New <span className="ml-1.5 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-sliquid-blue/10 text-sliquid-blue">New</span></span>
+            </label>
           </div>
 
           {/* Footer */}
@@ -571,11 +584,16 @@ function ProductCard({ product, onClick }: { product: Product; onClick: () => vo
       className="bg-surface border border-portal-border rounded-xl p-4 text-left hover:border-portal-accent/40
                  hover:bg-surface-elevated transition-all group"
     >
-      <div className="aspect-square bg-portal-bg rounded-lg flex items-center justify-center mb-3 overflow-hidden">
+      <div className="relative aspect-square bg-portal-bg rounded-lg flex items-center justify-center mb-3 overflow-hidden">
         {product.image_url
           ? <img src={product.image_url} alt={product.name} className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform" />
           : <Package className="w-10 h-10 text-on-canvas" />
         }
+        {!!product.is_new && (
+          <span className="absolute top-2 left-2 bg-sliquid-blue text-white text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded">
+            New
+          </span>
+        )}
       </div>
       <span className="text-[10px] font-semibold text-portal-accent uppercase tracking-wider">{product.brand}</span>
       <h3 className="text-on-canvas text-sm font-medium mt-0.5 leading-snug line-clamp-2">{product.name}</h3>

@@ -949,6 +949,22 @@ const migrations: Migration[] = [
     `),
   },
   {
+    version: 44,
+    name: 'add_is_new_to_products',
+    up: () => db.exec(`
+      ALTER TABLE products ADD COLUMN is_new INTEGER NOT NULL DEFAULT 0;
+    `),
+  },
+  {
+    version: 45,
+    name: 'mark_balance_massage_as_new',
+    up: () => {
+      db.prepare(`UPDATE products SET is_new = 1 WHERE name LIKE '%Balance Massage%Citrus Neroli%'`).run()
+      db.prepare(`UPDATE products SET is_new = 1 WHERE name LIKE '%Balance Massage%Mint%Cedar%'`).run()
+      db.prepare(`UPDATE products SET is_new = 1 WHERE name LIKE '%Balance Massage%Unscented%'`).run()
+    },
+  },
+  {
     version: 43,
     name: 'product_shots_table',
     up: () => db.exec(`

@@ -48,6 +48,7 @@ export interface Product {
   case_weight?: string
   unit_dimensions?: string
   case_dimensions?: string
+  is_new?: number
 }
 
 export interface Asset {

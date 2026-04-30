@@ -714,13 +714,19 @@ interface EditItemModalProps {
 
 function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
   const isCreative = item._source === 'creative'
-  const typeList = isCreative ? ALL_CREATIVE_TYPES : ALL_ASSET_TYPES
+  const sourceSectionOptions = SECTION_OPTIONS.filter(s => s.type === '__other__' || s.source === (isCreative ? 'creative' : 'asset'))
+
+  const initSectionOpt = sourceSectionOptions.find(s => s.type === item.type) ?? sourceSectionOptions.find(s => s.type === '__other__')!
+  const initCustomSection = sourceSectionOptions.find(s => s.type === item.type) ? '' : item.type
 
   const initBrandOpt = toBrandOpt(item.brand)
   const [nameTitle, setNameTitle] = useState(item.displayName)
   const [brandOpt, setBrandOpt] = useState(initBrandOpt)
   const [customBrand, setCustomBrand] = useState(initBrandOpt === '__custom__' ? item.brand : '')
-  const [type, setType] = useState(item.type)
+  const [sectionOpt, setSectionOpt] = useState<SectionOption>(initSectionOpt)
+  const [customSection, setCustomSection] = useState(initCustomSection)
+  const isOtherSection = sectionOpt.type === '__other__'
+  const type = isOtherSection ? customSection : sectionOpt.type
   const [fileUrl, setFileUrl] = useState(item.file_url)
   const [thumbnailUrl, setThumbnailUrl] = useState(item.thumbnail_url ?? '')
   const [fileSize, setFileSize] = useState(item.file_size ?? '')
@@ -887,14 +893,23 @@ function EditItemModal({ item, onClose, onSaved }: EditItemModalProps) {
           )}
 
           <div>
-            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Item Type</label>
+            <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Section</label>
             <select
-              value={type}
-              onChange={e => setType(e.target.value)}
+              value={sectionOpt.type}
+              onChange={e => setSectionOpt(sourceSectionOptions.find(s => s.type === e.target.value)!)}
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
             >
-              {typeList.map(t => <option key={t} value={t}>{t}</option>)}
+              {sourceSectionOptions.map(s => <option key={s.type} value={s.type}>{s.label}</option>)}
             </select>
+            {isOtherSection && (
+              <input
+                type="text"
+                value={customSection}
+                onChange={e => setCustomSection(e.target.value)}
+                placeholder="Enter section name…"
+                className="mt-2 w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
+              />
+            )}
           </div>
 
           <div>

@@ -15,6 +15,7 @@ interface CatalogProduct {
   category: string | null
   image_url: string | null
   in_stock: number
+  is_new: number
   unit_size: string | null
   unit_msrp: number | null
   case_pack: number | null
@@ -171,7 +172,7 @@ function ProductCard({ product, onClick }: { product: CatalogProduct; onClick: (
                  transition-all duration-200 overflow-hidden text-left w-full group"
     >
       {/* Image area */}
-      <div className="bg-stone-100 aspect-square flex items-center justify-center overflow-hidden rounded-xl m-2.5">
+      <div className="relative bg-stone-100 aspect-square flex items-center justify-center overflow-hidden rounded-xl m-2.5">
         {product.image_url
           ? (
             <img
@@ -184,6 +185,11 @@ function ProductCard({ product, onClick }: { product: CatalogProduct; onClick: (
           )
           : <PackageIcon className="w-14 h-14 text-stone-400" />
         }
+        {!!product.is_new && (
+          <span className="absolute top-2 left-2 bg-sliquid-blue text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+            New
+          </span>
+        )}
       </div>
 
       {/* Info */}
@@ -261,6 +267,7 @@ export default function ProductCatalogPage() {
       return matchesBrand && matchesSearch
     })
     .sort((a, b) => {
+      if (b.is_new !== a.is_new) return b.is_new - a.is_new
       const orderA = BRAND_ORDER[a.brand] ?? 99
       const orderB = BRAND_ORDER[b.brand] ?? 99
       return orderA - orderB

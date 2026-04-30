@@ -97,13 +97,13 @@ router.post('/import', requireAuth, requireRole('tier5', 'admin'), (req, res) =>
 router.get('/catalog', (req, res) => {
   const { brand, category, search } = req.query
   let sql = `SELECT id, name, brand, category, image_url, in_stock, unit_size,
-               unit_msrp, case_pack, case_weight, unit_dimensions, case_dimensions, description
-             FROM products WHERE 1=1`
+               unit_msrp, case_pack, case_weight, unit_dimensions, case_dimensions, description, is_new
+             FROM products WHERE name NOT LIKE '%Multilingual%'`
   const params: any[] = []
   if (brand) { sql += ' AND brand = ?'; params.push(brand) }
   if (category) { sql += ' AND category = ?'; params.push(category) }
   if (search) { sql += ' AND name LIKE ?'; params.push(`%${search}%`) }
-  sql += ' ORDER BY brand, name'
+  sql += ' ORDER BY is_new DESC, brand, name'
   res.json(db.prepare(sql).all(...params))
 })
 
@@ -117,7 +117,7 @@ router.post('/', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const {
     name, brand, category, sku, description, price, image_url, in_stock,
     unit_size, case_pack, case_cost, unit_msrp, vendor_number, upc,
-    case_weight, unit_dimensions, case_dimensions,
+    case_weight, unit_dimensions, case_dimensions, is_new,
   } = req.body
   if (!name || !brand || !sku || price == null) {
     res.status(400).json({ message: 'name, brand, sku, and price are required' })
@@ -127,14 +127,15 @@ router.post('/', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
     INSERT INTO products
       (name, brand, category, sku, description, price, image_url, in_stock,
        unit_size, case_pack, case_cost, unit_msrp, vendor_number, upc,
-       case_weight, unit_dimensions, case_dimensions)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       case_weight, unit_dimensions, case_dimensions, is_new)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     name, brand, category ?? 'Uncategorized', sku,
     description ?? null, Number(price), image_url ?? null, in_stock ?? 1,
     unit_size ?? null, case_pack ? Number(case_pack) : null, case_cost ? Number(case_cost) : null,
     unit_msrp ? Number(unit_msrp) : null, vendor_number ?? null, upc ?? null,
-    case_weight ?? null, unit_dimensions ?? null, case_dimensions ?? null
+    case_weight ?? null, unit_dimensions ?? null, case_dimensions ?? null,
+    is_new ? 1 : 0
   )
   const created = db.prepare('SELECT * FROM products WHERE id = ?').get(result.lastInsertRowid)
   res.status(201).json(created)
@@ -147,7 +148,7 @@ router.put('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const {
     name, brand, category, sku, description, price, image_url, in_stock,
     unit_size, case_pack, case_cost, unit_msrp, vendor_number, upc,
-    case_weight, unit_dimensions, case_dimensions,
+    case_weight, unit_dimensions, case_dimensions, is_new,
   } = req.body
 
   if (!name || !brand || !sku || price == null) {
@@ -160,7 +161,7 @@ router.put('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
       name = ?, brand = ?, category = ?, sku = ?, description = ?, price = ?,
       image_url = ?, in_stock = ?, unit_size = ?, case_pack = ?, case_cost = ?,
       unit_msrp = ?, vendor_number = ?, upc = ?, case_weight = ?,
-      unit_dimensions = ?, case_dimensions = ?
+      unit_dimensions = ?, case_dimensions = ?, is_new = ?
     WHERE id = ?
   `).run(
     name, brand, category ?? 'Uncategorized', sku,
@@ -168,6 +169,7 @@ router.put('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
     unit_size ?? null, case_pack ? Number(case_pack) : null, case_cost ? Number(case_cost) : null,
     unit_msrp ? Number(unit_msrp) : null, vendor_number ?? null, upc ?? null,
     case_weight ?? null, unit_dimensions ?? null, case_dimensions ?? null,
+    is_new ? 1 : 0,
     req.params.id
   )
 
