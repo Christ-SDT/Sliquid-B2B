@@ -257,6 +257,12 @@ export default function ProductCatalogPage() {
   }, [])
 
   const BRAND_ORDER: Record<string, number> = { Sliquid: 0, RIDE: 1, 'Ride Rocco': 2 }
+  const COLLECTION_ORDER = (name: string): number => {
+    if (name.startsWith('Naturals')) return 0
+    if (name.startsWith('Organics')) return 1
+    if (name.startsWith('Balance'))  return 2
+    return 3
+  }
 
   const filtered = products
     .filter(p => {
@@ -268,9 +274,13 @@ export default function ProductCatalogPage() {
     })
     .sort((a, b) => {
       if (b.is_new !== a.is_new) return b.is_new - a.is_new
-      const orderA = BRAND_ORDER[a.brand] ?? 99
-      const orderB = BRAND_ORDER[b.brand] ?? 99
-      return orderA - orderB
+      const brandA = BRAND_ORDER[a.brand] ?? 99
+      const brandB = BRAND_ORDER[b.brand] ?? 99
+      if (brandA !== brandB) return brandA - brandB
+      const collA = COLLECTION_ORDER(a.name)
+      const collB = COLLECTION_ORDER(b.name)
+      if (collA !== collB) return collA - collB
+      return a.name.localeCompare(b.name)
     })
 
   return (
