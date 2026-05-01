@@ -56,7 +56,7 @@ export default function AboutUsPage() {
             </h2>
             <div className="space-y-4 text-text-gray text-base leading-relaxed">
               <p>
-                Sliquid’s mission is to create clean, safe, and inclusive intimate wellness products that empower every body by prioritizing transparency, innovation, and uncompromising care. We are committed to developing thoughtfully formulated products that support both safety and pleasure, without ever compromising on ingredients or integrity. By offering simple, accessible solutions tailored to personal needs, we strive to remove stigma and redefine what intimate wellness looks like for all.
+                Sliquid’s mission is to create clean, safe, and inclusive intimate wellness products that empower every body by prioritizing transparency, innovation, and uncompromising care. We are committed to developing products that support both safety and pleasure, with carefully selected, high-quality natural ingredients and a very intentional approach to formulation. By offering simple, accessible solutions tailored to personal needs, we strive to remove stigma and redefine what intimate wellness looks like for all.
               </p>
               <p>
                 Our B2B partners are an extension of that mission. When you carry Sliquid, you offer your customers and clients genuinely better products that are thoughtfully formulated without the shortcuts.
@@ -108,7 +108,7 @@ export default function AboutUsPage() {
                   Cynthia Wielgosz Elliott co-founded Sliquid in 2002 with a clear and personal conviction: intimate wellness should be rooted in care, accessibility, and a deep understanding of women&apos;s health. At a time when shortcuts defined the category, she helped shape a different path by building a brand grounded in clean formulations, inclusion, and purpose.
                 </p>
                 <p>
-                  A champion of women&apos;s wellness and an advocate for meaningful partnerships, Cynthia has placed Sliquid&apos;s retail, medical, and distribution partners at the center of the brand&apos;s growth, recognizing their success as essential to Sliquid&apos;s own.The mission remains unchanged. The standards remain uncompromised. What has evolved is the scale of the vision. A vision that expands globally, strengthens every channel from wholesale to e-commerce to medical, and positions Sliquid for a new era of intentional, inclusive growth under her leadership.
+                  A champion of women&apos;s wellness and an advocate for meaningful partnerships, Cynthia has placed Sliquid&apos;s retail, medical, and distribution partners at the center of the brand&apos;s growth, recognizing their success as essential to Sliquid&apos;s own.The mission remains unchanged. The standards remain precise. What has evolved is the scale of the vision. A vision that expands globally, strengthens every channel from wholesale to e-commerce to medical, and positions Sliquid for a new era of intentional, inclusive growth under her leadership.
                 </p>
               </div>
             </div>
