@@ -107,6 +107,8 @@ export interface InventoryItem {
   reorder_level: number
   status: 'in_stock' | 'low_stock' | 'out_of_stock'
   last_updated?: string
+  unit_size?: string | null
+  image_url?: string | null
 }
 
 export interface Creative {

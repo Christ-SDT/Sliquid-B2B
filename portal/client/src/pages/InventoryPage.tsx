@@ -177,8 +177,17 @@ function StockEditModal({
           <X className="w-4 h-4" />
         </button>
 
+        {item.image_url && (
+          <div className="w-full aspect-square bg-portal-bg rounded-xl overflow-hidden mb-4 flex items-center justify-center">
+            <img src={item.image_url} alt={item.product_name} className="w-full h-full object-contain p-4" />
+          </div>
+        )}
+
         <h3 className="text-on-canvas font-bold text-lg mb-1">Edit Stock</h3>
-        <p className="text-on-canvas-subtle text-sm mb-0.5">{item.product_name}</p>
+        <p className="text-on-canvas-subtle text-sm mb-0.5">
+          {item.product_name}
+          {item.unit_size && <span className="text-on-canvas-muted text-xs ml-2">{item.unit_size}</span>}
+        </p>
         <p className="text-on-canvas-muted text-xs font-mono mb-5">SKU: {item.sku}</p>
 
         <label className="text-on-canvas-subtle text-sm mb-2 block">Quantity</label>
@@ -802,7 +811,12 @@ export default function InventoryPage() {
                             : 'hover:bg-surface-elevated/50 cursor-pointer'
                           }`}
                       >
-                        <td className="px-4 py-3 text-on-canvas font-medium">{item.product_name}</td>
+                        <td className="px-4 py-3">
+                          <span className="text-on-canvas font-medium">{item.product_name}</span>
+                          {item.unit_size && (
+                            <span className="ml-2 text-on-canvas-muted text-xs">{item.unit_size}</span>
+                          )}
+                        </td>
                         <td className="px-4 py-3 text-on-canvas-subtle">{item.brand}</td>
                         <td className="px-4 py-3 text-on-canvas-muted font-mono text-xs hidden sm:table-cell">{item.sku}</td>
                         <td className="px-4 py-3 text-right">

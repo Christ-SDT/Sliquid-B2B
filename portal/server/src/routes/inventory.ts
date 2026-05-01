@@ -7,12 +7,16 @@ const router = Router()
 
 router.get('/', requireAuth, (req, res) => {
   const { brand, status, search } = req.query
-  let sql = 'SELECT * FROM inventory WHERE 1=1'
+  let sql = `
+    SELECT i.*, p.unit_size, p.image_url
+    FROM inventory i
+    LEFT JOIN products p ON p.id = i.product_id
+    WHERE 1=1`
   const params: any[] = []
-  if (brand) { sql += ' AND brand = ?'; params.push(brand) }
-  if (status) { sql += ' AND status = ?'; params.push(status) }
-  if (search) { sql += ' AND (product_name LIKE ? OR sku LIKE ?)'; params.push(`%${search}%`, `%${search}%`) }
-  sql += ' ORDER BY brand, product_name'
+  if (brand)  { sql += ' AND i.brand = ?'; params.push(brand) }
+  if (status) { sql += ' AND i.status = ?'; params.push(status) }
+  if (search) { sql += ' AND (i.product_name LIKE ? OR i.sku LIKE ?)'; params.push(`%${search}%`, `%${search}%`) }
+  sql += ' ORDER BY i.brand, i.product_name'
   res.json(db.prepare(sql).all(...params))
 })
 
