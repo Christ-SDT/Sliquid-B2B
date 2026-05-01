@@ -1,7 +1,7 @@
 import { useState, useId } from 'react'
-import emailjs from '@emailjs/browser'
 import { sanitizeFormData } from '@/utils/sanitize'
-import { EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_HP_TID } from '@/utils/constants'
+
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
@@ -291,32 +291,30 @@ export default function HealthPractitionersPage() {
     e.preventDefault()
     const errs = validate(form)
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
-    if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_HP_TID) {
-      setSendError('Email service is not configured. Please contact us directly at erik@sliquid.com.')
-      return
-    }
     setSubmitting(true); setSendError('')
     try {
       const safe = sanitizeFormData(form)
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_HP_TID,
-        {
-          practice_type:       safe.practiceType + (safe.practiceTypeOther ? ` — ${safe.practiceTypeOther}` : ''),
-          practice_name:       safe.practiceName,
-          practice_address:    [safe.streetAddress, safe.addressLine2, safe.city, safe.state, safe.zip, safe.country].filter(Boolean).join(', '),
-          practice_phone:      safe.practicePhone,
-          practice_website:    safe.practiceWebsite || 'N/A',
-          contact_name:        `${safe.firstName} ${safe.lastName}`,
-          relationship:        safe.relationship || 'N/A',
-          contact_phone:       safe.contactPhone,
-          email:               safe.email,
-          preferred_contact:   safe.preferredContact,
-          add_to_directory:    safe.addToDirectory,
-          to_email:            'erik@sliquid.com',
-        },
-        { publicKey: EMAILJS_PUBLIC_KEY },
-      )
+      const res = await fetch(`${API_BASE}/api/b2b/hp-apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          practiceType:     safe.practiceType + (safe.practiceTypeOther ? ` — ${safe.practiceTypeOther}` : ''),
+          practiceName:     safe.practiceName,
+          practiceAddress:  [safe.streetAddress, safe.addressLine2, safe.city, safe.state, safe.zip, safe.country].filter(Boolean).join(', '),
+          practicePhone:    safe.practicePhone,
+          practiceWebsite:  safe.practiceWebsite || '',
+          contactName:      `${safe.firstName} ${safe.lastName}`,
+          relationship:     safe.relationship || '',
+          email:            safe.email,
+          contactPhone:     safe.contactPhone,
+          preferredContact: safe.preferredContact,
+          addToDirectory:   safe.addToDirectory,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({})) as { message?: string }
+        throw new Error(data.message ?? 'Request failed')
+      }
       setSubmitted(true)
     } catch {
       setSendError('Something went wrong sending your application. Please try again or email erik@sliquid.com directly.')

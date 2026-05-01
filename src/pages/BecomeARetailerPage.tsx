@@ -1,7 +1,7 @@
 import { useState, useId } from 'react'
-import emailjs from '@emailjs/browser'
 import { sanitizeFormData } from '@/utils/sanitize'
-import { EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_RETAILER_ADMIN_TID, EMAILJS_RETAILER_CONFIRM_TID } from '@/utils/constants'
+
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
@@ -190,27 +190,29 @@ export default function BecomeARetailerPage() {
     e.preventDefault()
     const errs = validate(form)
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
-    if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_RETAILER_ADMIN_TID || !EMAILJS_RETAILER_CONFIRM_TID) {
-      setSendError('Email service is not configured. Please contact us directly at sales@sliquid.com.')
-      return
-    }
     setSubmitting(true)
     setSendError('')
     try {
       const safe = sanitizeFormData(form)
       const websiteVal = safe.website === 'https://' ? '' : safe.website
-      const payload = {
-        company:      safe.company,
-        contact_name: `${safe.firstName} ${safe.lastName}`,
-        address:      [safe.streetAddress, safe.addressLine2, safe.city, safe.state, safe.zip, safe.country].filter(Boolean).join(', '),
-        phone:        safe.phone,
-        email:        safe.email,
-        website:      websiteVal || 'N/A',
-        brands:       safe.brands.join(', ') || 'None selected',
-        comments:     safe.comments || 'N/A',
+      const res = await fetch(`${API_BASE}/api/b2b/retailer-apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company:     safe.company,
+          contactName: `${safe.firstName} ${safe.lastName}`,
+          address:     [safe.streetAddress, safe.addressLine2, safe.city, safe.state, safe.zip, safe.country].filter(Boolean).join(', '),
+          phone:       safe.phone,
+          email:       safe.email,
+          website:     websiteVal || 'N/A',
+          brands:      safe.brands.join(', ') || 'None selected',
+          comments:    safe.comments || 'N/A',
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({})) as { message?: string }
+        throw new Error(data.message ?? 'Request failed')
       }
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_RETAILER_ADMIN_TID, payload, { publicKey: EMAILJS_PUBLIC_KEY })
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_RETAILER_CONFIRM_TID, { ...payload, to_email: safe.email }, { publicKey: EMAILJS_PUBLIC_KEY })
       setSubmitted(true)
     } catch {
       setSendError('Something went wrong sending your application. Please try again or email sales@sliquid.com directly.')

@@ -233,6 +233,60 @@ export async function sendMedicalMarketingRequestEmails(opts: {
   if (sent) console.log(`[email] Medical marketing request emails sent for ${email}`)
 }
 
+// ─── B2B site — Retailer / Distributor application ───────────────────────────
+
+export async function sendRetailerApplicationEmails(opts: {
+  company: string
+  contactName: string
+  address: string
+  phone: string
+  email: string
+  website: string
+  brands: string
+  comments: string
+}): Promise<void> {
+  const { company, contactName, address, phone, email, website, brands, comments } = opts
+  await sendEmail('b2b_retailer_admin', {
+    company, contact_name: contactName, address, phone, email, website, brands, comments,
+  })
+  const sent = await sendEmail('b2b_retailer_confirm', {
+    company, contact_name: contactName, brands, to_email: email,
+  })
+  if (sent) console.log(`[email] Retailer application emails sent for ${email}`)
+}
+
+// ─── B2B site — Health Practitioners application ──────────────────────────────
+
+export async function sendHPApplicationEmail(opts: {
+  practiceType: string
+  practiceName: string
+  practiceAddress: string
+  practicePhone: string
+  practiceWebsite: string
+  contactName: string
+  relationship: string
+  email: string
+  contactPhone: string
+  preferredContact: string
+  addToDirectory: string
+}): Promise<void> {
+  const sent = await sendEmail('b2b_hp_application', {
+    practice_type:     opts.practiceType,
+    practice_name:     opts.practiceName,
+    practice_address:  opts.practiceAddress,
+    practice_phone:    opts.practicePhone,
+    practice_website:  opts.practiceWebsite || 'N/A',
+    contact_name:      opts.contactName,
+    relationship:      opts.relationship || 'N/A',
+    email:             opts.email,
+    contact_phone:     opts.contactPhone,
+    preferred_contact: opts.preferredContact,
+    add_to_directory:  opts.addToDirectory,
+    to_email:          opts.email,
+  })
+  if (sent) console.log(`[email] HP application email sent for ${opts.email}`)
+}
+
 // ─── Password reset ───────────────────────────────────────────────────────────
 
 export async function sendPasswordResetEmail(opts: {

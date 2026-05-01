@@ -30,6 +30,7 @@ import mediaRouter from './routes/media.js'
 import referenceImagesRouter from './routes/reference-images.js'
 import medicalMarketingRouter from './routes/medical-marketing.js'
 import productShotsRouter from './routes/product-shots.js'
+import b2bFormsRouter from './routes/b2b-forms.js'
 
 const app = express()
 
@@ -43,7 +44,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 console.log('[cors] Allowed origins:', allowedOrigins)
 
 // Paths that are fully public — allow any origin (no auth, no sensitive data)
-const PUBLIC_PATHS = ['/api/products/catalog']
+const PUBLIC_PATHS = ['/api/products/catalog', '/api/b2b/retailer-apply', '/api/b2b/hp-apply']
 
 const strictCors = cors({
   origin: (origin, callback) => {
@@ -94,6 +95,7 @@ app.use('/api/media', mediaRouter)
 app.use('/api/reference-images', referenceImagesRouter)
 app.use('/api/medical-marketing', medicalMarketingRouter)
 app.use('/api/product-shots', productShotsRouter)
+app.use('/api/b2b', b2bFormsRouter)
 app.use('/api/logs', logsRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))
