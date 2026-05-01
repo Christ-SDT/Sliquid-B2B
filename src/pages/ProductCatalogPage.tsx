@@ -93,7 +93,7 @@ function ProductModal({ product, onClose }: { product: CatalogProduct; onClose: 
         onClick={e => e.stopPropagation()}
       >
         {/* Image area */}
-        <div className="w-full aspect-[4/3] bg-stone-100 flex items-center justify-center overflow-hidden rounded-t-3xl">
+        <div className="w-full aspect-[4/3] bg-white flex items-center justify-center overflow-hidden rounded-t-3xl">
           {product.image_url
             ? (
               <img
@@ -172,7 +172,7 @@ function ProductCard({ product, onClick }: { product: CatalogProduct; onClick: (
                  transition-all duration-200 overflow-hidden text-left w-full group"
     >
       {/* Image area */}
-      <div className="relative bg-stone-100 aspect-square flex items-center justify-center overflow-hidden rounded-xl m-2.5">
+      <div className="relative bg-white aspect-square flex items-center justify-center overflow-hidden rounded-xl m-2.5">
         {product.image_url
           ? (
             <img

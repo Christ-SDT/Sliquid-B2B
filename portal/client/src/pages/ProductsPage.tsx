@@ -453,9 +453,11 @@ function ProductModal({
   onClose: () => void
   isAdmin: boolean
   onEdit: (p: Product) => void
-  onDelete: (id: number) => void
+  onDelete: (id: number) => Promise<void>
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -551,20 +553,35 @@ function ProductModal({
                   Delete
                 </button>
               ) : (
-                <div className="flex items-center gap-2">
-                  <span className="text-red-400 text-xs">Delete this product?</span>
-                  <button
-                    onClick={() => onDelete(product.id)}
-                    className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-xs font-medium transition-colors"
-                  >
-                    Yes, Delete
-                  </button>
-                  <button
-                    onClick={() => setConfirmDelete(false)}
-                    className="px-3 py-1.5 text-on-canvas-subtle text-xs hover:text-on-canvas transition-colors"
-                  >
-                    Cancel
-                  </button>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-400 text-xs">Delete this product?</span>
+                    <button
+                      disabled={deleting}
+                      onClick={async () => {
+                        setDeleting(true)
+                        setDeleteError('')
+                        try {
+                          await onDelete(product.id)
+                        } catch (e: any) {
+                          setDeleteError(e.message ?? 'Delete failed')
+                          setDeleting(false)
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                    >
+                      {deleting ? 'Deleting…' : 'Yes, Delete'}
+                    </button>
+                    <button
+                      onClick={() => { setConfirmDelete(false); setDeleteError('') }}
+                      className="px-3 py-1.5 text-on-canvas-subtle text-xs hover:text-on-canvas transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  {deleteError && (
+                    <p className="text-red-400 text-xs">{deleteError}</p>
+                  )}
                 </div>
               )}
             </div>
@@ -584,7 +601,7 @@ function ProductCard({ product, onClick }: { product: Product; onClick: () => vo
       className="bg-surface border border-portal-border rounded-xl p-4 text-left hover:border-portal-accent/40
                  hover:bg-surface-elevated transition-all group"
     >
-      <div className="relative aspect-square bg-portal-bg rounded-lg flex items-center justify-center mb-3 overflow-hidden">
+      <div className="relative aspect-square bg-white rounded-lg flex items-center justify-center mb-3 overflow-hidden">
         {product.image_url
           ? <img src={product.image_url} alt={product.name} className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform" />
           : <Package className="w-10 h-10 text-on-canvas" />
@@ -732,14 +749,9 @@ export default function ProductsPage() {
   }
 
   async function handleDelete(id: number) {
-    try {
-      await api.delete(`/products/${id}`)
-      setProducts(prev => prev.filter(p => p.id !== id))
-      setSelected(null)
-    } catch (e: any) {
-      // Inline error not critical — just close
-      setSelected(null)
-    }
+    await api.delete(`/products/${id}`)
+    setProducts(prev => prev.filter(p => p.id !== id))
+    setSelected(null)
   }
 
   return (
