@@ -64,7 +64,7 @@ export default function AboutUsPage() {
               <p>
                 That trust is earned through complete ingredient transparency,
                 rigorous third-party testing, and a team that treats every
-                partnership as a long-term relationship, not a transaction.
+                partnership as a longterm relationship, not a transaction.
               </p>
             </div>
           </div>
