@@ -44,7 +44,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 console.log('[cors] Allowed origins:', allowedOrigins)
 
 // Paths that are fully public — allow any origin (no auth, no sensitive data)
-const PUBLIC_PATHS = ['/api/products/catalog', '/api/b2b/retailer-apply', '/api/b2b/hp-apply']
+const PUBLIC_PATHS = ['/api/products/catalog', '/api/b2b/contact', '/api/b2b/retailer-apply', '/api/b2b/hp-apply']
 
 const strictCors = cors({
   origin: (origin, callback) => {

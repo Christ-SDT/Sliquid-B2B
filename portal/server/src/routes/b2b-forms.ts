@@ -1,7 +1,32 @@
 import { Router } from 'express'
-import { sendRetailerApplicationEmails, sendHPApplicationEmail } from '../email.js'
+import { sendContactFormEmails, sendRetailerApplicationEmails, sendHPApplicationEmail } from '../email.js'
 
 const router = Router()
+
+// ─── POST /api/b2b/contact ────────────────────────────────────────────────────
+
+router.post('/contact', async (req, res) => {
+  const { fromName, fromEmail, company, phone, subject, message } = req.body
+
+  if (!fromName || !fromEmail || !subject || !message) {
+    res.status(400).json({ message: 'Missing required fields.' })
+    return
+  }
+
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRe.test(fromEmail)) {
+    res.status(400).json({ message: 'Invalid email address.' })
+    return
+  }
+
+  try {
+    await sendContactFormEmails({ fromName, fromEmail, company: company || '', phone: phone || '', subject, message })
+    res.json({ ok: true })
+  } catch (err: any) {
+    console.error('[b2b-forms] Contact error:', err)
+    res.status(500).json({ message: 'Failed to send message. Please try again.' })
+  }
+})
 
 // ─── POST /api/b2b/retailer-apply ─────────────────────────────────────────────
 // Public — called by the main B2B site, no auth required

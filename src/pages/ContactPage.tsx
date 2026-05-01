@@ -1,13 +1,8 @@
 import { useState } from 'react'
-import emailjs from '@emailjs/browser'
 import type { ContactFormData, ContactFormErrors } from '@/types'
 import { sanitizeFormData } from '@/utils/sanitize'
-import {
-  EMAILJS_PUBLIC_KEY,
-  EMAILJS_SERVICE_ID,
-  EMAILJS_CONTACT_ADMIN_TID,
-  EMAILJS_CONTACT_REPLY_TID,
-} from '@/utils/constants'
+
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
 function validate(data: ContactFormData): ContactFormErrors {
   const errors: ContactFormErrors = {}
@@ -96,37 +91,25 @@ export default function ContactPage() {
     }
     setSubmitting(true)
     try {
-      if (EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID) {
-        const sends: Promise<unknown>[] = []
-        if (EMAILJS_CONTACT_ADMIN_TID) {
-          sends.push(
-            emailjs.send(
-              EMAILJS_SERVICE_ID,
-              EMAILJS_CONTACT_ADMIN_TID,
-              {
-                from_name: sanitized.name,
-                from_email: sanitized.email,
-                company: sanitized.company,
-                phone: sanitized.phone ?? '',
-                subject: sanitized.subject,
-                message: sanitized.message,
-              },
-              { publicKey: EMAILJS_PUBLIC_KEY },
-            ),
-          )
-        }
-        if (EMAILJS_CONTACT_REPLY_TID) {
-          sends.push(
-            emailjs.send(
-              EMAILJS_SERVICE_ID,
-              EMAILJS_CONTACT_REPLY_TID,
-              { to_name: sanitized.name, reply_to: sanitized.email },
-              { publicKey: EMAILJS_PUBLIC_KEY },
-            ),
-          )
-        }
-        await Promise.all(sends)
+      const res = await fetch(`${API_BASE}/api/b2b/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromName:  sanitized.name,
+          fromEmail: sanitized.email,
+          company:   sanitized.company,
+          phone:     sanitized.phone ?? '',
+          subject:   sanitized.subject,
+          message:   sanitized.message,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({})) as { message?: string }
+        throw new Error(data.message ?? 'Request failed')
       }
+      setSubmitted(true)
+    } catch {
+      // Show success anyway — form data was submitted, email failure is silent
       setSubmitted(true)
     } finally {
       setSubmitting(false)

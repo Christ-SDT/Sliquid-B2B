@@ -233,6 +233,27 @@ export async function sendMedicalMarketingRequestEmails(opts: {
   if (sent) console.log(`[email] Medical marketing request emails sent for ${email}`)
 }
 
+// ─── B2B site — Contact form ──────────────────────────────────────────────────
+
+export async function sendContactFormEmails(opts: {
+  fromName: string
+  fromEmail: string
+  company: string
+  phone: string
+  subject: string
+  message: string
+}): Promise<void> {
+  const { fromName, fromEmail, company, phone, subject, message } = opts
+  await sendEmail('b2b_contact_admin', {
+    from_name: fromName, from_email: fromEmail,
+    company, phone, subject, message,
+  })
+  const sent = await sendEmail('b2b_contact_reply', {
+    to_name: fromName, reply_to: fromEmail, to_email: fromEmail,
+  })
+  if (sent) console.log(`[email] Contact form emails sent for ${fromEmail}`)
+}
+
 // ─── B2B site — Retailer / Distributor application ───────────────────────────
 
 export async function sendRetailerApplicationEmails(opts: {
