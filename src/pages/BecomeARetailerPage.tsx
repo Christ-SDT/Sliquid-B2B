@@ -39,6 +39,7 @@ interface RetailerFormData {
   email: string
   website: string
   brands: string[]
+  storeLocator: boolean
   comments: string
   agreedToMap: boolean
 }
@@ -71,6 +72,7 @@ const EMPTY: RetailerFormData = {
   email: '',
   website: 'https://',
   brands: [],
+  storeLocator: false,
   comments: '',
   agreedToMap: false,
 }
@@ -205,8 +207,9 @@ export default function BecomeARetailerPage() {
           phone:       safe.phone,
           email:       safe.email,
           website:     websiteVal || 'N/A',
-          brands:      safe.brands.join(', ') || 'None selected',
-          comments:    safe.comments || 'N/A',
+          brands:       safe.brands.join(', ') || 'None selected',
+          storeLocator: safe.storeLocator ? 'Yes' : 'No',
+          comments:     safe.comments || 'N/A',
         }),
       })
       if (!res.ok) {
@@ -436,6 +439,23 @@ export default function BecomeARetailerPage() {
                 onChange={handleChange}
                 className={inputCls()}
               />
+            </div>
+
+            {/* Store Locator */}
+            <div>
+              <p className="text-sm font-semibold text-text-dark mb-2">Store Locator</p>
+              <label className="flex items-start gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="storeLocator"
+                  checked={form.storeLocator}
+                  onChange={handleChange}
+                  className="mt-0.5 accent-sliquid-blue"
+                />
+                <span className="text-sm text-text-gray leading-relaxed">
+                  Would you like to join our Store Locator?
+                </span>
+              </label>
             </div>
 
             {/* Brands */}

@@ -32,7 +32,7 @@ router.post('/contact', async (req, res) => {
 // Public — called by the main B2B site, no auth required
 
 router.post('/retailer-apply', async (req, res) => {
-  const { company, contactName, address, phone, email, website, brands, comments } = req.body
+  const { company, contactName, address, phone, email, website, brands, storeLocator, comments } = req.body
 
   if (!company || !contactName || !email || !phone || !brands) {
     res.status(400).json({ message: 'Missing required fields.' })
@@ -48,7 +48,9 @@ router.post('/retailer-apply', async (req, res) => {
   try {
     await sendRetailerApplicationEmails({
       company, contactName, address: address || '', phone, email,
-      website: website || 'N/A', brands, comments: comments || 'N/A',
+      website: website || 'N/A', brands,
+      storeLocator: storeLocator || 'No',
+      comments: comments || 'N/A',
     })
     res.json({ ok: true })
   } catch (err: any) {

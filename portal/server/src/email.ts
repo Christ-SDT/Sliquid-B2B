@@ -264,11 +264,12 @@ export async function sendRetailerApplicationEmails(opts: {
   email: string
   website: string
   brands: string
+  storeLocator: string
   comments: string
 }): Promise<void> {
-  const { company, contactName, address, phone, email, website, brands, comments } = opts
+  const { company, contactName, address, phone, email, website, brands, storeLocator, comments } = opts
   await sendEmail('b2b_retailer_admin', {
-    company, contact_name: contactName, address, phone, email, website, brands, comments,
+    company, contact_name: contactName, address, phone, email, website, brands, store_locator: storeLocator, comments,
   })
   const sent = await sendEmail('b2b_retailer_confirm', {
     company, contact_name: contactName, brands, to_email: email,
