@@ -180,7 +180,10 @@ router.put('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
 router.delete('/:id', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const existing = db.prepare('SELECT id FROM products WHERE id = ?').get(req.params.id)
   if (!existing) { res.status(404).json({ message: 'Not found' }); return }
-  db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id)
+  db.transaction(() => {
+    db.prepare('DELETE FROM inventory WHERE product_id = ?').run(req.params.id)
+    db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id)
+  })()
   res.json({ ok: true })
 })
 

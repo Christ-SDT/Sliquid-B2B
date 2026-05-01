@@ -2541,11 +2541,17 @@ export default function AssetsPage() {
   const sortedBrandKeys = sortBrands(Array.from(brandMap.keys()))
 
   // Explorer items — derived from full allItems (no search filtering inside modal)
-  const explorerItems: LibraryItem[] = openExplorer
+  const explorerItems: LibraryItem[] = (openExplorer
     ? openExplorer.section === '__all__'
       ? allItems.filter(i => i.brand === openExplorer.brand)
       : (groupByBrand(allItems).get(openExplorer.brand)?.get(openExplorer.section) ?? [])
     : []
+  ).sort((a, b) => {
+    const aIsDoc = (SECTION_MAP[a.type] === 'Documents') ? 1 : 0
+    const bIsDoc = (SECTION_MAP[b.type] === 'Documents') ? 1 : 0
+    if (aIsDoc !== bIsDoc) return aIsDoc - bIsDoc
+    return (b.featured ?? 0) - (a.featured ?? 0)
+  })
 
   return (
     <div className="space-y-5">
