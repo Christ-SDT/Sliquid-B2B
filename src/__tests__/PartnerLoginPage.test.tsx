@@ -38,12 +38,11 @@ describe('PartnerLoginPage — render', () => {
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
   })
 
-  it('renders the Register with Sliquid link', () => {
+  it('renders the Create one / register link', () => {
     renderPage()
-    const link = screen.getByRole('link', { name: /register with sliquid/i })
+    const link = screen.getByRole('link', { name: /create one/i })
     expect(link).toBeInTheDocument()
-    expect(link).toHaveAttribute('href', 'https://sliquid.com/retailers/become-a-sliquid-retailer/')
-    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('href', '/register')
   })
 
   it('does not show an error on initial render', () => {
