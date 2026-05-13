@@ -111,7 +111,7 @@ router.post('/forgot-password', resetLimiter, async (req, res) => {
 
   db.prepare('UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?').run(token, expires, user.id)
 
-  const RESET_BASE = process.env.B2B_SITE_URL ?? process.env.PORTAL_URL ?? 'https://sliquid-portal.pages.dev'
+  const RESET_BASE = process.env.B2B_SITE_URL ?? process.env.PORTAL_URL ?? 'https://portal.sliquid.com'
   const resetUrl = `${RESET_BASE}/reset-password?token=${token}`
 
   sendPasswordResetEmail({ toName: user.name, toEmail: email, resetUrl })

@@ -1,7 +1,7 @@
 import emailjs from '@emailjs/nodejs'
 import { db } from './database.js'
 
-const PORTAL_URL = process.env.PORTAL_URL ?? 'https://sliquid-portal.pages.dev'
+const PORTAL_URL = process.env.PORTAL_URL ?? 'https://portal.sliquid.com'
 const SUPPORT_EMAIL = 'support@sliquid.com'
 
 // Read credentials lazily so they are evaluated at call time, not at module-init
