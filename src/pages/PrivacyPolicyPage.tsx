@@ -113,7 +113,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <p className="mb-8">
               Please state your consent ID and date when you contact us regarding your consent.{' '}
-              <span className="text-text-dark font-medium">Your consent applies to the following domains: sliquid.com</span>
+              <span className="text-text-dark font-medium">Your consent applies to the following domains: sliquid.com, hq.sliquid.com</span>
             </p>
 
             {/* Cookiebot Declaration widget */}
