@@ -26,7 +26,7 @@ async function addToMailchimp(data: {
   const firstName = nameParts[0] ?? ''
   const lastName  = nameParts.slice(1).join(' ') || '-'
 
-  const tags = ['Eurospain 2026', data.businessType]
+  const tags = ['Erospain 2026', data.businessType]
 
   const body: Record<string, unknown> = {
     email_address: data.email,
@@ -155,7 +155,7 @@ router.post('/hp-apply', async (req, res) => {
 })
 
 // ─── POST /api/b2b/booth-signup ───────────────────────────────────────────────
-// Hidden booth intake form — Eurospain 2026. No auth, public CORS.
+// Hidden booth intake form — Erospain 2026. No auth, public CORS.
 
 router.post('/booth-signup', async (req, res) => {
   const { name, email, businessName, businessType, storeNames, storeCount, contactName } = req.body

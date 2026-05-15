@@ -15,7 +15,7 @@ import ProductCatalogPage from '@/pages/ProductCatalogPage'
 import MapPolicyPage from '@/pages/MapPolicyPage'
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage'
 import AccessibilityPage from '@/pages/AccessibilityPage'
-import EurospainBoothPage from '@/pages/EurospainBoothPage'
+import ErospainBoothPage from '@/pages/ErospainBoothPage'
 import RegisterPage from '@/pages/RegisterPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
@@ -39,7 +39,7 @@ export default function App() {
         <Route path="map-policy" element={<MapPolicyPage />} />
         <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="accessibility" element={<AccessibilityPage />} />
-        <Route path="eurospain-2026" element={<EurospainBoothPage />} />
+        <Route path="erospain-2026" element={<ErospainBoothPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

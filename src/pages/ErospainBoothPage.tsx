@@ -59,7 +59,7 @@ const inputCls = (hasError?: boolean) =>
    focus:outline-none focus:ring-2 focus:ring-sliquid-blue/30 transition
    ${hasError ? 'border-red-400' : 'border-gray-300 focus:border-sliquid-blue'}`
 
-export default function EurospainBoothPage() {
+export default function ErospainBoothPage() {
   const uid = useId()
   const [form, setForm] = useState<FormData>(EMPTY)
   const [errors, setErrors] = useState<FormErrors>({})
@@ -132,7 +132,7 @@ export default function EurospainBoothPage() {
 
         {/* Logo / Header */}
         <div className="text-center mb-8">
-          <p className="text-sliquid-blue text-xs font-bold uppercase tracking-widest mb-1">Eurospain 2026</p>
+          <p className="text-sliquid-blue text-xs font-bold uppercase tracking-widest mb-1">Erospain 2026</p>
           <h1 className="text-text-dark text-3xl font-bold tracking-tight">Partner Intake Form</h1>
           <p className="text-text-gray text-sm mt-2">
             Fill out the form below and we'll be in touch. You will receive a confirmation email to complete your sign-up.
