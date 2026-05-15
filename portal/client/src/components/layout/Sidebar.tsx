@@ -7,7 +7,7 @@ import { TIER_LABEL } from '@/types'
 import {
   LayoutDashboard, BookOpen,
   MapPin, Megaphone, GraduationCap, LogOut, X, Users, Moon, Sun, Sparkles,
-  Image as ImageIcon, Stethoscope,
+  Image as ImageIcon, Stethoscope, ShieldCheck,
 } from 'lucide-react'
 
 // restricted: tier1/2/3/6  |  tier23: tier2+tier3 only  |  prospectVisible: tier4  |  adminOnly: tier5 only  |  medicalOnly: tier6+admin
@@ -23,6 +23,7 @@ const NAV = [
   { to: '/marketing-requests', icon: Megaphone,       label: 'Marketing Requests',     restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, badgeType: 'marketing_request' },
   { to: '/media',              icon: ImageIcon,       label: 'Media Library',          restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, badgeType: undefined },
   { to: '/users',              icon: Users,           label: 'User Management',        restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, badgeType: undefined },
+  { to: '/gdpr-requests',      icon: ShieldCheck,     label: 'GDPR Requests',          restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, badgeType: undefined },
 ]
 
 interface Props {

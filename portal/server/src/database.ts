@@ -956,6 +956,24 @@ const migrations: Migration[] = [
     `),
   },
   {
+    version: 46,
+    name: 'gdpr_requests_table',
+    up: () => db.exec(`
+      CREATE TABLE IF NOT EXISTS gdpr_requests (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        type         TEXT NOT NULL CHECK(type IN ('access', 'deletion')),
+        name         TEXT NOT NULL,
+        email        TEXT NOT NULL,
+        message      TEXT,
+        status       TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'in_progress', 'completed')),
+        submitted_at TEXT DEFAULT (datetime('now')),
+        completed_at TEXT
+      );
+      CREATE INDEX IF NOT EXISTS idx_gdpr_requests_email  ON gdpr_requests(email);
+      CREATE INDEX IF NOT EXISTS idx_gdpr_requests_status ON gdpr_requests(status);
+    `),
+  },
+  {
     version: 45,
     name: 'mark_balance_massage_as_new',
     up: () => {

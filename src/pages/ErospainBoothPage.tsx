@@ -12,7 +12,9 @@ interface FormData {
   businessType: string
   storeNames: string
   storeCount: string
+  websiteUrl: string
   contactName: string
+  contactPhone: string
   gdprConsent: boolean
 }
 
@@ -22,6 +24,7 @@ interface FormErrors {
   businessName?: string
   businessType?: string
   storeNames?: string
+  websiteUrl?: string
   contactName?: string
   gdprConsent?: string
 }
@@ -33,7 +36,9 @@ const EMPTY: FormData = {
   businessType: '',
   storeNames: '',
   storeCount: '',
+  websiteUrl: '',
   contactName: '',
+  contactPhone: '',
   gdprConsent: false,
 }
 
@@ -45,6 +50,7 @@ function validate(d: FormData): FormErrors {
   if (!d.businessName.trim()) err.businessName = 'Business name is required.'
   if (!d.businessType) err.businessType = 'Please select a business type.'
   if (d.businessType === 'Retailer' && !d.storeNames.trim()) err.storeNames = 'Please enter your store name(s).'
+  if (d.businessType === 'E-Commerce' && !d.websiteUrl.trim()) err.websiteUrl = 'Website URL is required for e-commerce businesses.'
   if (!d.contactName.trim()) err.contactName = 'Contact name is required.'
   if (!d.gdprConsent) err.gdprConsent = 'You must consent to continue.'
   return err
@@ -111,7 +117,9 @@ export default function ErospainBoothPage() {
           businessType: safe.businessType,
           storeNames:   safe.storeNames || undefined,
           storeCount:   safe.storeCount || undefined,
+          websiteUrl:   safe.websiteUrl || undefined,
           contactName:  safe.contactName,
+          contactPhone: safe.contactPhone || undefined,
         }),
       })
       if (!res.ok) {
@@ -244,6 +252,19 @@ export default function ErospainBoothPage() {
                 </div>
               )}
 
+              {/* E-Commerce-only fields */}
+              {form.businessType === 'E-Commerce' && (
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <label htmlFor={`${uid}-websiteUrl`} className="block text-sm font-semibold text-text-dark mb-1.5">
+                    Website URL <span className="text-red-500">*</span>
+                  </label>
+                  <input id={`${uid}-websiteUrl`} name="websiteUrl" type="url" value={form.websiteUrl}
+                    onChange={handleChange} placeholder="https://yourstore.com"
+                    className={inputCls(!!errors.websiteUrl)} />
+                  {errors.websiteUrl && <FieldError message={errors.websiteUrl} />}
+                </div>
+              )}
+
               {/* Contact Name */}
               <div>
                 <label htmlFor={`${uid}-contactName`} className="block text-sm font-semibold text-text-dark mb-1.5">
@@ -253,6 +274,16 @@ export default function ErospainBoothPage() {
                   onChange={handleChange} placeholder="Primary contact for your company"
                   className={inputCls(!!errors.contactName)} />
                 {errors.contactName && <FieldError message={errors.contactName} />}
+              </div>
+
+              {/* Contact Phone + Extension */}
+              <div>
+                <label htmlFor={`${uid}-contactPhone`} className="block text-sm font-semibold text-text-dark mb-1.5">
+                  Company Contact Number + Extension
+                </label>
+                <input id={`${uid}-contactPhone`} name="contactPhone" type="tel" value={form.contactPhone}
+                  onChange={handleChange} placeholder="e.g. +34 91 234 5678 ext. 101"
+                  className={inputCls()} />
               </div>
 
               {/* GDPR consent */}

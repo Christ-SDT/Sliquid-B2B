@@ -113,6 +113,9 @@ export default function Footer() {
             <Link to="/accessibility" className="hover:text-gray-300 transition-colors">
               Accessibility
             </Link>
+            <Link to="/data-rights" className="hover:text-gray-300 transition-colors">
+              Your Data Rights
+            </Link>
             <Link to="/privacy-policy" className="hover:text-gray-300 transition-colors">
               Privacy Policy
             </Link>

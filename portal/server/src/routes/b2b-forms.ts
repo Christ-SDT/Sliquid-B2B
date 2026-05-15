@@ -14,7 +14,9 @@ async function addToMailchimp(data: {
   businessType: string
   storeNames?: string
   storeCount?: string
+  websiteUrl?: string
   contactName: string
+  contactPhone?: string
 }): Promise<void> {
   const apiKey = process.env.MAILCHIMP_API_KEY
   if (!apiKey) { console.warn('[mailchimp] MAILCHIMP_API_KEY not set — skipping'); return }
@@ -158,7 +160,7 @@ router.post('/hp-apply', async (req, res) => {
 // Hidden booth intake form — Erospain 2026. No auth, public CORS.
 
 router.post('/booth-signup', async (req, res) => {
-  const { name, email, businessName, businessType, storeNames, storeCount, contactName } = req.body
+  const { name, email, businessName, businessType, storeNames, storeCount, websiteUrl, contactName, contactPhone } = req.body
 
   if (!name || !email || !businessName || !businessType || !contactName) {
     res.status(400).json({ message: 'Missing required fields.' })
@@ -172,7 +174,7 @@ router.post('/booth-signup', async (req, res) => {
   }
 
   try {
-    await addToMailchimp({ email, name, businessName, businessType, storeNames, storeCount, contactName })
+    await addToMailchimp({ email, name, businessName, businessType, storeNames, storeCount, websiteUrl, contactName, contactPhone })
     res.json({ ok: true })
   } catch (err: any) {
     console.error('[b2b-forms] Booth signup error:', err)

@@ -24,7 +24,7 @@ setTimeout(() => {
 }, 0)
 
 // Returns true if the email was actually sent, false if skipped (not configured)
-async function sendEmail(templateId: string, params: Record<string, string>): Promise<boolean> {
+export async function sendEmail(templateId: string, params: Record<string, string>): Promise<boolean> {
   const { configured, publicKey, privateKey, serviceId } = getConfig()
   if (!configured) {
     console.warn(`[email] EmailJS not configured — skipping template ${templateId}`)
