@@ -14,6 +14,7 @@ import BecomeARetailerPage from '@/pages/BecomeARetailerPage'
 import ProductCatalogPage from '@/pages/ProductCatalogPage'
 import MapPolicyPage from '@/pages/MapPolicyPage'
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage'
+import AccessibilityPage from '@/pages/AccessibilityPage'
 import RegisterPage from '@/pages/RegisterPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="catalog" element={<ProductCatalogPage />} />
         <Route path="map-policy" element={<MapPolicyPage />} />
         <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="accessibility" element={<AccessibilityPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
