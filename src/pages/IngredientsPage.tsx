@@ -67,14 +67,14 @@ const KEY_INGREDIENTS = [
   },
   {
     id: 'agar-agar',
-    name: 'Organic Agar Agar',
+    name: 'Agar Agar',
     tag: 'Thickener',
     description:
       'Sourced from red algae, Agar Agar is a naturally occurring plant-based material used to create the viscosity of the lubricant. A clean, seaweed-derived alternative to synthetic gelling agents.',
   },
   {
     id: 'guar-gum',
-    name: 'Organic Guar Gum (Cyamopsis)',
+    name: 'Guar Gum (Cyamopsis)',
     tag: 'Stabilizer',
     description:
       'Derived from the guar bean, this non-toxic natural additive enables plant cellulose fiber to move and feel incredibly slippery while stabilizing the overall formula.',
@@ -88,28 +88,28 @@ const KEY_INGREDIENTS = [
   },
   {
     id: 'flax-extract',
-    name: 'Organic Flax Extract',
+    name: 'Flax Extract',
     tag: 'Moisturizer',
     description:
       'Used in Sliquid Organics formulas as a plant-derived moisturizer and restorative emollient. Rich in omega fatty acids, it helps restore skin elasticity and supports long-lasting hydration.',
   },
   {
     id: 'hibiscus',
-    name: 'Organic Hibiscus Extract',
+    name: 'Hibiscus Extract',
     tag: 'Emollient',
     description:
       'Added to Sliquid Organics as a restorative and healing emollient. Hibiscus is known to restore elasticity and suppleness to the skin, making it especially beneficial for sensitive or irritated tissue.',
   },
   {
     id: 'green-tea',
-    name: 'Organic Green Tea Extract',
+    name: 'Green Tea Extract',
     tag: 'Anti-Inflammatory',
     description:
       'A botanical anti-inflammatory included in the Organics ingredient deck. Green tea extract helps calm irritation and provides antioxidant support, further protecting sensitive skin from environmental stressors.',
   },
   {
     id: 'sunflower-seed',
-    name: 'Organic Sunflower Seed Extract',
+    name: 'Sunflower Seed Extract',
     tag: 'Skin Tonic',
     description:
       'Used in Sliquid Organics as a gentle cleansing and calming tonic. Sunflower seed extract is rich in vitamins and fatty acids that nourish and soothe skin without disrupting natural barriers.',
