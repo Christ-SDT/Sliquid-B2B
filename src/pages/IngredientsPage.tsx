@@ -53,7 +53,7 @@ const KEY_INGREDIENTS = [
   },
   {
     id: 'aloe-vera',
-    name: 'Organic Aloe Barbadensis Leaf Juice',
+    name: 'Aloe Barbadensis Leaf Juice',
     tag: 'Base',
     description:
       'The base ingredient for the Organics line, sourced directly from the leaves of the aloe vera plant. Naturally lubricating and healing, it has been used for centuries to soothe and protect skin. Anti-inflammatory and pH-friendly for sensitive tissue.',
