@@ -27,20 +27,14 @@ export default function Header() {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2.5 flex-shrink-0"
+            className="flex items-center flex-shrink-0"
             aria-label="Sliquid HQ home"
           >
             <img
-              src="/images/cropped-lotus.png"
-              alt="Sliquid lotus"
-              width="32"
-              height="32"
-              className="w-8 h-8 object-contain"
+              src="https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/dd9edfe4-5d10-40c8-9eb4-365fb5dbfd80.svg"
+              alt="Sliquid HQ"
+              className="h-10 md:h-12 w-auto object-contain"
             />
-            <span className="text-xl font-bold tracking-widest text-text-dark leading-none">
-              <strong>SLIQUID</strong>{' '}
-              <span className="font-normal text-text-gray">HQ</span>
-            </span>
           </Link>
 
           {/* Desktop nav */}
