@@ -50,7 +50,7 @@ export default function Shell() {
   if (loading) return <Skeleton />
   if (!user) return <Navigate to="/login" replace />
 
-  const isRestricted = ['tier1', 'tier2', 'tier3', 'tier6'].includes(user.role)
+  const isRestricted = ['tier1', 'tier2', 'tier3', 'tier6', 'tier7'].includes(user.role)
   const isProspectRole = user.role === 'tier4'
   const isPending = user.status === 'pending'
 
@@ -58,7 +58,7 @@ export default function Shell() {
   if (isPending && !location.pathname.startsWith('/dashboard')) {
     return <Navigate to="/dashboard" replace />
   }
-  const restrictedAllowed = user.role === 'tier2' || user.role === 'tier3' ? TIER2_3_ALLOWED
+  const restrictedAllowed = user.role === 'tier2' || user.role === 'tier3' || user.role === 'tier7' ? TIER2_3_ALLOWED
     : user.role === 'tier6' ? TIER6_ALLOWED
     : TIER1_ALLOWED
   if (!isPending && isRestricted && !restrictedAllowed.some(p => location.pathname.startsWith(p))) {

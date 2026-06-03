@@ -50,6 +50,7 @@ function roleBadgeClass(role: string) {
     case 'tier3': return 'bg-cyan-600 border-cyan-600 text-white'
     case 'tier2': return 'bg-emerald-600 border-emerald-600 text-white'
     case 'tier6': return 'bg-rose-600 border-rose-600 text-white'
+    case 'tier7': return 'bg-indigo-500 border-indigo-500 text-white'
     default:      return 'bg-slate-500 border-slate-500 text-white'
   }
 }
@@ -256,6 +257,7 @@ function UserDetailModal({
                 <option value="tier4">Prospect</option>
                 <option value="tier5">Admin</option>
                 <option value="tier6">Medical Partner</option>
+                <option value="tier7">Media</option>
               </select>
               {roleChanged && (
                 <button
@@ -915,6 +917,7 @@ export default function UsersPage() {
           <option value="tier4">Prospect</option>
           <option value="tier5">Admin</option>
           <option value="tier6">Medical Partner</option>
+          <option value="tier7">Media</option>
         </select>
         <select
           value={filterStatus}

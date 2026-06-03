@@ -983,6 +983,17 @@ const migrations: Migration[] = [
     },
   },
   {
+    version: 47,
+    name: 'seed_media_demo_user',
+    up: () => {
+      const existing = db.prepare("SELECT id FROM users WHERE email = 'media@demo.com'").get()
+      if (!existing) {
+        db.prepare('INSERT INTO users (name, email, password_hash, role, company, status) VALUES (?, ?, ?, ?, ?, ?)')
+          .run('Demo Media', 'media@demo.com', bcrypt.hashSync('media123', 10), 'tier7', 'Demo Media', 'active')
+      }
+    },
+  },
+  {
     version: 43,
     name: 'product_shots_table',
     up: () => db.exec(`

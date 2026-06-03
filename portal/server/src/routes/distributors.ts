@@ -13,8 +13,8 @@ router.get('/', requireAuth, (req, res) => {
   if (state)  { sql += ' AND state LIKE ?';  params.push(`%${state}%`) }
   if (region) { sql += ' AND region LIKE ?'; params.push(`%${region}%`) }
   if (search) {
-    sql += ' AND (name LIKE ? OR city LIKE ? OR state LIKE ? OR address LIKE ?)'
-    params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`)
+    sql += ' AND (name LIKE ? OR city LIKE ? OR state LIKE ? OR address LIKE ? OR region LIKE ?)'
+    params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`)
   }
   sql += ' ORDER BY name'
   res.json(db.prepare(sql).all(...params))

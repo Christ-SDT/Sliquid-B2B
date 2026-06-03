@@ -35,7 +35,7 @@ export default function Sidebar({ onClose }: Props) {
   const { theme, toggleTheme } = useTheme()
   const { countUnreadByType } = useNotifications()
 
-  const isRestricted = ['tier1', 'tier2', 'tier3', 'tier6'].includes(user?.role ?? '')
+  const isRestricted = ['tier1', 'tier2', 'tier3', 'tier6', 'tier7'].includes(user?.role ?? '')
 
   const role: string | undefined = user?.role
   const isAdminRole = role === 'tier5' || role === 'admin'
@@ -48,7 +48,7 @@ export default function Sidebar({ onClose }: Props) {
     if (item.adminOnly) return isAdminRole
     if (item.medicalOnly) return role === 'tier6' || isAdminRole
     if (item.managerOnly) return role === 'tier2' || isAdminRole
-    if (isRestricted) return item.restricted || (item.tier23 && (role === 'tier2' || role === 'tier3'))
+    if (isRestricted) return item.restricted || (item.tier23 && (role === 'tier2' || role === 'tier3' || role === 'tier7'))
     return true
   })
 

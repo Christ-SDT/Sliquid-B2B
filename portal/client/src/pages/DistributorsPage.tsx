@@ -325,7 +325,7 @@ export default function DistributorsPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name, city, or state…"
+            placeholder="Search by name, city, state, or region…"
             className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
                        placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
           />
