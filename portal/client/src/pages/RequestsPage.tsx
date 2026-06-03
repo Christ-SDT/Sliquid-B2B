@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { api } from '@/api/client'
-import { Users, Loader2, CheckCircle, XCircle, UserCheck, Clock, Search, X, Building2, Mail, CalendarDays, ShieldCheck, Stethoscope } from 'lucide-react'
+import { Users, Loader2, CheckCircle, XCircle, UserCheck, Clock, Search, X, Building2, Mail, CalendarDays, ShieldCheck, Stethoscope, Camera } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -14,7 +14,7 @@ type PartnerUser = {
   status: string
 }
 
-type TabKey = 'all' | 'pending' | 'approved' | 'declined' | 'medical'
+type TabKey = 'all' | 'pending' | 'approved' | 'declined' | 'medical' | 'media'
 
 const ROLE_OPTIONS = [
   { value: 'tier1', label: 'Retail Store Employee' },
@@ -22,6 +22,7 @@ const ROLE_OPTIONS = [
   { value: 'tier3', label: 'Distributor' },
   { value: 'tier4', label: 'Prospect' },
   { value: 'tier6', label: 'Medical Partner' },
+  { value: 'tier7', label: 'Media' },
 ]
 
 const ROLE_LABEL: Record<string, string> = {
@@ -31,6 +32,7 @@ const ROLE_LABEL: Record<string, string> = {
   tier4: 'Prospect',
   tier5: 'Admin',
   tier6: 'Medical Partner',
+  tier7: 'Media',
   admin: 'Admin',
 }
 
@@ -261,6 +263,7 @@ export default function RequestsPage() {
     approved: users.filter(u => u.status === 'active').length,
     declined: users.filter(u => u.status === 'declined').length,
     medical:  users.filter(u => u.role === 'tier6').length,
+    media:    users.filter(u => u.role === 'tier7').length,
   }
 
   const tabFiltered = useMemo(() => {
@@ -268,6 +271,7 @@ export default function RequestsPage() {
     if (activeTab === 'pending')  return users.filter(u => u.status === 'pending')
     if (activeTab === 'approved') return users.filter(u => u.status === 'active')
     if (activeTab === 'medical')  return users.filter(u => u.role === 'tier6')
+    if (activeTab === 'media')    return users.filter(u => u.role === 'tier7')
     return users.filter(u => u.status === 'declined')
   }, [users, activeTab])
 
@@ -287,6 +291,7 @@ export default function RequestsPage() {
     { key: 'approved', label: 'Approved', icon: <CheckCircle className="w-3.5 h-3.5" /> },
     { key: 'declined', label: 'Declined', icon: <XCircle className="w-3.5 h-3.5" /> },
     { key: 'medical',  label: 'Medical',  icon: <Stethoscope className="w-3.5 h-3.5" /> },
+    { key: 'media',    label: 'Media',    icon: <Camera className="w-3.5 h-3.5" /> },
   ]
 
   const tabColors: Record<TabKey, (active: boolean) => string> = {
@@ -295,6 +300,7 @@ export default function RequestsPage() {
     approved: a => a ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400'         : 'bg-surface border-portal-border text-on-canvas-muted hover:border-emerald-500/50',
     declined: a => a ? 'bg-red-500/10 border-red-500 text-red-400'                     : 'bg-surface border-portal-border text-on-canvas-muted hover:border-red-500/50',
     medical:  a => a ? 'bg-rose-500/10 border-rose-500 text-rose-400'                  : 'bg-surface border-portal-border text-on-canvas-muted hover:border-rose-500/50',
+    media:    a => a ? 'bg-indigo-500/10 border-indigo-500 text-indigo-400'            : 'bg-surface border-portal-border text-on-canvas-muted hover:border-indigo-500/50',
   }
 
   // Keep modal user in sync if it was updated from outside
