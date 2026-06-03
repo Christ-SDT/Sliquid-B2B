@@ -29,7 +29,7 @@ router.get('/users', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
 
 router.put('/users/:id/role', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const { role } = req.body
-  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4', 'tier5', 'tier6']
+  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4', 'tier5', 'tier6', 'tier7']
   if (!validRoles.includes(role)) {
     res.status(400).json({ message: 'Invalid role' })
     return
@@ -46,7 +46,7 @@ router.put('/users/:id/role', requireAuth, requireRole('tier5', 'admin'), (req, 
 
 router.post('/users/:id/approve', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const { role } = req.body
-  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4', 'tier6']
+  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4', 'tier6', 'tier7']
   if (!validRoles.includes(role)) {
     res.status(400).json({ message: 'Invalid role for approval' })
     return
