@@ -5,8 +5,7 @@ import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
 import { Search, MapPin, Phone, Mail, Globe, AlertTriangle, Plus, Pencil, Trash2, X, Loader2 } from 'lucide-react'
 
-const REGIONS = ['All', 'US', 'Canada', 'UK', 'Mexico']
-const REGION_OPTIONS = ['US', 'Canada', 'UK', 'Mexico', 'US, Canada']
+const DEFAULT_REGION_SUGGESTIONS = ['US', 'Canada', 'UK', 'Mexico', 'US, Canada', 'Australia', 'Europe']
 
 // ─── Distributor Form Modal ───────────────────────────────────────────────────
 
@@ -14,9 +13,10 @@ interface FormModalProps {
   initial?: Distributor
   onClose: () => void
   onSaved: (d: Distributor) => void
+  existingRegions?: string[]
 }
 
-function DistributorFormModal({ initial, onClose, onSaved }: FormModalProps) {
+function DistributorFormModal({ initial, onClose, onSaved, existingRegions = [] }: FormModalProps) {
   const isEdit = !!initial
   const [name, setName]               = useState(initial?.name ?? '')
   const [region, setRegion]           = useState(initial?.region ?? 'US')
@@ -94,14 +94,21 @@ function DistributorFormModal({ initial, onClose, onSaved }: FormModalProps) {
           {/* Region */}
           <div>
             <label className={labelCls}>Region <span className="text-red-400">*</span></label>
-            <select
+            <input
+              type="text"
+              list="region-suggestions"
               value={region}
               onChange={e => setRegion(e.target.value)}
+              placeholder="e.g. US, Canada, UK, Europe…"
+              required
               className={inputCls}
-            >
-              {REGION_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
-            <p className="text-on-canvas-muted text-xs mt-1">Used for the region filter on the distributors page.</p>
+            />
+            <datalist id="region-suggestions">
+              {Array.from(new Set([...DEFAULT_REGION_SUGGESTIONS, ...existingRegions]))
+                .sort()
+                .map(r => <option key={r} value={r} />)}
+            </datalist>
+            <p className="text-on-canvas-muted text-xs mt-1">Pick an existing region or type a new one — it will appear as a filter automatically.</p>
           </div>
 
           {/* States / Display Location */}
@@ -234,6 +241,7 @@ export default function DistributorsPage() {
   const adminUser = isAdmin(user?.role ?? '')
 
   const [distributors, setDistributors] = useState<Distributor[]>([])
+  const [allDistributors, setAllDistributors] = useState<Distributor[]>([])
   const [loading, setLoading]           = useState(true)
   const [region, setRegion]             = useState('All')
   const [search, setSearch]             = useState('')
@@ -241,6 +249,12 @@ export default function DistributorsPage() {
   const [editing, setEditing]           = useState<Distributor | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
   const [deleting, setDeleting]         = useState(false)
+
+  useEffect(() => {
+    api.get<Distributor[]>('/distributors')
+      .then(all => setAllDistributors(all))
+      .catch(console.error)
+  }, [])
 
   useEffect(() => {
     setLoading(true)
@@ -253,11 +267,16 @@ export default function DistributorsPage() {
       .finally(() => setLoading(false))
   }, [region, search])
 
+  const uniqueRegions = Array.from(new Set(allDistributors.map(d => d.region))).sort()
+  const filterRegions = ['All', ...uniqueRegions]
+
   function handleAdded(d: Distributor) {
+    setAllDistributors(prev => [...prev, d])
     setDistributors(prev => [...prev, d].sort((a, b) => a.name.localeCompare(b.name)))
   }
 
   function handleSaved(updated: Distributor) {
+    setAllDistributors(prev => prev.map(d => d.id === updated.id ? updated : d))
     setDistributors(prev =>
       prev.map(d => d.id === updated.id ? updated : d)
           .sort((a, b) => a.name.localeCompare(b.name))
@@ -268,6 +287,7 @@ export default function DistributorsPage() {
     setDeleting(true)
     try {
       await api.delete(`/distributors/${id}`)
+      setAllDistributors(prev => prev.filter(d => d.id !== id))
       setDistributors(prev => prev.filter(d => d.id !== id))
       setConfirmDeleteId(null)
     } catch (err: any) {
@@ -311,7 +331,7 @@ export default function DistributorsPage() {
           />
         </div>
         <div className="flex gap-2 flex-wrap">
-          {REGIONS.map(r => (
+          {filterRegions.map(r => (
             <button
               key={r}
               onClick={() => setRegion(r)}
@@ -475,6 +495,7 @@ export default function DistributorsPage() {
         <DistributorFormModal
           onClose={() => setShowAdd(false)}
           onSaved={handleAdded}
+          existingRegions={uniqueRegions}
         />
       )}
 
@@ -484,6 +505,7 @@ export default function DistributorsPage() {
           initial={editing}
           onClose={() => setEditing(null)}
           onSaved={updated => { handleSaved(updated); setEditing(null) }}
+          existingRegions={uniqueRegions}
         />
       )}
     </div>
