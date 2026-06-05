@@ -267,18 +267,18 @@ export default function CreatorPage() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const dragCounter = useRef(0)
 
-  // Load past AI images as chat history on mount
+  // Load this user's images from the last 24 hours; clear and reload on user change (logout/expiry)
   useEffect(() => {
+    if (!user?.id) { setMessages([]); return }
     api.get<AiImage[]>('/creator/images')
       .then(images => {
-        const mine = images.filter(img => img.user_id === user?.id).reverse()
-        const msgs: ChatMsg[] = mine.flatMap(img => [
+        const msgs: ChatMsg[] = images.flatMap(img => [
           { key: `user-hist-${img.id}`, role: 'user' as const, text: img.prompt },
           { key: `lampy-hist-${img.id}`, role: 'lampy-image' as const, image: img },
         ])
         setMessages(msgs)
       })
-      .catch(() => {})
+      .catch(() => { setMessages([]) })
   }, [user?.id])
 
   // Auto-scroll to bottom

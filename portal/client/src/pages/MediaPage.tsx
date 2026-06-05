@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { isAdmin as checkAdmin } from '@/types'
 import {
   Image as ImageIcon, Upload, Copy, Check, Pencil, Trash2, X, ExternalLink,
-  Search, Loader2, AlertCircle, Save, ChevronDown, Sparkles, CheckCircle2, CheckCheck,
+  Search, Loader2, AlertCircle, Save, ChevronDown, Sparkles, CheckCircle2, CheckCheck, BookOpen,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -61,10 +61,10 @@ function normalizeBrand(brand: string | null): string {
 
 function brandPillClass(brand: string | null): string {
   const b = normalizeBrand(brand)
-  if (b === 'Ride Lube') return 'bg-teal-500/20 text-teal-300 border-teal-500/30'
-  if (b === 'Creator Creations') return 'bg-violet-500/20 text-violet-300 border-violet-500/30'
-  if (b === 'Sliquid') return 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-  return 'bg-gray-500/20 text-gray-300 border-gray-500/30'
+  if (b === 'Ride Lube') return 'bg-teal-500/20 text-teal-600 dark:text-teal-300 border-teal-500/30'
+  if (b === 'Creator Creations') return 'bg-violet-500/20 text-violet-600 dark:text-violet-300 border-violet-500/30'
+  if (b === 'Sliquid') return 'bg-blue-500/20 text-blue-600 dark:text-blue-300 border-blue-500/30'
+  return 'bg-surface-elevated text-on-canvas-subtle border-portal-border'
 }
 
 function sourcePillClass(source: Source): string {
@@ -73,7 +73,7 @@ function sourcePillClass(source: Source): string {
     case 'creative':  return 'bg-orange-500/20 text-orange-300 border-orange-500/30'
     case 'marketing': return 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
     case 'ai':        return 'bg-violet-500/20 text-violet-300 border-violet-500/30'
-    case 'media':     return 'bg-gray-500/20 text-gray-300 border-gray-500/30'
+    case 'media':     return 'bg-surface-elevated text-on-canvas-subtle border-portal-border'
   }
 }
 
@@ -341,6 +341,24 @@ function DetailModal({
     finally { setAssetWorking(false) }
   }
 
+  async function handleSaveAiToAssets() {
+    setAssetWorking(true)
+    try {
+      const updated = await api.post<MediaItem>(`/media/item/ai/${item.id}/add-to-assets`, {})
+      onUpdated(updated)
+    } catch (err: any) { alert(err.message ?? 'Failed') }
+    finally { setAssetWorking(false) }
+  }
+
+  async function handleRemoveAiFromAssets() {
+    setAssetWorking(true)
+    try {
+      const updated = await api.delete<MediaItem>(`/media/item/ai/${item.id}/remove-from-assets`)
+      onUpdated(updated)
+    } catch (err: any) { alert(err.message ?? 'Failed') }
+    finally { setAssetWorking(false) }
+  }
+
   function buildPayload(): Record<string, unknown> {
     const s = editState
     if (item._source === 'asset') {
@@ -510,6 +528,40 @@ function DetailModal({
                         >
                           {assetWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
                           Approve to Creator Creations
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Asset Library toggle — AI items */}
+                {item._source === 'ai' && (
+                  <div className="border-t border-portal-border pt-4">
+                    <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-2">Asset Library</p>
+                    {item.asset_id ? (
+                      <div className="flex items-center justify-between gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2.5">
+                        <span className="text-emerald-400 text-sm font-medium flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Saved to Asset Library
+                        </span>
+                        <button
+                          onClick={handleRemoveAiFromAssets}
+                          disabled={assetWorking}
+                          className="px-3 py-1 rounded-lg text-xs font-medium bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-red-400 hover:border-red-400/40 transition-colors disabled:opacity-50"
+                        >
+                          {assetWorking ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Remove'}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-on-canvas-muted text-xs">Save this image directly to the Asset Library so it appears in the Product Library for all users.</p>
+                        <button
+                          onClick={handleSaveAiToAssets}
+                          disabled={assetWorking}
+                          className="flex items-center gap-2 px-4 py-2 bg-surface-elevated border border-portal-border text-on-canvas hover:border-portal-accent hover:text-portal-accent rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        >
+                          {assetWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <BookOpen className="w-3.5 h-3.5" />}
+                          Save to Asset Library
                         </button>
                       </div>
                     )}
