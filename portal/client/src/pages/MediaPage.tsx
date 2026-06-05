@@ -938,6 +938,14 @@ export default function MediaPage() {
 
   useEffect(() => { load() }, [load])
 
+  // Re-fetch whenever the user navigates back to this tab/page so deletions
+  // made elsewhere (e.g. Asset Library) are reflected immediately
+  useEffect(() => {
+    function onVisible() { if (document.visibilityState === 'visible') load() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [load])
+
   const pendingAi = items.filter(i => i._source === 'ai' && !i.approved)
   const nonPendingItems = items.filter(i => !(i._source === 'ai' && !i.approved))
 
