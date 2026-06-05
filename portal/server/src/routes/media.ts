@@ -63,7 +63,7 @@ router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
     SELECT id, 'asset' as _source, name as label, brand, type,
            file_url, thumbnail_url, file_size, dimensions, s3_key, NULL as description,
            NULL as subtitle, NULL as campaign, NULL as mime_type, NULL as uploaded_by, created_at
-    FROM assets WHERE s3_key IS NOT NULL
+    FROM assets WHERE s3_key IS NOT NULL AND s3_key NOT LIKE 'ai-images/%'
   `).all() as Record<string, unknown>[]
 
   const creatives = db.prepare(`
@@ -87,8 +87,9 @@ router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
            s3_url as file_url, s3_url as thumbnail_url,
            NULL as file_size, NULL as dimensions, s3_key, NULL as description,
            NULL as subtitle, NULL as campaign, NULL as mime_type, created_by as uploaded_by,
-           created_at, approved
+           created_at, approved, media_id
     FROM ai_images
+    WHERE media_id IS NULL
   `).all() as Record<string, unknown>[]
 
   const media = db.prepare(`

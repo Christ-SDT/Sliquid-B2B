@@ -306,19 +306,8 @@ router.get('/images', requireAuth, (req, res) => {
 
 router.post('/:id/approve', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const id = Number(req.params.id)
-  const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
-  if (!row) return res.status(404).json({ error: 'Not found' })
-
-  let assetId = row.asset_id
-  if (!assetId) {
-    const name = row.prompt?.slice(0, 80) || 'AI Generated Image'
-    const { lastInsertRowid } = db.prepare(
-      'INSERT INTO assets (name, brand, type, file_url, thumbnail_url, s3_key) VALUES (?, ?, ?, ?, ?, ?)'
-    ).run(name, row.brand || 'User Generated Content', 'AI Generated', row.s3_url, row.s3_url, row.s3_key)
-    assetId = lastInsertRowid
-  }
-
-  db.prepare('UPDATE ai_images SET approved = 1, asset_id = ? WHERE id = ?').run(assetId, id)
+  const result = db.prepare('UPDATE ai_images SET approved = 1 WHERE id = ?').run(id)
+  if (result.changes === 0) return res.status(404).json({ error: 'Not found' })
   return res.json(db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id))
 })
 
@@ -326,13 +315,8 @@ router.post('/:id/approve', requireAuth, requireRole('tier5', 'admin'), (req, re
 
 router.post('/:id/unapprove', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const id = Number(req.params.id)
-  const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
-  if (!row) return res.status(404).json({ error: 'Not found' })
-
-  if (row.asset_id) {
-    db.prepare('DELETE FROM assets WHERE id = ?').run(row.asset_id)
-  }
-  db.prepare('UPDATE ai_images SET approved = 0, asset_id = NULL WHERE id = ?').run(id)
+  const result = db.prepare('UPDATE ai_images SET approved = 0 WHERE id = ?').run(id)
+  if (result.changes === 0) return res.status(404).json({ error: 'Not found' })
   return res.json(db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id))
 })
 

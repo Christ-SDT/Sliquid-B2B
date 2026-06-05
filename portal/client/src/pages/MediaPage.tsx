@@ -888,6 +888,13 @@ function MediaCard({ item, onClick }: { item: MediaItem; onClick: () => void }) 
         </div>
       )}
 
+      {item._source === 'ai' && item.media_id && (
+        <div className="absolute top-1.5 right-1.5">
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full border font-medium leading-none bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+            In Media Library
+          </span>
+        </div>
+      )}
       <div className="absolute bottom-1.5 left-1.5">
         <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full border font-medium leading-none', brandPillClass(item.brand))}>
           {normalizeBrand(item.brand)}
