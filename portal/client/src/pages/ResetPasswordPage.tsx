@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
-import { Loader2, Lock, ArrowLeft, CheckCircle2, Eye, EyeOff } from 'lucide-react'
+import { Loader2, Lock, ArrowLeft, CheckCircle2, Eye, EyeOff, Clock, MailOpen } from 'lucide-react'
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams()
@@ -12,22 +12,8 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
+  const [expired, setExpired] = useState(!token)
   const [error, setError] = useState('')
-
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-portal-bg flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="bg-surface border border-portal-border rounded-2xl p-8 text-center">
-            <p className="text-on-canvas-subtle text-sm mb-6">This reset link is invalid or has expired.</p>
-            <Link to="/forgot-password" className="text-portal-accent hover:underline text-sm">
-              Request a new link
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -44,7 +30,13 @@ export default function ResetPasswordPage() {
         body: JSON.stringify({ token, password }),
       })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.message ?? 'Something went wrong')
+      if (!res.ok) {
+        const msg: string = data.message ?? 'Something went wrong'
+        if (msg.toLowerCase().includes('expired') || msg.toLowerCase().includes('invalid')) {
+          setExpired(true); return
+        }
+        throw new Error(msg)
+      }
       setDone(true)
     } catch (err: any) {
       setError(err.message ?? 'Something went wrong')
@@ -68,7 +60,41 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="bg-surface border border-portal-border rounded-2xl p-8">
-          {done ? (
+          {expired ? (
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20">
+                  <Clock className="w-8 h-8 text-amber-400" />
+                </div>
+              </div>
+              <h2 className="text-on-canvas text-xl font-semibold mb-3">Your link has expired</h2>
+              <p className="text-on-canvas-subtle text-sm mb-4">
+                Password reset links are only valid for 1 hour. This one has expired or has already been used.
+              </p>
+              <div className="flex items-start gap-2.5 bg-portal-accent/5 border border-portal-border rounded-lg px-4 py-3 mb-6 text-left">
+                <MailOpen className="w-4 h-4 text-portal-accent flex-shrink-0 mt-0.5" />
+                <p className="text-on-canvas-muted text-xs leading-relaxed">
+                  Don't see the new email? Make sure to check your <span className="text-on-canvas font-medium">spam or junk folder</span> — reset emails sometimes end up there.
+                </p>
+              </div>
+              <Link
+                to="/forgot-password"
+                className="block w-full bg-portal-accent hover:bg-portal-accent/90 text-white font-semibold
+                           py-2.5 rounded-lg transition-colors text-sm text-center"
+              >
+                Request a new link
+              </Link>
+              <div className="mt-4">
+                <Link
+                  to="/login"
+                  className="text-on-canvas-muted hover:text-on-canvas-subtle text-xs transition-colors flex items-center justify-center gap-1"
+                >
+                  <ArrowLeft className="w-3 h-3" />
+                  Back to sign in
+                </Link>
+              </div>
+            </div>
+          ) : done ? (
             <div className="text-center">
               <div className="flex justify-center mb-4">
                 <CheckCircle2 className="w-12 h-12 text-emerald-500" />
