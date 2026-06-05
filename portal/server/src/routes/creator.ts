@@ -277,16 +277,28 @@ router.post('/generate', requireAuth, async (req, res) => {
 })
 
 // ─── GET /api/creator/images ──────────────────────────────────────────────────
+// ?mine=1 → current user's images from the last 24 hours (Creator chat history)
+// default  → all approved images from everyone (Asset Library / Creator Creations section)
 
 router.get('/images', requireAuth, (req, res) => {
   if (req.user!.role === 'tier4') return res.status(403).json({ error: 'Forbidden' })
-  // Return only the current user's images from the last 24 hours
+
+  if (req.query.mine === '1') {
+    const images = db.prepare(`
+      SELECT * FROM ai_images
+      WHERE user_id = ?
+        AND created_at >= datetime('now', '-24 hours')
+      ORDER BY created_at ASC
+    `).all(req.user!.id)
+    return res.json(images)
+  }
+
+  // All approved images — for the Creator Creations section in the Asset Library
   const images = db.prepare(`
     SELECT * FROM ai_images
-    WHERE user_id = ?
-      AND created_at >= datetime('now', '-24 hours')
-    ORDER BY created_at ASC
-  `).all(req.user!.id)
+    WHERE approved = 1
+    ORDER BY created_at DESC
+  `).all()
   return res.json(images)
 })
 

@@ -270,7 +270,7 @@ export default function CreatorPage() {
   // Load this user's images from the last 24 hours; clear and reload on user change (logout/expiry)
   useEffect(() => {
     if (!user?.id) { setMessages([]); return }
-    api.get<AiImage[]>('/creator/images')
+    api.get<AiImage[]>('/creator/images?mine=1')
       .then(images => {
         const msgs: ChatMsg[] = images.flatMap(img => [
           { key: `user-hist-${img.id}`, role: 'user' as const, text: img.prompt },

@@ -534,15 +534,15 @@ function DetailModal({
                   </div>
                 )}
 
-                {/* Asset Library toggle — AI items */}
+                {/* Media Library toggle — AI items */}
                 {item._source === 'ai' && (
                   <div className="border-t border-portal-border pt-4">
-                    <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-2">Asset Library</p>
+                    <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-2">Media Library</p>
                     {item.asset_id ? (
                       <div className="flex items-center justify-between gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2.5">
                         <span className="text-emerald-400 text-sm font-medium flex items-center gap-1.5">
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          Saved to Asset Library
+                          Saved to Media Library
                         </span>
                         <button
                           onClick={handleRemoveAiFromAssets}
@@ -554,14 +554,14 @@ function DetailModal({
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        <p className="text-on-canvas-muted text-xs">Save this image directly to the Asset Library so it appears in the Product Library for all users.</p>
+                        <p className="text-on-canvas-muted text-xs">Save this image to the Media Library (admin-only folder).</p>
                         <button
                           onClick={handleSaveAiToAssets}
                           disabled={assetWorking}
                           className="flex items-center gap-2 px-4 py-2 bg-surface-elevated border border-portal-border text-on-canvas hover:border-portal-accent hover:text-portal-accent rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                         >
                           {assetWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <BookOpen className="w-3.5 h-3.5" />}
-                          Save to Asset Library
+                          Save to Media Library
                         </button>
                       </div>
                     )}
