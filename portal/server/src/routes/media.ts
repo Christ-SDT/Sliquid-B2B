@@ -468,6 +468,13 @@ router.delete('/item/media/:id/remove-from-assets', requireAuth, requireRole('ti
   try {
     db.prepare('DELETE FROM assets WHERE id = ?').run(row.asset_id)
     db.prepare('UPDATE media SET asset_id = NULL WHERE id = ?').run(id)
+
+    // Also unapprove the originating AI image so it no longer shows in Creator Creations
+    const aiRow = db.prepare('SELECT * FROM ai_images WHERE media_id = ?').get(id) as any
+    if (aiRow) {
+      db.prepare('UPDATE ai_images SET approved = 0, asset_id = NULL WHERE id = ?').run(aiRow.id)
+    }
+
     const updated = db.prepare('SELECT * FROM media WHERE id = ?').get(id) as any
     return res.json({ ...updated, _source: 'media', thumbnail_url: updated.file_url })
   } catch (err: any) {
