@@ -569,13 +569,16 @@ function DetailModal({
                   </div>
                 )}
 
-                {/* Asset Library toggle — media items only */}
+                {/* User Creations toggle — media items only */}
                 {item._source === 'media' && (
                   <div className="border-t border-portal-border pt-4">
-                    <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-2">Asset Library</p>
+                    <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-2">User Generated Content</p>
                     {item.asset_id ? (
                       <div className="flex items-center justify-between gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2.5">
-                        <span className="text-emerald-400 text-sm font-medium">✓ Published to Asset Library</span>
+                        <span className="text-emerald-400 text-sm font-medium flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Published to User Creations
+                        </span>
                         <button
                           onClick={handleRemoveFromAssets}
                           disabled={assetWorking}
@@ -587,14 +590,14 @@ function DetailModal({
                       </div>
                     ) : (
                       <div className="flex items-center justify-between gap-3 bg-portal-bg border border-portal-border rounded-lg px-3 py-2.5">
-                        <span className="text-on-canvas-muted text-sm">Not in Asset Library</span>
+                        <span className="text-on-canvas-muted text-sm">Not in User Creations</span>
                         <button
                           onClick={handleAddToAssets}
                           disabled={assetWorking}
                           className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-portal-accent text-white hover:bg-portal-accent/90 transition-colors disabled:opacity-50"
                         >
                           {assetWorking ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-                          Add to Asset Library
+                          Add to User Creations
                         </button>
                       </div>
                     )}
