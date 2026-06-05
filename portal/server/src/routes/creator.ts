@@ -280,7 +280,13 @@ router.post('/generate', requireAuth, async (req, res) => {
 
 router.get('/images', requireAuth, (req, res) => {
   if (req.user!.role === 'tier4') return res.status(403).json({ error: 'Forbidden' })
-  const images = db.prepare('SELECT * FROM ai_images WHERE approved = 1 ORDER BY created_at DESC').all()
+  // Return only the current user's images from the last 24 hours
+  const images = db.prepare(`
+    SELECT * FROM ai_images
+    WHERE user_id = ?
+      AND created_at >= datetime('now', '-24 hours')
+    ORDER BY created_at ASC
+  `).all(req.user!.id)
   return res.json(images)
 })
 

@@ -35,11 +35,18 @@ router.put('/users/:id/role', requireAuth, requireRole('tier5', 'admin'), (req, 
     return
   }
   const id = parseInt(req.params.id)
-  const result = db.prepare("UPDATE users SET role = ?, status = 'active' WHERE id = ?").run(role, id)
-  if (result.changes === 0) {
-    res.status(404).json({ message: 'User not found' })
-    return
+  const existing = db.prepare('SELECT role FROM users WHERE id = ?').get(id) as { role: string } | undefined
+  if (!existing) { res.status(404).json({ message: 'User not found' }); return }
+
+  db.prepare("UPDATE users SET role = ?, status = 'active' WHERE id = ?").run(role, id)
+
+  // If demoted from admin, purge admin-only notifications
+  const wasAdmin = existing.role === 'tier5' || existing.role === 'admin'
+  const isNowAdmin = role === 'tier5' || role === 'admin'
+  if (wasAdmin && !isNowAdmin) {
+    db.prepare("DELETE FROM notifications WHERE user_id = ? AND type != 'new_asset'").run(id)
   }
+
   const user = db.prepare('SELECT id, name, email, company, role, created_at FROM users WHERE id = ?').get(id)
   res.json(user)
 })

@@ -983,6 +983,14 @@ const migrations: Migration[] = [
     },
   },
   {
+    version: 48,
+    name: 'ai_images_asset_id',
+    up: () => {
+      const cols = (db.prepare("SELECT name FROM pragma_table_info('ai_images')").all() as { name: string }[]).map(c => c.name)
+      if (!cols.includes('asset_id')) db.exec('ALTER TABLE ai_images ADD COLUMN asset_id INTEGER REFERENCES assets(id) ON DELETE SET NULL')
+    },
+  },
+  {
     version: 47,
     name: 'seed_media_demo_user',
     up: () => {

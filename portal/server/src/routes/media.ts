@@ -380,6 +380,43 @@ router.post('/item/media/:id/add-to-assets', requireAuth, requireRole('tier5', '
   }
 })
 
+// ─── POST /item/ai/:id/add-to-assets ─────────────────────────────────────────
+
+router.post('/item/ai/:id/add-to-assets', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const id = Number(req.params.id)
+  const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
+  if (!row) { res.status(404).json({ message: 'Not found' }); return }
+  if (row.asset_id) { return res.json({ ...row, _source: 'ai' }) }
+  try {
+    const name = row.prompt?.slice(0, 80) || 'AI Generated Image'
+    const { lastInsertRowid } = db.prepare(
+      'INSERT INTO assets (name, brand, type, file_url, thumbnail_url, s3_key) VALUES (?, ?, ?, ?, ?, ?)'
+    ).run(name, row.brand || 'User Generated Content', row.type || 'AI Generated', row.s3_url, row.s3_url, row.s3_key)
+    db.prepare('UPDATE ai_images SET asset_id = ? WHERE id = ?').run(lastInsertRowid, id)
+    const updated = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
+    return res.json({ ...updated, _source: 'ai' })
+  } catch (err: any) {
+    res.status(500).json({ message: err.message ?? 'Failed' })
+  }
+})
+
+// ─── DELETE /item/ai/:id/remove-from-assets ───────────────────────────────────
+
+router.delete('/item/ai/:id/remove-from-assets', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const id = Number(req.params.id)
+  const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
+  if (!row) { res.status(404).json({ message: 'Not found' }); return }
+  if (!row.asset_id) { return res.json({ ...row, _source: 'ai' }) }
+  try {
+    db.prepare('DELETE FROM assets WHERE id = ?').run(row.asset_id)
+    db.prepare('UPDATE ai_images SET asset_id = NULL WHERE id = ?').run(id)
+    const updated = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
+    return res.json({ ...updated, _source: 'ai' })
+  } catch (err: any) {
+    res.status(500).json({ message: err.message ?? 'Failed' })
+  }
+})
+
 // ─── DELETE /item/media/:id/remove-from-assets ────────────────────────────────
 
 router.delete('/item/media/:id/remove-from-assets', requireAuth, requireRole('tier5', 'admin'), (req, res) => {

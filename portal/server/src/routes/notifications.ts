@@ -5,16 +5,20 @@ import { requireAuth } from '../middleware/auth.js'
 const router = Router()
 
 // GET /api/notifications — latest 30 for current user, unread first
+// Non-admins only see 'new_asset' notifications; admin-only types are hidden from them
 router.get('/', requireAuth, (req, res) => {
+  const isAdmin = req.user!.role === 'tier5' || req.user!.role === 'admin'
+  const typeFilter = isAdmin ? '' : "AND type = 'new_asset'"
+
   const notifications = db.prepare(`
     SELECT * FROM notifications
-    WHERE user_id = ?
+    WHERE user_id = ? ${typeFilter}
     ORDER BY read ASC, created_at DESC
     LIMIT 30
   `).all(req.user!.id)
 
   const { count } = db.prepare(
-    'SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND read = 0'
+    `SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND read = 0 ${typeFilter}`
   ).get(req.user!.id) as { count: number }
 
   res.json({ notifications, unreadCount: count })
