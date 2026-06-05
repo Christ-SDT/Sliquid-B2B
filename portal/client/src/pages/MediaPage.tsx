@@ -851,7 +851,7 @@ function UploadModal({
 
 // ─── MediaCard ────────────────────────────────────────────────────────────────
 
-function MediaCard({ item, onClick }: { item: MediaItem; onClick: () => void }) {
+function MediaCard({ item, onClick, onBrokenImage }: { item: MediaItem; onClick: () => void; onBrokenImage: () => void }) {
   const [copied, setCopied] = useState(false)
   const [hovered, setHovered] = useState(false)
 
@@ -875,7 +875,7 @@ function MediaCard({ item, onClick }: { item: MediaItem; onClick: () => void }) 
         alt={item.label ?? ''}
         className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
         loading="lazy"
-        onError={e => { (e.target as HTMLImageElement).style.opacity = '0' }}
+        onError={onBrokenImage}
       />
 
       {hovered && (
@@ -1143,6 +1143,7 @@ export default function MediaPage() {
                   key={`${item._source}-${item.id}`}
                   item={item}
                   onClick={() => setSelectedItem(item)}
+                  onBrokenImage={() => setItems(prev => prev.filter(i => !(i._source === item._source && i.id === item.id)))}
                 />
               ))}
             </div>

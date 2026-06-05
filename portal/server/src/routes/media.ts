@@ -92,12 +92,18 @@ router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
     WHERE media_id IS NULL
   `).all() as Record<string, unknown>[]
 
+  // Exclude media rows that were created from AI images but whose ai_images row
+  // has since been deleted (orphaned rows — S3 file is gone, nothing to show)
   const media = db.prepare(`
     SELECT id, 'media' as _source, label, brand, type,
            file_url, file_url as thumbnail_url, file_size, dimensions,
            s3_key, NULL as description, NULL as subtitle, NULL as campaign,
            mime_type, uploaded_by, created_at, asset_id
     FROM media
+    WHERE NOT (
+      s3_key LIKE 'ai-images/%'
+      AND NOT EXISTS (SELECT 1 FROM ai_images WHERE media_id = media.id)
+    )
   `).all() as Record<string, unknown>[]
 
   const all = [...assets, ...creatives, ...marketing, ...ai, ...media]
@@ -402,18 +408,30 @@ router.post('/item/ai/:id/add-to-assets', requireAuth, requireRole('tier5', 'adm
   if (row.media_id) { return res.json({ ...row, _source: 'ai' }) }
   try {
     const label = row.prompt?.slice(0, 80) || 'AI Generated Image'
-    const { lastInsertRowid } = db.prepare(
+    const { lastInsertRowid: mediaRowId } = db.prepare(
       'INSERT INTO media (filename, label, brand, type, s3_key, file_url, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?)'
     ).run(
-      label,
-      label,
+      label, label,
       row.brand || 'User Generated Content',
       row.type || 'AI Generated',
-      row.s3_key,
-      row.s3_url,
+      row.s3_key, row.s3_url,
       row.created_by || 'Admin',
     )
-    db.prepare('UPDATE ai_images SET media_id = ? WHERE id = ?').run(lastInsertRowid, id)
+    db.prepare('UPDATE ai_images SET media_id = ? WHERE id = ?').run(mediaRowId, id)
+
+    // If the AI image was already approved for User Creations, carry that state
+    // over to the new media row so it shows as "Published to User Creations"
+    if (row.approved) {
+      const assetId = row.asset_id ?? (() => {
+        const { lastInsertRowid: aid } = db.prepare(
+          'INSERT INTO assets (name, brand, type, file_url, thumbnail_url, s3_key) VALUES (?, ?, ?, ?, ?, ?)'
+        ).run(label, row.brand || 'User Generated Content', 'AI Generated', row.s3_url, row.s3_url, row.s3_key)
+        db.prepare('UPDATE ai_images SET asset_id = ? WHERE id = ?').run(aid, id)
+        return aid
+      })()
+      db.prepare('UPDATE media SET asset_id = ? WHERE id = ?').run(assetId, mediaRowId)
+    }
+
     const updated = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
     return res.json({ ...updated, _source: 'ai' })
   } catch (err: any) {

@@ -306,8 +306,24 @@ router.get('/images', requireAuth, (req, res) => {
 
 router.post('/:id/approve', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const id = Number(req.params.id)
-  const result = db.prepare('UPDATE ai_images SET approved = 1 WHERE id = ?').run(id)
-  if (result.changes === 0) return res.status(404).json({ error: 'Not found' })
+  const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
+  if (!row) return res.status(404).json({ error: 'Not found' })
+
+  db.prepare('UPDATE ai_images SET approved = 1 WHERE id = ?').run(id)
+
+  // If the image is already in the Media Library, mark it as published there too
+  if (row.media_id) {
+    const mediaRow = db.prepare('SELECT * FROM media WHERE id = ?').get(row.media_id) as any
+    if (mediaRow && !mediaRow.asset_id) {
+      const label = row.prompt?.slice(0, 80) || 'AI Generated Image'
+      const { lastInsertRowid } = db.prepare(
+        'INSERT INTO assets (name, brand, type, file_url, thumbnail_url, s3_key) VALUES (?, ?, ?, ?, ?, ?)'
+      ).run(label, row.brand || 'User Generated Content', 'AI Generated', row.s3_url, row.s3_url, row.s3_key)
+      db.prepare('UPDATE media SET asset_id = ? WHERE id = ?').run(lastInsertRowid, row.media_id)
+      db.prepare('UPDATE ai_images SET asset_id = ? WHERE id = ?').run(lastInsertRowid, id)
+    }
+  }
+
   return res.json(db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id))
 })
 
@@ -315,8 +331,18 @@ router.post('/:id/approve', requireAuth, requireRole('tier5', 'admin'), (req, re
 
 router.post('/:id/unapprove', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const id = Number(req.params.id)
-  const result = db.prepare('UPDATE ai_images SET approved = 0 WHERE id = ?').run(id)
-  if (result.changes === 0) return res.status(404).json({ error: 'Not found' })
+  const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
+  if (!row) return res.status(404).json({ error: 'Not found' })
+
+  db.prepare('UPDATE ai_images SET approved = 0 WHERE id = ?').run(id)
+
+  // If the image is in the Media Library, clear its User Creations state too
+  if (row.media_id && row.asset_id) {
+    db.prepare('DELETE FROM assets WHERE id = ?').run(row.asset_id)
+    db.prepare('UPDATE media  SET asset_id = NULL WHERE id = ?').run(row.media_id)
+    db.prepare('UPDATE ai_images SET asset_id = NULL WHERE id = ?').run(id)
+  }
+
   return res.json(db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id))
 })
 
