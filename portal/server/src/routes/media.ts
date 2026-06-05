@@ -333,17 +333,27 @@ router.delete('/item/:source/:id', requireAuth, requireRole('tier5', 'admin'), a
     }
 
     if (source === 'ai') {
-      const row = db.prepare('SELECT s3_key FROM ai_images WHERE id = ?').get(id) as any
+      const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
       if (!row) { res.status(404).json({ message: 'Not found' }); return }
       if (row.s3_key) await deleteS3Object(row.s3_key)
+      if (row.media_id) db.prepare('DELETE FROM media  WHERE id = ?').run(row.media_id)
+      if (row.asset_id) db.prepare('DELETE FROM assets WHERE id = ?').run(row.asset_id)
       db.prepare('DELETE FROM ai_images WHERE id = ?').run(id)
       return res.json({ ok: true })
     }
 
     if (source === 'media') {
-      const row = db.prepare('SELECT s3_key FROM media WHERE id = ?').get(id) as any
+      const row = db.prepare('SELECT * FROM media WHERE id = ?').get(id) as any
       if (!row) { res.status(404).json({ message: 'Not found' }); return }
-      if (row.s3_key) await deleteS3Object(row.s3_key)
+      // If this media entry was created from an AI image, delete the AI image too
+      const aiRow = db.prepare('SELECT * FROM ai_images WHERE media_id = ?').get(id) as any
+      if (aiRow) {
+        if (aiRow.s3_key) await deleteS3Object(aiRow.s3_key)
+        if (aiRow.asset_id) db.prepare('DELETE FROM assets WHERE id = ?').run(aiRow.asset_id)
+        db.prepare('DELETE FROM ai_images WHERE id = ?').run(aiRow.id)
+      } else if (row.s3_key) {
+        await deleteS3Object(row.s3_key)
+      }
       db.prepare('DELETE FROM media WHERE id = ?').run(id)
       return res.json({ ok: true })
     }

@@ -343,6 +343,10 @@ router.delete('/:id', requireAuth, async (req, res) => {
     // continue — delete from DB even if S3 fails
   }
 
+  // Clean up linked rows in other tables
+  if (row.media_id)  db.prepare('DELETE FROM media  WHERE id = ?').run(row.media_id)
+  if (row.asset_id)  db.prepare('DELETE FROM assets WHERE id = ?').run(row.asset_id)
+
   db.prepare('DELETE FROM ai_images WHERE id = ?').run(id)
   return res.json({ ok: true })
 })
