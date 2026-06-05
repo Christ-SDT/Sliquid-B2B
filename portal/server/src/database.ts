@@ -991,6 +991,14 @@ const migrations: Migration[] = [
     },
   },
   {
+    version: 49,
+    name: 'ai_images_media_id',
+    up: () => {
+      const cols = (db.prepare("SELECT name FROM pragma_table_info('ai_images')").all() as { name: string }[]).map(c => c.name)
+      if (!cols.includes('media_id')) db.exec('ALTER TABLE ai_images ADD COLUMN media_id INTEGER')
+    },
+  },
+  {
     version: 47,
     name: 'seed_media_demo_user',
     up: () => {

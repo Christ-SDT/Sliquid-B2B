@@ -388,7 +388,7 @@ router.post('/item/ai/:id/add-to-assets', requireAuth, requireRole('tier5', 'adm
   const id = Number(req.params.id)
   const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
   if (!row) { res.status(404).json({ message: 'Not found' }); return }
-  if (row.asset_id) { return res.json({ ...row, _source: 'ai' }) }
+  if (row.media_id) { return res.json({ ...row, _source: 'ai' }) }
   try {
     const label = row.prompt?.slice(0, 80) || 'AI Generated Image'
     const { lastInsertRowid } = db.prepare(
@@ -402,7 +402,7 @@ router.post('/item/ai/:id/add-to-assets', requireAuth, requireRole('tier5', 'adm
       row.s3_url,
       row.created_by || 'Admin',
     )
-    db.prepare('UPDATE ai_images SET asset_id = ? WHERE id = ?').run(lastInsertRowid, id)
+    db.prepare('UPDATE ai_images SET media_id = ? WHERE id = ?').run(lastInsertRowid, id)
     const updated = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
     return res.json({ ...updated, _source: 'ai' })
   } catch (err: any) {
@@ -416,10 +416,10 @@ router.delete('/item/ai/:id/remove-from-assets', requireAuth, requireRole('tier5
   const id = Number(req.params.id)
   const row = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
   if (!row) { res.status(404).json({ message: 'Not found' }); return }
-  if (!row.asset_id) { return res.json({ ...row, _source: 'ai' }) }
+  if (!row.media_id) { return res.json({ ...row, _source: 'ai' }) }
   try {
-    db.prepare('DELETE FROM media WHERE id = ?').run(row.asset_id)
-    db.prepare('UPDATE ai_images SET asset_id = NULL WHERE id = ?').run(id)
+    db.prepare('DELETE FROM media WHERE id = ?').run(row.media_id)
+    db.prepare('UPDATE ai_images SET media_id = NULL WHERE id = ?').run(id)
     const updated = db.prepare('SELECT * FROM ai_images WHERE id = ?').get(id) as any
     return res.json({ ...updated, _source: 'ai' })
   } catch (err: any) {

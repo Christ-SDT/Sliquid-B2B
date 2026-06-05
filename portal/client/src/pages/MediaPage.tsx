@@ -31,6 +31,7 @@ interface MediaItem {
   description?: string | null
   campaign?: string | null
   asset_id?: number | null
+  media_id?: number | null
   approved?: number | null
 }
 
@@ -538,7 +539,7 @@ function DetailModal({
                 {item._source === 'ai' && (
                   <div className="border-t border-portal-border pt-4">
                     <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-2">Media Library</p>
-                    {item.asset_id ? (
+                    {item.media_id ? (
                       <div className="flex items-center justify-between gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2.5">
                         <span className="text-emerald-400 text-sm font-medium flex items-center gap-1.5">
                           <CheckCircle2 className="w-3.5 h-3.5" />
