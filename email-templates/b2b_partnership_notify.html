@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Partnership Inquiry — Sliquid</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:Inter,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0f4f8;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+          <!-- HEADER -->
+          <tr>
+            <td style="background-color:#fefaf4;border-radius:8px 8px 0 0;border-bottom:1px solid #ddc9ae;padding:24px 40px;text-align:center;">
+              <img src="https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/reference-images/58439771-8fd8-454f-81eb-e2e5123dede5.png" alt="Sliquid" style="max-width:180px;height:auto;display:block;margin:0 auto;" />
+              <p style="margin:10px 0 0;font-size:22px;font-weight:700;color:#0A84C0;letter-spacing:2px;">SLIQUID</p>
+              <p style="margin:4px 0 0;font-size:11px;color:#a08060;letter-spacing:3px;text-transform:uppercase;">Partnership &amp; Sales Inquiry</p>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="background-color:#ffffff;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:40px 40px 32px;">
+
+              <p style="margin:0 0 8px;font-size:20px;font-weight:700;color:#1a202c;">New {{subject}} inquiry</p>
+              <p style="margin:0 0 28px;font-size:14px;color:#4a5568;line-height:1.6;">
+                Someone submitted a <strong>{{subject}}</strong> inquiry via the Sliquid B2B contact form. This has been routed to the Partnerships &amp; Sales team.
+              </p>
+
+              <!-- Details table -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:28px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+                <tr style="background-color:#f7fafc;">
+                  <td style="padding:10px 16px;font-size:12px;font-weight:600;color:#718096;text-transform:uppercase;letter-spacing:0.5px;width:140px;border-bottom:1px solid #e2e8f0;">Name</td>
+                  <td style="padding:10px 16px;font-size:14px;color:#2d3748;border-bottom:1px solid #e2e8f0;">{{from_name}}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 16px;font-size:12px;font-weight:600;color:#718096;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #e2e8f0;">Email</td>
+                  <td style="padding:10px 16px;font-size:14px;border-bottom:1px solid #e2e8f0;">
+                    <a href="mailto:{{from_email}}" style="color:#0A84C0;text-decoration:none;">{{from_email}}</a>
+                  </td>
+                </tr>
+                <tr style="background-color:#f7fafc;">
+                  <td style="padding:10px 16px;font-size:12px;font-weight:600;color:#718096;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #e2e8f0;">Company</td>
+                  <td style="padding:10px 16px;font-size:14px;color:#2d3748;border-bottom:1px solid #e2e8f0;">{{company}}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 16px;font-size:12px;font-weight:600;color:#718096;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #e2e8f0;">Phone</td>
+                  <td style="padding:10px 16px;font-size:14px;color:#2d3748;border-bottom:1px solid #e2e8f0;">{{phone}}</td>
+                </tr>
+                <tr style="background-color:#f7fafc;">
+                  <td style="padding:10px 16px;font-size:12px;font-weight:600;color:#718096;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #e2e8f0;">Inquiry Type</td>
+                  <td style="padding:10px 16px;font-size:14px;color:#2d3748;border-bottom:1px solid #e2e8f0;">{{subject}}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 16px;font-size:12px;font-weight:600;color:#718096;text-transform:uppercase;letter-spacing:0.5px;vertical-align:top;">Message</td>
+                  <td style="padding:12px 16px;font-size:14px;color:#2d3748;line-height:1.6;white-space:pre-wrap;">{{message}}</td>
+                </tr>
+              </table>
+
+              <!-- Routing note -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:28px;">
+                <tr>
+                  <td style="background-color:#fff8e6;border:1px solid #f5d78e;border-radius:8px;padding:14px 18px;">
+                    <p style="margin:0;font-size:13px;color:#7a5c00;line-height:1.6;">
+                      <strong>&#9432; Routing notice:</strong> This inquiry was automatically directed to <strong>Partnerships &amp; Sales</strong> because the contact selected <em>{{subject}}</em> as their inquiry type. Please respond within <strong>2 business days</strong>.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Reply CTA -->
+              <table cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="background-color:#0A84C0;border-radius:8px;">
+                    <a href="mailto:{{from_email}}"
+                       style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">
+                      Reply to {{from_name}}
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background-color:#f7fafc;border:1px solid #e2e8f0;border-radius:0 0 8px 8px;padding:20px 40px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#a0aec0;">Submitted via sliquid.com/contact &mdash; Partnerships &amp; Sales</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

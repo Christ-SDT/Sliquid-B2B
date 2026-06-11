@@ -244,10 +244,14 @@ export async function sendContactFormEmails(opts: {
   message: string
 }): Promise<void> {
   const { fromName, fromEmail, company, phone, subject, message } = opts
-  await sendEmail('b2b_contact_admin', {
+  const isPartnershipInquiry = subject === 'retailer' || subject === 'distributor'
+  const adminTemplate = isPartnershipInquiry ? 'b2b_partnership_notify' : 'b2b_contact_admin'
+
+  await sendEmail(adminTemplate, {
     from_name: fromName, from_email: fromEmail,
     company, phone, subject, message,
   })
+
   const sent = await sendEmail('b2b_contact_reply', {
     to_name: fromName, reply_to: fromEmail, to_email: fromEmail,
   })
