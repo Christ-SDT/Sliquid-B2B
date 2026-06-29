@@ -54,10 +54,11 @@ describe('upsertSsoUser', () => {
       .post('/api/auth/login')
       .send({ email: 'sso-only@sliquid.com', password: 'anything' })
     expect(res.status).toBe(401)
+    // (password login is the /api/auth route — unchanged by the SSO path move)
   })
 })
 
-describe('GET /api/auth/sso/login', () => {
+describe('GET /auth/google/login', () => {
   const SSO_ENV = {
     SSO_ENABLED: 'true',
     SSO_AUTHORIZE_URL: 'https://sso-api.sliquid.com/oauth2/authorize',
@@ -66,7 +67,7 @@ describe('GET /api/auth/sso/login', () => {
     SSO_ISSUER: 'https://sso-api.sliquid.com',
     SSO_CLIENT_ID: 'partner-portal',
     SSO_CLIENT_SECRET: 'shh-secret',
-    SSO_REDIRECT_URI: 'https://api.example.com/api/auth/sso/callback',
+    SSO_REDIRECT_URI: 'https://api.example.com/auth/google/callback',
   }
 
   afterEach(() => {
@@ -74,20 +75,20 @@ describe('GET /api/auth/sso/login', () => {
   })
 
   it('returns 503 when SSO is not configured', async () => {
-    const res = await request(app).get('/api/auth/sso/login')
+    const res = await request(app).get('/auth/google/login')
     expect(res.status).toBe(503)
   })
 
   it('redirects to a well-formed authorize URL and sets the sso_tx cookie when configured', async () => {
     Object.assign(process.env, SSO_ENV)
-    const res = await request(app).get('/api/auth/sso/login')
+    const res = await request(app).get('/auth/google/login')
 
     expect(res.status).toBe(302)
     const loc = new URL(res.headers.location)
     expect(loc.origin + loc.pathname).toBe('https://sso-api.sliquid.com/oauth2/authorize')
     expect(loc.searchParams.get('response_type')).toBe('code')
     expect(loc.searchParams.get('client_id')).toBe('partner-portal')
-    expect(loc.searchParams.get('redirect_uri')).toBe('https://api.example.com/api/auth/sso/callback')
+    expect(loc.searchParams.get('redirect_uri')).toBe('https://api.example.com/auth/google/callback')
     expect(loc.searchParams.get('code_challenge_method')).toBe('S256')
     expect(loc.searchParams.get('code_challenge')).toBeTruthy()
     expect(loc.searchParams.get('state')).toBeTruthy()

@@ -41,7 +41,7 @@ function txCookieOptions() {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax' as const,
     maxAge: 5 * 60 * 1000, // 5 minutes — only needs to survive the round trip
-    path: '/api/auth/sso',
+    path: '/auth/google',
   }
 }
 
@@ -105,7 +105,7 @@ export function upsertSsoUser(claims: SsoClaims): PortalUser {
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
-// GET /api/auth/sso/login — start the OIDC Authorization Code + PKCE flow
+// GET /auth/google/login — start the OIDC Authorization Code + PKCE flow
 router.get('/login', (req, res) => {
   const c = cfg()
   if (!isConfigured(c)) {
@@ -140,11 +140,11 @@ function getJwks(jwksUrl: string) {
   return jwks
 }
 
-// GET /api/auth/sso/callback — exchange code, verify id_token, mint portal session
+// GET /auth/google/callback — exchange code, verify id_token, mint portal session
 router.get('/callback', async (req, res) => {
   const c = cfg()
   const fail = (reason: string) => {
-    res.clearCookie(TX_COOKIE, { path: '/api/auth/sso' })
+    res.clearCookie(TX_COOKIE, { path: '/auth/google' })
     res.redirect(`${c.successRedirect}/employee-login?sso_error=${encodeURIComponent(reason)}`)
   }
 
@@ -210,7 +210,7 @@ router.get('/callback', async (req, res) => {
     const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' })
 
     // 5. Hand the session to the SPA via the existing #token= handoff (AuthContext reads it)
-    res.clearCookie(TX_COOKIE, { path: '/api/auth/sso' })
+    res.clearCookie(TX_COOKIE, { path: '/auth/google' })
     res.redirect(`${c.successRedirect}/dashboard#token=${encodeURIComponent(token)}`)
   } catch (err) {
     console.error('[sso] Callback error:', err)

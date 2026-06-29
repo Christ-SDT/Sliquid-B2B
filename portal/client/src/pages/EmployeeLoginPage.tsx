@@ -30,7 +30,7 @@ export default function EmployeeLoginPage() {
   function startSso() {
     setLoading(true)
     // Full-page navigation to the server, which begins the OIDC redirect dance.
-    window.location.href = `${import.meta.env.VITE_API_URL ?? ''}/api/auth/sso/login`
+    window.location.href = `${import.meta.env.VITE_API_URL ?? ''}/auth/google/login`
   }
 
   return (

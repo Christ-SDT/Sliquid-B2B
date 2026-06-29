@@ -74,7 +74,7 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '20mb' }))
 app.use(cookieParser())
 
-app.use('/api/auth/sso', ssoRouter)
+app.use('/auth/google', ssoRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/user', authRouter)
 app.use('/api/products', productsRouter)

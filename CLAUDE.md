@@ -105,7 +105,7 @@ SSO_TOKEN_URL=http://localhost:4000/oauth2/token
 SSO_JWKS_URL=http://localhost:4000/oauth2/jwks
 SSO_CLIENT_ID=partner-portal
 SSO_CLIENT_SECRET=your_client_secret
-SSO_REDIRECT_URI=http://localhost:3001/api/auth/sso/callback
+SSO_REDIRECT_URI=http://localhost:3001/auth/google/callback
 SSO_SCOPE=openid profile email
 SSO_SUCCESS_REDIRECT=http://localhost:5173
 ```
@@ -252,14 +252,15 @@ Managed in `portal/server/src/database.ts`. Rules:
 | POST | `/forgot-password` | — | Accepts `email`; generates reset token (1hr expiry); sends `portal_password_reset` email; always returns `{ ok: true }` (no enumeration) |
 | POST | `/reset-password` | — | Accepts `token, password`; validates token + expiry; updates password hash; clears token fields |
 
-### Employee SSO — `/api/auth/sso` (OIDC Auth Code + PKCE against Sliquid SSO IdP)
+### Employee SSO — `/auth/google` (OIDC Auth Code + PKCE against Sliquid SSO IdP)
+Mounted at the app root (NOT under `/api`) so the OIDC callback is `/auth/google/callback`. The `ssoRouter` lives in `routes/sso.ts`; the `sso_tx` cookie path is `/auth/google`.
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/login` | — | Starts the OIDC flow: generates PKCE verifier+state, stashes them in a 5-min signed `sso_tx` httpOnly cookie, 302-redirects to `SSO_AUTHORIZE_URL`. Returns 503 if `SSO_ENABLED !== 'true'` or config missing |
-| GET | `/callback` | — | Verifies `state` cookie, exchanges `code` at `SSO_TOKEN_URL` (HTTP Basic, `code_verifier`), verifies `id_token` (RS256 via JWKS, checks `iss`/`aud`/`exp`), find-or-creates user (`upsertSsoUser`), mints portal JWT, 302 → `${SSO_SUCCESS_REDIRECT}/dashboard#token=<jwt>`. On error → `/employee-login?sso_error=<reason>` |
+| GET | `/auth/google/login` | — | Starts the OIDC flow: generates PKCE verifier+state, stashes them in a 5-min signed `sso_tx` httpOnly cookie, 302-redirects to `SSO_AUTHORIZE_URL`. Returns 503 if `SSO_ENABLED !== 'true'` or config missing |
+| GET | `/auth/google/callback` | — | Verifies `state` cookie, exchanges `code` at `SSO_TOKEN_URL` (HTTP Basic, `code_verifier`), verifies `id_token` (RS256 via JWKS, checks `iss`/`aud`/`exp`), find-or-creates user (`upsertSsoUser`), mints portal JWT, 302 → `${SSO_SUCCESS_REDIRECT}/dashboard#token=<jwt>`. On error → `/employee-login?sso_error=<reason>` |
 
 - `upsertSsoUser` (`routes/sso.ts`): new users → `tier5` Admin, `status='active'`, `company='Sliquid'`, unusable password hash, `sso_sub` set. Existing users keep their current role (never downgrade), get reactivated + `sso_sub` linked. Both SSO `role` claims (`admin`/`employee`) floor at tier5.
-- Client entry point: dedicated `/employee-login` page (`EmployeeLoginPage.tsx`), linked from `LoginPage.tsx`. The post-login session arrives via the existing `#token=` hash handler in `AuthContext.tsx`.
+- Client entry point: dedicated `/employee-login` page (`EmployeeLoginPage.tsx`), linked from `LoginPage.tsx` (portal) and the B2B `PartnerLoginPage.tsx` ("Sliquid Employee Sign In" button → `${PORTAL_URL}/employee-login`). The button hits `${VITE_API_URL}/auth/google/login`. The post-login session arrives via the existing `#token=` hash handler in `AuthContext.tsx`.
 
 ### Products — `/api/products`
 | Method | Path | Auth | Description |
@@ -859,7 +860,7 @@ portal/server/src/__tests__/
 - Employee SSO env vars (all required to enable the `/api/auth/sso` flow):
   - `SSO_ENABLED=true`, `SSO_ISSUER`, `SSO_AUTHORIZE_URL`, `SSO_TOKEN_URL`, `SSO_JWKS_URL` (all `https://sso-api.sliquid.com/...`)
   - `SSO_CLIENT_ID`, `SSO_CLIENT_SECRET` (from registering the app at `https://sso.sliquid.com` → Admin → Apps)
-  - `SSO_REDIRECT_URI` — **must byte-match** the registered URI, e.g. `https://<server-domain>/api/auth/sso/callback`
+  - `SSO_REDIRECT_URI` — **must byte-match** the registered URI, e.g. `https://<server-domain>/auth/google/callback`
   - `SSO_SCOPE=openid profile email`, `SSO_SUCCESS_REDIRECT=<portal client origin>` (for the `#token=` handoff)
 
 ---
