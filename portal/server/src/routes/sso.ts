@@ -1,0 +1,221 @@
+import { Router } from 'express'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import { randomBytes, createHash } from 'crypto'
+import { createRemoteJWKSet, jwtVerify } from 'jose'
+import { db } from '../database.js'
+import { JWT_SECRET } from '../middleware/auth.js'
+
+const router = Router()
+
+// ─── Config ─────────────────────────────────────────────────────────────────
+// All values come from env so the same code works in local dev and prod.
+// See the Sliquid SSO Portal README for the canonical endpoint list.
+
+const cfg = () => ({
+  enabled: process.env.SSO_ENABLED === 'true',
+  issuer: process.env.SSO_ISSUER ?? '',
+  authorizeUrl: process.env.SSO_AUTHORIZE_URL ?? '',
+  tokenUrl: process.env.SSO_TOKEN_URL ?? '',
+  jwksUrl: process.env.SSO_JWKS_URL ?? '',
+  clientId: process.env.SSO_CLIENT_ID ?? '',
+  clientSecret: process.env.SSO_CLIENT_SECRET ?? '',
+  redirectUri: process.env.SSO_REDIRECT_URI ?? '',
+  scope: process.env.SSO_SCOPE ?? 'openid profile email',
+  // Where the SPA lives — the post-login #token= handoff and error redirects land here.
+  successRedirect: (process.env.SSO_SUCCESS_REDIRECT ?? 'http://localhost:5173').replace(/\/$/, ''),
+})
+
+function isConfigured(c = cfg()): boolean {
+  return c.enabled && Boolean(c.authorizeUrl && c.tokenUrl && c.jwksUrl && c.clientId && c.clientSecret && c.redirectUri)
+}
+
+const base64url = (buf: Buffer) =>
+  buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+
+const TX_COOKIE = 'sso_tx'
+
+function txCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    maxAge: 5 * 60 * 1000, // 5 minutes — only needs to survive the round trip
+    path: '/api/auth/sso',
+  }
+}
+
+// ─── User provisioning ────────────────────────────────────────────────────────
+
+export interface SsoClaims {
+  email: string
+  name?: string
+  sub: string
+  role?: string // "admin" | "employee" — both floor at tier5 in this portal
+}
+
+interface PortalUser {
+  id: number
+  name: string
+  email: string
+  role: string
+  company: string | null
+  status: string
+}
+
+/**
+ * Find-or-create a portal user from verified SSO claims.
+ * - New users are provisioned as active tier5 (Admin) with an unusable password hash.
+ * - Existing users keep their current role (never downgrade) but are reactivated and
+ *   have their sso_sub linked + last_login stamped.
+ */
+export function upsertSsoUser(claims: SsoClaims): PortalUser {
+  const email = claims.email.trim().toLowerCase()
+  const existing = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any
+
+  if (existing) {
+    db.prepare("UPDATE users SET sso_sub = ?, status = 'active', last_login = datetime('now') WHERE id = ?")
+      .run(claims.sub, existing.id)
+    return {
+      id: existing.id,
+      name: existing.name,
+      email: existing.email,
+      role: existing.role, // keep existing role — SSO promotes, never demotes
+      company: existing.company,
+      status: 'active',
+    }
+  }
+
+  const unusableHash = bcrypt.hashSync(randomBytes(32).toString('hex'), 10)
+  const name = claims.name?.trim() || email
+  const result = db.prepare(
+    "INSERT INTO users (name, email, company, password_hash, role, status, sso_sub, last_login) " +
+    "VALUES (?, ?, ?, ?, 'tier5', 'active', ?, datetime('now'))"
+  ).run(name, email, 'Sliquid', unusableHash, claims.sub)
+
+  return {
+    id: result.lastInsertRowid as number,
+    name,
+    email,
+    role: 'tier5',
+    company: 'Sliquid',
+    status: 'active',
+  }
+}
+
+// ─── Routes ─────────────────────────────────────────────────────────────────
+
+// GET /api/auth/sso/login — start the OIDC Authorization Code + PKCE flow
+router.get('/login', (req, res) => {
+  const c = cfg()
+  if (!isConfigured(c)) {
+    res.status(503).json({ message: 'SSO is not configured' })
+    return
+  }
+
+  const verifier = base64url(randomBytes(32))
+  const challenge = base64url(createHash('sha256').update(verifier).digest())
+  const state = randomBytes(16).toString('hex')
+
+  // Stash {state, verifier} in a short-lived signed cookie (stateless across instances)
+  const tx = jwt.sign({ state, verifier }, JWT_SECRET, { expiresIn: '5m' })
+  res.cookie(TX_COOKIE, tx, txCookieOptions())
+
+  const url = new URL(c.authorizeUrl)
+  url.searchParams.set('response_type', 'code')
+  url.searchParams.set('client_id', c.clientId)
+  url.searchParams.set('redirect_uri', c.redirectUri)
+  url.searchParams.set('scope', c.scope)
+  url.searchParams.set('state', state)
+  url.searchParams.set('code_challenge', challenge)
+  url.searchParams.set('code_challenge_method', 'S256')
+
+  res.redirect(url.toString())
+})
+
+// Lazily-built JWKS set (jose caches keys + handles rotation)
+let jwks: ReturnType<typeof createRemoteJWKSet> | null = null
+function getJwks(jwksUrl: string) {
+  if (!jwks) jwks = createRemoteJWKSet(new URL(jwksUrl))
+  return jwks
+}
+
+// GET /api/auth/sso/callback — exchange code, verify id_token, mint portal session
+router.get('/callback', async (req, res) => {
+  const c = cfg()
+  const fail = (reason: string) => {
+    res.clearCookie(TX_COOKIE, { path: '/api/auth/sso' })
+    res.redirect(`${c.successRedirect}/employee-login?sso_error=${encodeURIComponent(reason)}`)
+  }
+
+  if (!isConfigured(c)) return fail('sso_unavailable')
+
+  const { code, state, error } = req.query as Record<string, string>
+  if (error) return fail(error)
+  if (!code || !state) return fail('missing_code')
+
+  // 1. Verify state against the transaction cookie
+  const txRaw = (req as any).cookies?.[TX_COOKIE]
+  if (!txRaw) return fail('missing_state')
+  let verifier: string
+  try {
+    const tx = jwt.verify(txRaw, JWT_SECRET) as { state: string; verifier: string }
+    if (tx.state !== state) return fail('state_mismatch')
+    verifier = tx.verifier
+  } catch {
+    return fail('invalid_state')
+  }
+
+  try {
+    // 2. Exchange the code for tokens (confidential client → HTTP Basic auth)
+    const basic = Buffer.from(`${c.clientId}:${c.clientSecret}`).toString('base64')
+    const body = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: c.redirectUri,
+      code_verifier: verifier,
+    })
+    const tokenRes = await fetch(c.tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${basic}`,
+      },
+      body,
+    })
+    if (!tokenRes.ok) {
+      console.error('[sso] Token exchange failed:', tokenRes.status, await tokenRes.text().catch(() => ''))
+      return fail('token_exchange_failed')
+    }
+    const tokens = (await tokenRes.json()) as { id_token?: string }
+    if (!tokens.id_token) return fail('no_id_token')
+
+    // 3. Verify the id_token (RS256) against the JWKS, with iss/aud checks
+    const { payload } = await jwtVerify(tokens.id_token, getJwks(c.jwksUrl), {
+      issuer: c.issuer,
+      audience: c.clientId,
+    })
+
+    const email = typeof payload.email === 'string' ? payload.email : ''
+    if (!email) return fail('no_email')
+
+    // 4. Find-or-create the portal user, then mint our own session JWT
+    const user = upsertSsoUser({
+      email,
+      name: typeof payload.name === 'string' ? payload.name : undefined,
+      sub: String(payload.sub ?? ''),
+      role: typeof payload.role === 'string' ? payload.role : undefined,
+    })
+
+    const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' })
+
+    // 5. Hand the session to the SPA via the existing #token= handoff (AuthContext reads it)
+    res.clearCookie(TX_COOKIE, { path: '/api/auth/sso' })
+    res.redirect(`${c.successRedirect}/dashboard#token=${encodeURIComponent(token)}`)
+  } catch (err) {
+    console.error('[sso] Callback error:', err)
+    return fail('verification_failed')
+  }
+})
+
+export default router

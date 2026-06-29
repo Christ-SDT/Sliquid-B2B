@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 // Logger must be imported before anything else so console interception is
 // in place before routes/database start emitting logs
 import './logger.js'
@@ -7,6 +8,7 @@ import './database.js'
 
 import logsRouter from './routes/logs.js'
 import authRouter from './routes/auth.js'
+import ssoRouter from './routes/sso.js'
 import productsRouter from './routes/products.js'
 import assetsRouter from './routes/assets.js'
 import distributorsRouter from './routes/distributors.js'
@@ -70,7 +72,9 @@ app.use((req, res, next) => {
   strictCors(req, res, next)
 })
 app.use(express.json({ limit: '20mb' }))
+app.use(cookieParser())
 
+app.use('/api/auth/sso', ssoRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/user', authRouter)
 app.use('/api/products', productsRouter)

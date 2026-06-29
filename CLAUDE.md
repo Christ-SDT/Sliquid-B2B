@@ -96,6 +96,18 @@ PORTAL_URL=https://your-portal-url.pages.dev
 WC_URL=https://your-store.com
 WC_CONSUMER_KEY=ck_xxx
 WC_CONSUMER_SECRET=cs_xxx
+
+# Optional — Employee SSO (OIDC). Omit/leave SSO_ENABLED unset to disable the /employee-login flow.
+SSO_ENABLED=true
+SSO_ISSUER=http://localhost:4000
+SSO_AUTHORIZE_URL=http://localhost:4000/oauth2/authorize
+SSO_TOKEN_URL=http://localhost:4000/oauth2/token
+SSO_JWKS_URL=http://localhost:4000/oauth2/jwks
+SSO_CLIENT_ID=partner-portal
+SSO_CLIENT_SECRET=your_client_secret
+SSO_REDIRECT_URI=http://localhost:3001/api/auth/sso/callback
+SSO_SCOPE=openid profile email
+SSO_SUCCESS_REDIRECT=http://localhost:5173
 ```
 
 Create `portal/client/.env.local`:
@@ -168,8 +180,9 @@ Each NAV entry has: `restricted`, `prospectVisible`, `managerOnly`, `adminOnly`.
 | `/stats` | ✗ | ✗ | ✗ | ✗ | ✓ |
 | `/users` | ✗ | ✗ | ✗ | ✗ | ✓ |
 | `/verify` | ✓ (public) | ✓ (public) | ✓ (public) | ✓ (public) | ✓ (public) |
+| `/employee-login` | ✓ (public) | ✓ (public) | ✓ (public) | ✓ (public) | ✓ (public) |
 
-`/verify` is outside `<Shell>` — no auth required, accessible to anyone.
+`/verify` and `/employee-login` are outside `<Shell>` — no auth required, accessible to anyone. `/employee-login` is the Sliquid-staff SSO entry point (employees authenticate as tier5 Admin).
 
 Restricted tiers redirected to `/dashboard` for any disallowed route (enforced in `Shell.tsx`).
 
@@ -214,8 +227,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 28 | `update_training_video_urls` | Updates video_path for h2o-vs-sassy, sea-vs-tsunami, silver-vs-silk, satin, swirl |
 | 34 | `add_featured_to_assets_and_creatives` | Adds `featured INTEGER NOT NULL DEFAULT 0` to `assets` and `creatives` tables |
 | 35 | `add_password_reset_tokens` | Adds `reset_token TEXT` and `reset_token_expires TEXT` to `users` table |
+| 50 | `add_sso_sub` | Adds `sso_sub TEXT` to `users` table — links a portal user to their Sliquid SSO subject (`sub`) |
 
-**Next migration version: 36**
+**Next migration version: 51**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -237,6 +251,15 @@ Managed in `portal/server/src/database.ts`. Rules:
 | GET | `/me` | requireAuth | Returns current user |
 | POST | `/forgot-password` | — | Accepts `email`; generates reset token (1hr expiry); sends `portal_password_reset` email; always returns `{ ok: true }` (no enumeration) |
 | POST | `/reset-password` | — | Accepts `token, password`; validates token + expiry; updates password hash; clears token fields |
+
+### Employee SSO — `/api/auth/sso` (OIDC Auth Code + PKCE against Sliquid SSO IdP)
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/login` | — | Starts the OIDC flow: generates PKCE verifier+state, stashes them in a 5-min signed `sso_tx` httpOnly cookie, 302-redirects to `SSO_AUTHORIZE_URL`. Returns 503 if `SSO_ENABLED !== 'true'` or config missing |
+| GET | `/callback` | — | Verifies `state` cookie, exchanges `code` at `SSO_TOKEN_URL` (HTTP Basic, `code_verifier`), verifies `id_token` (RS256 via JWKS, checks `iss`/`aud`/`exp`), find-or-creates user (`upsertSsoUser`), mints portal JWT, 302 → `${SSO_SUCCESS_REDIRECT}/dashboard#token=<jwt>`. On error → `/employee-login?sso_error=<reason>` |
+
+- `upsertSsoUser` (`routes/sso.ts`): new users → `tier5` Admin, `status='active'`, `company='Sliquid'`, unusable password hash, `sso_sub` set. Existing users keep their current role (never downgrade), get reactivated + `sso_sub` linked. Both SSO `role` claims (`admin`/`employee`) floor at tier5.
+- Client entry point: dedicated `/employee-login` page (`EmployeeLoginPage.tsx`), linked from `LoginPage.tsx`. The post-login session arrives via the existing `#token=` hash handler in `AuthContext.tsx`.
 
 ### Products — `/api/products`
 | Method | Path | Auth | Description |
@@ -833,6 +856,11 @@ portal/server/src/__tests__/
 - Volume: mount at `/data`, set `DB_PATH=/data/portal.db`
 - Required env vars: `JWT_SECRET`, `ALLOWED_ORIGINS` (comma-separated Cloudflare URLs)
 - Optional env vars: `EMAILJS_PUBLIC_KEY`, `EMAILJS_PRIVATE_KEY`, `EMAILJS_SERVICE_ID`, `PORTAL_URL`, `WC_URL`, `WC_CONSUMER_KEY`, `WC_CONSUMER_SECRET`
+- Employee SSO env vars (all required to enable the `/api/auth/sso` flow):
+  - `SSO_ENABLED=true`, `SSO_ISSUER`, `SSO_AUTHORIZE_URL`, `SSO_TOKEN_URL`, `SSO_JWKS_URL` (all `https://sso-api.sliquid.com/...`)
+  - `SSO_CLIENT_ID`, `SSO_CLIENT_SECRET` (from registering the app at `https://sso.sliquid.com` → Admin → Apps)
+  - `SSO_REDIRECT_URI` — **must byte-match** the registered URI, e.g. `https://<server-domain>/api/auth/sso/callback`
+  - `SSO_SCOPE=openid profile email`, `SSO_SUCCESS_REDIRECT=<portal client origin>` (for the `#token=` handoff)
 
 ---
 

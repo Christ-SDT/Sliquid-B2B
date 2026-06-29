@@ -102,6 +102,15 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
+
+          <div className="mt-6 pt-5 border-t border-portal-border text-center">
+            <p className="text-on-canvas-muted text-xs">
+              Sliquid employee?{' '}
+              <Link to="/employee-login" className="text-portal-accent hover:underline">
+                Sign in with SSO
+              </Link>
+            </p>
+          </div>
         </div>
 
       </div>

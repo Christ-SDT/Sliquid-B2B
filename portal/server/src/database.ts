@@ -1028,6 +1028,14 @@ const migrations: Migration[] = [
       CREATE INDEX IF NOT EXISTS idx_product_shots_created_at ON product_shots(created_at);
     `),
   },
+  {
+    version: 50,
+    name: 'add_sso_sub',
+    up: () => {
+      const cols = (db.prepare("SELECT name FROM pragma_table_info('users')").all() as { name: string }[]).map(c => c.name)
+      if (!cols.includes('sso_sub')) db.exec('ALTER TABLE users ADD COLUMN sso_sub TEXT')
+    },
+  },
 ]
 
 function runMigrations(): void {
