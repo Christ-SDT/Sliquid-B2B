@@ -1036,6 +1036,15 @@ const migrations: Migration[] = [
       if (!cols.includes('sso_sub')) db.exec('ALTER TABLE users ADD COLUMN sso_sub TEXT')
     },
   },
+  {
+    version: 51,
+    name: 'remove_demo_test_stores',
+    up: () => {
+      const testStores = ['Demo Distribution LLC', 'Demo Retail Co.', 'Demo Retail Store', 'Prospect Co.']
+      const del = db.prepare('DELETE FROM stores WHERE name = ?')
+      for (const name of testStores) del.run(name)
+    },
+  },
 ]
 
 function runMigrations(): void {

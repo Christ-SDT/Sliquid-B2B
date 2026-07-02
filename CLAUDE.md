@@ -228,8 +228,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 34 | `add_featured_to_assets_and_creatives` | Adds `featured INTEGER NOT NULL DEFAULT 0` to `assets` and `creatives` tables |
 | 35 | `add_password_reset_tokens` | Adds `reset_token TEXT` and `reset_token_expires TEXT` to `users` table |
 | 50 | `add_sso_sub` | Adds `sso_sub TEXT` to `users` table — links a portal user to their Sliquid SSO subject (`sub`) |
+| 51 | `remove_demo_test_stores` | Deletes `Demo Distribution LLC`, `Demo Retail Co.`, `Demo Retail Store`, `Prospect Co.` from the `stores` table — test data cleanup |
 
-**Next migration version: 51**
+**Next migration version: 52**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
