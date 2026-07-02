@@ -1045,6 +1045,17 @@ const migrations: Migration[] = [
       for (const name of testStores) del.run(name)
     },
   },
+  {
+    version: 52,
+    name: 'backfill_approved_user_stores',
+    up: () => {
+      const companies = db.prepare(
+        "SELECT DISTINCT company FROM users WHERE status = 'active' AND company IS NOT NULL AND company != ''"
+      ).all() as { company: string }[]
+      const insert = db.prepare('INSERT OR IGNORE INTO stores (name) VALUES (?)')
+      for (const { company } of companies) insert.run(company)
+    },
+  },
 ]
 
 function runMigrations(): void {

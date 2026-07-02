@@ -189,7 +189,9 @@ Restricted tiers redirected to `/dashboard` for any disallowed route (enforced i
 ### Self-Registration
 `POST /api/auth/register` accepts an optional `role` field. Valid values: `tier1`, `tier2`, `tier3`, `tier4` (Prospect). Defaults to `tier1`. `tier5` cannot be self-registered.
 
-The `company` field on registration is populated via an **incremental search combobox** backed by `GET /api/stores` (public endpoint, no auth required). Typing filters the list in real-time; selecting commits the value to a hidden input for form validation. If no stores exist, falls back to a free-text input.
+The `company` field on registration is populated via an **incremental search combobox** backed by `GET /api/stores` (public endpoint, no auth required). Typing filters the list in real-time; selecting commits the value to a hidden input for form validation. If no stores exist, falls back to a free-text input — so a brand-new company name can still be typed in.
+
+**`stores` table growth:** New registrations start at `status = 'pending'` and do **not** add their typed company to `stores` immediately (avoids polluting the dropdown with unapproved/typo'd entries). The company is only added (`INSERT OR IGNORE`) when an admin approves the user via `POST /api/admin/users/:id/approve` — see [Admin API](#admin--apiadmin). Declined users' companies are never added.
 
 ---
 
@@ -229,8 +231,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 35 | `add_password_reset_tokens` | Adds `reset_token TEXT` and `reset_token_expires TEXT` to `users` table |
 | 50 | `add_sso_sub` | Adds `sso_sub TEXT` to `users` table — links a portal user to their Sliquid SSO subject (`sub`) |
 | 51 | `remove_demo_test_stores` | Deletes `Demo Distribution LLC`, `Demo Retail Co.`, `Demo Retail Store`, `Prospect Co.` from the `stores` table — test data cleanup |
+| 52 | `backfill_approved_user_stores` | Inserts (`INSERT OR IGNORE`) the distinct `company` of every `status = 'active'` user into the `stores` table — one-time backfill so previously-approved companies appear in the registration dropdown |
 
-**Next migration version: 52**
+**Next migration version: 53**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -332,8 +335,11 @@ Mounted at the app root (NOT under `/api`) so the OIDC callback is `/auth/google
 ### Admin — `/api/admin`
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/users` | tier5/admin only | List all users; includes `last_login` and `certificate_number` (null if not certified) via LEFT JOIN |
-| PUT | `/users/:id/role` | tier5/admin only | Update a user's role; valid values: tier1–tier5 |
+| GET | `/users` | tier5/admin only | List all users; includes `last_login`, `status`, and `certificate_number` (null if not certified) via LEFT JOIN |
+| PUT | `/users/:id/role` | tier5/admin only | Update a user's role; valid values: tier1–tier5; also sets `status = 'active'` |
+| POST | `/users/:id/approve` | tier5/admin only | Approves a pending registration: sets role + `status = 'active'`; adds the user's `company` to the `stores` table (`INSERT OR IGNORE`) so it appears in future registration dropdowns; sends approval email |
+| POST | `/users/:id/decline` | tier5/admin only | Sets `status = 'declined'`; declined users are blocked at login (see `routes/auth.ts`) and their company is never added to `stores` |
+| DELETE | `/users/:id` | tier5/admin only | Deletes a user; blocked for self and for admin accounts |
 | PUT | `/users/:id/company` | tier5/admin only | Update a user's company to a store name from the stores table |
 
 ### Notifications — `/api/notifications`

@@ -61,8 +61,11 @@ router.post('/users/:id/approve', requireAuth, requireRole('tier5', 'admin'), (r
   const id = parseInt(req.params.id)
   const result = db.prepare("UPDATE users SET role = ?, status = 'active' WHERE id = ?").run(role, id)
   if (result.changes === 0) { res.status(404).json({ message: 'User not found' }); return }
-  const user = db.prepare('SELECT id, name, email, company, role, status, created_at FROM users WHERE id = ?').get(id) as { name: string; email: string; role: string } | undefined
+  const user = db.prepare('SELECT id, name, email, company, role, status, created_at FROM users WHERE id = ?').get(id) as { name: string; email: string; role: string; company?: string } | undefined
   if (user) {
+    if (user.company?.trim()) {
+      db.prepare('INSERT OR IGNORE INTO stores (name) VALUES (?)').run(user.company.trim())
+    }
     sendApprovalEmail({ name: user.name, email: user.email, role: user.role })
       .catch(err => console.error('[email] Approval email failed:', err))
     notifyUser(id, 'account_approved', 'Your account has been approved!',
