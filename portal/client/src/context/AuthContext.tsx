@@ -6,7 +6,7 @@ interface AuthState {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (name: string, email: string, company: string, password: string) => Promise<void>
+  register: (name: string, email: string, company: string, password: string, requestedRole?: string) => Promise<void>
   logout: () => void
 }
 
@@ -40,8 +40,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user)
   }
 
-  async function register(name: string, email: string, company: string, password: string) {
-    await api.post<{ token: string; user: User }>('/auth/register', { name, email, company, password })
+  async function register(name: string, email: string, company: string, password: string, requestedRole?: string) {
+    await api.post<{ token: string; user: User }>('/auth/register', { name, email, company, password, requested_role: requestedRole })
     // Do not auto-login — registration is pending admin approval
   }
 

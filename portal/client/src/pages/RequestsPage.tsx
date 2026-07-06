@@ -12,6 +12,7 @@ type PartnerUser = {
   role: string
   created_at: string
   status: string
+  requested_role: string | null
 }
 
 type TabKey = 'all' | 'pending' | 'approved' | 'declined' | 'medical' | 'media'
@@ -64,7 +65,9 @@ function UserRequestModal({
   working: boolean
 }) {
   const [selectedRole, setSelectedRole] = useState(
-    ROLE_OPTIONS.find(o => o.value === user.role) ? user.role : 'tier1'
+    ROLE_OPTIONS.find(o => o.value === user.role) ? user.role
+      : (user.requested_role === 'tier1' || user.requested_role === 'tier2') ? user.requested_role
+      : 'tier1'
   )
   const [confirmDecline, setConfirmDecline] = useState(false)
 
@@ -130,6 +133,14 @@ function UserRequestModal({
               <CalendarDays className="w-4 h-4 text-on-canvas-muted flex-shrink-0" />
               <span className="text-on-canvas-subtle">Registered {fmt(user.created_at)}</span>
             </div>
+            {user.status === 'pending' && user.requested_role && (
+              <div className="flex items-center gap-3 text-sm">
+                <UserCheck className="w-4 h-4 text-on-canvas-muted flex-shrink-0" />
+                <span className="text-on-canvas-subtle">
+                  Requested: {ROLE_LABEL[user.requested_role] ?? user.requested_role}
+                </span>
+              </div>
+            )}
             {user.status === 'active' && (
               <div className="flex items-center gap-3 text-sm">
                 <ShieldCheck className="w-4 h-4 text-on-canvas-muted flex-shrink-0" />
@@ -391,6 +402,11 @@ export default function RequestsPage() {
                     <p className="text-on-canvas-muted text-xs">{u.email}</p>
                     {u.company && (
                       <p className="text-on-canvas-subtle text-xs mt-0.5">{u.company}</p>
+                    )}
+                    {u.status === 'pending' && u.requested_role && (
+                      <p className="text-portal-accent text-xs mt-0.5">
+                        Requested: {ROLE_LABEL[u.requested_role] ?? u.requested_role}
+                      </p>
                     )}
                     <p className="text-on-canvas-muted text-xs mt-1">Registered {fmt(u.created_at)}</p>
                   </div>

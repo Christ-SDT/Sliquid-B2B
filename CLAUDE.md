@@ -193,6 +193,8 @@ The `company` field on registration is populated via an **incremental search com
 
 **`stores` table growth:** New registrations start at `status = 'pending'` and do **not** add their typed company to `stores` immediately (avoids polluting the dropdown with unapproved/typo'd entries). The company is only added (`INSERT OR IGNORE`) when an admin approves the user via `POST /api/admin/users/:id/approve` — see [Admin API](#admin--apiadmin). Declined users' companies are never added.
 
+**Requested Role hint:** Both registration forms (Portal `RegisterPage.tsx` and the main B2B site's `RegisterPage.tsx`) also show an optional, non-required pair of checkboxes — "Retail Store Employee" / "Retail Management" — that behave like a radio (checking one clears the other; either can be cleared back to no answer). The selection is sent as `requested_role` (`'tier1'` | `'tier2'` | omitted) on `POST /api/auth/register` and stored on the `users` row (migration v53). It does **not** affect the role actually granted — it's purely a hint surfaced in **Partner Requests** (`RequestsPage.tsx`) so admins know what tier to approve the person into; the Assign Role dropdown pre-selects it by default, but admins can still override before approving.
+
 ---
 
 ## Database Migrations
@@ -232,8 +234,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 50 | `add_sso_sub` | Adds `sso_sub TEXT` to `users` table — links a portal user to their Sliquid SSO subject (`sub`) |
 | 51 | `remove_demo_test_stores` | Deletes `Demo Distribution LLC`, `Demo Retail Co.`, `Demo Retail Store`, `Prospect Co.` from the `stores` table — test data cleanup |
 | 52 | `backfill_approved_user_stores` | Inserts (`INSERT OR IGNORE`) the distinct `company` of every `status = 'active'` user into the `stores` table — one-time backfill so previously-approved companies appear in the registration dropdown |
+| 53 | `add_requested_role_to_users` | Adds `requested_role TEXT` to `users` table — optional self-identified role hint (`tier1`/`tier2`/`NULL`) captured at registration |
 
-**Next migration version: 53**
+**Next migration version: 54**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |

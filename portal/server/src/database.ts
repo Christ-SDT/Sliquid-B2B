@@ -1056,6 +1056,14 @@ const migrations: Migration[] = [
       for (const { company } of companies) insert.run(company)
     },
   },
+  {
+    version: 53,
+    name: 'add_requested_role_to_users',
+    up: () => {
+      const cols = (db.prepare("SELECT name FROM pragma_table_info('users')").all() as { name: string }[]).map(c => c.name)
+      if (!cols.includes('requested_role')) db.exec('ALTER TABLE users ADD COLUMN requested_role TEXT')
+    },
+  },
 ]
 
 function runMigrations(): void {

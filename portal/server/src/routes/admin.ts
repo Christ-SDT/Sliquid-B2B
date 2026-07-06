@@ -10,7 +10,7 @@ router.get('/users', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const statusFilter = (req.query.status as string) || null
   const users = statusFilter
     ? db.prepare(`
-        SELECT u.id, u.name, u.email, u.company, u.role, u.created_at, u.last_login, u.status,
+        SELECT u.id, u.name, u.email, u.company, u.role, u.created_at, u.last_login, u.status, u.requested_role,
                c.certificate_number
         FROM users u
         LEFT JOIN certificates c ON c.user_id = u.id AND c.is_valid = 1
@@ -18,7 +18,7 @@ router.get('/users', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
         ORDER BY u.created_at DESC
       `).all(statusFilter)
     : db.prepare(`
-        SELECT u.id, u.name, u.email, u.company, u.role, u.created_at, u.last_login, u.status,
+        SELECT u.id, u.name, u.email, u.company, u.role, u.created_at, u.last_login, u.status, u.requested_role,
                c.certificate_number
         FROM users u
         LEFT JOIN certificates c ON c.user_id = u.id AND c.is_valid = 1

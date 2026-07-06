@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [stores, setStores] = useState<Store[]>([])
+  const [requestedRole, setRequestedRole] = useState<'tier1' | 'tier2' | null>(null)
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL ?? ''}/api/stores`)
@@ -91,7 +92,7 @@ export default function RegisterPage() {
     if (password !== confirm) { setError('Passwords do not match'); return }
     setLoading(true)
     try {
-      await register(name, email, company, password)
+      await register(name, email, company, password, requestedRole ?? undefined)
       setSubmitted(true)
     } catch (err: any) {
       setError(err.message === 'Email already in use' ? 'Email already in use' : (err.message ?? 'Registration failed'))
@@ -192,6 +193,33 @@ export default function RegisterPage() {
                              placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
                 />
               )}
+            </div>
+
+            <div>
+              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
+                Your Role <span className="text-on-canvas-muted font-normal">(optional)</span>
+              </label>
+              <p className="text-on-canvas-muted text-xs mb-2">Helps us approve your account faster.</p>
+              <div className="flex gap-5">
+                <label className="flex items-center gap-2 text-on-canvas-subtle text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={requestedRole === 'tier1'}
+                    onChange={() => setRequestedRole(prev => prev === 'tier1' ? null : 'tier1')}
+                    className="w-4 h-4 rounded border-portal-border bg-portal-bg text-portal-accent focus:ring-portal-accent"
+                  />
+                  Retail Store Employee
+                </label>
+                <label className="flex items-center gap-2 text-on-canvas-subtle text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={requestedRole === 'tier2'}
+                    onChange={() => setRequestedRole(prev => prev === 'tier2' ? null : 'tier2')}
+                    className="w-4 h-4 rounded border-portal-border bg-portal-bg text-portal-accent focus:ring-portal-accent"
+                  />
+                  Retail Management
+                </label>
+              </div>
             </div>
 
             <div>

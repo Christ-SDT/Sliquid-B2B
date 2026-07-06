@@ -44,8 +44,13 @@ router.post('/login', loginLimiter, (req, res) => {
   })
 })
 
+const REQUESTED_ROLE_LABEL: Record<string, string> = {
+  tier1: 'Retail Store Employee',
+  tier2: 'Retail Management',
+}
+
 router.post('/register', loginLimiter, async (req, res) => {
-  const { name, email, company, password } = req.body
+  const { name, email, company, password, requested_role } = req.body
   if (!name || !email || !company || !password) {
     res.status(400).json({ message: 'All fields are required' })
     return
@@ -61,20 +66,22 @@ router.post('/register', loginLimiter, async (req, res) => {
   }
   const role = 'tier4'
   const status = 'pending'
+  const requestedRole = requested_role === 'tier1' || requested_role === 'tier2' ? requested_role : null
   const password_hash = await bcrypt.hash(password, 10)
   const result = db.prepare(
-    'INSERT INTO users (name, email, company, password_hash, role, status) VALUES (?, ?, ?, ?, ?, ?)'
-  ).run(name, email, company, password_hash, role, status)
+    'INSERT INTO users (name, email, company, password_hash, role, status, requested_role) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(name, email, company, password_hash, role, status, requestedRole)
   const userId = result.lastInsertRowid as number
   const token = jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: '7d' })
 
   sendRegistrationConfirm({ name, email, company })
     .catch(err => console.error('[email] Registration email failed:', err))
 
+  const roleHint = requestedRole ? ` as a ${REQUESTED_ROLE_LABEL[requestedRole]}` : ''
   notifyAdmins(
     'new_registration',
     'New Partner Request',
-    `${name} (${company}) has submitted a registration request.`,
+    `${name} (${company}) has submitted a registration request${roleHint}.`,
     '/requests',
   )
 

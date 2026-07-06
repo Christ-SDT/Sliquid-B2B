@@ -22,6 +22,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [stores, setStores] = useState<Store[]>([])
+  const [requestedRole, setRequestedRole] = useState<'tier1' | 'tier2' | null>(null)
 
   useEffect(() => {
     fetch(`${PORTAL_API}/api/stores`)
@@ -61,7 +62,7 @@ export default function RegisterPage() {
       const res = await fetch(`${PORTAL_API}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), company: company.trim(), password }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), company: company.trim(), password, requested_role: requestedRole }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -199,6 +200,34 @@ export default function RegisterPage() {
                              focus:ring-1 focus:ring-sliquid-blue transition-colors"
                 />
               )}
+            </div>
+
+            {/* Requested Role */}
+            <div>
+              <label className="block text-text-dark text-sm font-medium mb-1.5">
+                Your Role <span className="text-text-light-gray font-normal">(optional)</span>
+              </label>
+              <p className="text-text-light-gray text-xs mb-2">Helps us approve your account faster.</p>
+              <div className="flex gap-5">
+                <label className="flex items-center gap-2 text-text-dark text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={requestedRole === 'tier1'}
+                    onChange={() => setRequestedRole(prev => prev === 'tier1' ? null : 'tier1')}
+                    className="w-4 h-4 rounded border-gray-300 text-sliquid-blue focus:ring-sliquid-blue"
+                  />
+                  Retail Store Employee
+                </label>
+                <label className="flex items-center gap-2 text-text-dark text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={requestedRole === 'tier2'}
+                    onChange={() => setRequestedRole(prev => prev === 'tier2' ? null : 'tier2')}
+                    className="w-4 h-4 rounded border-gray-300 text-sliquid-blue focus:ring-sliquid-blue"
+                  />
+                  Retail Management
+                </label>
+              </div>
             </div>
 
             {/* Email */}
