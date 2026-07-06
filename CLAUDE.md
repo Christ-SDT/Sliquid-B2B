@@ -235,8 +235,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 51 | `remove_demo_test_stores` | Deletes `Demo Distribution LLC`, `Demo Retail Co.`, `Demo Retail Store`, `Prospect Co.` from the `stores` table — test data cleanup |
 | 52 | `backfill_approved_user_stores` | Inserts (`INSERT OR IGNORE`) the distinct `company` of every `status = 'active'` user into the `stores` table — one-time backfill so previously-approved companies appear in the registration dropdown |
 | 53 | `add_requested_role_to_users` | Adds `requested_role TEXT` to `users` table — optional self-identified role hint (`tier1`/`tier2`/`NULL`) captured at registration |
+| 54 | `hp_applications_table` | Creates `hp_applications` table (`id`, `practice_name`, `contact_name`, `email`, `created_at`) — one row per Health Practitioner application, backs the sequential `SHP-XXXX` reference number |
 
-**Next migration version: 54**
+**Next migration version: 55**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -372,6 +373,18 @@ All endpoints require `requireAuth`. Notifications are per-user rows.
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | GET | `/members` | requireAuth | tier2 sees users matching own company; tier5/admin sees all (optional `?company=` filter); includes `quizzes_total` and `quizzes_passed` per user |
+
+### B2B Public Forms — `/api/b2b`
+Mounted from `portal/server/src/routes/b2b-forms.ts`. All routes public (no auth) — called directly by the main marketing site. Email-only (EmailJS via `email.ts`); no DB persistence except `hp-apply` (see below).
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/contact` | Main site contact form → `sendContactFormEmails()` |
+| POST | `/retailer-apply` | "Become a Retailer" form → `sendRetailerApplicationEmails()` |
+| POST | `/hp-apply` | Health Practitioner application (`src/pages/HealthPractitionersPage.tsx`) — inserts a row into `hp_applications`, derives a sequential `SHP-XXXX` reference number from the new row's id, then calls `sendHPApplicationEmail()` with `referenceNumber` |
+| POST | `/booth-signup` | Hidden Erospain 2026 booth intake → Mailchimp |
+
+**HP application reference numbers:** `hp_applications` table (migration v54) exists solely to back a durable, sequential counter — `SHP-${String(id).padStart(4, '0')}` (e.g. `SHP-0001`, `SHP-0002`), NOT date-based or random like certificate numbers. Displayed in the `b2b_hp_application` admin email template as a badge above the "New HP Application" heading. Do not reuse the certificate-number random-hex pattern here — this is intentionally sequential so admins can tell submission order apart from timestamps.
 
 ### WooCommerce — `/api/woo`
 All endpoints require `requireAuth + requireRole('tier5', 'admin')`.

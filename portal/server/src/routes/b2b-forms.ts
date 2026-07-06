@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { db } from '../database.js'
 import { sendContactFormEmails, sendRetailerApplicationEmails, sendHPApplicationEmail } from '../email.js'
 
 const router = Router()
@@ -140,6 +141,11 @@ router.post('/hp-apply', async (req, res) => {
   }
 
   try {
+    const result = db.prepare(
+      'INSERT INTO hp_applications (practice_name, contact_name, email) VALUES (?, ?, ?)'
+    ).run(practiceName, contactName, email)
+    const referenceNumber = `SHP-${String(result.lastInsertRowid).padStart(4, '0')}`
+
     await sendHPApplicationEmail({
       practiceType, practiceName,
       practiceAddress: practiceAddress || '',
@@ -148,8 +154,9 @@ router.post('/hp-apply', async (req, res) => {
       email, contactPhone,
       preferredContact: preferredContact || 'Email',
       addToDirectory: addToDirectory || 'No',
+      referenceNumber,
     })
-    res.json({ ok: true })
+    res.json({ ok: true, referenceNumber })
   } catch (err: any) {
     console.error('[b2b-forms] HP apply error:', err)
     res.status(500).json({ message: 'Failed to send application. Please try again.' })

@@ -295,8 +295,10 @@ export async function sendHPApplicationEmail(opts: {
   contactPhone: string
   preferredContact: string
   addToDirectory: string
+  referenceNumber: string
 }): Promise<void> {
   const sent = await sendEmail('b2b_hp_application', {
+    reference_number:  opts.referenceNumber,
     practice_type:     opts.practiceType,
     practice_name:     opts.practiceName,
     practice_address:  opts.practiceAddress,

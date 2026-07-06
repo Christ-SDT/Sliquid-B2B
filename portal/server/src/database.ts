@@ -1064,6 +1064,19 @@ const migrations: Migration[] = [
       if (!cols.includes('requested_role')) db.exec('ALTER TABLE users ADD COLUMN requested_role TEXT')
     },
   },
+  {
+    version: 54,
+    name: 'hp_applications_table',
+    up: () => db.exec(`
+      CREATE TABLE IF NOT EXISTS hp_applications (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        practice_name   TEXT NOT NULL,
+        contact_name    TEXT NOT NULL,
+        email           TEXT NOT NULL,
+        created_at      TEXT DEFAULT (datetime('now'))
+      );
+    `),
+  },
 ]
 
 function runMigrations(): void {
