@@ -466,8 +466,9 @@ function UserRow({
               </span>
             )}
             {user.certificate_number && (
-              <span className="px-1.5 py-0.5 bg-emerald-900/30 border border-emerald-700/40
-                               rounded text-emerald-400 text-[10px] font-medium">
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-emerald-600 border border-emerald-600
+                               rounded text-white text-[10px] font-medium">
+                <ShieldCheck className="w-2.5 h-2.5" />
                 Certified
               </span>
             )}
@@ -483,6 +484,88 @@ function UserRow({
       </td>
       <td className="px-4 py-3 text-on-canvas-muted text-xs">{joined}</td>
     </tr>
+  )
+}
+
+// ─── Certified Users Modal ────────────────────────────────────────────────────
+
+function CertifiedUsersModal({
+  users,
+  onClose,
+  onSelect,
+}: {
+  users: PortalUser[]
+  onClose: () => void
+  onSelect: (u: PortalUser) => void
+}) {
+  const [q, setQ] = useState('')
+  const list = users.filter(u => {
+    if (!q) return true
+    const s = q.toLowerCase()
+    return (
+      u.name.toLowerCase().includes(s) ||
+      u.email.toLowerCase().includes(s) ||
+      (u.company ?? '').toLowerCase().includes(s)
+    )
+  })
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-surface border border-portal-border rounded-xl w-full max-w-xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
+          <h2 className="text-on-canvas font-semibold flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            Certified Experts
+            <span className="text-on-canvas-muted font-normal">({users.length})</span>
+          </h2>
+          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Search */}
+        <div className="p-4 border-b border-portal-border">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted" />
+            <input
+              type="text"
+              value={q}
+              onChange={e => setQ(e.target.value)}
+              placeholder="Search certified users…"
+              className="w-full bg-portal-bg border border-portal-border rounded-lg pl-9 pr-4 py-2 text-on-canvas text-sm
+                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="overflow-y-auto max-h-[60vh] divide-y divide-portal-border">
+          {list.length === 0 ? (
+            <div className="p-8 text-center text-on-canvas-muted text-sm">No certified users match your search.</div>
+          ) : list.map(u => (
+            <button
+              key={u.id}
+              onClick={() => onSelect(u)}
+              className="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-surface-elevated transition-colors"
+            >
+              <div className="w-8 h-8 rounded-full bg-portal-accent/20 border border-portal-accent/30
+                              flex items-center justify-center text-portal-accent text-xs font-bold flex-shrink-0">
+                {u.name?.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-on-canvas text-sm font-medium truncate">{u.name}</p>
+                <p className="text-on-canvas-muted text-xs truncate">
+                  {u.email}{u.company ? ` · ${u.company}` : ''}
+                </p>
+              </div>
+              <span className="font-mono text-[11px] text-emerald-600 flex-shrink-0">{u.certificate_number}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -817,7 +900,9 @@ export default function UsersPage() {
   const [search, setSearch] = useState('')
   const [filterRole, setFilterRole] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
+  const [filterCert, setFilterCert] = useState('')
   const [selectedUser, setSelectedUser] = useState<PortalUser | null>(null)
+  const [showCertified, setShowCertified] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -859,6 +944,8 @@ export default function UsersPage() {
   const filtered = users.filter(u => {
     if (filterRole && u.role !== filterRole) return false
     if (filterStatus && u.status !== filterStatus) return false
+    if (filterCert === 'certified' && !u.certificate_number) return false
+    if (filterCert === 'uncertified' && u.certificate_number) return false
     if (!search) return true
     const q = search.toLowerCase()
     return (
@@ -868,7 +955,8 @@ export default function UsersPage() {
     )
   })
 
-  const certifiedCount = users.filter(u => u.certificate_number).length
+  const certifiedUsers = users.filter(u => u.certificate_number)
+  const certifiedCount = certifiedUsers.length
 
   return (
     <div className="space-y-6">
@@ -882,10 +970,15 @@ export default function UsersPage() {
           <p className="text-on-canvas-muted text-sm mt-1">
             View and manage all registered portal users.
             {certifiedCount > 0 && (
-              <span className="ml-2 inline-flex items-center gap-1 text-emerald-400">
+              <button
+                type="button"
+                onClick={() => setShowCertified(true)}
+                className="ml-2 inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-500 font-medium
+                           underline-offset-2 hover:underline transition-colors"
+              >
                 <ShieldCheck className="w-3.5 h-3.5" />
                 {certifiedCount} certified
-              </span>
+              </button>
             )}
           </p>
         </div>
@@ -929,6 +1022,16 @@ export default function UsersPage() {
           <option value="active">Active</option>
           <option value="pending">Pending</option>
           <option value="declined">Declined</option>
+        </select>
+        <select
+          value={filterCert}
+          onChange={e => setFilterCert(e.target.value)}
+          className="bg-surface border border-portal-border rounded-lg px-3 py-2.5 text-on-canvas text-sm
+                     focus:outline-none focus:border-portal-accent transition-colors"
+        >
+          <option value="">All Certification</option>
+          <option value="certified">Certified</option>
+          <option value="uncertified">Not Certified</option>
         </select>
       </div>
 
@@ -980,6 +1083,15 @@ export default function UsersPage() {
 
       {/* AI Model Panel */}
       <AiModelPanel />
+
+      {/* Certified Users Modal */}
+      {showCertified && (
+        <CertifiedUsersModal
+          users={certifiedUsers}
+          onClose={() => setShowCertified(false)}
+          onSelect={(u) => { setSelectedUser(u); setShowCertified(false) }}
+        />
+      )}
 
       {/* User Detail Modal */}
       {selectedUser && (

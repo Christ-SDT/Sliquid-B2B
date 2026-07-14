@@ -4,7 +4,6 @@ import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { TIER_LABEL } from '@/types'
 import type { Asset, Distributor } from '@/types'
-import { QUIZZES } from '@/quizzes'
 import {
   Package, FolderOpen, Receipt, Archive,
   TrendingUp, AlertTriangle, ChevronRight, DollarSign,
@@ -167,14 +166,25 @@ function MiniDistributorsWidget() {
   )
 }
 
+type Training = {
+  id: number
+  quiz_id: string
+  title: string
+  estimated_minutes: number
+}
+
 function MiniTrainingsWidget() {
   const navigate = useNavigate()
+  const [trainings, setTrainings] = useState<Training[]>([])
   const [results, setResults] = useState<QuizResult[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get<QuizResult[]>('/quiz/results')
-      .then(setResults)
+    Promise.all([
+      api.get<Training[]>('/trainings'),
+      api.get<QuizResult[]>('/quiz/results'),
+    ])
+      .then(([t, r]) => { setTrainings(t); setResults(r) })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
@@ -185,7 +195,8 @@ function MiniTrainingsWidget() {
     return rows.reduce((best, r) => (r.score > best.score ? r : best), rows[0])
   }
 
-  const passedCount = QUIZZES.filter(q => bestFor(q.id)?.passed === 1).length
+  const passedCount = trainings.filter(t => bestFor(t.quiz_id)?.passed === 1).length
+  const total = trainings.length
 
   return (
     <div className="bg-surface border border-portal-border rounded-xl p-5">
@@ -204,11 +215,11 @@ function MiniTrainingsWidget() {
         <div className="flex items-center gap-3 mb-4">
           <Award className="w-4 h-4 text-portal-accent flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-on-canvas text-xs font-medium mb-1">{passedCount} / {QUIZZES.length} completed</p>
+            <p className="text-on-canvas text-xs font-medium mb-1">{passedCount} / {total} completed</p>
             <div className="w-full h-1.5 bg-surface-elevated rounded-full overflow-hidden">
               <div
                 className="h-full bg-portal-accent rounded-full transition-all"
-                style={{ width: QUIZZES.length ? `${(passedCount / QUIZZES.length) * 100}%` : '0%' }}
+                style={{ width: total ? `${(passedCount / total) * 100}%` : '0%' }}
               />
             </div>
           </div>
@@ -217,12 +228,12 @@ function MiniTrainingsWidget() {
 
       {/* Quiz cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {QUIZZES.map(quiz => {
-          const best = loading ? undefined : bestFor(quiz.id)
+        {trainings.map(training => {
+          const best = loading ? undefined : bestFor(training.quiz_id)
           const hasPassed = best?.passed === 1
           return (
             <div
-              key={quiz.id}
+              key={training.id}
               className="bg-portal-bg border border-portal-border rounded-lg p-3 hover:border-portal-accent/30 transition-all"
             >
               <div className="flex items-start gap-2 mb-2">
@@ -230,10 +241,10 @@ function MiniTrainingsWidget() {
                   <GraduationCap className="w-3.5 h-3.5 text-portal-accent" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-on-canvas text-xs font-medium leading-snug truncate">{quiz.title}</p>
+                  <p className="text-on-canvas text-xs font-medium leading-snug truncate">{training.title}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="flex items-center gap-0.5 text-on-canvas-muted text-[10px]">
-                      <Clock className="w-2.5 h-2.5" />{quiz.estimatedMinutes}m
+                      <Clock className="w-2.5 h-2.5" />{training.estimated_minutes}m
                     </span>
                     {hasPassed && (
                       <span className="flex items-center gap-0.5 text-emerald-400 text-[10px]">
@@ -247,7 +258,7 @@ function MiniTrainingsWidget() {
                 </div>
               </div>
               <button
-                onClick={() => navigate(`/quiz/${quiz.id}`)}
+                onClick={() => navigate(`/quiz/${training.quiz_id}`)}
                 className="w-full text-xs py-1.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-md font-medium transition-colors"
               >
                 {best ? 'Retake' : 'Start'}
@@ -307,9 +318,9 @@ function UpgradeBanner({ role }: { role: string }) {
     <div className="flex items-center gap-4 px-5 py-4 bg-portal-accent/10 border border-portal-accent/30 rounded-xl">
       <Star className="w-5 h-5 text-portal-accent flex-shrink-0" />
       <div>
-        <p className="text-on-canvas text-sm font-medium">{tierLabel} Access</p>
+        <p className="text-on-canvas text-sm font-medium">You have {tierLabel} access</p>
         <p className="text-on-canvas-subtle text-xs mt-0.5">
-          Want full portal access? Contact your Sliquid sales representative to upgrade.
+          Want to unlock more of the portal? Contact your Sliquid sales representative about upgrading.
         </p>
       </div>
     </div>
@@ -326,7 +337,7 @@ export default function DashboardPage() {
   const isRestricted = ['tier1', 'tier2', 'tier3', 'tier6', 'tier7'].includes(user?.role ?? '')
   const isProspectRole = user?.role === 'tier4'
   const isLimitedDashboard = isRestricted || isProspectRole
-  const showBanner = ['tier1', 'tier2', 'tier3'].includes(user?.role ?? '') // upgrade banner only for tier1/2/3, not prospects/medical/media
+  const showBanner = user?.role === 'tier1' // upgrade banner only for Retail Store Employees; tier2 (Retail Mgmt) & tier3 (Distributor) are already at their ceiling
 
   useEffect(() => {
     if (isLimitedDashboard) { setLoading(false); return }

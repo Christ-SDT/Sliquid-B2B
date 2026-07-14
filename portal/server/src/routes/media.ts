@@ -46,8 +46,18 @@ router.get('/proxy-download', requireAuth, async (req, res) => {
     const upstream = await fetch(url)
     if (!upstream.ok) { res.status(502).json({ message: 'Failed to fetch file' }); return }
     const contentType = upstream.headers.get('content-type') ?? 'application/octet-stream'
-    const name = filename || decodeURIComponent(url.split('/').pop()?.split('?')[0] ?? 'download')
-    res.setHeader('Content-Disposition', `attachment; filename="${name}"`)
+    const rawName = filename || decodeURIComponent(url.split('/').pop()?.split('?')[0] ?? 'download')
+    // AI-generated names can contain characters that are invalid in an HTTP header
+    // (smart quotes, em-dashes, newlines, ellipsis, emoji). Passing them straight
+    // into Content-Disposition makes res.setHeader throw ERR_INVALID_CHAR → 500.
+    // Provide an ASCII-safe quoted fallback plus an RFC 5987 UTF-8 encoded name.
+    const asciiName = (rawName
+      .replace(/[\r\n"\\]/g, '')        // drop quotes, backslashes, CR/LF
+      .replace(/[^\x20-\x7E]/g, '_')    // replace any non-printable-ASCII with _
+      .replace(/\s+/g, ' ')
+      .trim()) || 'download'
+    const encodedName = encodeURIComponent(rawName).replace(/['()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase())
+    res.setHeader('Content-Disposition', `attachment; filename="${asciiName}"; filename*=UTF-8''${encodedName}`)
     res.setHeader('Content-Type', contentType)
     const buffer = await upstream.arrayBuffer()
     res.send(Buffer.from(buffer))

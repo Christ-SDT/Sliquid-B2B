@@ -470,7 +470,6 @@ export default function CreatorPage() {
                 In your prompt, provide the size, aesthetic, and overall tone you are looking for in the image. Be as thorough as possible.
                 You can also <span className="text-portal-accent font-medium">attach a reference image</span> or drag one onto this window to guide the style.
                 Your creations are saved to the Asset Library.
-                Your creations are saved to the Asset Library.
               </p>
             </div>
           </div>
