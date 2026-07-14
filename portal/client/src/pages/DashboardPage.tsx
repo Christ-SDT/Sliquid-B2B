@@ -323,10 +323,10 @@ export default function DashboardPage() {
   const [overview, setOverview] = useState<Overview | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const isRestricted = ['tier1', 'tier2', 'tier3'].includes(user?.role ?? '')
+  const isRestricted = ['tier1', 'tier2', 'tier3', 'tier6', 'tier7'].includes(user?.role ?? '')
   const isProspectRole = user?.role === 'tier4'
   const isLimitedDashboard = isRestricted || isProspectRole
-  const showBanner = isRestricted // upgrade banner only for tier1/2/3, not prospects
+  const showBanner = ['tier1', 'tier2', 'tier3'].includes(user?.role ?? '') // upgrade banner only for tier1/2/3, not prospects/medical/media
 
   useEffect(() => {
     if (isLimitedDashboard) { setLoading(false); return }
