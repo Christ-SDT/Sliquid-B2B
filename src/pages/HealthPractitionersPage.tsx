@@ -3,20 +3,10 @@ import { sanitizeFormData } from '@/utils/sanitize'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
-const HP_SUBMIT_COOLDOWN_MS = 2 * 60 * 60 * 1000 // 2 hours
-const HP_SUBMIT_STORAGE_KEY = 'sliquid_hp_application_submitted_at'
-
 // Distinguishes a real, actionable message from our server (show verbatim) from
 // any other failure — network drop, CORS, timeout, browser fetch internals — which
 // should never be shown to the user raw (e.g. "Failed to fetch").
 class HPApiError extends Error {}
-
-function withinSubmitCooldown(): boolean {
-  const stored = localStorage.getItem(HP_SUBMIT_STORAGE_KEY)
-  if (!stored) return false
-  const ts = Number(stored)
-  return !Number.isNaN(ts) && Date.now() - ts < HP_SUBMIT_COOLDOWN_MS
-}
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
@@ -330,7 +320,7 @@ export default function HealthPractitionersPage() {
   const [submitted, setSubmitted] = useState(false)
   const [showThankYouModal, setShowThankYouModal] = useState(false)
   const [sendError, setSendError] = useState('')
-  const [alreadySubmitted, setAlreadySubmitted] = useState(withinSubmitCooldown)
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     const { name, value, type } = e.target
@@ -370,13 +360,11 @@ export default function HealthPractitionersPage() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({})) as { message?: string; alreadySubmitted?: boolean }
         if (data.alreadySubmitted) {
-          localStorage.setItem(HP_SUBMIT_STORAGE_KEY, String(Date.now()))
           setAlreadySubmitted(true)
           return
         }
         throw new HPApiError(data.message ?? 'The server returned an unexpected error. Please try again.')
       }
-      localStorage.setItem(HP_SUBMIT_STORAGE_KEY, String(Date.now()))
       setSubmitted(true)
       setShowThankYouModal(true)
     } catch (err) {
