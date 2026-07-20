@@ -6,6 +6,11 @@ const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https:
 const HP_SUBMIT_COOLDOWN_MS = 2 * 60 * 60 * 1000 // 2 hours
 const HP_SUBMIT_STORAGE_KEY = 'sliquid_hp_application_submitted_at'
 
+// Distinguishes a real, actionable message from our server (show verbatim) from
+// any other failure — network drop, CORS, timeout, browser fetch internals — which
+// should never be shown to the user raw (e.g. "Failed to fetch").
+class HPApiError extends Error {}
+
 function withinSubmitCooldown(): boolean {
   const stored = localStorage.getItem(HP_SUBMIT_STORAGE_KEY)
   if (!stored) return false
@@ -347,16 +352,15 @@ export default function HealthPractitionersPage() {
           setAlreadySubmitted(true)
           return
         }
-        throw new Error(data.message ?? 'Request failed')
+        throw new HPApiError(data.message ?? 'The server returned an unexpected error. Please try again.')
       }
       localStorage.setItem(HP_SUBMIT_STORAGE_KEY, String(Date.now()))
       setSubmitted(true)
     } catch (err) {
-      const message = err instanceof Error ? err.message : ''
       setSendError(
-        message && message !== 'Request failed'
-          ? message
-          : "We couldn't reach our server. Please check your connection and try again — your information has been saved, or you can email erik@sliquid.com directly."
+        err instanceof HPApiError
+          ? err.message
+          : "We couldn't reach our server. Please check your connection and try again — your information has not been sent yet, so it's safe to resubmit, or you can email erik@sliquid.com directly."
       )
     } finally {
       setSubmitting(false)

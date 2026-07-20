@@ -129,8 +129,14 @@ router.post('/hp-apply', async (req, res) => {
     contactPhone, preferredContact, addToDirectory,
   } = req.body
 
-  if (!practiceType || !practiceName || !email || !contactName || !contactPhone) {
-    res.status(400).json({ message: 'Missing required fields.' })
+  const missing: string[] = []
+  if (!practiceType) missing.push('Practice Type')
+  if (!practiceName) missing.push('Practice Name')
+  if (!contactName) missing.push('First/Last Name')
+  if (!contactPhone) missing.push('Phone Number')
+  if (!email) missing.push('Email')
+  if (missing.length > 0) {
+    res.status(400).json({ message: `Please fill in the following: ${missing.join(', ')}.` })
     return
   }
 
