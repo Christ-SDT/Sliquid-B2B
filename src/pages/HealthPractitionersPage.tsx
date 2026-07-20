@@ -297,6 +297,27 @@ function AlreadySubmittedPanel() {
   )
 }
 
+// ─── Submitted Panel ────────────────────────────────────────────────────────────
+// Replaces the form permanently after a successful submit — the ThankYouModal is
+// just a transient overlay on top of this; dismissing the modal must never bring
+// the form back, or a person can (and did) submit a second, real application.
+
+function SubmittedPanel() {
+  return (
+    <div className="bg-bg-off-white border border-gray-200 rounded-2xl p-8 text-center mb-8">
+      <div className="w-12 h-12 bg-sliquid-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg className="w-6 h-6 text-sliquid-blue" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h3 className="text-text-dark font-semibold text-lg mb-2">Application Submitted</h3>
+      <p className="text-text-gray text-sm max-w-md mx-auto leading-relaxed">
+        We've received your application for the Sliquid Medical Partners Program and we will get to you as soon as possible. No need to submit another request.
+      </p>
+    </div>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function HealthPractitionersPage() {
@@ -307,6 +328,7 @@ export default function HealthPractitionersPage() {
   const [errors, setErrors] = useState<HPFormErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [showThankYouModal, setShowThankYouModal] = useState(false)
   const [sendError, setSendError] = useState('')
   const [alreadySubmitted, setAlreadySubmitted] = useState(withinSubmitCooldown)
 
@@ -356,6 +378,7 @@ export default function HealthPractitionersPage() {
       }
       localStorage.setItem(HP_SUBMIT_STORAGE_KEY, String(Date.now()))
       setSubmitted(true)
+      setShowThankYouModal(true)
     } catch (err) {
       setSendError(
         err instanceof HPApiError
@@ -377,9 +400,10 @@ export default function HealthPractitionersPage() {
         />
       )}
 
-      {/* Thank you modal */}
-      {submitted && (
-        <ThankYouModal onClose={() => setSubmitted(false)} />
+      {/* Thank you modal — dismissing this only closes the overlay; it never
+          resets `submitted`, so the form underneath cannot be reopened/resubmitted */}
+      {showThankYouModal && (
+        <ThankYouModal onClose={() => setShowThankYouModal(false)} />
       )}
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
@@ -512,7 +536,9 @@ export default function HealthPractitionersPage() {
             </p>
           </div>
 
-          {alreadySubmitted ? (
+          {submitted ? (
+            <SubmittedPanel />
+          ) : alreadySubmitted ? (
             <AlreadySubmittedPanel />
           ) : (
           <>
