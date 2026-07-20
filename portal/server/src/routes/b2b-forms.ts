@@ -141,25 +141,45 @@ router.post('/hp-apply', async (req, res) => {
   }
 
   try {
+    const recent = db.prepare(
+      `SELECT id FROM hp_applications WHERE LOWER(email) = LOWER(?) AND created_at >= datetime('now', '-2 hours') LIMIT 1`
+    ).get(email)
+    if (recent) {
+      res.status(429).json({
+        alreadySubmitted: true,
+        message: 'You have already submitted an application. Our team will be in touch as soon as possible.',
+      })
+      return
+    }
+
     const result = db.prepare(
       'INSERT INTO hp_applications (practice_name, contact_name, email) VALUES (?, ?, ?)'
     ).run(practiceName, contactName, email)
     const referenceNumber = `SHP-${String(result.lastInsertRowid).padStart(4, '0')}`
 
-    await sendHPApplicationEmail({
-      practiceType, practiceName,
-      practiceAddress: practiceAddress || '',
-      practicePhone, practiceWebsite: practiceWebsite || '',
-      contactName, relationship: relationship || '',
-      email, contactPhone,
-      preferredContact: preferredContact || 'Email',
-      addToDirectory: addToDirectory || 'No',
-      referenceNumber,
-    })
+    try {
+      await sendHPApplicationEmail({
+        practiceType, practiceName,
+        practiceAddress: practiceAddress || '',
+        practicePhone, practiceWebsite: practiceWebsite || '',
+        contactName, relationship: relationship || '',
+        email, contactPhone,
+        preferredContact: preferredContact || 'Email',
+        addToDirectory: addToDirectory || 'No',
+        referenceNumber,
+      })
+    } catch (emailErr) {
+      // Roll back the row so a failed send never counts as a "submission" —
+      // otherwise the 2-hour cooldown check above would block the applicant
+      // from ever successfully retrying after a transient email failure.
+      db.prepare('DELETE FROM hp_applications WHERE id = ?').run(result.lastInsertRowid)
+      throw emailErr
+    }
+
     res.json({ ok: true, referenceNumber })
   } catch (err: any) {
     console.error('[b2b-forms] HP apply error:', err)
-    res.status(500).json({ message: 'Failed to send application. Please try again.' })
+    res.status(500).json({ message: "We hit a temporary issue sending your application. Please try again in a moment — you won't be blocked from retrying." })
   }
 })
 

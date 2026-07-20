@@ -3,6 +3,16 @@ import { sanitizeFormData } from '@/utils/sanitize'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
+const HP_SUBMIT_COOLDOWN_MS = 2 * 60 * 60 * 1000 // 2 hours
+const HP_SUBMIT_STORAGE_KEY = 'sliquid_hp_application_submitted_at'
+
+function withinSubmitCooldown(): boolean {
+  const stored = localStorage.getItem(HP_SUBMIT_STORAGE_KEY)
+  if (!stored) return false
+  const ts = Number(stored)
+  return !Number.isNaN(ts) && Date.now() - ts < HP_SUBMIT_COOLDOWN_MS
+}
+
 // ─── Static data ──────────────────────────────────────────────────────────────
 
 const HP_IMAGE =
@@ -264,6 +274,24 @@ function ThankYouModal({ onClose }: { onClose: () => void }) {
   )
 }
 
+// ─── Already Submitted Panel ───────────────────────────────────────────────────
+
+function AlreadySubmittedPanel() {
+  return (
+    <div className="bg-bg-off-white border border-gray-200 rounded-2xl p-8 text-center mb-8">
+      <div className="w-12 h-12 bg-sliquid-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg className="w-6 h-6 text-sliquid-blue" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h3 className="text-text-dark font-semibold text-lg mb-2">You've Already Applied</h3>
+      <p className="text-text-gray text-sm max-w-md mx-auto leading-relaxed">
+        We've received your application for the Medical Partners Program and we will get to you as soon as possible. No need to submit another request.
+      </p>
+    </div>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function HealthPractitionersPage() {
@@ -275,6 +303,7 @@ export default function HealthPractitionersPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [sendError, setSendError] = useState('')
+  const [alreadySubmitted, setAlreadySubmitted] = useState(withinSubmitCooldown)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     const { name, value, type } = e.target
@@ -312,12 +341,23 @@ export default function HealthPractitionersPage() {
         }),
       })
       if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { message?: string }
+        const data = await res.json().catch(() => ({})) as { message?: string; alreadySubmitted?: boolean }
+        if (data.alreadySubmitted) {
+          localStorage.setItem(HP_SUBMIT_STORAGE_KEY, String(Date.now()))
+          setAlreadySubmitted(true)
+          return
+        }
         throw new Error(data.message ?? 'Request failed')
       }
+      localStorage.setItem(HP_SUBMIT_STORAGE_KEY, String(Date.now()))
       setSubmitted(true)
-    } catch {
-      setSendError('Something went wrong sending your application. Please try again or email erik@sliquid.com directly.')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : ''
+      setSendError(
+        message && message !== 'Request failed'
+          ? message
+          : "We couldn't reach our server. Please check your connection and try again — your information has been saved, or you can email erik@sliquid.com directly."
+      )
     } finally {
       setSubmitting(false)
     }
@@ -468,6 +508,10 @@ export default function HealthPractitionersPage() {
             </p>
           </div>
 
+          {alreadySubmitted ? (
+            <AlreadySubmittedPanel />
+          ) : (
+          <>
           {/* Gate — show prompt if not yet accepted */}
           {gateState !== 'accepted' && gateState !== 'declined' && (
             <div
@@ -838,6 +882,8 @@ export default function HealthPractitionersPage() {
                 {submitting ? 'Submitting…' : 'Submit Application'}
               </button>
             </form>
+          )}
+          </>
           )}
         </div>
       </section>
