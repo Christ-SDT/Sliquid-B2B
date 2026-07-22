@@ -10,20 +10,20 @@ import {
   Image as ImageIcon, Stethoscope, ShieldCheck,
 } from 'lucide-react'
 
-// restricted: tier1/2/3/6  |  tier23: tier2+tier3 only  |  prospectVisible: tier4  |  adminOnly: tier5 only  |  medicalOnly: tier6+admin
+// restricted: tier1/2/3/6  |  tier23: tier2+tier3 only  |  prospectVisible: tier4  |  adminOnly: tier5 only  |  medicalOnly: tier6+admin  |  hideTier3: hidden from tier3 (Distributor)
 const NAV = [
-  { to: '/dashboard',          icon: LayoutDashboard, label: 'Dashboard',              restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, badgeType: undefined },
-  { to: '/assets',             icon: BookOpen,        label: 'Asset Library',          restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: false, badgeType: undefined },
-  { to: '/distributors',       icon: MapPin,          label: 'Distributors',           restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, badgeType: undefined },
-  { to: '/trainings',          icon: GraduationCap,   label: 'Digital Training',       restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, badgeType: undefined },
-  { to: '/creator',            icon: Sparkles,        label: 'AI Creator',             restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: false, badgeType: undefined },
-  { to: '/retailer',           icon: Megaphone,       label: 'In-store Marketing',     restricted: false, tier23: true,  prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, badgeType: undefined },
-  { to: '/medical-marketing',  icon: Stethoscope,     label: 'Medical Marketing',      restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: true,  badgeType: undefined },
-  { to: '/requests',           icon: Users,           label: 'Partner Requests',       restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, badgeType: 'new_registration' },
-  { to: '/marketing-requests', icon: Megaphone,       label: 'Marketing Requests',     restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, badgeType: 'marketing_request' },
-  { to: '/media',              icon: ImageIcon,       label: 'Media Library',          restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, badgeType: undefined },
-  { to: '/users',              icon: Users,           label: 'User Management',        restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, badgeType: undefined },
-  { to: '/gdpr-requests',      icon: ShieldCheck,     label: 'GDPR Requests',          restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, badgeType: undefined },
+  { to: '/dashboard',          icon: LayoutDashboard, label: 'Dashboard',              restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/assets',             icon: BookOpen,        label: 'Asset Library',          restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/distributors',       icon: MapPin,          label: 'Distributors',           restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: true,  badgeType: undefined },
+  { to: '/trainings',          icon: GraduationCap,   label: 'Digital Training',       restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/creator',            icon: Sparkles,        label: 'AI Creator',             restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/retailer',           icon: Megaphone,       label: 'In-store Marketing',     restricted: false, tier23: true,  prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/medical-marketing',  icon: Stethoscope,     label: 'Medical Marketing',      restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: true,  hideTier3: false, badgeType: undefined },
+  { to: '/requests',           icon: Users,           label: 'Partner Requests',       restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: 'new_registration' },
+  { to: '/marketing-requests', icon: Megaphone,       label: 'Marketing Requests',     restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: 'marketing_request' },
+  { to: '/media',              icon: ImageIcon,       label: 'Media Library',          restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/users',              icon: Users,           label: 'User Management',        restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/gdpr-requests',      icon: ShieldCheck,     label: 'GDPR Requests',          restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
 ]
 
 interface Props {
@@ -45,6 +45,7 @@ export default function Sidebar({ onClose }: Props) {
   const isPending = user?.status === 'pending' && !isAdminRole && !isRestricted && !isProspectRole
   const visibleNav = NAV.filter(item => {
     if (isPending || isProspectRole) return item.to === '/dashboard'
+    if (item.hideTier3 && role === 'tier3') return false
     if (item.adminOnly) return isAdminRole
     if (item.medicalOnly) return role === 'tier6' || isAdminRole
     if (item.managerOnly) return role === 'tier2' || isAdminRole

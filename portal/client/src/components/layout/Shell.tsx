@@ -10,8 +10,10 @@ const CHECK_INTERVAL = 60 * 1000           // check once per minute
 
 // Routes accessible to tier1 only (most restricted)
 const TIER1_ALLOWED  = ['/dashboard', '/assets', '/distributors', '/trainings', '/quiz', '/store-users', '/creator']
-// Routes accessible to tier2 and tier3 (adds In-store Marketing)
-const TIER2_3_ALLOWED = [...TIER1_ALLOWED, '/retailer']
+// Routes accessible to tier2 (adds In-store Marketing, keeps Distributors)
+const TIER2_ALLOWED  = [...TIER1_ALLOWED, '/retailer']
+// Routes accessible to tier3 Distributor — no Distributors page
+const TIER3_ALLOWED  = TIER1_ALLOWED.filter(p => p !== '/distributors').concat('/retailer')
 // Routes accessible to tier6 Medical Partner (same as tier1 + Medical Marketing)
 const TIER6_ALLOWED  = [...TIER1_ALLOWED, '/medical-marketing']
 // Routes accessible to tier4 (Prospect)
@@ -58,7 +60,8 @@ export default function Shell() {
   if (isPending && !location.pathname.startsWith('/dashboard')) {
     return <Navigate to="/dashboard" replace />
   }
-  const restrictedAllowed = user.role === 'tier2' || user.role === 'tier3' || user.role === 'tier7' ? TIER2_3_ALLOWED
+  const restrictedAllowed = user.role === 'tier3' ? TIER3_ALLOWED
+    : (user.role === 'tier2' || user.role === 'tier7') ? TIER2_ALLOWED
     : user.role === 'tier6' ? TIER6_ALLOWED
     : TIER1_ALLOWED
   if (!isPending && isRestricted && !restrictedAllowed.some(p => location.pathname.startsWith(p))) {
