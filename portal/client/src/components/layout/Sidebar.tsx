@@ -10,7 +10,7 @@ import {
   Image as ImageIcon, Stethoscope, ShieldCheck,
 } from 'lucide-react'
 
-// restricted: tier1/2/3/6  |  tier23: tier2+tier3 only  |  prospectVisible: tier4  |  adminOnly: tier5 only  |  medicalOnly: tier6+admin  |  hideTier3: hidden from tier3 (Distributor)
+// restricted: tier1/2/3/6  |  tier23: tier2+tier3 only  |  prospectVisible: tier4  |  adminOnly: tier5 only  |  medicalOnly: admin only  |  hideTier3: hidden from tier3 (Distributor)
 const NAV = [
   { to: '/dashboard',          icon: LayoutDashboard, label: 'Dashboard',              restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
   { to: '/assets',             icon: BookOpen,        label: 'Asset Library',          restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
@@ -47,7 +47,7 @@ export default function Sidebar({ onClose }: Props) {
     if (isPending || isProspectRole) return item.to === '/dashboard'
     if (item.hideTier3 && role === 'tier3') return false
     if (item.adminOnly) return isAdminRole
-    if (item.medicalOnly) return role === 'tier6' || isAdminRole
+    if (item.medicalOnly) return isAdminRole
     if (item.managerOnly) return role === 'tier2' || isAdminRole
     if (isRestricted) return item.restricted || (item.tier23 && (role === 'tier2' || role === 'tier3' || role === 'tier7'))
     return true

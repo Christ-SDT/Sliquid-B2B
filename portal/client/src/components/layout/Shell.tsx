@@ -14,8 +14,8 @@ const TIER1_ALLOWED  = ['/dashboard', '/assets', '/distributors', '/trainings', 
 const TIER2_ALLOWED  = [...TIER1_ALLOWED, '/retailer']
 // Routes accessible to tier3 Distributor — no Distributors page
 const TIER3_ALLOWED  = TIER1_ALLOWED.filter(p => p !== '/distributors').concat('/retailer')
-// Routes accessible to tier6 Medical Partner (same as tier1 + Medical Marketing)
-const TIER6_ALLOWED  = [...TIER1_ALLOWED, '/medical-marketing']
+// Routes accessible to tier6 Medical Partner (same as tier1 — Medical Marketing is admin-only)
+const TIER6_ALLOWED  = TIER1_ALLOWED
 // Routes accessible to tier4 (Prospect)
 const PROSPECT_ALLOWED = ['/dashboard']
 
