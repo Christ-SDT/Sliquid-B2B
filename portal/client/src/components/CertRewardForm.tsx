@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { api } from '@/api/client'
 import { Gift, Lock, Loader2 } from 'lucide-react'
 
-const SHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL']
+const SHIRT_SIZES = ['S', 'M', 'L', 'XL', '2XL']
 
 interface Props {
   userName: string
