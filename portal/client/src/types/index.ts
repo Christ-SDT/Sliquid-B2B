@@ -149,3 +149,76 @@ export interface StatsOverview {
   totalRevenue: number
   distributors: number
 }
+
+/**
+ * A press release synced from WordPress, or a portal-authored announcement.
+ *
+ * `title` / `excerpt` / `image_url` / `published_at` are already resolved
+ * server-side (admin override COALESCEd over the WordPress value), so read
+ * those and ignore the `*_override` / `wp_*` pairs outside the admin UI.
+ *
+ * Booleans are 0/1 numbers, matching the rest of this file (see Asset.featured).
+ */
+export interface Announcement {
+  id: number
+  slug: string
+  source: 'wordpress' | 'portal'
+  wp_id?: number | null
+  wp_link?: string | null
+
+  // Resolved values
+  title: string
+  excerpt?: string | null
+  image_url?: string | null
+  published_at?: string | null
+
+  /** Present on detail responses only — omitted from lists to keep them small. */
+  body_html?: string | null
+  /** 'document' = a standalone HTML doc needing iframe isolation. */
+  body_shape?: 'document' | 'rich' | null
+  content_css?: string | null
+
+  // Admin-only fields (returned by /announcements/admin)
+  title_override?: string | null
+  excerpt_override?: string | null
+  body_html_override?: string | null
+  image_url_override?: string | null
+  wp_title?: string | null
+  wp_excerpt_html?: string | null
+  status?: 'hidden' | 'published' | 'archived'
+  effective_status?: 'hidden' | 'scheduled' | 'live' | 'expired' | 'archived'
+  publish_at?: string | null
+  expires_at?: string | null
+  admin_notes?: string | null
+  notified_at?: string | null
+  last_synced_at?: string | null
+
+  show_in_portal: number
+  show_on_public: number
+  pinned: number
+  sort_order?: number
+
+  created_at?: string
+  updated_at?: string
+}
+
+export interface AnnouncementSyncStatus {
+  configured: boolean
+  enabled: boolean
+  config: { baseUrl: string; categoryId: number; cutoffDate: string; hasAuth: boolean }
+  watermark?: string | null
+  lastSync?: {
+    synced_at: string
+    trigger_source: string
+    status: 'ok' | 'error'
+    posts_seen: number
+    posts_created: number
+    posts_updated: number
+    posts_skipped: number
+    message?: string | null
+  } | null
+  counts: {
+    total: number; hidden: number; archived: number
+    live: number; scheduled: number; portal_only: number
+  }
+}

@@ -15,10 +15,13 @@ beforeEach(() => {
 
 afterAll(() => db.close())
 
-function insertNotification(userId: number, read = 0) {
+// Must seed a type non-admins are allowed to see (see USER_VISIBLE_TYPES in
+// routes/notifications.ts) — an arbitrary type is filtered out for tier1–tier4
+// and every assertion below would see an empty feed.
+function insertNotification(userId: number, read = 0, type = 'new_asset') {
   const result = db.prepare(
-    "INSERT INTO notifications (user_id, type, title, message) VALUES (?, 'test', 'Test', 'Test message')"
-  ).run(userId)
+    'INSERT INTO notifications (user_id, type, title, message) VALUES (?, ?, ?, ?)'
+  ).run(userId, type, 'Test', 'Test message')
   if (read) {
     db.prepare('UPDATE notifications SET read = 1 WHERE id = ?').run(result.lastInsertRowid)
   }
@@ -52,6 +55,44 @@ describe('GET /api/notifications', () => {
       .get('/api/notifications')
       .set('Authorization', bearerToken(tier1Id, 'tier1'))
     expect(res.status).toBe(200)
+    expect(res.body.unreadCount).toBe(2)
+  })
+})
+
+describe('GET /api/notifications — type visibility filter', () => {
+  // Non-admins see an allowlist of types. A new user-facing type that is not
+  // added to USER_VISIBLE_TYPES is inserted and then silently filtered out of
+  // their feed, which looks exactly like "notifications are broken".
+  it('shows new_announcement to non-admins', async () => {
+    insertNotification(tier1Id, 0, 'new_announcement')
+
+    const res = await request(app)
+      .get('/api/notifications')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+    expect(res.status).toBe(200)
+    expect(res.body.notifications).toHaveLength(1)
+    expect(res.body.unreadCount).toBe(1)
+  })
+
+  it('hides admin-only types from non-admins', async () => {
+    insertNotification(tier1Id, 0, 'low_stock')
+    insertNotification(tier1Id, 0, 'announcement_review')
+
+    const res = await request(app)
+      .get('/api/notifications')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+    expect(res.body.notifications).toHaveLength(0)
+    expect(res.body.unreadCount).toBe(0)
+  })
+
+  it('shows every type to admins', async () => {
+    insertNotification(adminId, 0, 'low_stock')
+    insertNotification(adminId, 0, 'new_announcement')
+
+    const res = await request(app)
+      .get('/api/notifications')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.body.notifications).toHaveLength(2)
     expect(res.body.unreadCount).toBe(2)
   })
 })

@@ -4,11 +4,18 @@ import { requireAuth } from '../middleware/auth.js'
 
 const router = Router()
 
+// Notification types non-admins are allowed to see. Admin-only types (stock
+// alerts, marketing requests, announcement review queue) are hidden from them.
+// NOTE: a new user-facing notification type MUST be added here or it will be
+// inserted for tier1–tier4 and then silently filtered out of their feed.
+const USER_VISIBLE_TYPES = ['new_asset', 'new_announcement']
+
 // GET /api/notifications — latest 30 for current user, unread first
-// Non-admins only see 'new_asset' notifications; admin-only types are hidden from them
 router.get('/', requireAuth, (req, res) => {
   const isAdmin = req.user!.role === 'tier5' || req.user!.role === 'admin'
-  const typeFilter = isAdmin ? '' : "AND type = 'new_asset'"
+  const typeFilter = isAdmin
+    ? ''
+    : `AND type IN (${USER_VISIBLE_TYPES.map(t => `'${t}'`).join(', ')})`
 
   const notifications = db.prepare(`
     SELECT * FROM notifications

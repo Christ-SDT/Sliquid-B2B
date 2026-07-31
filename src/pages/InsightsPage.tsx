@@ -1,16 +1,45 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { FEATURED_NEWS } from '@/utils/constants'
+import { API_BASE } from '@/utils/constants'
+import { formatDate } from '@/utils/date'
+import type { Announcement } from '@/types'
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+/**
+ * The news on this page is now live, driven by WordPress press releases via the
+ * portal API. It previously rendered the hardcoded FEATURED_NEWS array, whose
+ * every `/insights/<slug>` href was a dead link (that route re-rendered this
+ * index page). Articles now link to the real /announcements/:slug detail page.
+ */
+type Article = {
+  id: string
+  title: string
+  excerpt: string
+  category: string
+  date: string
+  imageUrl: string | null
+  imageAlt: string
+  href: string
+  featured: boolean
 }
 
-const CATEGORIES = ['All', 'Distribution', 'Product News', 'Awards', 'Platform', 'Leadership', 'Education']
+function stripHtml(html?: string | null): string {
+  if (!html) return ''
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+function toArticle(a: Announcement, index: number): Article {
+  return {
+    id: String(a.id),
+    title: a.title,
+    excerpt: stripHtml(a.excerpt),
+    category: 'Press Release',
+    date: a.published_at ?? '',
+    imageUrl: a.image_url ?? null,
+    imageAlt: '',
+    href: `/announcements/${a.slug}`,
+    featured: index === 0,
+  }
+}
 
 const RESOURCES = [
   {
@@ -71,14 +100,31 @@ export default function InsightsPage() {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('q') ?? ''
   const [activeCategory, setActiveCategory] = useState('All')
+  const [allArticles, setAllArticles] = useState<Article[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const articles = FEATURED_NEWS.filter((a) => {
+  useEffect(() => {
+    setLoading(true)
+    fetch(`${API_BASE}/api/announcements/public`)
+      .then((r) => {
+        if (!r.ok) throw new Error('failed')
+        return r.json()
+      })
+      .then((data: Announcement[]) => setAllArticles(data.map(toArticle)))
+      .catch(() => setAllArticles([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  // Derived from the data rather than hardcoded, so the filter bar can hide
+  // itself while press releases are the only category.
+  const categories = ['All', ...Array.from(new Set(allArticles.map((a) => a.category)))]
+
+  const articles = allArticles.filter((a) => {
     const matchesQuery =
       !query ||
       a.title.toLowerCase().includes(query.toLowerCase()) ||
       a.excerpt.toLowerCase().includes(query.toLowerCase())
-    const matchesCategory =
-      activeCategory === 'All' || a.category === activeCategory
+    const matchesCategory = activeCategory === 'All' || a.category === activeCategory
     return matchesQuery && matchesCategory
   })
 
@@ -114,11 +160,14 @@ export default function InsightsPage() {
         </div>
       </div>
 
-      {/* Category filters */}
-      <div className="border-b border-gray-100 bg-white sticky top-[80px] z-40">
+      {/* Category filters — hidden while press releases are the only category */}
+      <div
+        className="border-b border-gray-100 bg-white sticky top-[80px] z-40"
+        hidden={categories.length <= 2}
+      >
         <div className="max-w-[1240px] mx-auto px-6">
           <div className="flex gap-1 overflow-x-auto py-3 scrollbar-hide">
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
@@ -137,7 +186,13 @@ export default function InsightsPage() {
 
       <div className="max-w-[1240px] mx-auto px-6 py-16 space-y-16">
 
-        {articles.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white border border-gray-100 rounded-card h-80 animate-pulse" />
+            ))}
+          </div>
+        ) : articles.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-text-gray text-lg">No articles found.</p>
             <button
@@ -160,15 +215,17 @@ export default function InsightsPage() {
                   className="group grid grid-cols-1 lg:grid-cols-2 gap-0 bg-white border border-gray-100
                              rounded-card overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200"
                 >
-                  <div className="overflow-hidden">
-                    <img
-                      src={featuredArticle.imageUrl}
-                      alt={featuredArticle.imageAlt}
-                      loading="lazy"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      className="w-full h-72 lg:h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
+                  {featuredArticle.imageUrl && (
+                    <div className="overflow-hidden">
+                      <img
+                        src={featuredArticle.imageUrl}
+                        alt={featuredArticle.imageAlt}
+                        loading="lazy"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        className="w-full h-72 lg:h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
                   <div className="p-10 flex flex-col justify-center space-y-4">
                     <div className="flex items-center gap-2">
                       <span className="bg-bg-light-blue text-sliquid-blue text-xs font-semibold px-2.5 py-1 rounded-full">
@@ -211,15 +268,17 @@ export default function InsightsPage() {
                       className="bg-white border border-gray-100 rounded-card overflow-hidden
                                  shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col"
                     >
-                      <div className="overflow-hidden">
-                        <img
-                          src={article.imageUrl}
-                          alt={article.imageAlt}
-                          loading="lazy"
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
+                      {article.imageUrl && (
+                        <div className="overflow-hidden">
+                          <img
+                            src={article.imageUrl}
+                            alt={article.imageAlt}
+                            loading="lazy"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
                       <div className="p-6 space-y-3 flex flex-col flex-1">
                         <div className="flex items-center gap-2">
                           <span className="bg-bg-light-blue text-sliquid-blue text-xs font-semibold px-2.5 py-1 rounded-full">

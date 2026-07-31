@@ -10,6 +10,7 @@ export const NAV_LINKS: readonly NavLink[] = [
   { label: 'Our Brands', href: '/our-brands' },
   { label: 'Ingredients', href: '/ingredients' },
   { label: 'About Us', href: '/about' },
+  { label: 'Announcements', href: '/announcements' },
   { label: 'MAP Policy', href: '/map-policy' },
   { label: 'Contact', href: '/contact' },
 ] as const
@@ -216,3 +217,17 @@ export const IMG_BRANDS_HERO =
   'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/a0db976e-7593-4a93-b0e2-6adfedd2179c.png'
 export const IMG_CEO =
   'https://sliquid.com/wp-content/uploads/2025/10/c4ocr69L_400x400.jpg'
+
+/**
+ * Base URL of the portal API (Railway). New code should import this rather than
+ * redeclaring it — eight existing pages each define their own copy, and four of
+ * them read VITE_PORTAL_API_URL (which .env.example does not document) while the
+ * rest read VITE_API_URL.
+ *
+ * Note the marketing site's CSP `connect-src` allowlists only this host, so the
+ * browser cannot call WordPress directly — announcements must come via the API.
+ */
+export const API_BASE =
+  (import.meta.env.VITE_API_URL as string | undefined) ??
+  (import.meta.env.VITE_PORTAL_API_URL as string | undefined) ??
+  'https://sliquid-b2b-production.up.railway.app'

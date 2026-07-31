@@ -63,3 +63,27 @@ export interface ContactFormData {
 }
 
 export type ContactFormErrors = Partial<Record<keyof ContactFormData, string>>
+
+/**
+ * A press release from the portal API (`/api/announcements/public`).
+ *
+ * `title` / `excerpt` / `image_url` / `published_at` are already resolved
+ * server-side (any admin override COALESCEd over the WordPress value).
+ *
+ * Not `readonly` — unlike the static constants above, this is fetched API data.
+ */
+export interface Announcement {
+  id: number
+  slug: string
+  source: 'wordpress' | 'portal'
+  wp_link?: string | null
+  title: string
+  excerpt?: string | null
+  image_url?: string | null
+  published_at?: string | null
+  /** Detail responses only. */
+  body_html?: string | null
+  /** 'document' = a standalone HTML doc that needs iframe isolation. */
+  body_shape?: 'document' | 'rich' | null
+  pinned?: number
+}

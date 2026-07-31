@@ -20,3 +20,66 @@
     @apply transition-colors duration-150;
   }
 }
+
+/**
+ * Styling for WordPress announcement bodies rendered inline.
+ *
+ * Tailwind Preflight strips default <p>/<h2>/<ul> styling and this project has
+ * no @tailwindcss/typography (`plugins: []`), so raw WP HTML renders as
+ * unstyled text without this. Scoped to .announcement-body so it can never
+ * affect the rest of the site.
+ */
+@layer components {
+  .announcement-body {
+    @apply text-text-gray text-base leading-relaxed;
+  }
+  .announcement-body > * + * {
+    margin-top: 1.15rem;
+  }
+  .announcement-body h2 {
+    @apply text-text-dark text-[26px] font-semibold leading-tight mt-10 mb-3;
+  }
+  .announcement-body h3 {
+    @apply text-text-dark text-[20px] font-semibold mt-8 mb-2;
+  }
+  .announcement-body h4 {
+    @apply text-text-dark text-[17px] font-semibold mt-6 mb-2;
+  }
+  .announcement-body a {
+    @apply text-sliquid-blue font-medium underline underline-offset-2 hover:text-sliquid-dark-blue;
+  }
+  .announcement-body strong {
+    @apply text-text-dark font-semibold;
+  }
+  .announcement-body ul {
+    @apply list-disc pl-6 space-y-1.5;
+  }
+  .announcement-body ol {
+    @apply list-decimal pl-6 space-y-1.5;
+  }
+  .announcement-body img {
+    @apply rounded-img my-6 w-full h-auto;
+  }
+  .announcement-body blockquote {
+    @apply border-l-4 border-sliquid-blue/40 pl-5 italic my-6;
+  }
+  .announcement-body hr {
+    @apply border-gray-100 my-10;
+  }
+  .announcement-body table {
+    @apply w-full text-sm border-collapse my-6;
+  }
+  .announcement-body th,
+  .announcement-body td {
+    @apply border border-gray-100 px-3 py-2 text-left;
+  }
+  .announcement-body th {
+    @apply bg-bg-off-white font-semibold text-text-dark;
+  }
+  .announcement-body figcaption {
+    @apply text-text-light-gray text-sm mt-2;
+  }
+  .announcement-body pre {
+    @apply bg-bg-off-white rounded-lg p-4 overflow-x-auto text-sm my-6;
+  }
+}

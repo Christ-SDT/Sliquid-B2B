@@ -8,7 +8,7 @@ The project has two top-level parts:
 - **Partner portal** — full-stack app inside `portal/` (client + server)
 
 ### Main Site — Key Assets
-- **Hero/header image:** `public/images/b2b-header-banner.png` — custom B2B Portal banner ("SLIQUID.com | B2B Portal"). Referenced via `IMG_HERO` in `src/utils/constants.ts`. Used as the full-width background in `HeroSection.tsx`.
+- **Hero/header image:** referenced via `IMG_HERO` in `src/utils/constants.ts`, currently `public/images/semi-finalv2-sliquidb2b.png`. Used as the full-width background in `HeroSection.tsx`.
 - Static images live in `public/images/` (served at `/images/filename`).
 
 ---
@@ -52,10 +52,11 @@ The project has two top-level parts:
 | `portal/client/src/pages/StoreUsersPage.tsx` | "My Store" page for tier2 — read-only member list with quiz stats |
 | `portal/client/src/pages/CertificateVerify.tsx` | Public `/verify` page — search form to verify a cert number |
 | `portal/client/src/context/NotificationContext.tsx` | Notification state — polls `/api/notifications` every 60s; provides `markRead`, `markAllRead` |
-| `portal/server/src/notifications.ts` | `notifyAdmins(type, title, message, link?)` + `notifyUsers(...)` helpers |
+| `portal/server/src/notifications.ts` | `notifyAdmins` / `notifyUsers` / `notifyEveryone` / `notifyUserIds` / `notifyUser` |
 | `portal/server/src/routes/notifications.ts` | GET `/`, PUT `/read-all`, PUT `/:id/read` |
 | `portal/server/src/routes/certificates.ts` | GET `/mine` (auth) + GET `/verify/:certNumber` (public) |
-| `portal/server/src/index.ts` | Express app + route mounting + WC polling interval |
+| `portal/server/src/app.ts` | Express app, CORS/`PUBLIC_PATHS`, **all route mounting**; exports `app` (tests import this) |
+| `portal/server/src/index.ts` | `app.listen` + background intervals ONLY — excluded from coverage, so no logic belongs here |
 | `portal/server/src/database.ts` | DB init, migrations, seed |
 | `portal/server/src/middleware/auth.ts` | `requireAuth` + `requireRole(...roles)` |
 | `portal/server/src/email.ts` | EmailJS email sender (`@emailjs/nodejs`) |
@@ -92,6 +93,16 @@ EMAILJS_PRIVATE_KEY=your_private_key
 EMAILJS_SERVICE_ID=your_service_id
 # Optional — override portal URL used in email links (default: https://sliquid-portal.pages.dev)
 PORTAL_URL=https://your-portal-url.pages.dev
+# Optional — Announcements / WordPress press-release sync. All optional: the sync
+# falls back to sliquid.com + category 245 + cutoff 2025-01-01, so it works unset.
+# Can also be set at runtime from /admin/announcements (stored in woo_settings).
+WP_BASE_URL=https://sliquid.com
+WP_ANNOUNCEMENTS_CATEGORY_ID=245
+WP_ANNOUNCEMENTS_CUTOFF=2025-01-01
+# Only needed to sync posts not yet published in WordPress (draft/pending/future)
+# WP_APP_USER=
+# WP_APP_PASSWORD=
+
 # Optional — override WooCommerce credentials (env takes precedence over DB settings)
 WC_URL=https://your-store.com
 WC_CONSUMER_KEY=ck_xxx
@@ -140,8 +151,10 @@ VITE_API_URL=http://localhost:3001
 | `tier3` | Distributor | Cyan | Restricted access (product library, distributors, trainings) |
 | `tier4` | Prospect | Orange | Prospect access (distributors, trainings, become a retailer only) |
 | `tier5` | Admin | Violet | Full unrestricted access |
+| `tier6` | Medical Partner | — | Restricted access (same set as tier1) |
+| `tier7` | Media | — | Restricted access (routed to the tier2 allow-list) |
 
-`isLimitedTier(role)` in `types/index.ts` returns `true` for tier1/2/3.
+`isLimitedTier(role)` in `types/index.ts` returns `true` for tier1/2/3/**6/7**.
 `isProspect(role)` returns `true` for tier4. `isAdmin(role)` returns `true` for tier5 or 'admin'.
 
 **Role badge colors** — defined in `roleBadgeClass()` in `UsersPage.tsx`. Uses solid filled Tailwind classes (e.g. `bg-violet-600 text-white`) for strong readability. Do not revert to transparent/muted variants.
@@ -152,22 +165,47 @@ VITE_API_URL=http://localhost:3001
 
 ### Shell.tsx Access Control Lists
 ```ts
-const RESTRICTED_ALLOWED = ['/dashboard', '/assets', '/distributors', '/trainings', '/quiz', '/store-users']
-const PROSPECT_ALLOWED   = ['/dashboard', '/distributors', '/trainings', '/quiz', '/retailer']
+const TIER1_ALLOWED    = ['/dashboard', '/announcements', '/assets', '/distributors', '/trainings', '/quiz', '/store-users', '/creator']
+const TIER2_ALLOWED    = [...TIER1_ALLOWED, '/retailer']
+const TIER3_ALLOWED    = TIER1_ALLOWED.filter(p => p !== '/distributors').concat('/retailer')
+const TIER6_ALLOWED    = TIER1_ALLOWED
+const PROSPECT_ALLOWED = ['/dashboard', '/announcements']
+const PENDING_ALLOWED  = ['/dashboard', '/announcements']  // status = 'pending'
 ```
-Tier1/2/3 use `RESTRICTED_ALLOWED`; tier4 uses `PROSPECT_ALLOWED`; tier5/admin has unrestricted access.
+There is **no** `RESTRICTED_ALLOWED` — the arrays are `TIER1_ALLOWED` / `TIER2_ALLOWED` /
+`TIER3_ALLOWED` / `TIER6_ALLOWED` / `PROSPECT_ALLOWED` / `PENDING_ALLOWED`. tier7 falls
+through to `TIER2_ALLOWED`; tier5/admin is unguarded.
+
+⚠️ Matching is `pathname.startsWith(p)`, i.e. a **prefix** match. `'/announcements'` therefore
+also grants `/announcements/:slug` — which is intended — but it means a sibling route named
+`/announcements-admin` would be silently granted to restricted tiers. That is why the admin
+page lives at `/admin/announcements`.
+
+⚠️ `Sidebar.tsx`'s `prospectVisible` flag is **dead code**: the `isPending || isProspectRole`
+branch short-circuits before any row flag is read. Do not "fix" it by honouring the flag —
+three rows carry `prospectVisible: true` that `PROSPECT_ALLOWED` immediately bounces, so you
+would render nav links that redirect on click.
 
 ### Sidebar NAV Flags
-Each NAV entry has: `restricted`, `prospectVisible`, `managerOnly`, `adminOnly`.
+Every NAV entry carries **every** key — the array is untyped, so a row missing one produces a
+TS error on access. Keys: `restricted`, `tier23`, `prospectVisible`, `managerOnly`, `adminOnly`,
+`medicalOnly`, `hideTier3`, `badgeType`.
 - `adminOnly: true` → only tier5/admin sees it
-- `managerOnly: true` → only tier2 or admin sees it
-- `prospectVisible: true` → tier4 sees it
-- `restricted: true` → tier1/2/3 see it
+- `medicalOnly: true` → admin only (despite the name)
+- `managerOnly: true` → tier2 or admin (currently `false` on every row)
+- `tier23: true` → tier2/tier3/tier7
+- `hideTier3: true` → hidden from tier3
+- `restricted: true` → tier1/2/3/6/7 see it
+- `prospectVisible` → **dead code**, see the warning above
+- `badgeType` → notification `type` whose unread count renders as a pill (`countUnreadByType`)
 
 ### Access Matrix
 | Route | tier1 | tier2 | tier3 | tier4 (Prospect) | tier5 (Admin) |
 |---|---|---|---|---|---|
 | `/dashboard` | ✓ (mini) | ✓ (mini) | ✓ (mini) | ✓ (mini) | ✓ (full stats) |
+| `/announcements` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `/announcements/:slug` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `/admin/announcements` | ✗ | ✗ | ✗ | ✗ | ✓ |
 | `/assets` (Product Library) | ✓ | ✓ | ✓ | ✗ | ✓ |
 | `/distributors` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `/trainings` | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -236,8 +274,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 52 | `backfill_approved_user_stores` | Inserts (`INSERT OR IGNORE`) the distinct `company` of every `status = 'active'` user into the `stores` table — one-time backfill so previously-approved companies appear in the registration dropdown |
 | 53 | `add_requested_role_to_users` | Adds `requested_role TEXT` to `users` table — optional self-identified role hint (`tier1`/`tier2`/`NULL`) captured at registration |
 | 54 | `hp_applications_table` | Creates `hp_applications` table (`id`, `practice_name`, `contact_name`, `email`, `created_at`) — one row per Health Practitioner application, backs the sequential `SHP-XXXX` reference number |
+| 55 | `announcements_tables` | Creates `announcements` (WordPress press releases + portal-authored announcements) and `announcement_sync_log`. See [Announcements](#announcements--press-releases) |
 
-**Next migration version: 55**
+**Next migration version: 56**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -483,6 +522,172 @@ When a quiz has `videoPath` set, `QuizPage.tsx` renders a two-phase experience:
 When all modules are passed (`passedCount === trainings.length`):
 - A green banner appears above the progress bar with "You're a Sliquid Certified Expert!"
 - "View Certificate" button opens a modal containing `CertificateGenerator`
+
+---
+
+## Announcements / Press Releases
+
+Press releases are authored in **WordPress** at `sliquid.com` under the **Press Releases**
+category and pulled into the portal, which then feeds three surfaces:
+
+1. **Public** — `/announcements` + `/announcements/:slug` on the B2B marketing site.
+2. **Portal** — `/announcements` + `/announcements/:slug`, visible to all seven tiers.
+3. **Admin** — `/admin/announcements` (tier5), full CRUD + visibility + scheduling.
+
+**WordPress is read-only. The portal never writes back to it.** Everything editorial —
+visibility, timing, pin order, title/excerpt overrides — is portal-side.
+
+### WordPress source of truth
+| Fact | Value |
+|---|---|
+| REST base | `https://sliquid.com/wp-json/wp/v2` |
+| Press Releases category id | **245** (`press-releases`) |
+| Auth | none — only `status=publish` posts are synced |
+| Incremental sync | `modified_after=<watermark>`, `orderby=modified&order=asc` |
+| Pagination | `X-WP-TotalPages` (WP returns 400 past the last page; `per_page` caps at 100) |
+| Default cutoff | `2025-01-01` — note **zero posts exist from 2021–2024**, so this yields ~4 items. `2017-01-01` would yield ~30 |
+
+### Two content shapes — this drives the whole renderer
+- **`document`** — the author pasted a complete `<!DOCTYPE html>…</html>` document with its own
+  `<style>` (using global selectors like `* {}`, `body {}`, `:root { --var }`) into an Elementor
+  **HTML widget**. Rendered in a **sandboxed iframe**, because injecting it inline would leak
+  that CSS into the host page.
+- **`rich`** — plain WordPress content (`<p>/<strong>/<a>/<img>`). Rendered **inline** after
+  DOMPurify sanitization, inside a scoped `.announcement-body` class, so it inherits site
+  typography and dark mode and stays SEO-indexable.
+
+`content_shape` is decided server-side at sync time and sent as `body_shape`.
+
+### `AnnouncementBody.tsx` — DUPLICATED in both apps
+`src/components/AnnouncementBody.tsx` and `portal/client/src/components/AnnouncementBody.tsx`
+are byte-identical copies (no npm workspaces; separate lockfiles and toolchains). **Edit both.**
+Styling lives in each app's `.announcement-body` block in `index.css`, not in the component.
+
+⛔ **`BODY_SANDBOX` must never gain `allow-scripts`.** It is
+`'allow-same-origin allow-popups allow-popups-to-escape-sandbox'`. Without `allow-scripts` the
+frame executes no script at all, so `allow-same-origin` — present only so the *parent* can read
+`contentDocument` to measure height — grants the content nothing. Adding `allow-scripts`
+alongside it removes the sandbox entirely, giving the frame same-origin access to the parent DOM
+and `localStorage` (including `portal_token`). A unit test asserts the exact string.
+
+⚠️ **Quirks mode:** Shape A documents arrive nested inside Elementor wrapper divs. Any markup
+before `<!DOCTYPE html>` makes the iframe render in quirks mode — wrong box model and
+line-height, with no error anywhere. `extractDocument()` slices the real document out; the
+server does the same via `stripElementorWrapper()`. Both have regression tests.
+
+### Scheduling — no background job
+A scheduled announcement is `status='published'` with a future `publish_at`. There is
+deliberately **no `'scheduled'` status**; visibility is a read-time SQL predicate
+(`LIVE_SQL` in `announcements.ts`), so it survives restarts and cannot drift. The admin UI gets
+a derived `effective_status` (`hidden` / `scheduled` / `live` / `expired` / `archived`)
+computed in SQL.
+
+⚠️ **All timestamps MUST be normalized to `'YYYY-MM-DD HH:MM:SS'` UTC** via `normalizeTs()`.
+`LIVE_SQL` compares lexicographically against `datetime('now')`, and an ISO string's `'T'`
+(0x54) sorts *after* a space (0x20) — so storing `2026-07-31T16:00:00Z` makes an item scheduled
+earlier today read as still-in-the-future and it never goes live.
+
+### Column ownership — the anti-clobber contract
+In the `announcements` table, **every `wp_*` column (plus `content_shape`, `content_css`,
+`last_synced_at`) is sync-owned** and overwritten on every pull. **Every other column is
+admin-owned** and must never appear in the sync upsert's `SET` clause, or a routine sync
+silently unpublishes announcements and discards overrides, schedules and pin order.
+`upsertFromWpPost()` enforces this; `wordpress-sync.test.ts` has a test that asserts all 15
+admin columns are byte-identical after a WordPress-side edit.
+
+Portal-authored announcements have `wp_id IS NULL` and `source='portal'`, so the sync (which
+only ever matches on `wp_id`) can never touch them. Their content lives in the `*_override`
+columns, so `COALESCE(override, wp_*)` reads uniformly for both kinds of row.
+
+### Deleting
+`DELETE /api/announcements/:id` **archives** a WordPress-sourced row (`status='archived'`, both
+visibility flags off) rather than deleting it — a hard delete would be undone by the next sync,
+losing the overrides. Only `source='portal'` rows are hard-deleted.
+
+### Pending users see the PUBLIC subset
+A user with `status='pending'` (registration awaiting approval) can reach `/announcements`, but
+the server narrows their feed and detail lookups to `show_on_public = 1` via `surfaceFor(req)` —
+the same items anyone can read on the marketing site. Partner-only announcements
+(`show_in_portal = 1, show_on_public = 0`) stay hidden until the account is approved, and the
+notification sweep skips pending users for those so they never get a dead link.
+
+### Notifications
+`sweepScheduledAnnouncements()` fires `new_announcement` when an item crosses its publish time,
+and stamps `notified_at` so it is idempotent — which lets one code path serve both the 5-minute
+sweep and an immediate admin publish. Admins additionally get `announcement_review` when a sync
+imports new (hidden) posts.
+
+⚠️ **`routes/notifications.ts` filters non-admins to `USER_VISIBLE_TYPES`.** A new user-facing
+notification type MUST be added to that array or it will be inserted for tier1–tier4 and then
+silently filtered out of their feed — which looks exactly like "notifications are broken", with
+no error anywhere.
+
+### Key files
+| Path | Purpose |
+|---|---|
+| `portal/server/src/wordpress.ts` | Pure content pipeline (Elementor unwrap, document extraction, URL absolutization, slugs, `normalizeTs`) + `WordPressService` + `runAnnouncementSync()` |
+| `portal/server/src/announcements.ts` | `LIVE_SQL`, `ORDER_SQL`, `LIST_COLS`/`DETAIL_COLS`/`ADMIN_COLS`, `EDITABLE_FIELDS`, `sweepScheduledAnnouncements()` |
+| `portal/server/src/routes/announcements.ts` | 18 endpoints, namespaced `/public/…` and `/admin/…` |
+| `portal/client/src/pages/AnnouncementsAdminPage.tsx` | Admin table: two independent visibility switches, pin, schedule picker, Sync now, Delete-vs-Archive |
+| `src/pages/AnnouncementsPage.tsx` | Public list (marketing site) |
+| `src/utils/date.ts` | `formatDate` / `isoDate` — parse SQLite UTC timestamps correctly |
+| `portal/client/src/lib/utils.ts` | adds `formatDateTime`, `timeAgo`, **`timeUntil`**, `toLocalInputValue`, `fromLocalInputValue` |
+
+### API — `/api/announcements`
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/` | requireAuth (all tiers) | Live + portal-visible list. **No `body_html`.** Pending users get the public subset |
+| GET | `/:idOrSlug` | requireAuth | Detail incl. `body_html`; re-applies the visibility predicate, so a hidden/embargoed post 404s even for an admin |
+| GET | `/public` | **none** | Live + `show_on_public` list. Must stay in `PUBLIC_PATHS` |
+| GET | `/public/:idOrSlug` | **none** | Public detail |
+| GET | `/admin` | tier5 | All rows incl. hidden/archived, plus `effective_status`; `?status`, `?source`, `?search` |
+| GET | `/admin/:id` | tier5 | Full row incl. raw `wp_title` / `wp_content_html` for original-vs-override display |
+| POST | `/` | tier5 | Create a portal-only announcement (`EDITABLE_FIELDS` allowlist) |
+| PUT | `/:id` | tier5 | Update overrides; returns the full row |
+| DELETE | `/:id` | tier5 | Archive (WordPress) or delete (portal). **Always returns JSON** — `api.delete` parses unconditionally |
+| PUT | `/:id/portal-visibility` | tier5 | `{ id, show_in_portal }` — independent of public |
+| PUT | `/:id/public-visibility` | tier5 | `{ id, show_on_public }` — independent of portal |
+| PUT | `/:id/pinned` | tier5 | `{ id, pinned }` |
+| PUT | `/:id/schedule` | tier5 | `{ status?, publish_at?, expires_at? }`, normalized; notifies immediately on publish |
+| POST | `/admin/sync` | tier5 | Manual pull; returns the sync result |
+| GET | `/admin/sync/status` | tier5 | Config, watermark, last sync, counts |
+| PUT | `/admin/settings` | tier5 | Persist `wp_base_url` / `wp_category_id` / `wp_cutoff_date` / enabled |
+| POST | `/admin/test` | tier5 | Connection test |
+| POST | `/admin/reorder` | tier5 | `{ order: number[] }` → `sort_order` |
+
+⚠️ **`PUBLIC_PATHS` in `app.ts` must contain `'/api/announcements/public'`, not
+`'/api/announcements'`.** The matcher is a prefix match, so the broad form makes *every*
+announcements route skip `strictCors` and inherit the hardcoded
+`Access-Control-Allow-Methods: 'GET, OPTIONS'`, breaking admin writes in the browser — while
+every supertest test still passes, because supertest sends no `Origin`. Tested explicitly with
+`.set('Origin', …)`.
+
+⚠️ Route order: literals before params, and `GET /:idOrSlug` is registered **last**.
+`slugify()` reserves `public` / `admin` / `sync` so no announcement can claim a shadowing slug.
+
+### Background jobs (`index.ts`)
+| Interval | Job |
+|---|---|
+| once, 15s after boot | sweep + `runAnnouncementSync('boot')` |
+| every 5 min | `sweepScheduledAnnouncements()` — one indexed SELECT |
+| every 30 min | `runAnnouncementSync('schedule')` — gated on `wp.isSyncEnabled()` |
+
+Deliberately **not** piggybacked on the WooCommerce interval, which is gated by
+`woo.isConfigured()` — announcements would silently stop if Woo credentials were rotated out.
+
+### Marketing site notes
+- `Announcements` is in `NAV_LINKS` (`src/utils/constants.ts`) — one entry feeds the desktop
+  nav, mobile drawer **and** footer quick links.
+- `API_BASE` is now exported from `constants.ts`. Eight older pages still redeclare their own
+  copy, four of them reading the undocumented `VITE_PORTAL_API_URL`. New code should import
+  `API_BASE`.
+- **CSP** (`index.html`): `connect-src` allowlists only the Railway API host, so the browser
+  cannot call WordPress directly — announcements must come through the portal API. `frame-src`
+  now includes `'self'` for the srcdoc iframe. `img-src` allows `sliquid.com`, `www.sliquid.com`
+  and the S3 bucket — **an image from any other host in a post body is silently blocked on the
+  marketing site while working fine in the portal** (the portal has no CSP).
+- `InsightsPage` is now WordPress-driven (the hardcoded `FEATURED_NEWS` grid was retired) and
+  `/insights/:slug` renders the real detail page, closing six previously-dead links.
 
 ---
 
@@ -746,6 +951,13 @@ Notifications are per-user rows in the `notifications` table (migration v9).
 ### Server Side — `portal/server/src/notifications.ts`
 - `notifyAdmins(type, title, message, link?)` — inserts one row per admin (role `tier5` or `admin`)
 - `notifyUsers(type, title, message, link?)` — inserts one row per non-admin user
+- `notifyEveryone(...)` — every user, all tiers
+- `notifyUserIds(ids, ...)` — an explicit audience (e.g. everyone except pending users)
+- `notifyUser(userId, ...)` — a single user
+
+⚠️ **`routes/notifications.ts` filters non-admins to the `USER_VISIBLE_TYPES` allowlist.**
+A new user-facing type must be added there or it is inserted and then silently filtered out
+of every non-admin feed, with no error anywhere.
 
 ### When Notifications Are Created
 | Trigger | Type | Recipients |
@@ -754,6 +966,8 @@ Notifications are per-user rows in the `notifications` table (migration v9).
 | Inventory status transitions to `out_of_stock` | `out_of_stock` | Admins only |
 | New asset added (`POST /api/assets`) | `new_asset` | All non-admin users |
 | New creative added (`POST /api/creatives`) | `new_asset` | All non-admin users |
+| Announcement crosses its publish time | `new_announcement` | Everyone (pending users only if it is also public) |
+| Sync imports new hidden press releases | `announcement_review` | Admins only |
 
 **Status-change-only rule:** Inventory notifications fire only when `oldStatus !== newStatus`. Prevents spam when admins repeatedly update already-low items.
 
@@ -841,6 +1055,18 @@ portal/server/src/__tests__/
     trainings.test.ts
     quiz.test.ts                  # quiz completion + certificate auto-issuance
     certificates.test.ts          # GET /mine (rewardSubmitted field), POST /reward, GET /verify/:certNumber
+    announcements.test.ts         # 61 tests: feeds, detail leak test, CORS, admin CRUD,
+                                  # visibility independence, scheduling, pending-user subset
+  wordpress.test.ts               # 44 tests: pure content pipeline, no mocks
+  wordpress-sync.test.ts          # 28 tests: fetch mocking + THE ANTI-CLOBBER TEST
+  announcements-notify.test.ts    # 14 tests: publish sweep, idempotency, pending audience
+```
+
+Marketing site (`npm test` at the repo root, vitest + jsdom):
+```
+src/__tests__/announcementBody.test.tsx   # 25 tests: shape classification, quirks-mode
+                                          # regression, sanitization, sandbox invariant
+src/__tests__/fixtures/announcement-shape-a.html  # the REAL body of WP post 126182
 ```
 
 ### Test Helper Functions (`helpers/db.ts`)
@@ -853,6 +1079,8 @@ portal/server/src/__tests__/
 | `seedQuizResult(userId, quizId, passed, score?)` | Inserts a quiz_results row; returns its ID |
 | `seedCertificate(userId, userName, certNumber?)` | Inserts a certificates row; returns `{ id, certNumber }` |
 | `seedCertReward(userId, overrides?)` | Inserts a cert_rewards row using that user's name; returns the row ID |
+| `seedAnnouncement(overrides?)` | Inserts an announcement, defaulting to the state a fresh sync leaves it in (hidden, both flags off). Pass `publish_at` as a literal e.g. `'2020-01-01 00:00:00'` |
+| `seedPendingUser(overrides?)` | A `status='pending'` user. Deliberately NOT in `seedTestUsers()` — several tests assert exact active/pending counts |
 
 ### Key Test Coverage — Certification
 - `quiz.test.ts` (18 tests): no cert when no trainings; no cert on partial pass; no cert on failed quiz; cert issued when all passed; cert number format `SLQ-\d{4}-[A-F0-9]{6}`; no duplicate cert on retake; per-user isolation
@@ -861,7 +1089,8 @@ portal/server/src/__tests__/
   - `POST /reward`: 401 no auth; 403 no cert; 400 for each missing required field (product, shirtSize, address1, city, state, zip); 201 + DB row verified; address2 optional; idempotent (second call returns 200, no duplicate); per-user isolation; round-trip confirms `rewardSubmitted` flips to `true`
   - `GET /verify/:certNumber`: unknown 404; revoked 404; valid 200 + full shape; public (no auth); case-sensitive lookup
 
-**Total: 123 tests passing across 11 test files**
+**Total: 471 tests passing across 21 test files** (1 known pre-existing failure in
+`admin.test.ts` — it asserts tier3 is rejected on approve, which is no longer true).
 
 ---
 
@@ -879,7 +1108,7 @@ portal/server/src/__tests__/
 - Config: `portal/server/railway.toml` — `builder = "dockerfile"` only (no healthcheckPath)
 - Volume: mount at `/data`, set `DB_PATH=/data/portal.db`
 - Required env vars: `JWT_SECRET`, `ALLOWED_ORIGINS` (comma-separated Cloudflare URLs)
-- Optional env vars: `EMAILJS_PUBLIC_KEY`, `EMAILJS_PRIVATE_KEY`, `EMAILJS_SERVICE_ID`, `PORTAL_URL`, `WC_URL`, `WC_CONSUMER_KEY`, `WC_CONSUMER_SECRET`
+- Optional env vars: `EMAILJS_PUBLIC_KEY`, `EMAILJS_PRIVATE_KEY`, `EMAILJS_SERVICE_ID`, `PORTAL_URL`, `WC_URL`, `WC_CONSUMER_KEY`, `WC_CONSUMER_SECRET`, `WP_BASE_URL`, `WP_ANNOUNCEMENTS_CATEGORY_ID`, `WP_ANNOUNCEMENTS_CUTOFF`
 - Employee SSO env vars (all required to enable the `/api/auth/sso` flow):
   - `SSO_ENABLED=true`, `SSO_ISSUER`, `SSO_AUTHORIZE_URL`, `SSO_TOKEN_URL`, `SSO_JWKS_URL` (all `https://sso-api.sliquid.com/...`)
   - `SSO_CLIENT_ID`, `SSO_CLIENT_SECRET` (from registering the app at `https://sso.sliquid.com` → Admin → Apps)
@@ -894,9 +1123,15 @@ portal/server/src/__tests__/
 - **Icons:** `lucide-react` exclusively.
 - **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export), public pre-auth calls (e.g., `/api/stores` from RegisterPage), and the public certificate verify page use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **15**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **56**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
+- **`AnnouncementBody.tsx` is duplicated** in `src/components/` and `portal/client/src/components/`.
+  The copies are byte-identical — edit both. Never add `allow-scripts` to `BODY_SANDBOX`.
+- **Timestamps written to SQLite** must go through `normalizeTs()` → `'YYYY-MM-DD HH:MM:SS'` UTC.
+  An ISO string breaks `<= datetime('now')` comparisons silently (see Announcements).
+- **New public API paths** must be added to `PUBLIC_PATHS` in `app.ts`, scoped as narrowly as
+  possible — it is a prefix match and over-broad entries disable CORS for admin writes.
 - **Video files:** `.mp4`, `.mov`, `.webm`, `.avi`, `.m4v` are in `.gitignore` — never commit large video files. Use YouTube or a CDN URL instead.
 - **Stores dropdown:** Registration and admin company-edit use the `stores` table. To add/edit stores, use the admin API or the DB directly. Do not hardcode store names in client code.
 - **Certificate verification URL:** Always `/verify` (no cert number in the path) — users type the cert number into the search form on that page.

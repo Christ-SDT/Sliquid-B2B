@@ -5,6 +5,8 @@ export { db }
 
 export function resetDb(): void {
   db.exec(`
+    DELETE FROM announcement_sync_log;
+    DELETE FROM announcements;
     DELETE FROM cert_rewards;
     DELETE FROM certificates;
     DELETE FROM notifications;
@@ -108,6 +110,29 @@ export function seedTestUsers() {
   }
 }
 
+/**
+ * A registration awaiting admin approval.
+ *
+ * Deliberately NOT part of seedTestUsers() — several existing tests assert exact
+ * counts of active/pending users, so adding one to that shared fixture breaks
+ * them. Call this only from tests that need a pending account.
+ */
+export function seedPendingUser(overrides: Partial<{
+  name: string; email: string; role: string; company: string
+}> = {}) {
+  const row = {
+    name: 'Pending User',
+    email: 'pending@test.com',
+    role: 'tier1',
+    company: 'New Store',
+    ...overrides,
+  }
+  const result = db.prepare(
+    "INSERT INTO users (name, email, password_hash, role, company, status) VALUES (?, ?, ?, ?, ?, 'pending')"
+  ).run(row.name, row.email, bcrypt.hashSync('Pend1234!', 10), row.role, row.company)
+  return result.lastInsertRowid as number
+}
+
 export function seedMediaItem(overrides: Partial<{
   label: string; brand: string; mime_type: string; file_size: string; uploaded_by: string
 }> = {}) {
@@ -125,6 +150,70 @@ export function seedMediaItem(overrides: Partial<{
   const result = db.prepare(
     'INSERT INTO media (filename, label, brand, s3_key, file_url, file_size, mime_type, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
   ).run(row.filename, row.label, row.brand, row.s3_key, row.file_url, row.file_size, row.mime_type, row.uploaded_by)
+  return result.lastInsertRowid as number
+}
+
+/**
+ * Seed an announcement. Defaults to a WordPress-sourced row in the state a
+ * fresh sync leaves it in: hidden, invisible on both surfaces.
+ *
+ * Pass `publish_at` / `expires_at` as literal 'YYYY-MM-DD HH:MM:SS' strings
+ * (e.g. '2020-01-01 00:00:00' for the past, '2099-01-01 00:00:00' for the
+ * future). Do NOT use vi.useFakeTimers() for schedule assertions — it does not
+ * move SQLite's datetime('now').
+ */
+export function seedAnnouncement(overrides: Partial<{
+  source: string; wp_id: number | null; wp_slug: string; wp_link: string
+  wp_date_gmt: string; wp_modified: string; wp_title: string; wp_excerpt_html: string
+  wp_content_html: string; wp_featured_image_url: string; content_shape: string
+  slug: string; title_override: string | null; excerpt_override: string | null
+  body_html_override: string | null; status: string
+  publish_at: string | null; expires_at: string | null
+  show_in_portal: number; show_on_public: number; pinned: number; sort_order: number
+  notified_at: string | null
+}> = {}) {
+  const n = (db.prepare('SELECT COUNT(*) AS c FROM announcements').get() as { c: number }).c + 1
+  const row = {
+    source: 'wordpress',
+    wp_id: 1000 + n,
+    wp_slug: `test-post-${n}`,
+    wp_link: `https://sliquid.com/test-post-${n}/`,
+    wp_date_gmt: '2026-01-01 00:00:00',
+    wp_modified: '2026-01-01 00:00:00',
+    wp_title: `Test Announcement ${n}`,
+    wp_excerpt_html: '<p>Test excerpt</p>',
+    wp_content_html: '<p>Test body</p>',
+    wp_featured_image_url: null as string | null,
+    content_shape: 'rich',
+    slug: `test-post-${n}`,
+    title_override: null,
+    excerpt_override: null,
+    body_html_override: null,
+    status: 'hidden',
+    publish_at: null,
+    expires_at: null,
+    show_in_portal: 0,
+    show_on_public: 0,
+    pinned: 0,
+    sort_order: 0,
+    notified_at: null,
+    ...overrides,
+  }
+  const result = db.prepare(`
+    INSERT INTO announcements (
+      source, wp_id, wp_slug, wp_link, wp_date_gmt, wp_modified, wp_title,
+      wp_excerpt_html, wp_content_html, wp_featured_image_url, content_shape,
+      slug, title_override, excerpt_override, body_html_override, status,
+      publish_at, expires_at, show_in_portal, show_on_public, pinned,
+      sort_order, notified_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    row.source, row.wp_id, row.wp_slug, row.wp_link, row.wp_date_gmt, row.wp_modified,
+    row.wp_title, row.wp_excerpt_html, row.wp_content_html, row.wp_featured_image_url,
+    row.content_shape, row.slug, row.title_override, row.excerpt_override,
+    row.body_html_override, row.status, row.publish_at, row.expires_at,
+    row.show_in_portal, row.show_on_public, row.pinned, row.sort_order, row.notified_at,
+  )
   return result.lastInsertRowid as number
 }
 

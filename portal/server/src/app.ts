@@ -34,6 +34,7 @@ import medicalMarketingRouter from './routes/medical-marketing.js'
 import productShotsRouter from './routes/product-shots.js'
 import b2bFormsRouter from './routes/b2b-forms.js'
 import gdprRouter from './routes/gdpr.js'
+import announcementsRouter from './routes/announcements.js'
 
 const app = express()
 
@@ -46,8 +47,15 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 console.log('[cors] Allowed origins:', allowedOrigins)
 
-// Paths that are fully public — allow any origin (no auth, no sensitive data)
-const PUBLIC_PATHS = ['/api/products/catalog', '/api/b2b/contact', '/api/b2b/retailer-apply', '/api/b2b/hp-apply', '/api/b2b/booth-signup', '/api/gdpr/request']
+// Paths that are fully public — allow any origin (no auth, no sensitive data).
+//
+// ⚠️ Keep announcements scoped to '/api/announcements/public'. The matcher below
+// is a prefix match, so the broader '/api/announcements' would make EVERY
+// announcements route (including admin writes) skip strictCors and inherit the
+// hardcoded 'GET, OPTIONS' Allow-Methods below — breaking admin PUT/POST/DELETE
+// preflights in the browser while every supertest test still passed, because
+// supertest sends no Origin header.
+const PUBLIC_PATHS = ['/api/products/catalog', '/api/b2b/contact', '/api/b2b/retailer-apply', '/api/b2b/hp-apply', '/api/b2b/booth-signup', '/api/gdpr/request', '/api/announcements/public']
 
 const strictCors = cors({
   origin: (origin, callback) => {
@@ -102,6 +110,7 @@ app.use('/api/medical-marketing', medicalMarketingRouter)
 app.use('/api/product-shots', productShotsRouter)
 app.use('/api/b2b', b2bFormsRouter)
 app.use('/api/gdpr', gdprRouter)
+app.use('/api/announcements', announcementsRouter)
 app.use('/api/logs', logsRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))

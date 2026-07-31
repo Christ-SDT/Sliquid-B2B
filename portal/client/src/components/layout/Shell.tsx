@@ -9,7 +9,11 @@ const INACTIVITY_MS = 2 * 60 * 60 * 1000  // 2 hours
 const CHECK_INTERVAL = 60 * 1000           // check once per minute
 
 // Routes accessible to tier1 only (most restricted)
-const TIER1_ALLOWED  = ['/dashboard', '/assets', '/distributors', '/trainings', '/quiz', '/store-users', '/creator']
+// NOTE: matching is `pathname.startsWith(p)`, so '/announcements' also grants
+// '/announcements/:slug'. Never add a sibling route with that prefix (e.g.
+// '/announcements-admin') or restricted tiers would silently gain access — this
+// is why the admin page lives at '/admin/announcements'.
+const TIER1_ALLOWED  = ['/dashboard', '/announcements', '/assets', '/distributors', '/trainings', '/quiz', '/store-users', '/creator']
 // Routes accessible to tier2 (adds In-store Marketing, keeps Distributors)
 const TIER2_ALLOWED  = [...TIER1_ALLOWED, '/retailer']
 // Routes accessible to tier3 Distributor — no Distributors page
@@ -17,7 +21,12 @@ const TIER3_ALLOWED  = TIER1_ALLOWED.filter(p => p !== '/distributors').concat('
 // Routes accessible to tier6 Medical Partner (same as tier1 — Medical Marketing is admin-only)
 const TIER6_ALLOWED  = TIER1_ALLOWED
 // Routes accessible to tier4 (Prospect)
-const PROSPECT_ALLOWED = ['/dashboard']
+const PROSPECT_ALLOWED = ['/dashboard', '/announcements']
+// Routes accessible to users still awaiting approval. Announcements are safe
+// here because the server narrows a pending user's feed to the PUBLIC subset —
+// the same items anyone can read on the B2B marketing site — so partner-only
+// announcements stay hidden until the account is approved.
+const PENDING_ALLOWED = ['/dashboard', '/announcements']
 
 function Skeleton() {
   return (
@@ -56,8 +65,8 @@ export default function Shell() {
   const isProspectRole = user.role === 'tier4'
   const isPending = user.status === 'pending'
 
-  // Pending users (awaiting approval) can only see the dashboard
-  if (isPending && !location.pathname.startsWith('/dashboard')) {
+  // Pending users (awaiting approval) can only see the dashboard and announcements
+  if (isPending && !PENDING_ALLOWED.some(p => location.pathname.startsWith(p))) {
     return <Navigate to="/dashboard" replace />
   }
   const restrictedAllowed = user.role === 'tier3' ? TIER3_ALLOWED

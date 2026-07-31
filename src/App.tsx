@@ -5,6 +5,8 @@ import OurBrandsPage from '@/pages/OurBrandsPage'
 import IngredientsPage from '@/pages/IngredientsPage'
 import AboutUsPage from '@/pages/AboutUsPage'
 import InsightsPage from '@/pages/InsightsPage'
+import AnnouncementsPage from '@/pages/AnnouncementsPage'
+import AnnouncementDetailPage from '@/pages/AnnouncementDetailPage'
 import ContactPage from '@/pages/ContactPage'
 import PartnerLoginPage from '@/pages/PartnerLoginPage'
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
@@ -29,8 +31,12 @@ export default function App() {
         <Route path="our-brands" element={<OurBrandsPage />} />
         <Route path="ingredients" element={<IngredientsPage />} />
         <Route path="about" element={<AboutUsPage />} />
+        <Route path="announcements" element={<AnnouncementsPage />} />
+        <Route path="announcements/:slug" element={<AnnouncementDetailPage />} />
         <Route path="insights" element={<InsightsPage />} />
-        <Route path="insights/:slug" element={<InsightsPage />} />
+        {/* /insights/:slug used to render the index page again, making every
+            FEATURED_NEWS link a dead end. Point it at the real detail page. */}
+        <Route path="insights/:slug" element={<AnnouncementDetailPage />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="partner-login" element={<PartnerLoginPage />} />
         <Route path="forgot-password" element={<ForgotPasswordPage />} />

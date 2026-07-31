@@ -54,3 +54,67 @@
   ::-webkit-scrollbar-thumb { @apply bg-portal-border rounded-full; }
   ::-webkit-scrollbar-thumb:hover { @apply bg-slate-600; }
 }
+
+/**
+ * Styling for WordPress announcement bodies rendered inline.
+ *
+ * Mirrors the marketing site's .announcement-body block with portal design
+ * tokens substituted. Those tokens are CSS variables swapped by ThemeContext,
+ * so light/dark both work here with no `dark:` variants.
+ *
+ * Scoped to .announcement-body so it can never affect the rest of the portal.
+ */
+@layer components {
+  .announcement-body {
+    @apply text-on-canvas-subtle text-base leading-relaxed;
+  }
+  .announcement-body > * + * {
+    margin-top: 1.15rem;
+  }
+  .announcement-body h2 {
+    @apply text-on-canvas text-[26px] font-semibold leading-tight mt-10 mb-3;
+  }
+  .announcement-body h3 {
+    @apply text-on-canvas text-[20px] font-semibold mt-8 mb-2;
+  }
+  .announcement-body h4 {
+    @apply text-on-canvas text-[17px] font-semibold mt-6 mb-2;
+  }
+  .announcement-body a {
+    @apply text-portal-accent font-medium underline underline-offset-2 hover:opacity-80;
+  }
+  .announcement-body strong {
+    @apply text-on-canvas font-semibold;
+  }
+  .announcement-body ul {
+    @apply list-disc pl-6 space-y-1.5;
+  }
+  .announcement-body ol {
+    @apply list-decimal pl-6 space-y-1.5;
+  }
+  .announcement-body img {
+    @apply rounded-lg my-6 w-full h-auto;
+  }
+  .announcement-body blockquote {
+    @apply border-l-4 border-portal-accent/40 pl-5 italic my-6;
+  }
+  .announcement-body hr {
+    @apply border-portal-border my-10;
+  }
+  .announcement-body table {
+    @apply w-full text-sm border-collapse my-6;
+  }
+  .announcement-body th,
+  .announcement-body td {
+    @apply border border-portal-border px-3 py-2 text-left;
+  }
+  .announcement-body th {
+    @apply bg-surface-elevated font-semibold text-on-canvas;
+  }
+  .announcement-body figcaption {
+    @apply text-on-canvas-muted text-sm mt-2;
+  }
+  .announcement-body pre {
+    @apply bg-surface-elevated rounded-lg p-4 overflow-x-auto text-sm my-6;
+  }
+}

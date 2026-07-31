@@ -7,6 +7,9 @@ import RegisterPage from '@/pages/RegisterPage'
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import DashboardPage from '@/pages/DashboardPage'
+import AnnouncementsPage from '@/pages/AnnouncementsPage'
+import AnnouncementDetailPage from '@/pages/AnnouncementDetailPage'
+import AnnouncementsAdminPage from '@/pages/AnnouncementsAdminPage'
 import ProductsPage from '@/pages/ProductsPage'
 import AssetsPage from '@/pages/AssetsPage'
 import InventoryPage from '@/pages/InventoryPage'
@@ -41,6 +44,9 @@ export default function App() {
           <Route path="/" element={<Shell />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="announcements" element={<AnnouncementsPage />} />
+            <Route path="announcements/:slug" element={<AnnouncementDetailPage />} />
+            <Route path="admin/announcements" element={<AnnouncementsAdminPage />} />
             <Route path="products" element={<ProductsPage />} />
             <Route path="assets" element={<AssetsPage />} />
             <Route path="inventory" element={<InventoryPage />} />

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone, Package, Archive, Receipt, BarChart3, Users2, Images, Activity, GraduationCap, Award } from 'lucide-react'
+import { Bell, Menu, Moon, Sun, AlertTriangle, PackageX, BookOpen, Check, Megaphone, Package, Archive, Receipt, BarChart3, Users2, Images, Activity, GraduationCap, Award, Newspaper } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { useNotifications } from '@/context/NotificationContext'
@@ -31,6 +31,8 @@ const NOTIF_ICONS: Record<string, React.ComponentType<{ className?: string }>> =
   marketing_request: Megaphone,
   cert_issued:       Award,
   reward_claim:      GraduationCap,
+  new_announcement:  Newspaper,
+  announcement_review: Newspaper,
 }
 
 const NOTIF_COLORS: Record<string, string> = {
@@ -40,6 +42,8 @@ const NOTIF_COLORS: Record<string, string> = {
   marketing_request: 'text-violet-400',
   cert_issued:       'text-yellow-400',
   reward_claim:      'text-emerald-400',
+  new_announcement:  'text-portal-accent',
+  announcement_review: 'text-sky-400',
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────

@@ -1077,6 +1077,89 @@ const migrations: Migration[] = [
       );
     `),
   },
+  {
+    version: 55,
+    name: 'announcements_tables',
+    // Press releases pulled from the WordPress "Press Releases" category, plus
+    // portal-authored announcements (wp_id IS NULL).
+    //
+    // COLUMN OWNERSHIP — this is the whole anti-clobber design:
+    //   every `wp_*` column (plus content_shape/content_css/last_synced_at) is
+    //   SYNC-OWNED and overwritten on every pull. EVERY OTHER column is
+    //   ADMIN-OWNED and must never appear in the sync upsert's SET clause,
+    //   or an admin's overrides/visibility/schedule are destroyed on re-sync.
+    //
+    // Scheduling needs no background job: a scheduled item is status='published'
+    // with a future publish_at, and visibility is a read-time predicate. All
+    // timestamps MUST be stored as 'YYYY-MM-DD HH:MM:SS' UTC to compare
+    // correctly against datetime('now') — an ISO string's 'T' (0x54) sorts
+    // after a space (0x20), so a same-day schedule would never go live.
+    up: () => db.exec(`
+      CREATE TABLE IF NOT EXISTS announcements (
+        id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+        source                TEXT    NOT NULL DEFAULT 'wordpress',
+        wp_id                 INTEGER UNIQUE,
+
+        -- ── WP MIRROR (sync-owned) ──────────────────────────────────────
+        wp_slug               TEXT,
+        wp_link               TEXT,
+        wp_status             TEXT,
+        wp_date               TEXT,
+        wp_date_gmt           TEXT,
+        wp_modified           TEXT,
+        wp_modified_gmt       TEXT,
+        wp_title              TEXT,
+        wp_excerpt_html       TEXT,
+        wp_content_html       TEXT,
+        wp_featured_image_url TEXT,
+        wp_categories         TEXT,
+        content_shape         TEXT,
+        content_css           TEXT,
+
+        -- ── ADMIN-OWNED (sync writes these only on the initial INSERT) ──
+        slug                  TEXT    NOT NULL,
+        title_override        TEXT,
+        excerpt_override      TEXT,
+        body_html_override    TEXT,
+        image_url_override    TEXT,
+        status                TEXT    NOT NULL DEFAULT 'hidden',
+        publish_at            TEXT,
+        expires_at            TEXT,
+        show_in_portal        INTEGER NOT NULL DEFAULT 0,
+        show_on_public        INTEGER NOT NULL DEFAULT 0,
+        pinned                INTEGER NOT NULL DEFAULT 0,
+        sort_order            INTEGER DEFAULT 0,
+        notified_at           TEXT,
+        admin_notes           TEXT,
+        created_by            INTEGER,
+
+        first_seen_at         TEXT DEFAULT (datetime('now')),
+        last_synced_at        TEXT,
+        created_at            TEXT DEFAULT (datetime('now')),
+        updated_at            TEXT DEFAULT (datetime('now'))
+      );
+
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_announcements_slug
+        ON announcements(slug);
+      CREATE INDEX IF NOT EXISTS idx_announcements_live
+        ON announcements(status, publish_at);
+      CREATE INDEX IF NOT EXISTS idx_announcements_notify
+        ON announcements(notified_at, status);
+
+      CREATE TABLE IF NOT EXISTS announcement_sync_log (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        synced_at      TEXT    DEFAULT (datetime('now')),
+        trigger_source TEXT    NOT NULL DEFAULT 'schedule',
+        status         TEXT    NOT NULL,
+        posts_seen     INTEGER NOT NULL DEFAULT 0,
+        posts_created  INTEGER NOT NULL DEFAULT 0,
+        posts_updated  INTEGER NOT NULL DEFAULT 0,
+        posts_skipped  INTEGER NOT NULL DEFAULT 0,
+        duration_ms    INTEGER,
+        message        TEXT
+      );
+    `),
+  },
 ]
 
 function runMigrations(): void {
