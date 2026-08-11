@@ -217,6 +217,24 @@ export function seedAnnouncement(overrides: Partial<{
   return result.lastInsertRowid as number
 }
 
+export function seedProduct(overrides: Partial<{
+  name: string; brand: string; category: string; sku: string; price: number; unit_size: string | null
+}> = {}) {
+  const row = {
+    name: 'Test Product',
+    brand: 'Sliquid',
+    category: 'Lubricant',
+    sku: `SKU${Math.random().toString(36).slice(2, 8)}`,
+    price: 7,
+    unit_size: '4.2 oz',
+    ...overrides,
+  }
+  const result = db.prepare(
+    'INSERT INTO products (name, brand, category, sku, price, unit_size) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(row.name, row.brand, row.category, row.sku, row.price, row.unit_size)
+  return result.lastInsertRowid as number
+}
+
 export function seedInventoryItem(overrides: Partial<{
   product_name: string; sku: string; brand: string; quantity: number; reorder_level: number; status: string
 }> = {}) {

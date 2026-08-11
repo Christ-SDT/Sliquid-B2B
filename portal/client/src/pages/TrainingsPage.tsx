@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
-import { GraduationCap, Clock, CheckCircle2, ChevronRight, Award, Plus, Pencil, Trash2, Loader2, X, FlaskConical, RotateCcw } from 'lucide-react'
+import { GraduationCap, Clock, CheckCircle2, ChevronRight, Award, Plus, Pencil, Trash2, Loader2, X, FlaskConical, RotateCcw, MoreVertical, Package, Shirt } from 'lucide-react'
+import RewardOptionsModal from '@/components/RewardOptionsModal'
 import CertificateGenerator from '@/components/CertificateGenerator'
 import CertRewardForm from '@/components/CertRewardForm'
 
@@ -351,6 +352,21 @@ export default function TrainingsPage() {
   const passedCount = trainings.filter(t => bestFor(t.quiz_id)?.passed === 1).length
   const allComplete = !loading && trainings.length > 0 && passedCount === trainings.length
 
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false)
+  const [optionsModal, setOptionsModal] = useState<'products' | 'shirts' | null>(null)
+  const adminMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!adminMenuOpen) return
+    function onClickOutside(e: MouseEvent) {
+      if (adminMenuRef.current && !adminMenuRef.current.contains(e.target as Node)) {
+        setAdminMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [adminMenuOpen])
+
   const [showCertModal, setShowCertModal] = useState(false)
   const [certData, setCertData] = useState<CertData | null>(null)
   const [certDataLoading, setCertDataLoading] = useState(false)
@@ -400,13 +416,62 @@ export default function TrainingsPage() {
           </p>
         </div>
         {adminMode && (
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Add Training
-          </button>
+          <div className="flex-shrink-0 flex items-center gap-2">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Add Training
+            </button>
+
+            {/* Admin overflow menu — certificate testing + reward-form curation */}
+            <div ref={adminMenuRef} className="relative">
+              <button
+                onClick={() => setAdminMenuOpen(o => !o)}
+                aria-label="Certificate options"
+                aria-expanded={adminMenuOpen}
+                className="p-2 border border-portal-border hover:bg-surface-elevated text-on-canvas rounded-lg transition-colors"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+
+              {adminMenuOpen && (
+                <div className="absolute right-0 z-40 mt-1 w-64 bg-surface border border-portal-border rounded-lg shadow-lg py-1">
+                  <button
+                    onClick={() => { setAdminMenuOpen(false); openCertTest() }}
+                    className="w-full flex items-start gap-2.5 px-3 py-2.5 hover:bg-surface-elevated transition-colors text-left"
+                  >
+                    <FlaskConical className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <span>
+                      <span className="block text-on-canvas text-sm">Test certificate flow</span>
+                      <span className="block text-on-canvas-muted text-xs">Opens the real prompt for your account</span>
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => { setAdminMenuOpen(false); setOptionsModal('products') }}
+                    className="w-full flex items-start gap-2.5 px-3 py-2.5 hover:bg-surface-elevated transition-colors text-left"
+                  >
+                    <Package className="w-4 h-4 text-on-canvas-muted flex-shrink-0 mt-0.5" />
+                    <span>
+                      <span className="block text-on-canvas text-sm">Available products</span>
+                      <span className="block text-on-canvas-muted text-xs">Choose what partners can pick</span>
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => { setAdminMenuOpen(false); setOptionsModal('shirts') }}
+                    className="w-full flex items-start gap-2.5 px-3 py-2.5 hover:bg-surface-elevated transition-colors text-left"
+                  >
+                    <Shirt className="w-4 h-4 text-on-canvas-muted flex-shrink-0 mt-0.5" />
+                    <span>
+                      <span className="block text-on-canvas text-sm">Available shirt sizes</span>
+                      <span className="block text-on-canvas-muted text-xs">Edit the size dropdown</span>
+                    </span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </div>
 
@@ -429,29 +494,6 @@ export default function TrainingsPage() {
             className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
           >
             <Award className="w-4 h-4" /> View Certificate
-          </button>
-        </div>
-      )}
-
-      {/* Admin test harness — exercise the reward prompt + certificate without
-          completing every module. Admin-only; never rendered for partner tiers. */}
-      {adminMode && (
-        <div className="mb-6 p-5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <FlaskConical className="w-6 h-6 text-amber-500 flex-shrink-0" />
-            <div>
-              <p className="text-on-canvas font-semibold text-sm">Admin — test the certificate flow</p>
-              <p className="text-on-canvas-muted text-xs mt-0.5">
-                Opens the real reward prompt and certificate page for your own account. Submitting
-                writes a real reward claim and sends the real emails — use Reset to run it again.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={openCertTest}
-            className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-500/90 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            <FlaskConical className="w-4 h-4" /> Test Certificate Flow
           </button>
         </div>
       )}
@@ -573,6 +615,10 @@ export default function TrainingsPage() {
             )}
           </div>
         </div>
+      )}
+
+      {optionsModal && (
+        <RewardOptionsModal mode={optionsModal} onClose={() => setOptionsModal(null)} />
       )}
     </div>
   )

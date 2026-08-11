@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/api/client'
 import { Gift, Lock, Loader2 } from 'lucide-react'
+import Combobox from './Combobox'
 
-const SHIRT_SIZES = ['S', 'M', 'L', 'XL', '2XL']
+/** Shown only until GET /certificates/reward-options responds. */
+const FALLBACK_SHIRT_SIZES = ['S', 'M', 'L', 'XL', '2XL']
+
+interface RewardProduct {
+  sku: string
+  name: string
+  brand: string
+  unitSize: string | null
+  label: string
+}
 
 interface Props {
   userName: string
@@ -10,7 +20,8 @@ interface Props {
 }
 
 export default function CertRewardForm({ userName, onComplete }: Props) {
-  const [productOptions, setProductOptions] = useState<string[]>([])
+  const [productOptions, setProductOptions] = useState<RewardProduct[]>([])
+  const [shirtSizes, setShirtSizes] = useState<string[]>(FALLBACK_SHIRT_SIZES)
   const [product, setProduct] = useState('')
   const [shirtSize, setShirtSize] = useState('')
   const [address1, setAddress1] = useState('')
@@ -22,8 +33,13 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    api.get<{ name: string }[]>('/products')
-      .then(data => setProductOptions(data.map(p => p.name)))
+    // Curated list: one variant per product (4 oz where it exists, else 8 oz,
+    // else the only size), narrowed to whatever an admin has allowed.
+    api.get<{ products: RewardProduct[]; shirtSizes: string[] }>('/certificates/reward-options')
+      .then(data => {
+        setProductOptions(data.products ?? [])
+        if (data.shirtSizes?.length) setShirtSizes(data.shirtSizes)
+      })
       .catch(() => {})
   }, [])
 
@@ -72,19 +88,17 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
           <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
             Free Product of Your Choice <span className="text-portal-accent">*</span>
           </label>
-          <input
-            list="product-options"
+          <Combobox
+            id="reward-product"
+            options={productOptions.map(p => p.label)}
             value={product}
-            onChange={e => setProduct(e.target.value)}
+            onChange={setProduct}
+            describe={label => productOptions.find(p => p.label === label)?.brand}
+            placeholder="Type to search, or scroll the list…"
+            emptyLabel="No products match"
+            strict
             required
-            placeholder="Type to search products…"
-            className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent"
           />
-          <datalist id="product-options">
-            {productOptions.map(name => (
-              <option key={name} value={name} />
-            ))}
-          </datalist>
           <p className="text-on-canvas-muted text-xs mt-1">One Sliquid product of your choice, on us.</p>
         </div>
 
@@ -100,7 +114,7 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
             className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent"
           >
             <option value="">Select a size…</option>
-            {SHIRT_SIZES.map(s => (
+            {shirtSizes.map(s => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>

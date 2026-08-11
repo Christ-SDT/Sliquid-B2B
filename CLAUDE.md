@@ -375,6 +375,9 @@ Mounted at the app root (NOT under `/api`) so the OIDC callback is `/auth/google
 | POST | `/reward` | requireAuth | Save reward claim (product, shirtSize, address1, address2, city, state, zip); 400 if missing fields; 403 if no valid cert; no-op if already submitted |
 | GET | `/rewards` | tier5/admin only | All reward claims joined with `users.email` + `certificates.certificate_number` + `avg_score`; unfulfilled first. Backs `MarketingRequestsPage` |
 | PUT | `/rewards/:id/fulfilled` | tier5/admin only | `{ fulfilled: boolean }` — sets `fulfilled` + `fulfilled_at` |
+| GET | `/reward-options` | requireAuth | `{ products, shirtSizes }` — what the reward form renders. Any tier: it drives the partner picker |
+| GET | `/reward-options/all` | tier5/admin only | Full derived catalog + `allowedSkus` (null = no curation saved) + `shirtSizes` + `defaultShirtSizes`. Backs `RewardOptionsModal` |
+| PUT | `/reward-options` | tier5/admin only | `{ products?: string[], shirtSizes?: string[] }` — both independently optional so the two editors save separately |
 | POST | `/test/ensure` | tier5/admin only | **Self-scoped test harness.** Issues a certificate for the *calling admin* if they have none, so the reward prompt can be exercised without passing all modules. Idempotent — returns `{ certificateNumber, created }`, 201 when newly issued, 200 when reused |
 | POST | `/test/reset` | tier5/admin only | **Self-scoped test harness.** Deletes the *calling admin's own* `cert_rewards` row so the prompt reappears; returns `{ ok, deleted }`. Deliberately does NOT touch `certificates` — a genuinely-earned certificate number survives a reset |
 | GET | `/verify/:certNumber` | **Public** | Returns `{ valid, fullName, firstName, lastName, completionDate, certificateNumber }`; 404 if not found or revoked |
@@ -775,11 +778,52 @@ CREATE TABLE cert_rewards (
 - `GET /api/certificates/mine` returns `rewardSubmitted: true` once a row exists for that user
 - Admins can query this table directly to pull fulfillment data for shipping
 
+### Reward Product Catalog (`portal/server/src/rewardOptions.ts`)
+
+The reward picker shows **one variant per product**: the ~4 oz version where it exists, else the
+~8 oz version, else whatever single size the product has. Grouping key is **`(brand, name)`**.
+
+⚠️ **Sizes are matched NUMERICALLY, never by string equality.** The real catalog contains
+`'4.2 oz'` (40 rows) and `'8.5 oz'` (35 rows) — **there is no literal `'4 oz'` or `'8 oz'`**, so
+`unit_size === '4 oz'` matches zero rows. The same size also appears under two spellings,
+`'2 oz'` and `'2.0 oz'`. `parseSize()` regex-parses the leading number; `pickVariant()` selects
+the row nearest 4 (within ±1), then nearest 8, then the largest. Against the live 106-product
+catalog this yields **67 choices**.
+
+⚠️ **Size lives on `products.unit_size` only.** The `inventory` table has **no size column** — it
+is 1:1 with products and borrows `unit_size` via `LEFT JOIN` on `product_id`. Do not treat
+inventory as a size source.
+
+⚠️ `unit_size` is nullable free text. WooCommerce auto-import (`runWooSync`) inserts products with
+`unit_size = NULL` and `brand = 'Imported'`, so the derivation must tolerate nulls — it does, and
+a test covers it.
+
+**Curation** is stored in the shared `woo_settings` key/value table (no migration): key
+`reward_allowed_products` holds a JSON SKU array, `reward_shirt_sizes` a JSON string array. An
+absent, empty, or malformed value means *no curation saved* and falls back to the **full**
+catalog — never an empty picker. Default shirt sizes are `S, M, L, XL, 2XL`.
+
+### Trainings Page — Admin Overflow Menu
+The kebab (`MoreVertical`) beside "Add Training" is admin-only and holds three actions:
+**Test certificate flow** (`openCertTest`), **Available products**, **Available shirt sizes**
+(both open `RewardOptionsModal` with a `mode` prop). It replaced the earlier amber test panel.
+This is the **only** kebab menu in the codebase — there was no prior house pattern.
+
+### `Combobox.tsx` (`portal/client/src/components/`)
+Generic type-ahead picker: type to filter, or open and scroll. Generalized from the RegisterPage
+store picker, adding the two things that pattern lacked — keyboard nav (↑/↓/Enter/Escape) and a
+selected-state check. `strict` mode discards typed text that doesn't match an option (used for
+the reward product, where a free-text product name would be unfulfillable). Reuse this rather
+than hand-rolling another dropdown.
+
 ### Cert Reward Form (`portal/client/src/components/CertRewardForm.tsx`)
 Gate shown **before** the certificate download, one time only per user. Collects:
 - **Name** — pre-filled from cert data, read-only
-- **Free product** — text input with `<datalist>` autocomplete populated from `GET /api/products`
-- **T-shirt size** — dropdown (XS, S, M, L, XL, 2XL, 3XL)
+- **Free product** — `Combobox` (strict mode) fed by `GET /api/certificates/reward-options`; one
+  size per product, narrowed to the admin allowlist. Replaced the old `<datalist>` over `/products`
+- **T-shirt size** — dropdown fed by the same `reward-options` payload; defaults to
+  `S, M, L, XL, 2XL` and is admin-editable. (This doc previously claimed `XS…3XL`, which the code
+  never had.)
 - **Shipping address** — Street, Apt/suite (optional), City, State (2-char, auto-uppercased), ZIP
 - **Privacy notice** — "Your information is used only to ship your rewards and will never be sold, shared, or used for any other purpose."
 - On submit → `POST /api/certificates/reward` → calls `onComplete()` which flips `rewardSubmitted: true` in TrainingsPage state → `CertificateGenerator` is rendered
@@ -1122,7 +1166,7 @@ src/__tests__/fixtures/announcement-shape-a.html  # the REAL body of WP post 126
   - `POST /reward`: 401 no auth; 403 no cert; 400 for each missing required field (product, shirtSize, address1, city, state, zip); 201 + DB row verified; address2 optional; idempotent (second call returns 200, no duplicate); per-user isolation; round-trip confirms `rewardSubmitted` flips to `true`
   - `GET /verify/:certNumber`: unknown 404; revoked 404; valid 200 + full shape; public (no auth); case-sensitive lookup
 
-**Total: 488 tests passing across 21 test files** (1 known pre-existing failure in
+**Total: 511 tests passing across 22 test files** (1 known pre-existing failure in
 `admin.test.ts` — it asserts tier3 is rejected on approve, which is no longer true).
 
 `certificates.test.ts` is now 42 tests — it additionally locks in the admin-only guards on

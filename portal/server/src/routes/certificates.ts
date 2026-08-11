@@ -4,6 +4,15 @@ import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { sendRewardConfirmEmail, sendRewardAdminEmail } from '../email.js'
 import { notifyAdmins } from '../notifications.js'
+import {
+  getRewardOptions,
+  deriveRewardProducts,
+  getAllowedSkus,
+  setAllowedSkus,
+  getShirtSizes,
+  setShirtSizes,
+  DEFAULT_SHIRT_SIZES,
+} from '../rewardOptions.js'
 
 const router = Router()
 
@@ -159,6 +168,54 @@ router.put('/rewards/:id/fulfilled', requireAuth, requireRole('tier5', 'admin'),
     WHERE id = ?
   `).run(fulfilled ? 1 : 0, fulfilled ? new Date().toISOString() : null, id)
   res.json({ ok: true })
+})
+
+// GET /api/certificates/reward-options — what the reward form renders.
+// Any authenticated user: the picker itself is part of the partner flow.
+router.get('/reward-options', requireAuth, (_req, res) => {
+  res.json(getRewardOptions())
+})
+
+// GET /api/certificates/reward-options/all — admin editor payload.
+// Returns the FULL derived catalog plus the current selection, so the admin can
+// tick items on and off. `allowedSkus: null` means "no curation saved yet",
+// which the client renders as everything-selected.
+router.get('/reward-options/all', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
+  res.json({
+    products: deriveRewardProducts(),
+    allowedSkus: getAllowedSkus(),
+    shirtSizes: getShirtSizes(),
+    defaultShirtSizes: DEFAULT_SHIRT_SIZES,
+  })
+})
+
+// PUT /api/certificates/reward-options — save admin curation.
+// Both fields are independently optional so the two editors can save separately.
+router.put('/reward-options', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const { products, shirtSizes } = req.body as { products?: unknown; shirtSizes?: unknown }
+
+  if (products !== undefined) {
+    if (!Array.isArray(products) || products.some(p => typeof p !== 'string')) {
+      res.status(400).json({ message: 'products must be an array of SKU strings' })
+      return
+    }
+    setAllowedSkus(products as string[])
+  }
+
+  if (shirtSizes !== undefined) {
+    if (!Array.isArray(shirtSizes) || shirtSizes.some(s => typeof s !== 'string')) {
+      res.status(400).json({ message: 'shirtSizes must be an array of strings' })
+      return
+    }
+    const cleaned = (shirtSizes as string[]).map(s => s.trim()).filter(Boolean)
+    if (cleaned.length === 0) {
+      res.status(400).json({ message: 'At least one shirt size is required' })
+      return
+    }
+    setShirtSizes(cleaned)
+  }
+
+  res.json({ ok: true, ...getRewardOptions() })
 })
 
 // POST /api/certificates/test/ensure — admin only, self-scoped.
