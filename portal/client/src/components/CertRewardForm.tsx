@@ -51,7 +51,7 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
           <p className="text-on-canvas-muted text-xs mt-0.5 leading-relaxed">
             You've earned a <span className="text-on-canvas font-medium">free Sliquid product</span> and{' '}
             <span className="text-on-canvas font-medium">t-shirt</span> for completing the Sliquid Certified Expert Course.
-            Fill in the details below and we'll ship them to you.
+            Fill in the details below and we'll ship them to your store.
           </p>
         </div>
       </div>
@@ -109,20 +109,23 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
         {/* Address */}
         <div>
           <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
-            Shipping Address <span className="text-portal-accent">*</span>
+            Store Location for Delivery <span className="text-portal-accent">*</span>
           </label>
+          <p className="text-on-canvas-muted text-xs mb-2 leading-relaxed">
+            Rewards ship to your store or business address — please don't use a home address.
+          </p>
           <div className="space-y-2">
             <input
               value={address1}
               onChange={e => setAddress1(e.target.value)}
               required
-              placeholder="Street address"
+              placeholder="Store street address"
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent"
             />
             <input
               value={address2}
               onChange={e => setAddress2(e.target.value)}
-              placeholder="Apt, suite, unit (optional)"
+              placeholder="Suite, unit, floor (optional)"
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent"
             />
             <div className="grid grid-cols-5 gap-2">
@@ -156,7 +159,7 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
         <div className="flex items-start gap-2.5 p-3 bg-surface-elevated rounded-lg border border-portal-border">
           <Lock className="w-3.5 h-3.5 text-on-canvas-muted flex-shrink-0 mt-0.5" />
           <p className="text-on-canvas-muted text-xs leading-relaxed">
-            Your information is used <span className="text-on-canvas font-medium">only to ship your rewards</span> and
+            Your information is used <span className="text-on-canvas font-medium">only to ship your rewards to your store location</span> and
             will never be sold, shared, or used for any other purpose.
           </p>
         </div>

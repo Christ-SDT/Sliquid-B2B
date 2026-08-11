@@ -339,3 +339,75 @@ describe('GET /api/certificates/verify/:certNumber', () => {
     expect(res.status).toBe(404)
   })
 })
+
+describe('GET /api/certificates/rewards', () => {
+  it('returns 401 without auth', async () => {
+    const res = await request(app).get('/api/certificates/rewards')
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 403 for a non-admin tier — reward rows contain shipping PII', async () => {
+    seedCertificate(tier1Id, tier1Name)
+    seedCertReward(tier1Id)
+
+    const res = await request(app)
+      .get('/api/certificates/rewards')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+
+    expect(res.status).toBe(403)
+  })
+
+  it('returns the reward list for an admin', async () => {
+    seedCertificate(tier1Id, tier1Name)
+    seedCertReward(tier1Id)
+
+    const res = await request(app)
+      .get('/api/certificates/rewards')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    expect(res.status).toBe(200)
+    expect(Array.isArray(res.body)).toBe(true)
+    expect(res.body).toHaveLength(1)
+    expect(res.body[0].address1).toBeTruthy()
+  })
+})
+
+describe('PUT /api/certificates/rewards/:id/fulfilled', () => {
+  it('returns 401 without auth', async () => {
+    const res = await request(app)
+      .put('/api/certificates/rewards/1/fulfilled')
+      .send({ fulfilled: true })
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 403 for a non-admin tier', async () => {
+    seedCertificate(tier1Id, tier1Name)
+    const rewardId = seedCertReward(tier1Id)
+
+    const res = await request(app)
+      .put(`/api/certificates/rewards/${rewardId}/fulfilled`)
+      .send({ fulfilled: true })
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+
+    expect(res.status).toBe(403)
+
+    const row = db.prepare('SELECT fulfilled FROM cert_rewards WHERE id = ?').get(rewardId) as any
+    expect(row.fulfilled).toBe(0)
+  })
+
+  it('lets an admin mark a reward fulfilled', async () => {
+    seedCertificate(tier1Id, tier1Name)
+    const rewardId = seedCertReward(tier1Id)
+
+    const res = await request(app)
+      .put(`/api/certificates/rewards/${rewardId}/fulfilled`)
+      .send({ fulfilled: true })
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    expect(res.status).toBe(200)
+
+    const row = db.prepare('SELECT fulfilled, fulfilled_at FROM cert_rewards WHERE id = ?').get(rewardId) as any
+    expect(row.fulfilled).toBe(1)
+    expect(row.fulfilled_at).toBeTruthy()
+  })
+})

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { db } from '../database.js'
-import { requireAuth } from '../middleware/auth.js'
+import { requireAuth, requireRole } from '../middleware/auth.js'
 import { sendRewardConfirmEmail, sendRewardAdminEmail } from '../email.js'
 import { notifyAdmins } from '../notifications.js'
 
@@ -120,7 +120,7 @@ router.post('/reward', requireAuth, (req, res) => {
 })
 
 // GET /api/certificates/rewards — admin: list all reward claims with user + cert info
-router.get('/rewards', requireAuth, (req, res) => {
+router.get('/rewards', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const rows = db.prepare(`
     SELECT
       cr.id,
@@ -149,7 +149,7 @@ router.get('/rewards', requireAuth, (req, res) => {
 })
 
 // PUT /api/certificates/rewards/:id/fulfilled — toggle fulfilled status
-router.put('/rewards/:id/fulfilled', requireAuth, (req, res) => {
+router.put('/rewards/:id/fulfilled', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const id = Number(req.params.id)
   const { fulfilled } = req.body as { fulfilled: boolean }
   db.prepare(`
