@@ -372,6 +372,152 @@ describe('GET /api/certificates/rewards', () => {
   })
 })
 
+describe('POST /api/certificates/test/ensure', () => {
+  it('returns 401 without auth', async () => {
+    const res = await request(app).post('/api/certificates/test/ensure').send({})
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 403 for a non-admin tier', async () => {
+    const res = await request(app)
+      .post('/api/certificates/test/ensure')
+      .send({})
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+
+    expect(res.status).toBe(403)
+
+    const rows = db.prepare('SELECT id FROM certificates WHERE user_id = ?').all(tier1Id) as any[]
+    expect(rows).toHaveLength(0)
+  })
+
+  it('issues a certificate for an admin who has none', async () => {
+    const res = await request(app)
+      .post('/api/certificates/test/ensure')
+      .send({})
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    expect(res.status).toBe(201)
+    expect(res.body.created).toBe(true)
+    expect(res.body.certificateNumber).toMatch(/^SLQ-\d{4}-[A-F0-9]{6}$/)
+
+    const row = db.prepare('SELECT * FROM certificates WHERE user_id = ?').get(adminId) as any
+    expect(row.certificate_number).toBe(res.body.certificateNumber)
+    expect(row.issued_to).toBeTruthy()
+    expect(row.is_valid).toBe(1)
+  })
+
+  it('is idempotent — reuses the existing certificate instead of issuing a second', async () => {
+    const { certNumber } = seedCertificate(adminId, 'Admin User')
+
+    const res = await request(app)
+      .post('/api/certificates/test/ensure')
+      .send({})
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    expect(res.status).toBe(200)
+    expect(res.body.created).toBe(false)
+    expect(res.body.certificateNumber).toBe(certNumber)
+
+    const rows = db.prepare('SELECT id FROM certificates WHERE user_id = ?').all(adminId) as any[]
+    expect(rows).toHaveLength(1)
+  })
+
+  it('makes GET /mine succeed for an admin who has not passed any quizzes', async () => {
+    await request(app)
+      .post('/api/certificates/test/ensure')
+      .send({})
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    const res = await request(app)
+      .get('/api/certificates/mine')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    expect(res.status).toBe(200)
+    expect(res.body.rewardSubmitted).toBe(false)
+  })
+})
+
+describe('POST /api/certificates/test/reset', () => {
+  it('returns 401 without auth', async () => {
+    const res = await request(app).post('/api/certificates/test/reset').send({})
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 403 for a non-admin tier', async () => {
+    seedCertificate(tier1Id, tier1Name)
+    seedCertReward(tier1Id)
+
+    const res = await request(app)
+      .post('/api/certificates/test/reset')
+      .send({})
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+
+    expect(res.status).toBe(403)
+
+    const rows = db.prepare('SELECT id FROM cert_rewards WHERE user_id = ?').all(tier1Id) as any[]
+    expect(rows).toHaveLength(1)
+  })
+
+  it("clears the admin's own reward row so the prompt shows again", async () => {
+    seedCertificate(adminId, 'Admin User')
+    seedCertReward(adminId)
+
+    const res = await request(app)
+      .post('/api/certificates/test/reset')
+      .send({})
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    expect(res.status).toBe(200)
+    expect(res.body.deleted).toBe(1)
+
+    const mine = await request(app)
+      .get('/api/certificates/mine')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(mine.body.rewardSubmitted).toBe(false)
+  })
+
+  it('leaves the certificate row intact — a real certificate survives a reset', async () => {
+    const { certNumber } = seedCertificate(adminId, 'Admin User')
+    seedCertReward(adminId)
+
+    await request(app)
+      .post('/api/certificates/test/reset')
+      .send({})
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    const row = db.prepare('SELECT certificate_number, is_valid FROM certificates WHERE user_id = ?').get(adminId) as any
+    expect(row.certificate_number).toBe(certNumber)
+    expect(row.is_valid).toBe(1)
+  })
+
+  it("does not touch another user's reward row", async () => {
+    seedCertificate(tier1Id, tier1Name)
+    seedCertReward(tier1Id)
+    seedCertificate(adminId, 'Admin User')
+    seedCertReward(adminId)
+
+    await request(app)
+      .post('/api/certificates/test/reset')
+      .send({})
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    const others = db.prepare('SELECT id FROM cert_rewards WHERE user_id = ?').all(tier1Id) as any[]
+    expect(others).toHaveLength(1)
+  })
+
+  it('is a no-op when there is nothing to reset', async () => {
+    seedCertificate(adminId, 'Admin User')
+
+    const res = await request(app)
+      .post('/api/certificates/test/reset')
+      .send({})
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    expect(res.status).toBe(200)
+    expect(res.body.deleted).toBe(0)
+  })
+})
+
 describe('PUT /api/certificates/rewards/:id/fulfilled', () => {
   it('returns 401 without auth', async () => {
     const res = await request(app)

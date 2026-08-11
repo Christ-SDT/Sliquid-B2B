@@ -373,7 +373,20 @@ Mounted at the app root (NOT under `/api`) so the OIDC callback is `/auth/google
 |---|---|---|---|
 | GET | `/mine` | requireAuth | Returns `{ firstName, lastName, completionDate, certificateNumber, rewardSubmitted }` for current user; 404 if no cert |
 | POST | `/reward` | requireAuth | Save reward claim (product, shirtSize, address1, address2, city, state, zip); 400 if missing fields; 403 if no valid cert; no-op if already submitted |
+| GET | `/rewards` | tier5/admin only | All reward claims joined with `users.email` + `certificates.certificate_number` + `avg_score`; unfulfilled first. Backs `MarketingRequestsPage` |
+| PUT | `/rewards/:id/fulfilled` | tier5/admin only | `{ fulfilled: boolean }` — sets `fulfilled` + `fulfilled_at` |
+| POST | `/test/ensure` | tier5/admin only | **Self-scoped test harness.** Issues a certificate for the *calling admin* if they have none, so the reward prompt can be exercised without passing all modules. Idempotent — returns `{ certificateNumber, created }`, 201 when newly issued, 200 when reused |
+| POST | `/test/reset` | tier5/admin only | **Self-scoped test harness.** Deletes the *calling admin's own* `cert_rewards` row so the prompt reappears; returns `{ ok, deleted }`. Deliberately does NOT touch `certificates` — a genuinely-earned certificate number survives a reset |
 | GET | `/verify/:certNumber` | **Public** | Returns `{ valid, fullName, firstName, lastName, completionDate, certificateNumber }`; 404 if not found or revoked |
+
+⚠️ `/rewards` and `/rewards/:id/fulfilled` return shipping PII (name, email, street address). They
+were originally guarded by `requireAuth` **only** — any authenticated tier1 employee could read
+every certified partner's home address. Both now carry `requireRole('tier5', 'admin')`, locked in
+by regression tests. Do not remove those guards.
+
+⚠️ The `/test/*` routes are **self-scoped by design** — they read `req.user!.id` and never accept a
+target user id. Do not "improve" them into `/test/reset/:userId`: that would turn an admin
+convenience into a way to silently destroy another user's reward claim.
 
 ### Admin — `/api/admin`
 | Method | Path | Auth | Description |
@@ -522,6 +535,26 @@ When a quiz has `videoPath` set, `QuizPage.tsx` renders a two-phase experience:
 When all modules are passed (`passedCount === trainings.length`):
 - A green banner appears above the progress bar with "You're a Sliquid Certified Expert!"
 - "View Certificate" button opens a modal containing `CertificateGenerator`
+
+### Trainings Page — Admin Test Harness
+Below the completion banner, `TrainingsPage.tsx` renders an amber **"Admin — test the certificate
+flow"** panel gated on `adminMode` (`isAdmin(user.role)`). It exists so admins can verify the
+reward prompt and certificate render correctly without grinding through all 11 modules.
+
+- **Test Certificate Flow** → `openCertTest()` → `POST /api/certificates/test/ensure`, then opens
+  the normal cert modal. The admin now has a real certificate row, so `GET /certificates/mine`
+  returns 200 instead of 404 and the real `CertRewardForm` renders.
+- Inside the modal, an amber strip with **Reset** → `resetCertTest()` →
+  `POST /api/certificates/test/reset`, which clears the admin's own `cert_rewards` row and
+  re-fetches, making the prompt appear again.
+
+⚠️ This is a **live** test path, not a mock: submitting writes a real `cert_rewards` row and sends
+the real EmailJS confirmation + admin emails. That is intentional — it is the only way to verify
+the email templates actually fire. The Reset button is what makes it repeatable.
+
+⚠️ `openCertModal()` and `openCertTest()` share `loadCertData()`. If you refactor the modal, keep
+that split — `openCertModal` must NOT call `/test/ensure`, or a partner tier would hit a 403 on
+every legitimate "View Certificate" click.
 
 ---
 
@@ -1089,8 +1122,13 @@ src/__tests__/fixtures/announcement-shape-a.html  # the REAL body of WP post 126
   - `POST /reward`: 401 no auth; 403 no cert; 400 for each missing required field (product, shirtSize, address1, city, state, zip); 201 + DB row verified; address2 optional; idempotent (second call returns 200, no duplicate); per-user isolation; round-trip confirms `rewardSubmitted` flips to `true`
   - `GET /verify/:certNumber`: unknown 404; revoked 404; valid 200 + full shape; public (no auth); case-sensitive lookup
 
-**Total: 471 tests passing across 21 test files** (1 known pre-existing failure in
+**Total: 488 tests passing across 21 test files** (1 known pre-existing failure in
 `admin.test.ts` — it asserts tier3 is rejected on approve, which is no longer true).
+
+`certificates.test.ts` is now 42 tests — it additionally locks in the admin-only guards on
+`/rewards` + `/rewards/:id/fulfilled` (403 for tier1, and the DB row is asserted unchanged so the
+guard can't be bypassed silently) and covers the `/test/ensure` + `/test/reset` harness, including
+that reset leaves the `certificates` row intact and never touches another user's reward row.
 
 ---
 

@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { randomBytes } from 'crypto'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { sendRewardConfirmEmail, sendRewardAdminEmail } from '../email.js'
@@ -158,6 +159,41 @@ router.put('/rewards/:id/fulfilled', requireAuth, requireRole('tier5', 'admin'),
     WHERE id = ?
   `).run(fulfilled ? 1 : 0, fulfilled ? new Date().toISOString() : null, id)
   res.json({ ok: true })
+})
+
+// POST /api/certificates/test/ensure — admin only, self-scoped.
+// Issues a certificate for the CALLING admin if they don't already have one, so the
+// reward prompt + certificate download can be exercised without passing all 11 quizzes.
+// Non-destructive: an existing certificate (real or test) is returned untouched.
+router.post('/test/ensure', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const user = req.user!
+
+  const existing = db.prepare(
+    'SELECT certificate_number FROM certificates WHERE user_id = ? AND is_valid = 1'
+  ).get(user.id) as { certificate_number: string } | undefined
+
+  if (existing) {
+    res.json({ certificateNumber: existing.certificate_number, created: false })
+    return
+  }
+
+  const suffix = randomBytes(3).toString('hex').toUpperCase()
+  const certNumber = `SLQ-${new Date().getFullYear()}-${suffix}`
+  db.prepare(
+    'INSERT INTO certificates (certificate_number, user_id, issued_to) VALUES (?, ?, ?)'
+  ).run(certNumber, user.id, user.name)
+
+  res.status(201).json({ certificateNumber: certNumber, created: true })
+})
+
+// POST /api/certificates/test/reset — admin only, self-scoped.
+// Clears the CALLING admin's own cert_rewards row so the reward prompt appears again.
+// Deliberately does NOT touch the certificates table: the certificate number stays
+// stable, so a genuinely-earned certificate can never be destroyed by a test reset.
+router.post('/test/reset', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const user = req.user!
+  const result = db.prepare('DELETE FROM cert_rewards WHERE user_id = ?').run(user.id)
+  res.json({ ok: true, deleted: result.changes })
 })
 
 // GET /api/certificates/verify/:certNumber — public, no auth required

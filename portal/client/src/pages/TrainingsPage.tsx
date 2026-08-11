@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
-import { GraduationCap, Clock, CheckCircle2, ChevronRight, Award, Plus, Pencil, Trash2, Loader2, X } from 'lucide-react'
+import { GraduationCap, Clock, CheckCircle2, ChevronRight, Award, Plus, Pencil, Trash2, Loader2, X, FlaskConical, RotateCcw } from 'lucide-react'
 import CertificateGenerator from '@/components/CertificateGenerator'
 import CertRewardForm from '@/components/CertRewardForm'
 
@@ -355,14 +355,38 @@ export default function TrainingsPage() {
   const [certData, setCertData] = useState<CertData | null>(null)
   const [certDataLoading, setCertDataLoading] = useState(false)
 
-  function openCertModal() {
-    setShowCertModal(true)
+  function loadCertData() {
     setCertData(null)
     setCertDataLoading(true)
-    api.get<CertData>('/certificates/mine')
+    return api.get<CertData>('/certificates/mine')
       .then(data => setCertData(data))
       .catch(() => setCertData(null))
       .finally(() => setCertDataLoading(false))
+  }
+
+  function openCertModal() {
+    setShowCertModal(true)
+    loadCertData()
+  }
+
+  // Admin-only: open the real reward prompt / certificate flow without having to pass
+  // all modules first. Issues a test certificate for this admin if they don't have one.
+  function openCertTest() {
+    setShowCertModal(true)
+    setCertData(null)
+    setCertDataLoading(true)
+    api.post('/certificates/test/ensure', {})
+      .then(() => loadCertData())
+      .catch(() => { setCertData(null); setCertDataLoading(false) })
+  }
+
+  // Admin-only: clear this admin's own reward submission so the prompt shows again.
+  // Leaves the certificate row intact.
+  function resetCertTest() {
+    setCertDataLoading(true)
+    api.post('/certificates/test/reset', {})
+      .then(() => loadCertData())
+      .catch(() => setCertDataLoading(false))
   }
 
   return (
@@ -405,6 +429,29 @@ export default function TrainingsPage() {
             className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
           >
             <Award className="w-4 h-4" /> View Certificate
+          </button>
+        </div>
+      )}
+
+      {/* Admin test harness — exercise the reward prompt + certificate without
+          completing every module. Admin-only; never rendered for partner tiers. */}
+      {adminMode && (
+        <div className="mb-6 p-5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <FlaskConical className="w-6 h-6 text-amber-500 flex-shrink-0" />
+            <div>
+              <p className="text-on-canvas font-semibold text-sm">Admin — test the certificate flow</p>
+              <p className="text-on-canvas-muted text-xs mt-0.5">
+                Opens the real reward prompt and certificate page for your own account. Submitting
+                writes a real reward claim and sends the real emails — use Reset to run it again.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={openCertTest}
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-500/90 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <FlaskConical className="w-4 h-4" /> Test Certificate Flow
           </button>
         </div>
       )}
@@ -488,6 +535,24 @@ export default function TrainingsPage() {
             </div>
 
             {/* Loading */}
+            {/* Admin test controls — reset the reward claim to replay the prompt */}
+            {adminMode && (
+              <div className="mb-4 px-3 py-2.5 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center justify-between gap-3">
+                <p className="text-on-canvas-muted text-xs">
+                  {certData?.rewardSubmitted
+                    ? 'Reward already claimed on this account — reset to see the prompt again.'
+                    : 'Admin test mode — this is the live prompt partners see.'}
+                </p>
+                <button
+                  onClick={resetCertTest}
+                  disabled={certDataLoading}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 border border-amber-500/40 hover:bg-amber-500/20 disabled:opacity-50 text-amber-500 rounded-md text-xs font-medium transition-colors"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> Reset
+                </button>
+              </div>
+            )}
+
             {certDataLoading && (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-5 h-5 text-portal-accent animate-spin" />
