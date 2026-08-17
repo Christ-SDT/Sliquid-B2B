@@ -105,10 +105,44 @@ curl -s https://sso-api.sliquid.com/.well-known/openid-configuration | jq '{issu
 | Field | Value | Notes |
 |---|---|---|
 | **Name** | e.g. `ChatGPT Brand Agent` | The `client_id` is **generated** from this (`slug-XXXX`). You cannot choose it. |
-| **Redirect URIs** | supplied by ChatGPT during connector setup | Exact string match, no wildcards. Re-checked at token exchange. |
+| **Redirect URIs** | `https://chatgpt.com/connector_platform_oauth_redirect` | See the redirect-URI note below — you may need to add a second one. |
 | **Scopes** | ✅ `openid` **and** ✅ `assets:read` | `openid` is locked on. **`assets:read` must be ticked explicitly.** |
-| **Audience** | `https://<portal-server-domain>/mcp` | Must equal `MCP_RESOURCE_URI` byte for byte, and must be a valid URL. |
-| **Confidential** | yes (`client_secret_basic`) | The secret is shown **once** on creation; otherwise rotate. |
+| **Audience** | `https://sliquid-b2b-production.up.railway.app/mcp` | Must equal `MCP_RESOURCE_URI` byte for byte. |
+| **Confidential** | **no** — `token_endpoint_auth_method: none` | See below. |
+
+### Register it as a PUBLIC client, not confidential
+
+ChatGPT's connector form asks only for a **Client ID** — it has no field for a client secret, so it
+behaves as an OAuth public client and relies on PKCE. Registering the client as confidential
+(`client_secret_basic`) means the token exchange fails, because ChatGPT cannot present the secret
+the IdP then demands.
+
+This is safe here: the IdP enforces **PKCE S256 unconditionally**, on public and confidential
+clients alike, so the auth code cannot be replayed without the verifier.
+
+If the connector form in your ChatGPT build *does* ask for a secret, flip the client to
+`client_secret_basic` and use the secret shown once at creation (otherwise rotate it).
+
+### The redirect URI is a moving target
+
+There is **no single documented value**, and OpenAI is mid-migration between two shapes:
+
+| Value | Status |
+|---|---|
+| `https://chatgpt.com/connector_platform_oauth_redirect` | Legacy but still supported and still what most integrations register. Start here. |
+| `https://chatgpt.com/connector/oauth/{callback_id}` | Current, and **per-connector** — the id does not exist until the connector does. |
+
+Because this IdP has no DCR, expect a one-time chicken-and-egg:
+
+1. Pre-register the legacy fixed URI above.
+2. Start creating the connector in ChatGPT and open **Advanced settings**, looking for a
+   **Callback URL**. If one is shown, add it verbatim to the client's redirect URIs as well.
+3. Re-run the OAuth connect.
+
+Matching is exact — protocol, host, path, trailing slash. Ignore
+`https://chatgpt.com/backend-api/aip/connectors/links/oauth/callback` if you see it in an error
+trace; it is an internal hop, not a redirect URI to register. Do **not** register the GPT Actions
+form (`.../aip/{g-id}/oauth/callback`) — that is a different product surface.
 
 Register a **new** client rather than reusing the seeded `marketing-portal` one — that row has
 neither `assets:read` nor an audience, and it needs different redirect URIs anyway.
@@ -150,6 +184,17 @@ auth are the only real options — see `AGENT-INSTRUCTIONS.md` for the sourcing 
 
 ## 4. Railway environment variables
 
+> **Status: set and verified live on 2026-08-17.** Railway project `sliquid-hq-b2b`, service
+> `Sliquid-B2B`, environment `production`. Verified against the deployed endpoint:
+> `/.well-known/oauth-protected-resource` returns the correct document, and an unauthenticated
+> `POST /mcp` returns 401 with a `WWW-Authenticate` challenge naming the metadata URL and
+> `scope="assets:read"`. The IdP's live discovery document confirms `issuer` and that
+> `assets:read` is in `scopes_supported`.
+>
+> Note `GET /mcp` returns **401, not 405**, when unauthenticated — auth runs before method
+> dispatch, so an anonymous caller learns nothing about the endpoint. 405 is what an
+> authenticated GET gets.
+
 New:
 
 | Var | Value | Notes |
@@ -181,6 +226,29 @@ gradient background instead of a generated one, and still composites correctly.
 ---
 
 ## 5. Load the packshots
+
+⚠️ **This cannot be run as written against production yet.** The import needs three things that
+do not currently exist in one place:
+
+| Needs | Only available |
+|---|---|
+| the 75 PNG masters | **locally** — 52 MB, gitignored, never committed |
+| S3 credentials | Railway env (obtainable locally via `railway run`) |
+| the SQLite DB | **on Railway** — `DB_PATH=/data/portal.db`, a mounted volume with no network access |
+
+And the container cannot run it either: `Dockerfile` copies only `src`, never `scripts/`, and
+`npm prune --omit=dev` strips `tsx`.
+
+So it has to be split. The intended shape:
+
+1. **Upload locally** — `railway run npx tsx scripts/import-packshots.ts --upload-only`, which
+   injects the production S3 credentials without touching the DB.
+2. **Insert rows on Railway** — needs the catalog JSON (~50 KB, committed) and an entry point
+   readable inside the container. The cheap fix is to put the catalog under `src/assets/` (already
+   copied to `dist/` by the existing `cp -r src/assets dist/`) and add a compiled
+   `src/scripts/importPackshots.ts`, then `railway ssh node dist/scripts/importPackshots.js --yes`.
+
+Locally, against a local DB, the current script works as documented:
 
 ```bash
 cd portal/server
