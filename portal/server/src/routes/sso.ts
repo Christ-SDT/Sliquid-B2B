@@ -51,7 +51,7 @@ export interface SsoClaims {
   email: string
   name?: string
   sub: string
-  role?: string // "admin" | "employee" — both floor at tier5 in this portal
+  role?: string // coarse IdP role: "admin" | "employee" (see ssoRoleToTier)
 }
 
 interface PortalUser {
@@ -64,8 +64,29 @@ interface PortalUser {
 }
 
 /**
+ * Map the IdP's coarse `role` claim onto a portal tier.
+ *
+ * The SSO IdP collapses its five internal roles to `admin` | `employee` via
+ * `externalRole()` before emitting the claim, so those two values are all we
+ * ever see. Anything else — an absent claim, a new IdP role, a typo — lands on
+ * tier1. That default is deliberate: this function runs before any human has
+ * looked at the account, so an unrecognized role must yield the LEAST access,
+ * never the most.
+ *
+ * ⚠️ tier5 grants admin powers across the whole portal, which now includes
+ * publishing brand assets to the external ChatGPT agent (see
+ * PackshotApprovalPanel). Do not widen this mapping to floor everyone at tier5
+ * for convenience — that is exactly the bug this replaced.
+ */
+export function ssoRoleToTier(role?: string): string {
+  return role?.trim().toLowerCase() === 'admin' ? 'tier5' : 'tier1'
+}
+
+/**
  * Find-or-create a portal user from verified SSO claims.
- * - New users are provisioned as active tier5 (Admin) with an unusable password hash.
+ * - New users are provisioned active, with an unusable password hash, at the tier
+ *   `ssoRoleToTier()` derives from the IdP's role claim — tier5 for `admin`,
+ *   tier1 for everyone else.
  * - Existing users keep their current role (never downgrade) but are reactivated and
  *   have their sso_sub linked + last_login stamped.
  */
@@ -88,16 +109,17 @@ export function upsertSsoUser(claims: SsoClaims): PortalUser {
 
   const unusableHash = bcrypt.hashSync(randomBytes(32).toString('hex'), 10)
   const name = claims.name?.trim() || email
+  const role = ssoRoleToTier(claims.role)
   const result = db.prepare(
     "INSERT INTO users (name, email, company, password_hash, role, status, sso_sub, last_login) " +
-    "VALUES (?, ?, ?, ?, 'tier5', 'active', ?, datetime('now'))"
-  ).run(name, email, 'Sliquid', unusableHash, claims.sub)
+    "VALUES (?, ?, ?, ?, ?, 'active', ?, datetime('now'))"
+  ).run(name, email, 'Sliquid', unusableHash, role, claims.sub)
 
   return {
     id: result.lastInsertRowid as number,
     name,
     email,
-    role: 'tier5',
+    role,
     company: 'Sliquid',
     status: 'active',
   }

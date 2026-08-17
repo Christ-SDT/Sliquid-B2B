@@ -5,8 +5,10 @@ import { isAdmin as checkAdmin } from '@/types'
 import {
   Image as ImageIcon, Upload, Copy, Check, Pencil, Trash2, X, ExternalLink,
   Search, Loader2, AlertCircle, Save, ChevronDown, Sparkles, CheckCircle2, CheckCheck, BookOpen,
+  Bot,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import PackshotApprovalPanel from '@/components/PackshotApprovalPanel'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -926,6 +928,10 @@ export default function MediaPage() {
   const [showUpload, setShowUpload] = useState(false)
   const [showAllPending, setShowAllPending] = useState(false)
   const [approvingAll, setApprovingAll] = useState(false)
+  // Packshots live on their own tab: they are the only media whose visibility
+  // extends outside the portal (to the ChatGPT Brand Agent), so they get a
+  // surface that shows that state instead of being mixed into the gallery.
+  const [tab, setTab] = useState<'media' | 'packshots'>('media')
 
   const isAdmin = user ? checkAdmin(user.role) : false
 
@@ -996,10 +1002,14 @@ export default function MediaPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-on-canvas">Media Library</h1>
-              <p className="text-on-canvas-muted text-sm">{items.length} files across all sources</p>
+              <p className="text-on-canvas-muted text-sm">
+                {tab === 'media'
+                  ? `${items.length} files across all sources`
+                  : 'Product packshots served to the ChatGPT Brand Agent'}
+              </p>
             </div>
           </div>
-          {isAdmin && (
+          {isAdmin && tab === 'media' && (
             <button onClick={() => setShowUpload(true)}
               className="flex items-center gap-2 px-4 py-2 bg-portal-accent text-white rounded-lg text-sm font-medium hover:bg-portal-accent/90 transition-colors">
               <Upload className="w-4 h-4" />
@@ -1007,6 +1017,34 @@ export default function MediaPage() {
             </button>
           )}
         </div>
+
+        {/* Tabs — Packshots is admin-only, matching the server guard */}
+        {isAdmin && (
+          <div className="flex border-b border-portal-border">
+            {([
+              { key: 'media',     label: 'All Media', icon: ImageIcon },
+              { key: 'packshots', label: 'Packshots', icon: Bot },
+            ] as const).map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={cn(
+                  'flex items-center gap-2 px-5 py-2.5 text-sm font-medium border-b-2 transition-colors',
+                  tab === t.key
+                    ? 'border-portal-accent text-portal-accent'
+                    : 'border-transparent text-on-canvas-subtle hover:text-on-canvas',
+                )}
+              >
+                <t.icon className="w-4 h-4" />
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {tab === 'packshots' && isAdmin && <PackshotApprovalPanel />}
+
+        {tab === 'media' && (<>
 
         {/* Filters */}
         <div className="bg-surface border border-portal-border rounded-xl p-4 space-y-3">
@@ -1149,6 +1187,7 @@ export default function MediaPage() {
             </div>
           </>
         )}
+        </>)}
       </div>
 
       {selectedItem && (

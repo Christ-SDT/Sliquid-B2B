@@ -1,0 +1,2707 @@
+{
+  "generated_at": "2026-08-13T22:12:01.420Z",
+  "mappings": [
+    {
+      "asset_id": "balance-soak-cherry-blossom",
+      "filename": "Balance Soak Cherry Blossom.png",
+      "parsed_product": "Sliquid Balance Soak Cherry Blossom",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.8,
+      "proposed": {
+        "sku": "056",
+        "name": "Balance Soak (Cherry Blossom)",
+        "unit_size": "8.5 oz",
+        "category": "Feminine Wellness",
+        "upc": "894147000562"
+      },
+      "runners_up": [
+        {
+          "sku": "929",
+          "name": "Balance Soak (Coconut Papaya)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.217
+        },
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.2
+        }
+      ]
+    },
+    {
+      "asset_id": "balance-soak-coconut-papaya",
+      "filename": "Balance Soak Coconut Papaya.png",
+      "parsed_product": "Sliquid Balance Soak Coconut Papaya",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.8,
+      "proposed": {
+        "sku": "929",
+        "name": "Balance Soak (Coconut Papaya)",
+        "unit_size": "8.5 oz",
+        "category": "Feminine Wellness",
+        "upc": "894147009299"
+      },
+      "runners_up": [
+        {
+          "sku": "056",
+          "name": "Balance Soak (Cherry Blossom)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "075",
+          "name": "Balance Soothe (Sweet Coconut)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.2
+        }
+      ]
+    },
+    {
+      "asset_id": "balance-soak-green-tea",
+      "filename": "Balance Soak Green Tea.png",
+      "parsed_product": "Sliquid Balance Soak Green Tea",
+      "parsed_size": null,
+      "verdict": "review",
+      "score": 0.4,
+      "margin": 0,
+      "proposed": {
+        "sku": "056",
+        "name": "Balance Soak (Cherry Blossom)",
+        "unit_size": "8.5 oz",
+        "category": "Feminine Wellness",
+        "upc": "894147000562"
+      },
+      "runners_up": [
+        {
+          "sku": "929",
+          "name": "Balance Soak (Coconut Papaya)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "007",
+          "name": "Naturals Swirl (Green Apple)",
+          "unit_size": "4.2 oz",
+          "score": 0.217
+        },
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.2
+        }
+      ]
+    },
+    {
+      "asset_id": "balance-soak-limoncello",
+      "filename": "Balance Soak limoncello.png",
+      "parsed_product": "Sliquid Balance Soak Limoncello",
+      "parsed_size": null,
+      "verdict": "review",
+      "score": 0.45,
+      "margin": 0,
+      "proposed": {
+        "sku": "056",
+        "name": "Balance Soak (Cherry Blossom)",
+        "unit_size": "8.5 oz",
+        "category": "Feminine Wellness",
+        "upc": "894147000562"
+      },
+      "runners_up": [
+        {
+          "sku": "929",
+          "name": "Balance Soak (Coconut Papaya)",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.2
+        },
+        {
+          "sku": "028",
+          "name": "Balance Splash (Honeydew Cucumber)",
+          "unit_size": "8.5 oz",
+          "score": 0.2
+        }
+      ]
+    },
+    {
+      "asset_id": "h2o-2-oz-2025",
+      "filename": "H2O 2oz 1 2025.png",
+      "parsed_product": "Sliquid H2O",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "996",
+        "name": "Naturals H2O",
+        "unit_size": "2.0 oz",
+        "category": "Water-Based",
+        "upc": "894147009961"
+      },
+      "runners_up": [
+        {
+          "sku": "928",
+          "name": "Naturals Sizzle",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "h2o-42-oz-2025",
+      "filename": "H2O 4oz 1 2025.png",
+      "parsed_product": "Sliquid H2O",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.467,
+      "proposed": {
+        "sku": "001",
+        "name": "Naturals H2O",
+        "unit_size": "4.2 oz",
+        "category": "Water-Based",
+        "upc": "894147000012"
+      },
+      "runners_up": [
+        {
+          "sku": "901",
+          "name": "Naturals H2O (Multilingual)",
+          "unit_size": "4.2 oz",
+          "score": 0.583
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "h2o-85-oz-2025",
+      "filename": "H2O 8oz 2025.png",
+      "parsed_product": "Sliquid H2O",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.467,
+      "proposed": {
+        "sku": "011",
+        "name": "Naturals H2O",
+        "unit_size": "8.5 oz",
+        "category": "Water-Based",
+        "upc": "894147000111"
+      },
+      "runners_up": [
+        {
+          "sku": "911",
+          "name": "Naturals H2O (Multilingual)",
+          "unit_size": "8.5 oz",
+          "score": 0.583
+        },
+        {
+          "sku": "012",
+          "name": "Naturals Silver",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "018",
+          "name": "Naturals Sizzle",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "massage-citrus-neroli",
+      "filename": "Massage Citrus Neroli 1.png",
+      "parsed_product": "Sliquid Massage Citrus Neroli",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.75,
+      "proposed": {
+        "sku": "079",
+        "name": "Balance Massage (Citrus Neroli)",
+        "unit_size": "8.5 oz",
+        "category": "Massage",
+        "upc": "894147000791"
+      },
+      "runners_up": [
+        {
+          "sku": "069",
+          "name": "Balance Massage (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "078",
+          "name": "Balance Massage (Mint & Cedar)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.2
+        }
+      ]
+    },
+    {
+      "asset_id": "massage-mint-cedar",
+      "filename": "Massage Mint Cedar 1.png",
+      "parsed_product": "Sliquid Massage Mint Cedar",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.75,
+      "proposed": {
+        "sku": "078",
+        "name": "Balance Massage (Mint & Cedar)",
+        "unit_size": "8.5 oz",
+        "category": "Massage",
+        "upc": "894147000784"
+      },
+      "runners_up": [
+        {
+          "sku": "069",
+          "name": "Balance Massage (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "079",
+          "name": "Balance Massage (Citrus Neroli)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.2
+        }
+      ]
+    },
+    {
+      "asset_id": "massage-unscented",
+      "filename": "Massage Unscented 1.png",
+      "parsed_product": "Sliquid Massage Unscented",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.667,
+      "proposed": {
+        "sku": "069",
+        "name": "Balance Massage (Unscented)",
+        "unit_size": "8.5 oz",
+        "category": "Massage",
+        "upc": "894147000692"
+      },
+      "runners_up": [
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.533
+        },
+        {
+          "sku": "078",
+          "name": "Balance Massage (Mint & Cedar)",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "079",
+          "name": "Balance Massage (Citrus Neroli)",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-natural-2-oz-2025",
+      "filename": "Organics Natural  2z 2025.png",
+      "parsed_product": "Sliquid Organics Natural",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.333,
+      "proposed": {
+        "sku": "096",
+        "name": "Organics Natural",
+        "unit_size": "2.0 oz",
+        "category": "Organic",
+        "upc": "894147000968"
+      },
+      "runners_up": [
+        {
+          "sku": "097",
+          "name": "Organics Natural Gel",
+          "unit_size": "2.0 oz",
+          "score": 1.267
+        },
+        {
+          "sku": "098",
+          "name": "Organics Sensation",
+          "unit_size": "2.0 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "099",
+          "name": "Organics Silk",
+          "unit_size": "2.0 oz",
+          "score": 0.933
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-natural-42-oz-2025",
+      "filename": "Organics Natural  4z 2025.png",
+      "parsed_product": "Sliquid Organics Natural",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.333,
+      "proposed": {
+        "sku": "042",
+        "name": "Organics Natural",
+        "unit_size": "4.2 oz",
+        "category": "Organic",
+        "upc": "894147000425"
+      },
+      "runners_up": [
+        {
+          "sku": "082",
+          "name": "Organics Natural Gel",
+          "unit_size": "4.2 oz",
+          "score": 1.267
+        },
+        {
+          "sku": "942",
+          "name": "Organics Natural (Multilingual)",
+          "unit_size": "4.2 oz",
+          "score": 0.967
+        },
+        {
+          "sku": "043",
+          "name": "Organics Sensation",
+          "unit_size": "4.2 oz",
+          "score": 0.933
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-natural-85-oz-2025",
+      "filename": "Organics Natural  8z 2025.png",
+      "parsed_product": "Sliquid Organics Natural",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.333,
+      "proposed": {
+        "sku": "046",
+        "name": "Organics Natural",
+        "unit_size": "8.5 oz",
+        "category": "Organic",
+        "upc": "894147000463"
+      },
+      "runners_up": [
+        {
+          "sku": "086",
+          "name": "Organics Natural Gel",
+          "unit_size": "8.5 oz",
+          "score": 1.267
+        },
+        {
+          "sku": "047",
+          "name": "Organics Sensation",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "048",
+          "name": "Organics Silk",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-natural-gel-2-oz-2025",
+      "filename": "Organics Natural Gel  2z 2025.png",
+      "parsed_product": "Sliquid Organics Natural Gel",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.333,
+      "proposed": {
+        "sku": "097",
+        "name": "Organics Natural Gel",
+        "unit_size": "2.0 oz",
+        "category": "Organic",
+        "upc": "894147000975"
+      },
+      "runners_up": [
+        {
+          "sku": "096",
+          "name": "Organics Natural",
+          "unit_size": "2.0 oz",
+          "score": 1.267
+        },
+        {
+          "sku": "098",
+          "name": "Organics Sensation",
+          "unit_size": "2.0 oz",
+          "score": 0.85
+        },
+        {
+          "sku": "099",
+          "name": "Organics Silk",
+          "unit_size": "2.0 oz",
+          "score": 0.85
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-natural-gel-42-oz-2025",
+      "filename": "Organics Natural Gel  4z 2025.png",
+      "parsed_product": "Sliquid Organics Natural Gel",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.333,
+      "proposed": {
+        "sku": "082",
+        "name": "Organics Natural Gel",
+        "unit_size": "4.2 oz",
+        "category": "Organic",
+        "upc": "894147000821"
+      },
+      "runners_up": [
+        {
+          "sku": "042",
+          "name": "Organics Natural",
+          "unit_size": "4.2 oz",
+          "score": 1.267
+        },
+        {
+          "sku": "982",
+          "name": "Organics Natural Gel (Multilingual)",
+          "unit_size": "4.2 oz",
+          "score": 1.05
+        },
+        {
+          "sku": "043",
+          "name": "Organics Sensation",
+          "unit_size": "4.2 oz",
+          "score": 0.85
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-natural-gel-85-oz-2025",
+      "filename": "Organics Natural Gel  8z 2025.png",
+      "parsed_product": "Sliquid Organics Natural Gel",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.333,
+      "proposed": {
+        "sku": "086",
+        "name": "Organics Natural Gel",
+        "unit_size": "8.5 oz",
+        "category": "Organic",
+        "upc": "894147000869"
+      },
+      "runners_up": [
+        {
+          "sku": "046",
+          "name": "Organics Natural",
+          "unit_size": "8.5 oz",
+          "score": 1.267
+        },
+        {
+          "sku": "047",
+          "name": "Organics Sensation",
+          "unit_size": "8.5 oz",
+          "score": 0.85
+        },
+        {
+          "sku": "048",
+          "name": "Organics Silk",
+          "unit_size": "8.5 oz",
+          "score": 0.85
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-oceanics-42-oz-2025",
+      "filename": "Organics Oceanics 4z 2025.png",
+      "parsed_product": "Sliquid Organics Oceanics",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.667,
+      "proposed": {
+        "sku": "081",
+        "name": "Organics Oceanics",
+        "unit_size": "4.2 oz",
+        "category": "Organic",
+        "upc": "894147000814"
+      },
+      "runners_up": [
+        {
+          "sku": "042",
+          "name": "Organics Natural",
+          "unit_size": "4.2 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "043",
+          "name": "Organics Sensation",
+          "unit_size": "4.2 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "044",
+          "name": "Organics Silk",
+          "unit_size": "4.2 oz",
+          "score": 0.933
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-oceanics-85-oz-2025",
+      "filename": "Organics Oceanics 8z 2025.png",
+      "parsed_product": "Sliquid Organics Oceanics",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.667,
+      "proposed": {
+        "sku": "083",
+        "name": "Organics Oceanics",
+        "unit_size": "8.5 oz",
+        "category": "Organic",
+        "upc": "894147000838"
+      },
+      "runners_up": [
+        {
+          "sku": "046",
+          "name": "Organics Natural",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "047",
+          "name": "Organics Sensation",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "048",
+          "name": "Organics Silk",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-o-gel-1-oz-2025",
+      "filename": "Organics Ogel 1oz 2025.png",
+      "parsed_product": "Sliquid Organics O Gel",
+      "parsed_size": "1 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.457,
+      "proposed": {
+        "sku": "945",
+        "name": "Organics O Gel (Multilingual)",
+        "unit_size": "1 oz",
+        "category": "Organic",
+        "upc": "894147009459"
+      },
+      "runners_up": [
+        {
+          "sku": "951",
+          "name": "Ride BodyWorx Rise Stimulating Gel",
+          "unit_size": "1 oz",
+          "score": 0.593
+        },
+        {
+          "sku": "245",
+          "name": "Organics O Gel Pillow",
+          "unit_size": ".17 oz",
+          "score": 0.35
+        },
+        {
+          "sku": "082",
+          "name": "Organics Natural Gel",
+          "unit_size": "4.2 oz",
+          "score": 0.1
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-sensation-2-oz-2025",
+      "filename": "Organics Sensation 2z 2025.png",
+      "parsed_product": "Sliquid Organics Sensation",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.667,
+      "proposed": {
+        "sku": "098",
+        "name": "Organics Sensation",
+        "unit_size": "2.0 oz",
+        "category": "Organic",
+        "upc": "894147000982"
+      },
+      "runners_up": [
+        {
+          "sku": "096",
+          "name": "Organics Natural",
+          "unit_size": "2.0 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "099",
+          "name": "Organics Silk",
+          "unit_size": "2.0 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "097",
+          "name": "Organics Natural Gel",
+          "unit_size": "2.0 oz",
+          "score": 0.85
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-sensation-42-oz-2025",
+      "filename": "Organics Sensation 4z 2025.png",
+      "parsed_product": "Sliquid Organics Sensation",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.633,
+      "proposed": {
+        "sku": "043",
+        "name": "Organics Sensation",
+        "unit_size": "4.2 oz",
+        "category": "Organic",
+        "upc": "894147000432"
+      },
+      "runners_up": [
+        {
+          "sku": "943",
+          "name": "Organics Sensation (Multilingual)",
+          "unit_size": "4.2 oz",
+          "score": 0.967
+        },
+        {
+          "sku": "042",
+          "name": "Organics Natural",
+          "unit_size": "4.2 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "044",
+          "name": "Organics Silk",
+          "unit_size": "4.2 oz",
+          "score": 0.933
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-sensation-85-oz-2025",
+      "filename": "Organics Sensation 8z 2025.png",
+      "parsed_product": "Sliquid Organics Sensation",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.667,
+      "proposed": {
+        "sku": "047",
+        "name": "Organics Sensation",
+        "unit_size": "8.5 oz",
+        "category": "Organic",
+        "upc": "894147000470"
+      },
+      "runners_up": [
+        {
+          "sku": "046",
+          "name": "Organics Natural",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "048",
+          "name": "Organics Silk",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "083",
+          "name": "Organics Oceanics",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-silk-2-oz-2025",
+      "filename": "Organics Silk 2z 2025.png",
+      "parsed_product": "Sliquid Organics Silk",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.667,
+      "proposed": {
+        "sku": "099",
+        "name": "Organics Silk",
+        "unit_size": "2.0 oz",
+        "category": "Organic",
+        "upc": "894147000999"
+      },
+      "runners_up": [
+        {
+          "sku": "096",
+          "name": "Organics Natural",
+          "unit_size": "2.0 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "098",
+          "name": "Organics Sensation",
+          "unit_size": "2.0 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "097",
+          "name": "Organics Natural Gel",
+          "unit_size": "2.0 oz",
+          "score": 0.85
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-silk-42-oz-2025",
+      "filename": "Organics Silk 4z 2025.png",
+      "parsed_product": "Sliquid Organics Silk",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.633,
+      "proposed": {
+        "sku": "044",
+        "name": "Organics Silk",
+        "unit_size": "4.2 oz",
+        "category": "Organic",
+        "upc": "894147000449"
+      },
+      "runners_up": [
+        {
+          "sku": "944",
+          "name": "Organics Silk (Multilingual)",
+          "unit_size": "4.2 oz",
+          "score": 0.967
+        },
+        {
+          "sku": "042",
+          "name": "Organics Natural",
+          "unit_size": "4.2 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "043",
+          "name": "Organics Sensation",
+          "unit_size": "4.2 oz",
+          "score": 0.933
+        }
+      ]
+    },
+    {
+      "asset_id": "organics-silk-85-oz-2025",
+      "filename": "Organics Silk 8z 2025.png",
+      "parsed_product": "Sliquid Organics Silk",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.6,
+      "margin": 0.667,
+      "proposed": {
+        "sku": "048",
+        "name": "Organics Silk",
+        "unit_size": "8.5 oz",
+        "category": "Organic",
+        "upc": "894147000487"
+      },
+      "runners_up": [
+        {
+          "sku": "046",
+          "name": "Organics Natural",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "047",
+          "name": "Organics Sensation",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        },
+        {
+          "sku": "083",
+          "name": "Organics Oceanics",
+          "unit_size": "8.5 oz",
+          "score": 0.933
+        }
+      ]
+    },
+    {
+      "asset_id": "sassy-2-oz-2025",
+      "filename": "Sassy 2z 2025.png",
+      "parsed_product": "Sliquid Sassy",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "997",
+        "name": "Naturals Sassy",
+        "unit_size": "2.0 oz",
+        "category": "Water-Based",
+        "upc": "894147009978"
+      },
+      "runners_up": [
+        {
+          "sku": "928",
+          "name": "Naturals Sizzle",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "sassy-42-oz-2025",
+      "filename": "Sassy 4z 2025.png",
+      "parsed_product": "Sliquid Sassy",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.467,
+      "proposed": {
+        "sku": "031",
+        "name": "Naturals Sassy",
+        "unit_size": "4.2 oz",
+        "category": "Water-Based",
+        "upc": "894147000319"
+      },
+      "runners_up": [
+        {
+          "sku": "931",
+          "name": "Naturals Sassy (Multilingual)",
+          "unit_size": "4.2 oz",
+          "score": 0.583
+        },
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "sassy-85-oz-2025",
+      "filename": "Sassy 8z 2025.png",
+      "parsed_product": "Sliquid Sassy",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "041",
+        "name": "Naturals Sassy",
+        "unit_size": "8.5 oz",
+        "category": "Water-Based",
+        "upc": "894147000418"
+      },
+      "runners_up": [
+        {
+          "sku": "011",
+          "name": "Naturals H2O",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "012",
+          "name": "Naturals Silver",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "018",
+          "name": "Naturals Sizzle",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "satin-2-oz-2025",
+      "filename": "Satin 2z 2025.png",
+      "parsed_product": "Sliquid Satin",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "969",
+        "name": "Naturals Satin",
+        "unit_size": "2.0 oz",
+        "category": "Hybrid",
+        "upc": "894147009695"
+      },
+      "runners_up": [
+        {
+          "sku": "928",
+          "name": "Naturals Sizzle",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "988",
+          "name": "Naturals Spark Booty Buzz",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "satin-42-oz-2025",
+      "filename": "Satin 4z 2025.png",
+      "parsed_product": "Sliquid Satin",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.467,
+      "proposed": {
+        "sku": "058",
+        "name": "Naturals Satin",
+        "unit_size": "4.2 oz",
+        "category": "Hybrid",
+        "upc": "894147000586"
+      },
+      "runners_up": [
+        {
+          "sku": "958",
+          "name": "Naturals Satin (Multilingual)",
+          "unit_size": "4.2 oz",
+          "score": 0.583
+        },
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "satin-85-oz-2025",
+      "filename": "Satin 8z 2025.png",
+      "parsed_product": "Sliquid Satin",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "059",
+        "name": "Naturals Satin",
+        "unit_size": "8.5 oz",
+        "category": "Hybrid",
+        "upc": "894147000593"
+      },
+      "runners_up": [
+        {
+          "sku": "011",
+          "name": "Naturals H2O",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "012",
+          "name": "Naturals Silver",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "018",
+          "name": "Naturals Sizzle",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "sea-2-oz-2025",
+      "filename": "Sea 2z 2025.png",
+      "parsed_product": "Sliquid Sea",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "998",
+        "name": "Naturals Sea",
+        "unit_size": "2.0 oz",
+        "category": "Water-Based",
+        "upc": "894147009985"
+      },
+      "runners_up": [
+        {
+          "sku": "928",
+          "name": "Naturals Sizzle",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "sea-42-oz-2025",
+      "filename": "Sea 4z 2025.png",
+      "parsed_product": "Sliquid Sea",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.467,
+      "proposed": {
+        "sku": "013",
+        "name": "Naturals Sea",
+        "unit_size": "4.2 oz",
+        "category": "Water-Based",
+        "upc": "894147000135"
+      },
+      "runners_up": [
+        {
+          "sku": "913",
+          "name": "Naturals Sea (Multilingual)",
+          "unit_size": "4.2 oz",
+          "score": 0.583
+        },
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "sea-85-oz-2025",
+      "filename": "Sea 8z 2025.png",
+      "parsed_product": "Sliquid Sea",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "049",
+        "name": "Naturals Sea",
+        "unit_size": "8.5 oz",
+        "category": "Water-Based",
+        "upc": "894147000494"
+      },
+      "runners_up": [
+        {
+          "sku": "011",
+          "name": "Naturals H2O",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "012",
+          "name": "Naturals Silver",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "018",
+          "name": "Naturals Sizzle",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "silk-2-oz-2025",
+      "filename": "Silk 2z 2025.png",
+      "parsed_product": "Sliquid Silk",
+      "parsed_size": "2 oz",
+      "verdict": "review",
+      "score": 1.05,
+      "margin": 0.1,
+      "proposed": {
+        "sku": "999",
+        "name": "Naturals Silk",
+        "unit_size": "2.0 oz",
+        "category": "Hybrid",
+        "upc": "894147009992"
+      },
+      "runners_up": [
+        {
+          "sku": "099",
+          "name": "Organics Silk",
+          "unit_size": "2.0 oz",
+          "score": 0.95
+        },
+        {
+          "sku": "928",
+          "name": "Naturals Sizzle",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "silk-42-oz-2025",
+      "filename": "Silk 4z 2025.png",
+      "parsed_product": "Sliquid Silk",
+      "parsed_size": "4.2 oz",
+      "verdict": "review",
+      "score": 1.05,
+      "margin": 0.1,
+      "proposed": {
+        "sku": "009",
+        "name": "Naturals Silk",
+        "unit_size": "4.2 oz",
+        "category": "Hybrid",
+        "upc": "894147000098"
+      },
+      "runners_up": [
+        {
+          "sku": "044",
+          "name": "Organics Silk",
+          "unit_size": "4.2 oz",
+          "score": 0.95
+        },
+        {
+          "sku": "909",
+          "name": "Naturals Silk (Multilingual)",
+          "unit_size": "4.2 oz",
+          "score": 0.583
+        },
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "silk-85-oz-2025",
+      "filename": "Silk 8z 2025.png",
+      "parsed_product": "Sliquid Silk",
+      "parsed_size": "8.5 oz",
+      "verdict": "review",
+      "score": 1.05,
+      "margin": 0.1,
+      "proposed": {
+        "sku": "019",
+        "name": "Naturals Silk",
+        "unit_size": "8.5 oz",
+        "category": "Hybrid",
+        "upc": "894147000197"
+      },
+      "runners_up": [
+        {
+          "sku": "048",
+          "name": "Organics Silk",
+          "unit_size": "8.5 oz",
+          "score": 0.95
+        },
+        {
+          "sku": "011",
+          "name": "Naturals H2O",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "012",
+          "name": "Naturals Silver",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "silver-2-oz-2025",
+      "filename": "Silver 2z 2025.png",
+      "parsed_product": "Sliquid Silver",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "968",
+        "name": "Naturals Silver",
+        "unit_size": "2.0 oz",
+        "category": "Silicone-Based",
+        "upc": "894147009688"
+      },
+      "runners_up": [
+        {
+          "sku": "928",
+          "name": "Naturals Sizzle",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "988",
+          "name": "Naturals Spark Booty Buzz",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "silver-42-oz-2025",
+      "filename": "Silver 4z 2025.png",
+      "parsed_product": "Sliquid Silver",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "002",
+        "name": "Naturals Silver",
+        "unit_size": "4.2 oz",
+        "category": "Silicone-Based",
+        "upc": "894147000029"
+      },
+      "runners_up": [
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "006",
+          "name": "Naturals Swirl (Pina Colada)",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "silver-85-oz-2025",
+      "filename": "Silver 8z 2025.png",
+      "parsed_product": "Sliquid Silver",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "012",
+        "name": "Naturals Silver",
+        "unit_size": "8.5 oz",
+        "category": "Silicone-Based",
+        "upc": "894147000128"
+      },
+      "runners_up": [
+        {
+          "sku": "011",
+          "name": "Naturals H2O",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "018",
+          "name": "Naturals Sizzle",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "019",
+          "name": "Naturals Silk",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "sizzle-2-oz-2025",
+      "filename": "Sizzle 2z 1 2025.png",
+      "parsed_product": "Sliquid Sizzle",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "928",
+        "name": "Naturals Sizzle",
+        "unit_size": "2.0 oz",
+        "category": "Warming",
+        "upc": "894147009282"
+      },
+      "runners_up": [
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "988",
+          "name": "Naturals Spark Booty Buzz",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "sizzle-42-oz-2025",
+      "filename": "Sizzle 4z 2025.png",
+      "parsed_product": "Sliquid Sizzle",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "008",
+        "name": "Naturals Sizzle",
+        "unit_size": "4.2 oz",
+        "category": "Warming",
+        "upc": "894147000081"
+      },
+      "runners_up": [
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "sizzle-85-oz-2025",
+      "filename": "Sizzle 8z 2025.png",
+      "parsed_product": "Sliquid Sizzle",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "018",
+        "name": "Naturals Sizzle",
+        "unit_size": "8.5 oz",
+        "category": "Warming",
+        "upc": "650245514116"
+      },
+      "runners_up": [
+        {
+          "sku": "011",
+          "name": "Naturals H2O",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "012",
+          "name": "Naturals Silver",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "019",
+          "name": "Naturals Silk",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "shine-2-oz",
+      "filename": "Sliquid Shine 2oz.png",
+      "parsed_product": "Sliquid Shine",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 0.783,
+      "margin": 0.333,
+      "proposed": {
+        "sku": "033",
+        "name": "Sliquid Shine Toy Cleaner",
+        "unit_size": "2 oz",
+        "category": "Toy Care",
+        "upc": "894147000333"
+      },
+      "runners_up": [
+        {
+          "sku": "035",
+          "name": "Ride Lube Hybrid",
+          "unit_size": "2 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "036",
+          "name": "Ride Lube Water Based",
+          "unit_size": "2 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "037",
+          "name": "Ride Lube Silicone",
+          "unit_size": "2 oz",
+          "score": 0.45
+        }
+      ]
+    },
+    {
+      "asset_id": "shine",
+      "filename": "Sliquid Shine.png",
+      "parsed_product": "Sliquid Shine",
+      "parsed_size": null,
+      "verdict": "review",
+      "score": 0.383,
+      "margin": 0,
+      "proposed": {
+        "sku": "032",
+        "name": "Sliquid Shine Toy Cleaner",
+        "unit_size": "8.5 oz",
+        "category": "Toy Care",
+        "upc": "894147000326"
+      },
+      "runners_up": [
+        {
+          "sku": "033",
+          "name": "Sliquid Shine Toy Cleaner",
+          "unit_size": "2 oz",
+          "score": 0.383
+        },
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.05
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.05
+        }
+      ]
+    },
+    {
+      "asset_id": "soothe-mandarin-bergamot-2025",
+      "filename": "Soothe Mandarin Bergamot 2025 .png",
+      "parsed_product": "Sliquid Soothe Mandarin Bergamot",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.8,
+      "proposed": {
+        "sku": "074",
+        "name": "Balance Soothe (Mandarin Bergamot)",
+        "unit_size": "8.5 oz",
+        "category": "Feminine Wellness",
+        "upc": "650245246697"
+      },
+      "runners_up": [
+        {
+          "sku": "075",
+          "name": "Balance Soothe (Sweet Coconut)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.2
+        },
+        {
+          "sku": "028",
+          "name": "Balance Splash (Honeydew Cucumber)",
+          "unit_size": "8.5 oz",
+          "score": 0.2
+        }
+      ]
+    },
+    {
+      "asset_id": "soothe-sweet-coconut-2025",
+      "filename": "Soothe Sweet Coconut 2025 .png",
+      "parsed_product": "Sliquid Soothe Sweet Coconut",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.8,
+      "proposed": {
+        "sku": "075",
+        "name": "Balance Soothe (Sweet Coconut)",
+        "unit_size": "8.5 oz",
+        "category": "Feminine Wellness",
+        "upc": "650245289786"
+      },
+      "runners_up": [
+        {
+          "sku": "074",
+          "name": "Balance Soothe (Mandarin Bergamot)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "929",
+          "name": "Balance Soak (Coconut Papaya)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.2
+        }
+      ]
+    },
+    {
+      "asset_id": "soul-2-oz-v2-2025",
+      "filename": "Soul 2oz 2 2025.png",
+      "parsed_product": "Sliquid Soul",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 1.45,
+      "margin": 1,
+      "proposed": {
+        "sku": "991",
+        "name": "Sliquid Soul",
+        "unit_size": "2.0 oz",
+        "category": "Feminine Wellness",
+        "upc": "894147009916"
+      },
+      "runners_up": [
+        {
+          "sku": "033",
+          "name": "Sliquid Shine Toy Cleaner",
+          "unit_size": "2 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "035",
+          "name": "Ride Lube Hybrid",
+          "unit_size": "2 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "036",
+          "name": "Ride Lube Water Based",
+          "unit_size": "2 oz",
+          "score": 0.45
+        }
+      ]
+    },
+    {
+      "asset_id": "spark-2-oz-2025",
+      "filename": "Spark 2z 2025.png",
+      "parsed_product": "Sliquid Spark",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 0.8,
+      "margin": 0.25,
+      "proposed": {
+        "sku": "988",
+        "name": "Naturals Spark Booty Buzz",
+        "unit_size": "2.0 oz",
+        "category": "Stimulating",
+        "upc": "650245551340"
+      },
+      "runners_up": [
+        {
+          "sku": "928",
+          "name": "Naturals Sizzle",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "spark-42-oz-2025",
+      "filename": "Spark 4z 2025.png",
+      "parsed_product": "Sliquid Spark",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 0.8,
+      "margin": 0.25,
+      "proposed": {
+        "sku": "990",
+        "name": "Naturals Spark Booty Buzz",
+        "unit_size": "4.2 oz",
+        "category": "Stimulating",
+        "upc": "894147009909"
+      },
+      "runners_up": [
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "spark-85-oz-2025",
+      "filename": "Spark 8z 2025.png",
+      "parsed_product": "Sliquid Spark",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 0.8,
+      "margin": 0.25,
+      "proposed": {
+        "sku": "987",
+        "name": "Naturals Spark Booty Buzz",
+        "unit_size": "8.5 oz",
+        "category": "Stimulating",
+        "upc": "650245232263"
+      },
+      "runners_up": [
+        {
+          "sku": "011",
+          "name": "Naturals H2O",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "012",
+          "name": "Naturals Silver",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "018",
+          "name": "Naturals Sizzle",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "spark-studio-2025",
+      "filename": "Spark Studio 2025.png",
+      "parsed_product": "Sliquid Spark Studio",
+      "parsed_size": null,
+      "verdict": "review",
+      "score": 0.383,
+      "margin": 0.033,
+      "proposed": {
+        "sku": "084",
+        "name": "Studio Collection — Silver",
+        "unit_size": "3.4 oz",
+        "category": "Silicone-Based",
+        "upc": "894147000845"
+      },
+      "runners_up": [
+        {
+          "sku": "987",
+          "name": "Naturals Spark Booty Buzz",
+          "unit_size": "8.5 oz",
+          "score": 0.35
+        },
+        {
+          "sku": "988",
+          "name": "Naturals Spark Booty Buzz",
+          "unit_size": "2.0 oz",
+          "score": 0.35
+        },
+        {
+          "sku": "990",
+          "name": "Naturals Spark Booty Buzz",
+          "unit_size": "4.2 oz",
+          "score": 0.35
+        }
+      ]
+    },
+    {
+      "asset_id": "sparkle-2-oz-2025",
+      "filename": "Sparkle 2z 2025.png",
+      "parsed_product": "Sliquid Sparkle",
+      "parsed_size": "2 oz",
+      "verdict": "auto",
+      "score": 0.95,
+      "margin": 0.4,
+      "proposed": {
+        "sku": "104",
+        "name": "Sparkle Pride Lube",
+        "unit_size": "2.0 oz",
+        "category": "Water-Based",
+        "upc": "650245240909"
+      },
+      "runners_up": [
+        {
+          "sku": "928",
+          "name": "Naturals Sizzle",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "sparkle-42-oz-2025",
+      "filename": "Sparkle 4z 2025.png",
+      "parsed_product": "Sliquid Sparkle",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 0.95,
+      "margin": 0.4,
+      "proposed": {
+        "sku": "105",
+        "name": "Sparkle Pride Lube",
+        "unit_size": "4.2 oz",
+        "category": "Water-Based",
+        "upc": "650245516332"
+      },
+      "runners_up": [
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "splash-grapefruit-thyme-2025",
+      "filename": "Splash Grapefruit Thyme 2025.png",
+      "parsed_product": "Sliquid Splash Grapefruit Thyme",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.75,
+      "proposed": {
+        "sku": "029",
+        "name": "Balance Splash (Grapefruit Thyme)",
+        "unit_size": "8.5 oz",
+        "category": "Feminine Wellness",
+        "upc": "894147000296"
+      },
+      "runners_up": [
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "028",
+          "name": "Balance Splash (Honeydew Cucumber)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "050",
+          "name": "Balance Splash (Mango Passion)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        }
+      ]
+    },
+    {
+      "asset_id": "splash-honeydew-cucumber-2025",
+      "filename": "Splash Honeydew Cucumber 2025.png",
+      "parsed_product": "Sliquid Splash Honeydew Cucumber",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.75,
+      "proposed": {
+        "sku": "028",
+        "name": "Balance Splash (Honeydew Cucumber)",
+        "unit_size": "8.5 oz",
+        "category": "Feminine Wellness",
+        "upc": "894147000289"
+      },
+      "runners_up": [
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "029",
+          "name": "Balance Splash (Grapefruit Thyme)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "050",
+          "name": "Balance Splash (Mango Passion)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        }
+      ]
+    },
+    {
+      "asset_id": "splash-mango-passion-2025",
+      "filename": "Splash Mango Passion 2025.png",
+      "parsed_product": "Sliquid Splash Mango Passion",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.75,
+      "proposed": {
+        "sku": "050",
+        "name": "Balance Splash (Mango Passion)",
+        "unit_size": "8.5 oz",
+        "category": "Feminine Wellness",
+        "upc": "894147000500"
+      },
+      "runners_up": [
+        {
+          "sku": "024",
+          "name": "Balance Splash (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "028",
+          "name": "Balance Splash (Honeydew Cucumber)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        },
+        {
+          "sku": "029",
+          "name": "Balance Splash (Grapefruit Thyme)",
+          "unit_size": "8.5 oz",
+          "score": 0.4
+        }
+      ]
+    },
+    {
+      "asset_id": "splash-unscented-2025",
+      "filename": "Splash Unscented 2025.png",
+      "parsed_product": "Sliquid Splash Unscented",
+      "parsed_size": null,
+      "verdict": "auto",
+      "score": 1.2,
+      "margin": 0.667,
+      "proposed": {
+        "sku": "024",
+        "name": "Balance Splash (Unscented)",
+        "unit_size": "8.5 oz",
+        "category": "Feminine Wellness",
+        "upc": "894147000241"
+      },
+      "runners_up": [
+        {
+          "sku": "069",
+          "name": "Balance Massage (Unscented)",
+          "unit_size": "8.5 oz",
+          "score": 0.533
+        },
+        {
+          "sku": "028",
+          "name": "Balance Splash (Honeydew Cucumber)",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "029",
+          "name": "Balance Splash (Grapefruit Thyme)",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-blackberry-fig-42-oz-2025",
+      "filename": "Swirl Blackberry fig 4z 2025.png",
+      "parsed_product": "Sliquid Swirl Blackberry Fig",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.3,
+      "margin": 0.583,
+      "proposed": {
+        "sku": "021",
+        "name": "Naturals Swirl (Blackberry Fig)",
+        "unit_size": "4.2 oz",
+        "category": "Flavored",
+        "upc": "894147000210"
+      },
+      "runners_up": [
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "006",
+          "name": "Naturals Swirl (Pina Colada)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "007",
+          "name": "Naturals Swirl (Green Apple)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-blue-raspberry-2-oz-2025",
+      "filename": "Swirl Blue Rasberry 2z 2025.png",
+      "parsed_product": "Sliquid Swirl Blue Raspberry",
+      "parsed_size": "2 oz",
+      "verdict": "review",
+      "score": 0.55,
+      "margin": 0,
+      "proposed": {
+        "sku": "928",
+        "name": "Naturals Sizzle",
+        "unit_size": "2.0 oz",
+        "category": "Warming",
+        "upc": "894147009282"
+      },
+      "runners_up": [
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "988",
+          "name": "Naturals Spark Booty Buzz",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-blue-raspberry-42-oz-2025",
+      "filename": "Swirl Blue Rasberry 4z 2025.png",
+      "parsed_product": "Sliquid Swirl Blue Raspberry",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.3,
+      "margin": 0.583,
+      "proposed": {
+        "sku": "010",
+        "name": "Naturals Swirl (Blue Raspberry)",
+        "unit_size": "4.2 oz",
+        "category": "Flavored",
+        "upc": "894147000104"
+      },
+      "runners_up": [
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "006",
+          "name": "Naturals Swirl (Pina Colada)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "007",
+          "name": "Naturals Swirl (Green Apple)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-cherry-vanilla-42-oz-2025",
+      "filename": "Swirl Cherry vanilla 4z 2025.png",
+      "parsed_product": "Sliquid Swirl Cherry Vanilla",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.3,
+      "margin": 0.583,
+      "proposed": {
+        "sku": "005",
+        "name": "Naturals Swirl (Cherry Vanilla)",
+        "unit_size": "4.2 oz",
+        "category": "Flavored",
+        "upc": "894147000050"
+      },
+      "runners_up": [
+        {
+          "sku": "006",
+          "name": "Naturals Swirl (Pina Colada)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "007",
+          "name": "Naturals Swirl (Green Apple)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "010",
+          "name": "Naturals Swirl (Blue Raspberry)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-green-apple-2-oz-2025",
+      "filename": "Swirl Green Apple 2z 2025.png",
+      "parsed_product": "Sliquid Swirl Green Apple",
+      "parsed_size": "2 oz",
+      "verdict": "review",
+      "score": 0.55,
+      "margin": 0,
+      "proposed": {
+        "sku": "928",
+        "name": "Naturals Sizzle",
+        "unit_size": "2.0 oz",
+        "category": "Warming",
+        "upc": "894147009282"
+      },
+      "runners_up": [
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "988",
+          "name": "Naturals Spark Booty Buzz",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-green-apple-42-oz-2025",
+      "filename": "Swirl Green Apple 4z 2025.png",
+      "parsed_product": "Sliquid Swirl Green Apple",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.3,
+      "margin": 0.583,
+      "proposed": {
+        "sku": "007",
+        "name": "Naturals Swirl (Green Apple)",
+        "unit_size": "4.2 oz",
+        "category": "Flavored",
+        "upc": "894147000074"
+      },
+      "runners_up": [
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "006",
+          "name": "Naturals Swirl (Pina Colada)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "010",
+          "name": "Naturals Swirl (Blue Raspberry)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-pina-colada-42-oz-2025",
+      "filename": "Swirl Pina Colada 4z 2025.png",
+      "parsed_product": "Sliquid Swirl Pina Colada",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.3,
+      "margin": 0.583,
+      "proposed": {
+        "sku": "006",
+        "name": "Naturals Swirl (Pina Colada)",
+        "unit_size": "4.2 oz",
+        "category": "Flavored",
+        "upc": "894147000067"
+      },
+      "runners_up": [
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "007",
+          "name": "Naturals Swirl (Green Apple)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "010",
+          "name": "Naturals Swirl (Blue Raspberry)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-pink-lemonade-42-oz-2025",
+      "filename": "Swirl Pink Lemonade 4z 2025.png",
+      "parsed_product": "Sliquid Swirl Pink Lemonade",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.3,
+      "margin": 0.583,
+      "proposed": {
+        "sku": "016",
+        "name": "Naturals Swirl (Pink Lemonade)",
+        "unit_size": "4.2 oz",
+        "category": "Flavored",
+        "upc": "894147000166"
+      },
+      "runners_up": [
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "006",
+          "name": "Naturals Swirl (Pina Colada)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "007",
+          "name": "Naturals Swirl (Green Apple)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-tangerine-peach-2-oz-2025",
+      "filename": "Swirl Tangerine peach 2z 2025.png",
+      "parsed_product": "Sliquid Swirl Tangerine Peach",
+      "parsed_size": "2 oz",
+      "verdict": "review",
+      "score": 0.55,
+      "margin": 0,
+      "proposed": {
+        "sku": "928",
+        "name": "Naturals Sizzle",
+        "unit_size": "2.0 oz",
+        "category": "Warming",
+        "upc": "894147009282"
+      },
+      "runners_up": [
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "988",
+          "name": "Naturals Spark Booty Buzz",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-tangerine-peach-42-oz-2025",
+      "filename": "Swirl Tangerine peach 4z 2025.png",
+      "parsed_product": "Sliquid Swirl Tangerine Peach",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.3,
+      "margin": 0.583,
+      "proposed": {
+        "sku": "022",
+        "name": "Naturals Swirl (Tangerine Peach)",
+        "unit_size": "4.2 oz",
+        "category": "Flavored",
+        "upc": "894147000227"
+      },
+      "runners_up": [
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "006",
+          "name": "Naturals Swirl (Pina Colada)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "007",
+          "name": "Naturals Swirl (Green Apple)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-strawberry-pomegranate-2-oz-2025",
+      "filename": "Swirl Trawberry Pomegranate 2z 2025.png",
+      "parsed_product": "Sliquid Swirl Strawberry Pomegranate",
+      "parsed_size": "2 oz",
+      "verdict": "review",
+      "score": 0.55,
+      "margin": 0,
+      "proposed": {
+        "sku": "928",
+        "name": "Naturals Sizzle",
+        "unit_size": "2.0 oz",
+        "category": "Warming",
+        "upc": "894147009282"
+      },
+      "runners_up": [
+        {
+          "sku": "968",
+          "name": "Naturals Silver",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "969",
+          "name": "Naturals Satin",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "988",
+          "name": "Naturals Spark Booty Buzz",
+          "unit_size": "2.0 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "swirl-strawberry-pomegranate-42-oz-2025",
+      "filename": "Swirl Trawberry Pomegranate 4z 2025.png",
+      "parsed_product": "Sliquid Swirl Strawberry Pomegranate",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.3,
+      "margin": 0.583,
+      "proposed": {
+        "sku": "014",
+        "name": "Naturals Swirl (Strawberry Pomegranate)",
+        "unit_size": "4.2 oz",
+        "category": "Flavored",
+        "upc": "894147000142"
+      },
+      "runners_up": [
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "006",
+          "name": "Naturals Swirl (Pina Colada)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        },
+        {
+          "sku": "007",
+          "name": "Naturals Swirl (Green Apple)",
+          "unit_size": "4.2 oz",
+          "score": 0.717
+        }
+      ]
+    },
+    {
+      "asset_id": "t-lube-42-oz-2025",
+      "filename": "T Lube 4z 2025.png",
+      "parsed_product": "Sliquid T Lube",
+      "parsed_size": "4.2 oz",
+      "verdict": "review",
+      "score": 0.95,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "040",
+        "name": "Buck Angel's T-Lube",
+        "unit_size": "4.2 oz",
+        "category": "Specialty",
+        "upc": "894147000401"
+      },
+      "runners_up": [
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.45
+        }
+      ],
+      "conflict": "SKU 040 claimed by 2 packshots"
+    },
+    {
+      "asset_id": "t-stim-42-oz-2025",
+      "filename": "T Stim 4z 2025.png",
+      "parsed_product": "Sliquid T Stim",
+      "parsed_size": "4.2 oz",
+      "verdict": "review",
+      "score": 0.783,
+      "margin": 0.333,
+      "proposed": {
+        "sku": "040",
+        "name": "Buck Angel's T-Lube",
+        "unit_size": "4.2 oz",
+        "category": "Specialty",
+        "upc": "894147000401"
+      },
+      "runners_up": [
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.45
+        }
+      ],
+      "conflict": "SKU 040 claimed by 2 packshots"
+    },
+    {
+      "asset_id": "t-wash-85-oz-2025",
+      "filename": "T Wash 8z 2025.png",
+      "parsed_product": "Sliquid T Wash",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.117,
+      "margin": 0.667,
+      "proposed": {
+        "sku": "051",
+        "name": "Buck Angel's T-Wash",
+        "unit_size": "8.5 oz",
+        "category": "Specialty",
+        "upc": "653166085208"
+      },
+      "runners_up": [
+        {
+          "sku": "011",
+          "name": "Naturals H2O",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "012",
+          "name": "Naturals Silver",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        },
+        {
+          "sku": "018",
+          "name": "Naturals Sizzle",
+          "unit_size": "8.5 oz",
+          "score": 0.45
+        }
+      ]
+    },
+    {
+      "asset_id": "tsunami-42-oz-2025",
+      "filename": "Tsunami 4z 2025.png",
+      "parsed_product": "Sliquid Tsunami",
+      "parsed_size": "4.2 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "109",
+        "name": "Naturals Tsunami",
+        "unit_size": "4.2 oz",
+        "category": "Water-Based",
+        "upc": "850050864134"
+      },
+      "runners_up": [
+        {
+          "sku": "001",
+          "name": "Naturals H2O",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "002",
+          "name": "Naturals Silver",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "005",
+          "name": "Naturals Swirl (Cherry Vanilla)",
+          "unit_size": "4.2 oz",
+          "score": 0.55
+        }
+      ]
+    },
+    {
+      "asset_id": "tsunami-85-oz-2025",
+      "filename": "Tsunami 8z 2025.png",
+      "parsed_product": "Sliquid Tsunami",
+      "parsed_size": "8.5 oz",
+      "verdict": "auto",
+      "score": 1.05,
+      "margin": 0.5,
+      "proposed": {
+        "sku": "110",
+        "name": "Naturals Tsunami",
+        "unit_size": "8.5 oz",
+        "category": "Water-Based",
+        "upc": "850050864141"
+      },
+      "runners_up": [
+        {
+          "sku": "011",
+          "name": "Naturals H2O",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "012",
+          "name": "Naturals Silver",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        },
+        {
+          "sku": "018",
+          "name": "Naturals Sizzle",
+          "unit_size": "8.5 oz",
+          "score": 0.55
+        }
+      ]
+    }
+  ]
+}

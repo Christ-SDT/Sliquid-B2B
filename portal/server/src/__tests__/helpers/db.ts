@@ -154,6 +154,49 @@ export function seedMediaItem(overrides: Partial<{
 }
 
 /**
+ * Seed a packshot: a `media` row with type='packshot' plus the v56 catalog
+ * columns. Defaults to an approved, active packshot — the shape that IS
+ * returned — so tests opt in to the invisible cases explicitly.
+ */
+export function seedPackshot(overrides: Partial<{
+  filename: string; label: string | null; brand: string | null
+  s3_key: string; file_url: string; mime_type: string | null
+  sku: string | null; unit_size: string | null; package_version: string | null
+  packshot_status: string | null; approved: number; sha256: string | null
+  asset_key: string | null; type: string
+}> = {}) {
+  const n = (db.prepare('SELECT COUNT(*) AS c FROM media').get() as { c: number }).c + 1
+  const row = {
+    filename: `packshot-${n}.png`,
+    label: `Packshot ${n}`,
+    brand: 'Sliquid',
+    s3_key: `portal-assets/packshots/packshot-${n}.png`,
+    file_url: `https://test-bucket.s3.us-east-1.amazonaws.com/portal-assets/packshots/packshot-${n}.png`,
+    mime_type: 'image/png',
+    type: 'packshot',
+    sku: null as string | null,
+    unit_size: null as string | null,
+    package_version: null as string | null,
+    packshot_status: 'active' as string | null,
+    approved: 1,
+    sha256: null as string | null,
+    asset_key: `asset-key-${n}`,
+    ...overrides,
+  }
+  const result = db.prepare(`
+    INSERT INTO media (
+      filename, label, brand, s3_key, file_url, mime_type, uploaded_by, type,
+      sku, unit_size, package_version, packshot_status, approved, sha256, asset_key
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    row.filename, row.label, row.brand, row.s3_key, row.file_url, row.mime_type,
+    'Test Admin', row.type, row.sku, row.unit_size, row.package_version,
+    row.packshot_status, row.approved, row.sha256, row.asset_key,
+  )
+  return { id: result.lastInsertRowid as number, ...row }
+}
+
+/**
  * Seed an announcement. Defaults to a WordPress-sourced row in the state a
  * fresh sync leaves it in: hidden, invisible on both surfaces.
  *

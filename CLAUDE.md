@@ -220,7 +220,7 @@ TS error on access. Keys: `restricted`, `tier23`, `prospectVisible`, `managerOnl
 | `/verify` | ✓ (public) | ✓ (public) | ✓ (public) | ✓ (public) | ✓ (public) |
 | `/employee-login` | ✓ (public) | ✓ (public) | ✓ (public) | ✓ (public) | ✓ (public) |
 
-`/verify` and `/employee-login` are outside `<Shell>` — no auth required, accessible to anyone. `/employee-login` is the Sliquid-staff SSO entry point (employees authenticate as tier5 Admin).
+`/verify` and `/employee-login` are outside `<Shell>` — no auth required, accessible to anyone. `/employee-login` is the Sliquid-staff SSO entry point; staff land on the tier derived by `ssoRoleToTier()` — tier5 for an IdP `admin`, tier1 otherwise.
 
 Restricted tiers redirected to `/dashboard` for any disallowed route (enforced in `Shell.tsx`).
 
@@ -276,7 +276,10 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 54 | `hp_applications_table` | Creates `hp_applications` table (`id`, `practice_name`, `contact_name`, `email`, `created_at`) — one row per Health Practitioner application, backs the sequential `SHP-XXXX` reference number |
 | 55 | `announcements_tables` | Creates `announcements` (WordPress press releases + portal-authored announcements) and `announcement_sync_log`. See [Announcements](#announcements--press-releases) |
 
-**Next migration version: 56**
+| 56 | `packshot_catalog_columns` | Adds `sku`, `unit_size`, `package_version`, `packshot_status`, `approved`, `sha256`, `asset_key` to `media`; partial UNIQUE index on `asset_key`, index on `(approved, packshot_status)`. Backs the MCP packshot catalog — see [Asset MCP Server](#asset-mcp-server--chatgpt-brand-agent) |
+| 57 | `packshot_approval_audit` | Adds `approved_by`, `approved_at` to `media` — records who published an asset to the external ChatGPT agent, and when |
+
+**Next migration version: 58**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -306,7 +309,9 @@ Mounted at the app root (NOT under `/api`) so the OIDC callback is `/auth/google
 | GET | `/auth/google/login` | — | Starts the OIDC flow: generates PKCE verifier+state, stashes them in a 5-min signed `sso_tx` httpOnly cookie, 302-redirects to `SSO_AUTHORIZE_URL`. Returns 503 if `SSO_ENABLED !== 'true'` or config missing |
 | GET | `/auth/google/callback` | — | Verifies `state` cookie, exchanges `code` at `SSO_TOKEN_URL` (HTTP Basic, `code_verifier`), verifies `id_token` (RS256 via JWKS, checks `iss`/`aud`/`exp`), find-or-creates user (`upsertSsoUser`), mints portal JWT, 302 → `${SSO_SUCCESS_REDIRECT}/dashboard#token=<jwt>`. On error → `/employee-login?sso_error=<reason>` |
 
-- `upsertSsoUser` (`routes/sso.ts`): new users → `tier5` Admin, `status='active'`, `company='Sliquid'`, unusable password hash, `sso_sub` set. Existing users keep their current role (never downgrade), get reactivated + `sso_sub` linked. Both SSO `role` claims (`admin`/`employee`) floor at tier5.
+- `upsertSsoUser` (`routes/sso.ts`): new users → `status='active'`, `company='Sliquid'`, unusable password hash, `sso_sub` set, and a role from **`ssoRoleToTier(claims.role)`** — the IdP's coarse `admin` claim → `tier5`, everything else → `tier1`. Existing users keep their current role (never downgrade), get reactivated + `sso_sub` linked.
+  ⚠️ `ssoRoleToTier` defaults to **tier1** for an absent or unrecognized claim, on purpose: it runs before any human has reviewed the account, so an unknown role must grant the least access. Do not floor everyone at tier5 for convenience — that was the original behaviour and it silently made every Sliquid employee an admin, which now also means "can publish brand assets to the external ChatGPT agent". Tests cover the fallback.
+  ⚠️ Because the existing-user branch never changes a role, accounts provisioned **before** this fix are still tier5. Audit with `SELECT id, email, role FROM users WHERE sso_sub IS NOT NULL AND role = 'tier5'`.
 - Client entry point: dedicated `/employee-login` page (`EmployeeLoginPage.tsx`), linked from `LoginPage.tsx` (portal) and the B2B `PartnerLoginPage.tsx` ("Sliquid Employee Sign In" button → `${PORTAL_URL}/employee-login`). The button hits `${VITE_API_URL}/auth/google/login`. The post-login session arrives via the existing `#token=` hash handler in `AuthContext.tsx`.
 
 ### Products — `/api/products`
@@ -1199,13 +1204,95 @@ that reset leaves the `certificates` row intact and never touches another user's
 
 ---
 
+## Asset MCP Server — ChatGPT Brand Agent
+
+An MCP server mounted at **`/mcp`** inside the portal server lets the Sliquid Brand Agent (a
+ChatGPT workspace agent) retrieve approved product packshots. Full runbook in
+`docs/brand-agent/DEPLOYMENT.md`; the agent's instruction block is in
+`docs/brand-agent/AGENT-INSTRUCTIONS.md`.
+
+### Two OpenAI platform limits that shaped the design
+
+⛔ **ChatGPT MCP connectors cannot present an API key or a custom header.** Only *No Auth*,
+*OAuth 2.1*, or *Mixed* are supported — no client-credentials or service-account grants either.
+Anyone proposing an `x-api-key` for this is reading the GPT **Actions** docs, which are a
+different product surface. Do not "simplify" the OAuth layer into a shared secret; it will not work.
+
+⛔ **An MCP `{ type: "image" }` result renders as empty `{}` in ChatGPT** and never becomes
+model-visible. OpenAI confirmed this in Apr 2026 with no fix committed. Every tool result must
+therefore be fully understandable from `structuredContent` + text alone — the image block is a
+bonus for MCP Inspector and other clients. `create_product_composition` is the primary path for
+anything visual, not a fallback.
+
+### Security model
+The MCP router shares a process with `users.password_hash` and `cert_rewards` shipping addresses,
+so isolation is enforced in code:
+
+⚠️ **Audience binding is load-bearing.** The portal's employee SSO and this endpoint both trust
+the same issuer, so without an `aud` check (RFC 8707) a portal session token would be a valid MCP
+token. `requireMcpScope` verifies `aud` contains `MCP_RESOURCE_URI`. A mutation test proves the
+assertion isn't vacuous. **Never merge `requireMcpAuth` into `requireAuth`, never relax the
+audience check, and keep `MCP_SCOPES_SUPPORTED` in step with the scope the router enforces.**
+
+⚠️ `src/packshots.ts` gates every query on a parameterless private constant
+`HARD_FILTER = "m.type = 'packshot' AND m.approved = 1"`, so no argument can widen it, and it
+selects `file_url` / `users` / `cert_rewards` nowhere. Byte retrieval lives separately in
+`src/mcp/bytes.ts` and **fails closed** — a checksum mismatch or a null `sha256` returns no bytes.
+
+⚠️ Do not route the MCP principal anywhere near `GET /api/media/proxy-download` — it fetches an
+arbitrary caller-supplied URL server-side (an SSRF sink). It is behind `requireAuth`, so the MCP
+principal cannot reach it today. Keep it that way.
+
+⚠️ `/mcp` and `/.well-known` are deliberately **not** in `PUBLIC_PATHS` — that prefix matcher
+would clamp Allow-Methods to `GET, OPTIONS` and break the POST the protocol runs on. ChatGPT is
+server-to-server and sends no `Origin`, so it passes CORS already.
+
+### Tools (all `readOnlyHint: true`, `openWorldHint: false`)
+| Tool | Purpose |
+|---|---|
+| `search_packshots` | Resolve words to candidates. **Never auto-picks** — returns every matching size so the agent must ask. Reports discontinued status rather than "not found". |
+| `get_packshot` | Retrieve one asset by `asset_id`. Rejects anything not `active`. Verifies SHA-256 before returning bytes. |
+| `create_product_composition` | Composites the untouched packshot over a generated background via **sharp**. Product layer gets uniform scale + translation only — never recolor, warp, retouch, or redraw. Falls back to a solid/gradient background when `GEMINI_API_KEY` is unset. |
+
+⚠️ `compose.ts` alpha-trims the packshot before measuring (`threshold: 0`, which can only remove
+fully transparent pixels). Without it, the 1200×1200 transparent padding is measured as the
+product: `scale` sizes the canvas instead of the bottle and the reflection floats below the true
+bottom edge. Green tests did not catch this — a rendered visual check did.
+
+### Key files
+| Path | Purpose |
+|---|---|
+| `portal/server/src/mcp/server.ts` | `createMcpRouter()` — stateless Streamable HTTP, fresh `McpServer` + transport per POST (a shared instance collides request ids), 405 on GET/DELETE |
+| `portal/server/src/mcp/bytes.ts` | S3 fetch + SHA-256 verification, 20-entry LRU keyed on `s3_key + sha256` |
+| `portal/server/src/mcp/compose.ts` | sharp compositing; shadow/reflection drawn behind the product layer |
+| `portal/server/src/packshots.ts` | Read layer; `HARD_FILTER` approval gate; numeric size matching via `parseSize` |
+| `portal/server/src/middleware/mcpAuth.ts` | OAuth 2.1 resource server; audience binding; fails closed on misconfig (503) |
+| `portal/server/src/routes/wellKnown.ts` | RFC 9728 `/.well-known/oauth-protected-resource` |
+| `portal/server/src/mcpAudit.ts` | Structured audit lines; scrubs tokens/emails, never logs bytes |
+| `portal/server/scripts/import-packshots.ts` | Loads the reviewed catalog into `media`; always `approved = 0`; resets approval when `sha256` drifts |
+| `portal/server/scripts/packshot-data/` | Catalog generators + reviewed `served-catalog.json`. Images dir is gitignored |
+| `portal/client/src/components/PackshotApprovalPanel.tsx` | Admin publish gate, wired as a Media page tab |
+
+### Catalog
+70 served (64 active, 6 discontinued) of 75 collected 2025 packshots. **5 are withheld** pending
+brand-team identity calls — four Swirl 2 oz flavors have no SKU (the `products` table carries
+Swirl in 4.2 oz only) and `Spark Studio` matches no product row. A packshot served under a guessed
+identity is worse than a missing one.
+
+⚠️ The catalog builder distinguishes a **cosmetic** filename problem (double/trailing space —
+identity still certain) from an **identity** problem (no size, no match). Only the latter may
+withhold an asset. Conflating them silently withheld six live Organics SKUs.
+
+⚠️ Filename sizes are shorthand: `4z` → **4.2 oz**, `8z` → **8.5 oz**. There is no literal
+"4 oz" or "8 oz" SKU — same trap documented in `rewardOptions.ts`.
+
 ## Conventions
 
 - **Styling:** Tailwind only. Use the custom tokens (`bg-surface`, `bg-portal-bg`, `bg-surface-elevated`, `border-portal-border`, `text-portal-accent`) — do not use raw colors for structural elements.
 - **Icons:** `lucide-react` exclusively.
 - **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export), public pre-auth calls (e.g., `/api/stores` from RegisterPage), and the public certificate verify page use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **56**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **58**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
 - **`AnnouncementBody.tsx` is duplicated** in `src/components/` and `portal/client/src/components/`.

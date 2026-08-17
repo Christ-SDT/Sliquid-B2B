@@ -103,17 +103,24 @@ router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
   `).all() as Record<string, unknown>[]
 
   // Exclude media rows that were created from AI images but whose ai_images row
-  // has since been deleted (orphaned rows — S3 file is gone, nothing to show)
+  // has since been deleted (orphaned rows — S3 file is gone, nothing to show).
+  //
+  // Packshots are excluded too: they live on the dedicated Packshots tab, which
+  // is the only surface that shows their approval state. Left in the generic
+  // gallery they would be editable through PUT /item/media/:id, whose type field
+  // would silently rewrite type='packshot' and drop the row out of the agent
+  // catalog with no warning anywhere.
   const media = db.prepare(`
     SELECT id, 'media' as _source, label, brand, type,
            file_url, file_url as thumbnail_url, file_size, dimensions,
            s3_key, NULL as description, NULL as subtitle, NULL as campaign,
            mime_type, uploaded_by, created_at, asset_id
     FROM media
-    WHERE NOT (
-      s3_key LIKE 'ai-images/%'
-      AND NOT EXISTS (SELECT 1 FROM ai_images WHERE media_id = media.id)
-    )
+    WHERE COALESCE(type, '') != 'packshot'
+      AND NOT (
+        s3_key LIKE 'ai-images/%'
+        AND NOT EXISTS (SELECT 1 FROM ai_images WHERE media_id = media.id)
+      )
   `).all() as Record<string, unknown>[]
 
   const all = [...assets, ...creatives, ...marketing, ...ai, ...media]
@@ -124,6 +131,167 @@ router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
   })
 
   res.json(all)
+})
+
+// ─── Packshots — the admin approval gate for the MCP product-image catalog ───
+//
+// Packshots are `media` rows with type = 'packshot' plus the catalog columns
+// added in migration v56. `approved = 1` is what makes a row visible to the
+// Sliquid Brand Agent in ChatGPT (see packshots.ts `HARD_FILTER`), so these two
+// endpoints are a publish switch to an external AI agent, not a bookkeeping flag.
+//
+// Effective status uses COALESCE(packshot_status, 'active') — byte-for-byte the
+// same expression the read layer uses (packshots.ts `STATUS_SQL`). If this
+// diverged, the admin UI would claim a row is one thing while the agent is
+// served another.
+
+const PACKSHOT_STATUS_SQL = "COALESCE(m.packshot_status, 'active')"
+
+// Selects from `media` and `products` only. Never joins `users` or
+// `cert_rewards` — no column that could carry personal data belongs on a
+// surface whose whole job is deciding what an external agent may see.
+const PACKSHOT_SELECT = `
+  SELECT m.id, m.label, m.filename, m.brand, m.type,
+         m.file_url, m.file_url AS thumbnail_url, m.file_size, m.dimensions,
+         m.mime_type, m.s3_key, m.created_at,
+         m.sku, m.unit_size, m.package_version,
+         ${PACKSHOT_STATUS_SQL} AS packshot_status,
+         m.approved, m.sha256, m.asset_key,
+         m.approved_by, m.approved_at,
+         p.name     AS product_name,
+         p.category AS product_category,
+         p.brand    AS product_brand,
+         p.upc      AS product_upc
+  FROM media m
+  LEFT JOIN products p ON p.sku = m.sku
+`
+
+const VALID_PACKSHOT_STATUSES = ['active', 'discontinued', 'pending_approval']
+
+function getPackshotRow(id: number | bigint) {
+  return db
+    .prepare(`${PACKSHOT_SELECT} WHERE m.id = ? AND m.type = 'packshot'`)
+    .get(id) as Record<string, unknown> | undefined
+}
+
+function packshotCounts() {
+  return db.prepare(`
+    SELECT
+      COUNT(*) AS total,
+      SUM(CASE WHEN m.approved = 1 AND ${PACKSHOT_STATUS_SQL} = 'active'  THEN 1 ELSE 0 END) AS live,
+      SUM(CASE WHEN m.approved = 0 AND ${PACKSHOT_STATUS_SQL} <> 'discontinued' THEN 1 ELSE 0 END) AS awaiting,
+      SUM(CASE WHEN ${PACKSHOT_STATUS_SQL} = 'discontinued' THEN 1 ELSE 0 END) AS discontinued,
+      SUM(CASE WHEN m.approved = 1 AND ${PACKSHOT_STATUS_SQL} <> 'active' THEN 1 ELSE 0 END) AS approved_not_active
+    FROM media m WHERE m.type = 'packshot'
+  `).get() as Record<string, number>
+}
+
+// ─── GET /packshots — list packshots for the approval queue ──────────────────
+
+router.get('/packshots', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const { status, approved, search } = req.query as {
+    status?: string; approved?: string; search?: string
+  }
+
+  const where: string[] = ["m.type = 'packshot'"]
+  const params: unknown[] = []
+
+  if (status && status !== 'all') {
+    if (!VALID_PACKSHOT_STATUSES.includes(status)) {
+      res.status(400).json({ message: `Unknown status: ${status}` }); return
+    }
+    where.push(`${PACKSHOT_STATUS_SQL} = ?`)
+    params.push(status)
+  }
+
+  if (approved && approved !== 'all') {
+    const wantApproved = approved === 'true' || approved === '1'
+    where.push('m.approved = ?')
+    params.push(wantApproved ? 1 : 0)
+  }
+
+  if (search && search.trim()) {
+    const q = `%${search.trim().toLowerCase()}%`
+    where.push(`(
+      LOWER(COALESCE(p.name, ''))     LIKE ? OR
+      LOWER(COALESCE(m.label, ''))    LIKE ? OR
+      LOWER(COALESCE(m.sku, ''))      LIKE ? OR
+      LOWER(COALESCE(m.filename, '')) LIKE ? OR
+      LOWER(COALESCE(m.asset_key,'')) LIKE ?
+    )`)
+    params.push(q, q, q, q, q)
+  }
+
+  try {
+    const rows = db.prepare(`
+      ${PACKSHOT_SELECT}
+      WHERE ${where.join(' AND ')}
+      ORDER BY m.approved ASC, COALESCE(p.name, m.label, m.filename) COLLATE NOCASE ASC
+    `).all(...params) as Record<string, unknown>[]
+
+    // Counts are deliberately computed over the FULL packshot set, not the
+    // filtered one — the summary header must always answer "how much is live to
+    // the agent right now", which a search box should not be able to change.
+    res.json({ items: rows, count: rows.length, counts: packshotCounts() })
+  } catch (err: any) {
+    console.error('[media] packshots list error:', err)
+    res.status(500).json({ message: err.message ?? 'Failed to load packshots' })
+  }
+})
+
+// ─── PUT /packshots/:id/approved — the publish switch ────────────────────────
+
+router.put('/packshots/:id/approved', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ message: 'Invalid id' }); return
+  }
+
+  const { approved } = req.body ?? {}
+  if (typeof approved !== 'boolean') {
+    res.status(400).json({ message: 'approved must be a boolean' }); return
+  }
+
+  const row = getPackshotRow(id)
+  if (!row) { res.status(404).json({ message: 'Packshot not found' }); return }
+
+  // Guards apply to approving only. Un-approving is always allowed: pulling an
+  // asset back from the agent must never be blocked by the state of the row.
+  if (approved) {
+    const effectiveStatus = row.packshot_status as string
+    if (effectiveStatus !== 'active') {
+      res.status(400).json({
+        message: `Cannot approve a ${effectiveStatus} packshot. Only active packshots may be served to the Brand Agent.`,
+      })
+      return
+    }
+    if (!row.sha256) {
+      res.status(400).json({
+        message: 'Cannot approve a packshot with no sha256 — the file contents are unverifiable. Re-run the import to hash it.',
+      })
+      return
+    }
+    if (!row.asset_key) {
+      res.status(400).json({
+        message: 'Cannot approve a packshot with no asset_key — the agent would have no stable way to address it. Re-run the import to assign one.',
+      })
+      return
+    }
+  }
+
+  try {
+    // Record the actor on both directions. A revoke is as much a decision as a
+    // publish, and knowing who pulled an asset back matters just as much.
+    db.prepare(`
+      UPDATE media
+         SET approved = ?, approved_by = ?, approved_at = datetime('now')
+       WHERE id = ? AND type = 'packshot'
+    `).run(approved ? 1 : 0, req.user!.email, id)
+    res.json({ item: getPackshotRow(id), counts: packshotCounts() })
+  } catch (err: any) {
+    console.error('[media] packshot approve error:', err)
+    res.status(500).json({ message: err.message ?? 'Failed to update approval' })
+  }
 })
 
 // ─── POST /upload — upload standalone media to S3 ────────────────────────────
@@ -300,6 +468,16 @@ router.put('/item/:source/:id', requireAuth, requireRole('tier5', 'admin'), (req
     }
 
     if (source === 'media') {
+      // This handler writes `type`, and `type = 'packshot'` is half of what
+      // makes a row part of the agent catalog. Letting a packshot through here
+      // means a stray edit silently drops it out of the catalog — or, worse,
+      // stamps type='packshot' onto an arbitrary media row. Packshots are
+      // managed only through /packshots, which understands the approval gate.
+      const current = db.prepare('SELECT type FROM media WHERE id = ?').get(id) as any
+      if (current?.type === 'packshot' || b.type === 'packshot') {
+        res.status(400).json({ message: 'Packshots are managed from the Packshots tab, not the media editor' })
+        return
+      }
       const result = db.prepare(
         'UPDATE media SET label=?, brand=?, type=? WHERE id=?'
       ).run(b.label ?? null, b.brand ?? 'Sliquid', b.type ?? null, id)

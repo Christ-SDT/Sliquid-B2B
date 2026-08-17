@@ -1160,6 +1160,61 @@ const migrations: Migration[] = [
       );
     `),
   },
+  {
+    version: 56,
+    name: 'packshot_catalog_columns',
+    // Packshot catalog served over MCP. Packshot rows live in the existing
+    // `media` table under type = 'packshot'; these columns carry the catalog
+    // metadata the agent searches on.
+    //
+    // `approved` is the gate: 0 means the row is NEVER served, not even by an
+    // exact asset_key lookup. Default 0 so a freshly-ingested packshot is
+    // invisible until an admin approves it.
+    //
+    // `sku` is nullable on purpose — discontinued items have no products row,
+    // so the enrichment LEFT JOIN must tolerate a null.
+    up: () => {
+      const cols = (
+        db.prepare("SELECT name FROM pragma_table_info('media')").all() as { name: string }[]
+      ).map(c => c.name)
+      const add = (col: string, def: string) => {
+        if (!cols.includes(col)) db.exec(`ALTER TABLE media ADD COLUMN ${col} ${def}`)
+      }
+      add('sku',             'TEXT')
+      add('unit_size',       'TEXT')
+      add('package_version', 'TEXT')
+      add('packshot_status', 'TEXT')
+      add('approved',        'INTEGER NOT NULL DEFAULT 0')
+      add('sha256',          'TEXT')
+      add('asset_key',       'TEXT')
+
+      // Partial UNIQUE index: asset_key is the stable public identifier handed
+      // to the agent, but only packshot rows have one — non-packshot media rows
+      // all hold NULL and must not collide with each other.
+      db.exec(`
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_media_asset_key
+          ON media(asset_key) WHERE asset_key IS NOT NULL;
+        CREATE INDEX IF NOT EXISTS idx_media_packshot_lookup
+          ON media(approved, packshot_status);
+      `)
+    },
+  },
+  {
+    version: 57,
+    name: 'packshot_approval_audit',
+    up: () => {
+      // `approved` publishes an asset to an external ChatGPT agent. "Who turned this
+      // on, and when" is the first question anyone asks after an incident, and
+      // without these columns it is unanswerable — the flag alone records only the
+      // end state, never the actor.
+      const cols = (db.prepare(`SELECT name FROM pragma_table_info('media')`).all() as { name: string }[]).map(c => c.name)
+      const add = (col: string, def: string) => {
+        if (!cols.includes(col)) db.exec(`ALTER TABLE media ADD COLUMN ${col} ${def}`)
+      }
+      add('approved_by', 'TEXT')
+      add('approved_at', 'TEXT')
+    },
+  },
 ]
 
 function runMigrations(): void {

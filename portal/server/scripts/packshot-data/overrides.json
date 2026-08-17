@@ -1,0 +1,69 @@
+{
+  "_doc": [
+    "Human-reviewed decisions that the filename parser and the SKU matcher could not make on their own.",
+    "Each entry records WHY, because status and identity are approval decisions, not inferences.",
+    "`sku: null` means: no matching row exists in the products table. That is a finding, not a failure.",
+    "Anything still marked unresolved MUST be settled by the brand team before it can be served."
+  ],
+
+  "resolved": {
+    "Balance Soak Cherry Blossom.png":   { "sku": "056", "size": "8.5 oz", "status": "active",       "why": "products table lists Balance Soak (Cherry Blossom) at exactly one size, 8.5 oz; handoff names it an active Soak item" },
+    "Balance Soak Coconut Papaya.png":   { "sku": "929", "size": "8.5 oz", "status": "active",       "why": "products table lists Balance Soak (Coconut Papaya) at exactly one size, 8.5 oz; handoff names it an active Soak item" },
+    "Balance Soak Green Tea.png":        { "sku": null,  "size": "8.5 oz", "status": "discontinued", "why": "no Green Tea row in products table; handoff states only Cherry Blossom and Coconut Papaya are active Soak items" },
+    "Balance Soak limoncello.png":       { "sku": null,  "size": "8.5 oz", "status": "discontinued", "why": "no Limoncello row in products table; handoff states only Cherry Blossom and Coconut Papaya are active Soak items" },
+
+    "Massage Citrus Neroli 1.png":       { "sku": "079", "size": "8.5 oz", "status": "active", "why": "Balance Massage (Citrus Neroli) exists at exactly one size, 8.5 oz" },
+    "Massage Mint Cedar 1.png":          { "sku": "078", "size": "8.5 oz", "status": "active", "why": "Balance Massage (Mint & Cedar) exists at exactly one size, 8.5 oz" },
+    "Massage Unscented 1.png":           { "sku": "069", "size": "8.5 oz", "status": "active", "why": "Balance Massage (Unscented) exists at exactly one size, 8.5 oz" },
+
+    "Soothe Mandarin Bergamot 2025 .png":{ "sku": "074", "size": "8.5 oz", "status": "active", "why": "Balance Soothe (Mandarin Bergamot) exists at exactly one size, 8.5 oz" },
+    "Soothe Sweet Coconut 2025 .png":    { "sku": "075", "size": "8.5 oz", "status": "active", "why": "Balance Soothe (Sweet Coconut) exists at exactly one size, 8.5 oz" },
+
+    "Splash Grapefruit Thyme 2025.png":  { "sku": "029", "size": "8.5 oz", "status": "active", "why": "Balance Splash (Grapefruit Thyme) exists at exactly one size, 8.5 oz" },
+    "Splash Honeydew Cucumber 2025.png": { "sku": "028", "size": "8.5 oz", "status": "active", "why": "Balance Splash (Honeydew Cucumber) exists at exactly one size, 8.5 oz" },
+    "Splash Mango Passion 2025.png":     { "sku": "050", "size": "8.5 oz", "status": "active", "why": "Balance Splash (Mango Passion) exists at exactly one size, 8.5 oz" },
+    "Splash Unscented 2025.png":         { "sku": "024", "size": "8.5 oz", "status": "active", "why": "Balance Splash (Unscented) exists at exactly one size, 8.5 oz" },
+
+    "Silk 2z 2025.png":                  { "sku": "999", "size": "2 oz",   "status": "active", "why": "shipped in the Naturals collection ZIP, so this is Naturals Silk, not the discontinued Organics Silk" },
+    "Silk 4z 2025.png":                  { "sku": "009", "size": "4.2 oz", "status": "active", "why": "shipped in the Naturals collection ZIP, so this is Naturals Silk, not the discontinued Organics Silk" },
+    "Silk 8z 2025.png":                  { "sku": "019", "size": "8.5 oz", "status": "active", "why": "shipped in the Naturals collection ZIP, so this is Naturals Silk, not the discontinued Organics Silk" },
+
+    "Sliquid Shine.png":                 { "sku": "032", "size": "8.5 oz", "status": "active", "why": "Shine Toy Cleaner ships in 8.5 oz and 2 oz; the sibling file is explicitly named 2oz, so the unqualified file is the 8.5 oz" },
+    "Sliquid Shine 2oz.png":             { "sku": "033", "size": "2 oz",   "status": "active", "why": "explicitly sized in the filename; matches Shine Toy Cleaner 2 oz" },
+
+    "T Lube 4z 2025.png":                { "sku": "040", "size": "4.2 oz", "status": "active",       "why": "Buck Angel's T-Lube 4.2 oz; the SKU collision with T Stim was a matcher artifact, T Stim has no products row" },
+    "T Wash 8z 2025.png":                { "sku": "051", "size": "8.5 oz", "status": "active",       "why": "Buck Angel's T-Wash exists at exactly one size, 8.5 oz" },
+    "T Stim 4z 2025.png":                { "sku": null,  "size": "4.2 oz", "status": "discontinued", "why": "no T Stim row in products table; handoff explicitly lists T Stim as discontinued" },
+
+    "Organics Silk 2z 2025.png":         { "sku": "099", "size": "2 oz",   "status": "discontinued", "why": "handoff explicitly lists Organics Silk as discontinued" },
+    "Organics Silk 4z 2025.png":         { "sku": "044", "size": "4.2 oz", "status": "discontinued", "why": "handoff explicitly lists Organics Silk as discontinued" },
+    "Organics Silk 8z 2025.png":         { "sku": "048", "size": "8.5 oz", "status": "discontinued", "why": "handoff explicitly lists Organics Silk as discontinued" },
+
+    "Soul 2oz 2 2025.png":               { "sku": "991", "size": "2 oz",   "status": "active", "why": "Sliquid Soul exists at exactly one size, 2.0 oz; trailing 2 is a shot index, not a size" }
+  },
+
+  "unresolved": {
+    "_doc": "Blocked on the brand team. These are NOT served until a decision is recorded above.",
+
+    "Spark Studio 2025.png": {
+      "question": "Which product is this? No 'Spark Studio' row exists. Candidates: Studio Collection - Silver (SKU 084, 3.4 oz), or a Studio-size Naturals Spark.",
+      "blocking": "product identity and size"
+    },
+    "Swirl Blue Rasberry 2z 2025.png": {
+      "question": "Products table has Swirl flavors in 4.2 oz only. Is there a 2 oz Swirl SKU missing from the catalog, or is this packshot for a size that was never released?",
+      "blocking": "SKU existence"
+    },
+    "Swirl Green Apple 2z 2025.png": {
+      "question": "Products table has Swirl flavors in 4.2 oz only. Is there a 2 oz Swirl SKU missing from the catalog, or is this packshot for a size that was never released?",
+      "blocking": "SKU existence"
+    },
+    "Swirl Tangerine peach 2z 2025.png": {
+      "question": "Products table has Swirl flavors in 4.2 oz only. Is there a 2 oz Swirl SKU missing from the catalog, or is this packshot for a size that was never released?",
+      "blocking": "SKU existence"
+    },
+    "Swirl Trawberry Pomegranate 2z 2025.png": {
+      "question": "Products table has Swirl flavors in 4.2 oz only. Is there a 2 oz Swirl SKU missing from the catalog, or is this packshot for a size that was never released? Filename also misspells Strawberry.",
+      "blocking": "SKU existence"
+    }
+  }
+}

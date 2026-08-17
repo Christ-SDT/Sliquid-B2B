@@ -1,0 +1,15 @@
+{
+  // The root tsconfig only includes `src`, so ops scripts would otherwise never
+  // be typechecked. Run:  npx tsc --noEmit -p scripts/tsconfig.json
+  //
+  // This also pulls in the `src` files the scripts import, so unrelated errors
+  // being worked on elsewhere in src/ can surface here too.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "..",
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["packshot-data"]
+}

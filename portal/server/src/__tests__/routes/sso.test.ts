@@ -3,7 +3,7 @@ import request from 'supertest'
 import bcrypt from 'bcryptjs'
 import { app } from '../../app.js'
 import { db, resetDb, seedUser } from '../helpers/db.js'
-import { upsertSsoUser } from '../../routes/sso.js'
+import { upsertSsoUser, ssoRoleToTier } from '../../routes/sso.js'
 
 beforeEach(() => resetDb())
 afterAll(() => db.close())
@@ -15,10 +15,31 @@ describe('migration v50 add_sso_sub', () => {
   })
 })
 
+describe('ssoRoleToTier', () => {
+  it('maps the admin claim to tier5', () => {
+    expect(ssoRoleToTier('admin')).toBe('tier5')
+    expect(ssoRoleToTier('Admin')).toBe('tier5')
+    expect(ssoRoleToTier('  admin  ')).toBe('tier5')
+  })
+
+  it('maps employees to tier1', () => {
+    expect(ssoRoleToTier('employee')).toBe('tier1')
+  })
+
+  it('falls back to tier1 for an absent or unrecognized role, never tier5', () => {
+    // Least privilege: nobody has reviewed the account at this point, so an
+    // unknown IdP role must not mint an admin.
+    expect(ssoRoleToTier(undefined)).toBe('tier1')
+    expect(ssoRoleToTier('')).toBe('tier1')
+    expect(ssoRoleToTier('sliquid_super_admin')).toBe('tier1') // granular role, not the coarse claim
+    expect(ssoRoleToTier('administrator')).toBe('tier1')
+  })
+})
+
 describe('upsertSsoUser', () => {
-  it('creates a new active tier5 user with sso_sub and an unusable password', () => {
+  it('creates a new active tier1 user with sso_sub and an unusable password', () => {
     const user = upsertSsoUser({ email: 'New.Employee@sliquid.com', name: 'New Employee', sub: 'sso-abc', role: 'employee' })
-    expect(user.role).toBe('tier5')
+    expect(user.role).toBe('tier1')
     expect(user.status).toBe('active')
 
     const row = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id) as any
@@ -28,6 +49,23 @@ describe('upsertSsoUser', () => {
     // Password hash exists but no real password matches it → password login impossible
     expect(row.password_hash).toBeTruthy()
     expect(bcrypt.compareSync('', row.password_hash)).toBe(false)
+    // The row itself, not just the return value — the INSERT is what grants access.
+    expect(row.role).toBe('tier1')
+  })
+
+  it('provisions an admin claim as tier5', () => {
+    const user = upsertSsoUser({ email: 'it@sliquid.com', name: 'IT', sub: 'sso-admin', role: 'admin' })
+    expect(user.role).toBe('tier5')
+    const row = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id) as any
+    expect(row.role).toBe('tier5')
+  })
+
+  it('provisions tier1 when the role claim is missing entirely', () => {
+    // A token with no role claim must not silently become an admin.
+    const user = upsertSsoUser({ email: 'noclaim@sliquid.com', name: 'No Claim', sub: 'sso-none' })
+    expect(user.role).toBe('tier1')
+    const row = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id) as any
+    expect(row.role).toBe('tier1')
   })
 
   it('links an existing user without changing their role (never downgrade)', () => {

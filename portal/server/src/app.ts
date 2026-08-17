@@ -35,6 +35,8 @@ import productShotsRouter from './routes/product-shots.js'
 import b2bFormsRouter from './routes/b2b-forms.js'
 import gdprRouter from './routes/gdpr.js'
 import announcementsRouter from './routes/announcements.js'
+import wellKnownRouter from './routes/wellKnown.js'
+import { createMcpRouter } from './mcp/server.js'
 
 const app = express()
 
@@ -112,6 +114,21 @@ app.use('/api/b2b', b2bFormsRouter)
 app.use('/api/gdpr', gdprRouter)
 app.use('/api/announcements', announcementsRouter)
 app.use('/api/logs', logsRouter)
+
+// ─── MCP ──────────────────────────────────────────────────────────────────────
+//
+// Deliberately NOT added to PUBLIC_PATHS. See the comment above that array: it
+// is a PREFIX matcher, so an entry like '/mcp' would blanket every route under
+// it with `Access-Control-Allow-Origin: *` and the hardcoded 'GET, OPTIONS'
+// Allow-Methods — which would simultaneously open the endpoint to any browser
+// origin AND break the POST the protocol actually runs on.
+//
+// Neither router needs it. ChatGPT talks to /mcp server-to-server and sends no
+// Origin header, and the CORS middleware above already passes originless
+// requests through (`if (!origin) callback(null, true)`). Access is gated by
+// requireMcpScope inside the router, not by CORS.
+app.use('/.well-known', wellKnownRouter)
+app.use('/mcp', createMcpRouter())
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))
 

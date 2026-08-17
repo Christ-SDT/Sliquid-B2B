@@ -41,3 +41,13 @@ portal/data/*.bak
 *.webm
 *.avi
 *.m4v
+
+# Packshot source images — ~52 MB of PNGs staged locally for
+# scripts/import-packshots.ts, which uploads them to S3. The canonical copy is
+# S3, not git. The JSON catalog and the generator scripts alongside them ARE
+# tracked: those are the reviewed metadata and must stay in version control.
+portal/server/scripts/packshot-data/images/
+
+# Local canvas/editor state for the nodeterm tool — per-machine window layout,
+# not project source.
+.nodeterm/
