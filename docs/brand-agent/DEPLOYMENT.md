@@ -61,15 +61,48 @@ separately whether packshot approval deserves a narrower gate than blanket tier5
 
 ## 2. Pre-flight: two things to verify before going live
 
-**S3 objects are currently world-readable.** Media `file_url` values are plain
-`https://<bucket>.s3.<region>.amazonaws.com/<key>` URLs — no ACLs, no presigning, no CloudFront
-anywhere in the codebase. Anyone with a URL can fetch the bytes without credentials.
+### ⛔ BLOCKER: the IAM user cannot read from S3
 
-This predates the MCP work and the MCP tools return bytes inline rather than URLs, so it is not
-introduced here. But it means access control today gates *discovery*, not *access*. Before
-treating approval as a real boundary, confirm what the bucket policy actually is. If packshots
-should not be publicly fetchable, put them under a prefix with Block Public Access on — the MCP
-server reads via the SDK and does not need them public.
+**Verified against production on 2026-08-17.** The IAM user the portal runs as —
+`arn:aws:iam::034527724284:user/sliquid-portal-s3` — has `s3:PutObject` but **not `s3:GetObject`
+and not `s3:ListBucket`** on `sliquid-ai-creator`:
+
+| Call | Result |
+|---|---|
+| `PutObject` | ✅ works — all 70 packshots uploaded |
+| `HeadObject` | ❌ 403 (surfaces as an unhelpful `UnknownError`) |
+| `GetObject` | ❌ 403 `AccessDenied` — *not authorized to perform: s3:GetObject* |
+| `ListObjectsV2` | ❌ 403 `AccessDenied` |
+
+`src/mcp/bytes.ts` reads packshot bytes with `GetObjectCommand`, so **`get_packshot` and
+`create_product_composition` will fail at runtime until this is granted.** `search_packshots`
+is unaffected — it never touches S3.
+
+This also means `--verify-objects` cannot be used, and it explains why the existing
+`GET /api/product-shots/:id/download` endpoint (same `GetObjectCommand` pattern) has never
+worked. This is a latent pre-existing bug, not something the MCP work introduced.
+
+**The fix:** add `s3:GetObject` for at least `arn:aws:s3:::sliquid-ai-creator/packshots/*` to that
+user's policy — `s3:ListBucket` too if you want `--verify-objects`. Granting it bucket-wide also
+repairs the product-shots download.
+
+Do **not** work around this by having the MCP server fetch the public HTTPS URL instead. It would
+work today (see below) but silently makes the whole retrieval path depend on the bucket staying
+public, which is the opposite of where this should end up — and it would hide the
+misconfiguration rather than surface it.
+
+### S3 objects are currently world-readable
+
+Media `file_url` values are plain `https://<bucket>.s3.<region>.amazonaws.com/<key>` URLs — no
+ACLs, no presigning, no CloudFront anywhere in the codebase. Confirmed live: the uploaded
+packshots return `200` to an anonymous `curl`. So the bucket is readable by anyone with a URL
+even though the *IAM user* cannot read it — reads happen over public HTTP, writes over IAM.
+
+This predates the MCP work, and the MCP tools return bytes inline rather than URLs, so nothing
+here makes it worse. But it means access control today gates *discovery*, not *access*, and
+"approved" is not a real boundary on the bytes. If packshots should not be publicly fetchable,
+put them under a prefix with Block Public Access on — which makes the `s3:GetObject` grant above
+mandatory rather than merely correct.
 
 **Confirm the ChatGPT workspace tier.** OpenAI's own docs disagree on which plans get full MCP
 connector support. Business/Enterprise/Edu get read and write; Pro is documented as read/fetch
