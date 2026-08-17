@@ -227,8 +227,7 @@ gradient background instead of a generated one, and still composites correctly.
 
 ## 5. Load the packshots
 
-⚠️ **This cannot be run as written against production yet.** The import needs three things that
-do not currently exist in one place:
+The import needs three things that never exist in one place:
 
 | Needs | Only available |
 |---|---|
@@ -236,24 +235,33 @@ do not currently exist in one place:
 | S3 credentials | Railway env (obtainable locally via `railway run`) |
 | the SQLite DB | **on Railway** — `DB_PATH=/data/portal.db`, a mounted volume with no network access |
 
-And the container cannot run it either: `Dockerfile` copies only `src`, never `scripts/`, and
-`npm prune --omit=dev` strips `tsx`.
-
-So it has to be split. The intended shape:
-
-1. **Upload locally** — `railway run npx tsx scripts/import-packshots.ts --upload-only`, which
-   injects the production S3 credentials without touching the DB.
-2. **Insert rows on Railway** — needs the catalog JSON (~50 KB, committed) and an entry point
-   readable inside the container. The cheap fix is to put the catalog under `src/assets/` (already
-   copied to `dist/` by the existing `cp -r src/assets dist/`) and add a compiled
-   `src/scripts/importPackshots.ts`, then `railway ssh node dist/scripts/importPackshots.js --yes`.
-
-Locally, against a local DB, the current script works as documented:
+So the run is **split into two phases**, and the implementation lives at
+`portal/server/src/scripts/importPackshots.ts` — under `src/` so `tsc` compiles it to
+`dist/scripts/importPackshots.js` and it runs on plain `node` inside the container. (A file under
+`scripts/` cannot run there at all: the `Dockerfile` copies only `src`, and
+`npm prune --omit=dev` strips `tsx`.) The catalog rides along at
+`src/assets/packshot-catalog.json`, which the existing `cp -r src/assets dist/` already ships.
 
 ```bash
 cd portal/server
-npx tsx scripts/import-packshots.ts --dry-run     # always first
-npx tsx scripts/import-packshots.ts --yes
+
+# phase 1 — locally, production S3 creds injected, the DB is never opened
+railway run npx tsx src/scripts/importPackshots.ts --upload-only --dry-run
+railway run npx tsx src/scripts/importPackshots.ts --upload-only --yes
+
+# phase 2 — inside the container, where the volume DB lives
+railway ssh node dist/scripts/importPackshots.js --db-only --verify-objects --yes
+```
+
+`--verify-objects` `HeadObject`s all 70 keys before writing anything, so a `media` row can never
+point at an object phase 1 failed to upload — the two phases run on different machines and that is
+otherwise unknowable.
+
+Locally, against a local DB, pass neither phase flag and both run back to back:
+
+```bash
+npx tsx src/scripts/importPackshots.ts --dry-run     # always first
+npx tsx src/scripts/importPackshots.ts --yes
 ```
 
 Uploads to `packshots/2025/` and inserts 70 `media` rows with `approved = 0`, after re-verifying

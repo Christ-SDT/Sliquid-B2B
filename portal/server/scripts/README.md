@@ -1,6 +1,6 @@
 # Ops scripts
 
-## `import-packshots.ts`
+## `importPackshots` — `src/scripts/importPackshots.ts`
 
 Loads the reviewed 2025 product packshots into the portal's `media` table so the
 MCP product-image tools (`src/packshots.ts`) can serve them.
@@ -9,72 +9,147 @@ It uploads each PNG to S3 and upserts one `media` row per packshot. **Every row 
 written unapproved.** Approval is a human action taken in the portal Media page —
 this script never approves anything.
 
+> The implementation lives under **`src/`**, not in this directory. See
+> [Why it lives under `src/`](#why-it-lives-under-src). This directory keeps the
+> catalog-authoring workspace (`packshot-data/`) and this README.
+
+---
+
+### The three-way problem, and the two-phase answer
+
+The import needs three things that never coexist in one place:
+
+| Needs | Only exists |
+|---|---|
+| the 75 PNG masters | **locally** — `scripts/packshot-data/images/`, 52 MB, gitignored |
+| S3 credentials | **Railway env** (injectable locally with `railway run`) |
+| the SQLite database | **Railway volume only** — `DB_PATH=/data/portal.db`, no network access |
+
+So the run is split. Phase 1 runs on a workstation, which has the bytes. Phase 2
+runs *inside the container*, which is the only place the database is reachable.
+
+```bash
+cd portal/server
+
+# phase 1 — locally, S3 creds injected from Railway, no DB touched
+railway run npx tsx src/scripts/importPackshots.ts --upload-only --dry-run
+railway run npx tsx src/scripts/importPackshots.ts --upload-only --yes
+
+# phase 2 — inside the container, where the volume DB lives
+railway ssh node dist/scripts/importPackshots.js --db-only --verify-objects --yes
+```
+
+`--verify-objects` is what makes the split safe: the two phases run from
+different machines, so the DB phase cannot otherwise know that phase 1 landed. It
+`HeadObject`s every key first and aborts — writing nothing — if any is absent, so
+a `media` row can never point at a missing object.
+
+For a **local end-to-end** run (images *and* a local DB both present), pass
+neither flag and both phases run back to back:
+
+```bash
+npx tsx src/scripts/importPackshots.ts --dry-run
+npx tsx src/scripts/importPackshots.ts --yes
+```
+
+#### Why it lives under `src/`
+
+Phase 2 has to execute inside the container, and the container cannot run
+anything in `scripts/`: the `Dockerfile` copies only `src`, and
+`npm prune --omit=dev` strips `tsx`. Under `src/` the script is compiled by `tsc`
+into `dist/scripts/importPackshots.js` and runs on plain `node` — **zero
+Dockerfile changes**, because:
+
+- `tsconfig.json` has `rootDir: src` / `outDir: dist`, so `src/scripts/*.ts` →
+  `dist/scripts/*.js` automatically;
+- the Dockerfile already ends its build step with `cp -r src/assets dist/`, so
+  the catalog placed at **`src/assets/packshot-catalog.json`** lands at
+  `dist/assets/packshot-catalog.json`.
+
+The relative path from the script to the catalog is
+`../assets/packshot-catalog.json` in **both** layouts (`src/scripts` → `src/assets`,
+`dist/scripts` → `dist/assets`), so one expression serves local `tsx` and
+containerised `node` alike.
+
+#### The DB import is lazy, and must stay that way
+
+`src/database.ts` opens the database **and runs migrations at import time**.
+`railway run` injects `DB_PATH=/data/portal.db`, which does not exist on a laptop.
+A top-level `import … from '../database.js'` would therefore make `--upload-only`
+crash under exactly the command it exists to serve.
+
+The script reaches it only through `await import('../database.js')` inside the DB
+phase. If you refactor, keep it that way; the regression is:
+
+```bash
+DB_PATH=/data/portal.db npx tsx src/scripts/importPackshots.ts --upload-only --dry-run
+# must succeed, exit 0
+```
+
+Symmetrically, `--db-only` never stats or reads the images directory — it does
+not exist in the container.
+
 ---
 
 ### Prerequisites
 
-| Requirement | Notes |
-|---|---|
-| Node + deps installed | `cd portal/server && npm install` |
-| Migration **v56** applied | Adds `sku`, `unit_size`, `package_version`, `packshot_status`, `approved`, `sha256`, `asset_key` to `media`. Start the server once against the target DB to apply pending migrations. The script refuses a live run if these columns are absent. |
-| The 75 PNGs staged on disk | See [Where the images live](#where-the-images-live). |
-| S3 credentials | See below. |
+| Requirement | Phase | Notes |
+|---|---|---|
+| Node + deps installed | 1 | `cd portal/server && npm install` |
+| Migrations **v56 + v57** applied | 2 | v56 adds `sku`, `unit_size`, `package_version`, `packshot_status`, `approved`, `sha256`, `asset_key`; v57 adds `approved_by`, `approved_at`. The server applies them on boot, so a deployed container is already migrated. The script refuses a live DB phase if any are absent. |
+| The 75 PNGs staged on disk | 1 | See [Where the images live](#where-the-images-live). |
+| S3 credentials | 1, and 2 with `--verify-objects` | See below. |
 
 ### Environment variables
 
-Read from `portal/server/.env` (via `dotenv`) or the shell.
+Read from `portal/server/.env` (via `dotenv`) or the shell. Real environment
+variables win over `.env`, which is what makes `railway run` work.
 
 | Variable | Required | Notes |
 |---|---|---|
-| `S3_BUCKET` | **yes** | Also required with `--skip-upload` — it is baked into the `file_url` on every row. |
-| `AWS_ACCESS_KEY_ID` | yes | Not needed with `--skip-upload`. |
-| `AWS_SECRET_ACCESS_KEY` | yes | Not needed with `--skip-upload`. |
-| `AWS_REGION` | no | Defaults to `us-east-1`. |
-| `DB_PATH` | no | Defaults to `./data/portal.db`. Point this at the production volume path when running against prod. |
+| `S3_BUCKET` | **both phases** | Phase 1 PUTs into it; phase 2 bakes it into the `file_url` on every row. |
+| `AWS_ACCESS_KEY_ID` | phase 1; phase 2 only with `--verify-objects` | |
+| `AWS_SECRET_ACCESS_KEY` | phase 1; phase 2 only with `--verify-objects` | |
+| `AWS_REGION` | no | Defaults to `us-east-1`. Also part of `file_url`. |
+| `DB_PATH` | phase 2 | Defaults to `./data/portal.db`. In the container it is `/data/portal.db`. Ignored entirely by `--upload-only`. |
+| `PACKSHOT_IMAGES_DIR` | no | Overrides where the PNG masters are read from. Defaults to `portal/server/scripts/packshot-data/images`. Phase 1 only. |
 
-A live run **aborts** if the S3 variables are missing. A dry run continues and
-tells you it would have been refused, so the plan is still reviewable on a
-machine with no credentials.
+A live run **aborts** if the S3 variables it needs are missing. A dry run
+continues and tells you it would have been refused, so the plan is still
+reviewable on a machine with no credentials.
 
 ---
 
-### 1. Dry run first — always
+### Dry run first — always
 
-```bash
-cd portal/server
-npx tsx scripts/import-packshots.ts --dry-run
-```
+Every mode supports `--dry-run`, and it is also the default whenever `--yes` is
+absent. `--yes` is the only thing that permits a write.
 
-Touches nothing: no S3 calls, no database writes (it opens the DB **read-only**
-purely to confirm the v56 columns exist). It prints:
+A dry run touches nothing: no S3 PUT, no database write (it opens the DB
+**read-only**, purely to confirm the packshot columns exist — and only in a DB
+phase). It prints:
 
-- the SHA-256 verification result for all 70 served files,
+- the SHA-256 verification result for all 70 served files (phase 1),
 - the full planned action list — display name, SKU, status, and target S3 key,
+- with `--verify-objects`, the presence check against the bucket (a read, so it
+  runs in a dry run too — the cheapest way to confirm phase 1 landed),
 - a status breakdown table,
 - the withheld items and why they are blocked.
 
 Read the plan. Confirm the S3 keys and the row count look right.
 
-### 2. Run it for real
+### What a live run does
 
-```bash
-npx tsx scripts/import-packshots.ts --yes
-```
-
-`--yes` is the only thing that permits writes. Without it, the run is a dry run
-regardless of whether you passed `--dry-run`.
-
-The script:
-
-1. Re-verifies **every** file's SHA-256 against the catalog. Any mismatch aborts
-   the entire run, naming the file — nothing is uploaded.
-2. Uploads all 70 PNGs to `packshots/2025/<slug>.png` (5 at a time). If any
-   upload fails, it aborts *before* writing a single database row.
-3. Upserts the `media` rows in one transaction, keyed on `asset_key`.
+1. **Phase 1** re-verifies **every** file's SHA-256 against the catalog. Any
+   mismatch aborts the entire run, naming the file — nothing is uploaded. Then it
+   uploads all 70 PNGs to `packshots/2025/<slug>.png`, 5 at a time. If any upload
+   fails it aborts before the DB phase.
+2. **Phase 2** optionally `HeadObject`s all 70 keys (`--verify-objects`), then
+   upserts the `media` rows in one transaction, keyed on `asset_key`.
 
 It is **idempotent**. Re-running updates in place and never duplicates.
 
-### 3. After the run — approve them
+### After the run — approve them
 
 Imported rows are invisible to the MCP tools until approved. `src/packshots.ts`
 filters on `type='packshot' AND approved=1` in every query, including exact
@@ -90,11 +165,17 @@ to approve them.**
 
 | Flag | Effect |
 |---|---|
+| `--upload-only` | Verify checksums and PUT to S3. **Never opens the database** — not even read-only. |
+| `--db-only` | Upsert `media` rows from the catalog. **Never reads the images directory.** Still needs `S3_BUCKET` for `file_url`. |
+| `--verify-objects` | DB phase only: `HeadObject` every S3 key before writing its row; abort, writing nothing, if any is missing. Rejected with `--upload-only`. |
+| _(neither phase flag)_ | Both phases, back to back. For local end-to-end runs. |
 | `--dry-run` | Preview only. Also the default when `--yes` is absent. |
-| `--yes` | Required to actually upload and write. |
-| `--skip-upload` | Skip the S3 upload and only re-sync `media` metadata. Use when the objects are already in the bucket and you have re-generated the catalog. Still needs `S3_BUCKET`. |
+| `--yes` | Required to actually upload or write. |
 | `--reset-approvals` | Force `approved = 0` on every row, discarding existing human approvals. |
-| `--help` | Usage. |
+| `--skip-upload` | Deprecated alias for `--db-only`. |
+| `--help`, `-h` | Usage. |
+
+`--upload-only` and `--db-only` are mutually exclusive.
 
 ### How `approved` behaves on a re-run
 
@@ -120,19 +201,20 @@ large; 52 MB of binaries that are also in S3 do not belong in it. The JSON
 catalog and the generator scripts beside it *are* tracked — that is the reviewed
 metadata and it must stay in version control.
 
-If the directory is absent, the script aborts with a pointer here. Restore it by
+If the directory is absent, phase 1 aborts with a pointer here. Restore it by
 placing the 75 PNGs — named exactly as the catalog's `filename` fields — into
 `portal/server/scripts/packshot-data/images/`, from either the original 2025
-collection exports or the `packshots/2025/` prefix of the S3 bucket. The SHA-256
-gate will tell you immediately if any file is wrong.
+collection exports or the `packshots/2025/` prefix of the S3 bucket. Or point
+`PACKSHOT_IMAGES_DIR` at wherever they already are. The SHA-256 gate will tell
+you immediately if any file is wrong.
 
 ---
 
 ### Regenerating the catalog
 
-Only needed when new packshots arrive or a withheld item gets a decision. The
-three generators in `packshot-data/` run in order; each one only proposes, and a
-human decides.
+Only needed when new packshots arrive or a withheld item gets a decision. This
+directory is the **catalog-authoring workspace**; the three generators run in
+order, and each one only proposes — a human decides.
 
 ```bash
 cd portal/server/scripts/packshot-data
@@ -152,12 +234,20 @@ node map-skus.mjs ./catalog.json ../../data/portal.db ./sku-map.json
 #    still listed as unresolved is withheld rather than served with a guess.
 node merge-catalog.mjs ./catalog.json ./sku-map.json ./overrides.json \
      ../../data/portal.db ./served-catalog.json
+
+# 5. Publish it to where the script and the container read it from.
+cp ./served-catalog.json ../../src/assets/packshot-catalog.json
 ```
+
+**Step 5 is not optional.** `served-catalog.json` here is the authoring output;
+`src/assets/packshot-catalog.json` is the *published* copy the importer reads and
+the Dockerfile ships. Skip it and the import silently uses the previous catalog.
 
 Then dry-run the importer again and diff the plan before running with `--yes`.
 
-`catalog.json` and `sku-map.json` are intermediates. `served-catalog.json` and
-`overrides.json` are the artifacts that matter and are version-controlled.
+`catalog.json` and `sku-map.json` are intermediates. `served-catalog.json`,
+`overrides.json` and `src/assets/packshot-catalog.json` are the artifacts that
+matter and are version-controlled.
 
 > A packshot with no confirmed identity is worse than a missing one — the point
 > of the whole pipeline is that the agent cannot show the wrong bottle. Never
@@ -179,31 +269,37 @@ recorded in `overrides.json` before they can be included.
 | `Swirl Tangerine peach 2z 2025.png` | SKU existence | Same question. |
 | `Swirl Trawberry Pomegranate 2z 2025.png` | SKU existence | Same question. Filename also misspells "Strawberry". |
 
-The importer reprints this list at the end of every run, dry or live, so it
-cannot be quietly forgotten.
+The importer reprints this list at the end of every run — dry or live, either
+phase — so it cannot be quietly forgotten.
 
 ---
 
 ### Typechecking
 
-The root `tsconfig.json` only includes `src`, so scripts need their own project:
+The script is inside `src`, so the root project covers it. There is no longer a
+separate `scripts/tsconfig.json`:
 
 ```bash
 cd portal/server
-npx tsc --noEmit -p scripts/tsconfig.json
+npx tsc --noEmit
 ```
+
+`src/scripts/**` is excluded from coverage in `vitest.config.ts`, for the same
+reason `src/index.ts` is: it calls `main()` at import time. **No logic that needs
+a test belongs in it.**
 
 ---
 
 ### Catalog shape
 
-`served-catalog.json`:
+`src/assets/packshot-catalog.json` (published from
+`scripts/packshot-data/served-catalog.json`):
 
 ```jsonc
 {
   "version": 1,
-  "generated_at": "2026-08-13T21:49:49.105Z",
-  "counts":   { "served": 70, "active": 58, "discontinued": 6, "withheld": 5 },
+  "generated_at": "2026-08-13T22:12:01.484Z",
+  "counts":   { "served": 70, "active": 64, "discontinued": 6, "withheld": 5 },
   "assets":   [ /* 70 served packshots */ ],
   "withheld": [ /* 5 blocked items with reasons */ ]
 }

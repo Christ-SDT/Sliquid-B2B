@@ -1301,9 +1301,21 @@ bottom edge. Green tests did not catch this — a rendered visual check did.
 | `portal/server/src/middleware/mcpAuth.ts` | OAuth 2.1 resource server; audience binding; fails closed on misconfig (503) |
 | `portal/server/src/routes/wellKnown.ts` | RFC 9728 `/.well-known/oauth-protected-resource` |
 | `portal/server/src/mcpAudit.ts` | Structured audit lines; scrubs tokens/emails, never logs bytes |
-| `portal/server/scripts/import-packshots.ts` | Loads the reviewed catalog into `media`; always `approved = 0`; resets approval when `sha256` drifts |
-| `portal/server/scripts/packshot-data/` | Catalog generators + reviewed `served-catalog.json`. Images dir is gitignored |
+| `portal/server/src/scripts/importPackshots.ts` | Two-phase packshot import. `--upload-only` (S3, never opens the DB) / `--db-only` (`media` rows, never reads the images dir) / `--verify-objects`. Always `approved = 0`; resets approval when `sha256` drifts. Under `src/` so `tsc` emits `dist/scripts/importPackshots.js`, the only way phase 2 can run inside the container |
+| `portal/server/src/assets/packshot-catalog.json` | Published catalog the importer reads. Shipped to `dist/assets/` by the Dockerfile's existing `cp -r src/assets dist/` |
+| `portal/server/scripts/packshot-data/` | Catalog **authoring** workspace: generators + reviewed `served-catalog.json`. Images dir is gitignored. Publish with `cp served-catalog.json ../../src/assets/packshot-catalog.json` |
 | `portal/client/src/components/PackshotApprovalPanel.tsx` | Admin publish gate, wired as a Media page tab |
+
+⚠️ **`importPackshots.ts` must reach `database.ts` only through `await import('../database.js')`.**
+`src/database.ts` opens the DB and runs migrations *at import time*, and `railway run` injects
+`DB_PATH=/data/portal.db`, which does not exist on a laptop — so a top-level import makes
+`--upload-only` crash under exactly the command it exists to serve. Symmetrically, `--db-only`
+must never stat the images directory: it is not in the container. Regression check:
+`DB_PATH=/data/portal.db npx tsx src/scripts/importPackshots.ts --upload-only --dry-run` exits 0.
+
+⚠️ The catalog has **two** copies by design: `scripts/packshot-data/served-catalog.json` is the
+authoring output, `src/assets/packshot-catalog.json` is the published copy the importer reads and
+the Dockerfile ships. Regenerating without re-copying silently imports the previous catalog.
 
 ### Catalog
 70 served (64 active, 6 discontinued) of 75 collected 2025 packshots. **5 are withheld** pending

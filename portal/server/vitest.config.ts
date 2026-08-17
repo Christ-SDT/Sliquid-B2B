@@ -11,7 +11,9 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],
       include: ['src/**/*.ts'],
-      exclude: ['src/__tests__/**', 'src/index.ts'],
+      // src/scripts/** are one-off ops entrypoints that call main() at import
+      // time — same reason src/index.ts is excluded. No logic belongs in them.
+      exclude: ['src/__tests__/**', 'src/index.ts', 'src/scripts/**'],
     },
   },
 })
