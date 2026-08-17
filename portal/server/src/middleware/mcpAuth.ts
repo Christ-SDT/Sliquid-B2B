@@ -72,10 +72,17 @@ function jwksUrl(): string {
 
 /** Scopes advertised in the RFC 9728 metadata document. */
 function scopesSupported(): string[] {
-  // Must match the scope the MCP router actually enforces (`assets:read`) — this list is
-  // advertised in the RFC 9728 metadata, so a mismatch sends clients to request a scope the
-  // IdP will never map to anything, and every call then 403s with insufficient_scope.
-  const raw = (process.env.MCP_SCOPES_SUPPORTED ?? 'assets:read').trim()
+  // Advertised in the RFC 9728 metadata, so a client may request exactly this set.
+  //
+  // `assets:read` is what the MCP router enforces. `openid` is here because the
+  // Sliquid IdP REQUIRES it in every authorize request — `/oauth2/authorize`
+  // returns `invalid_scope` if the effective scope set lacks it — so a client that
+  // requested only `assets:read` from this document could never complete the flow.
+  //
+  // Keep the enforced scope in step with `createMcpRouter()`. Advertising a scope
+  // nothing checks sends clients to request something the IdP never maps, and
+  // every call then 403s with insufficient_scope.
+  const raw = (process.env.MCP_SCOPES_SUPPORTED ?? 'openid assets:read').trim()
   return raw.split(/[\s,]+/).filter(Boolean)
 }
 
@@ -264,6 +271,13 @@ export function requireMcpScope(scope: string): RequestHandler {
       return
     }
 
+    // `email` and `clientId` are read opportunistically and will normally be absent.
+    // The Sliquid IdP's ACCESS token carries exactly `iss, sub, aud, scope, iat, exp` —
+    // no `email`, no `client_id`. (Its ID token does carry email/role, but that is
+    // minted for the client, not for us, and its `aud` is the client id.) So audit
+    // lines identify the caller by `sub`, which is the IdP's user UUID — resolve it
+    // against the IdP or `users.sso_sub` when a human-readable name is needed.
+    // These stay for other IdPs and are harmless here; their absence is not a bug.
     const principal: McpPrincipal = { subject, scopes }
     const email = stringClaim(payload, 'email')
     if (email) principal.email = email

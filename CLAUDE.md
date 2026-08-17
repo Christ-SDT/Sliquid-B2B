@@ -1230,10 +1230,41 @@ The MCP router shares a process with `users.password_hash` and `cert_rewards` sh
 so isolation is enforced in code:
 
 ⚠️ **Audience binding is load-bearing.** The portal's employee SSO and this endpoint both trust
-the same issuer, so without an `aud` check (RFC 8707) a portal session token would be a valid MCP
+the same issuer, so without an `aud` check a portal session token would be a valid MCP
 token. `requireMcpScope` verifies `aud` contains `MCP_RESOURCE_URI`. A mutation test proves the
 assertion isn't vacuous. **Never merge `requireMcpAuth` into `requireAuth`, never relax the
 audience check, and keep `MCP_SCOPES_SUPPORTED` in step with the scope the router enforces.**
+
+### The IdP side lives in a different repo
+`~/Desktop/sliquid-sso` (`Christ-SDT/Sliquid-SSO-Portal`) is the OIDC provider that both employee
+login and `/mcp` trust. MCP auth changes routinely need edits in **both** repos — this one alone is
+never the whole picture. Facts that the portal side depends on:
+
+| | |
+|---|---|
+| Issuer (`SSO_ISSUER`) | `https://sso-api.sliquid.com` — the API origin. **Not** `sso.sliquid.com`, which is the admin SPA. |
+| JWKS | `https://sso-api.sliquid.com/oauth2/jwks`; publishes rotated keys too, so verify by `kid` |
+| Access-token claims | **exactly** `iss, sub, aud, scope, iat, exp` — no `email`, no `client_id`, no `role` |
+| `aud` | a single **string**, pinned per client from `oauth_clients.audience`; falls back to the **client id** when blank |
+| `scope` | space-delimited **string** (not an `scp` array) |
+| TTL | 10 min, and access tokens are **not revocable** — only refresh tokens are |
+| Discovery | `/.well-known/openid-configuration` only; **no** `oauth-authorization-server`, no DCR, no CIMD, no introspection, no `client_credentials` |
+
+⚠️ **The IdP silently drops scopes it does not recognise, or that the client row was not granted.**
+No error, no log, no `invalid_scope` — authorize succeeds and the token is minted without the scope.
+`assets:read` missing from the ChatGPT client therefore 403s every MCP call with nothing logged
+anywhere. Inspect the token response's `scope` before debugging the resource server.
+
+⚠️ **`MCP_SCOPES_SUPPORTED` must include `openid`, not just `assets:read`.** The IdP rejects any
+authorize request whose effective scope set lacks `openid`, so a client that trusted our RFC 9728
+metadata and requested only `assets:read` could never complete the flow.
+
+⚠️ Audience is pinned **per client**, not requested via RFC 8707 `resource` — deliberate, because
+ChatGPT's connector may not send it. Do not add `resource` plumbing expecting it to matter.
+
+⚠️ Audit lines identify the caller by `sub` (the IdP's user UUID), because the access token carries
+no email. Resolve via `users.sso_sub` or `/oauth2/userinfo` when a name is needed. The empty
+`email`/`clientId` fields on `McpPrincipal` are expected here, not a bug.
 
 ⚠️ `src/packshots.ts` gates every query on a parameterless private constant
 `HARD_FILTER = "m.type = 'packshot' AND m.approved = 1"`, so no argument can widen it, and it

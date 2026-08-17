@@ -382,10 +382,15 @@ describe('protectedResourceMetadata', () => {
     const meta = protectedResourceMetadata()
     expect(meta['resource']).toBe(RESOURCE)
     expect(meta['authorization_servers']).toEqual([ISSUER])
-    // Must stay in step with the scope the MCP router enforces in
-    // `createMcpRouter()`. Advertising a scope nothing checks sends clients to
-    // request something the IdP never maps, and every call then 403s.
-    expect(meta['scopes_supported']).toEqual(['assets:read'])
+    // `assets:read` must stay in step with the scope `createMcpRouter()` enforces —
+    // advertising a scope nothing checks sends clients to request something the IdP
+    // never maps, and every call then 403s.
+    //
+    // `openid` is not enforced here; it is advertised because the Sliquid IdP returns
+    // `invalid_scope` for any authorize request whose effective scope set lacks it, so
+    // a client that requested only `assets:read` from this document could never
+    // complete the flow.
+    expect(meta['scopes_supported']).toEqual(['openid', 'assets:read'])
     expect(meta['bearer_methods_supported']).toEqual(['header'])
   })
 
@@ -463,5 +468,63 @@ describe('auditMcp', () => {
     auditMcp({ principal: 'sub-1', tool: 'get_asset', result: 'error', detail: 'boom' })
     expect(String(err.mock.calls.at(-1)?.[0])).toContain('"result":"error"')
     err.mockRestore()
+  })
+})
+
+// ─── Cross-repo contract ─────────────────────────────────────────────────────
+
+/**
+ * These pin the exact ACCESS-token shape the Sliquid IdP emits
+ * (`Christ-SDT/Sliquid-SSO-Portal`, see `apps/api/src/lib/oidcTokens.ts`).
+ *
+ * That IdP is a separate repo with its own deploy, so nothing here fails at
+ * compile time when it changes — this is the only place the assumption is
+ * checked. If one of these breaks, the IdP's token format moved and
+ * `parseScopes` / the audience check need revisiting, not the test.
+ */
+describe('Sliquid IdP token contract', () => {
+  it('accepts a token carrying ONLY iss, sub, aud, scope, iat, exp', async () => {
+    // Deliberately minimal: the IdP emits no email, client_id, role, nbf, jti or azp.
+    const token = await makeToken({ scope: `openid ${SCOPE}` })
+
+    const res = await request(makeApp()).get('/mcp').set('Authorization', `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body.mcp.subject).toBe('sso-subject-123')
+    expect(res.body.mcp.scopes).toEqual(expect.arrayContaining(['openid', SCOPE]))
+    // Absent because the IdP does not emit them — expected, not a defect.
+    expect(res.body.mcp.email).toBeUndefined()
+    expect(res.body.mcp.clientId).toBeUndefined()
+  })
+
+  it('accepts aud as a single string, which is what accessTokenAudience() returns', async () => {
+    const token = await makeToken({ aud: RESOURCE, scope: SCOPE })
+
+    const res = await request(makeApp()).get('/mcp').set('Authorization', `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+  })
+
+  it('rejects the client-id fallback aud used when oauth_clients.audience is blank', async () => {
+    // accessTokenAudience() returns client.clientId when no audience is pinned. That
+    // token is valid and correctly signed — it is simply not for us. Forgetting the
+    // audience field on the ChatGPT client is the likeliest misconfiguration, and it
+    // must fail rather than be waved through.
+    const token = await makeToken({ aud: 'chatgpt-brand-agent-a1b2', scope: SCOPE })
+
+    const res = await request(makeApp()).get('/mcp').set('Authorization', `Bearer ${token}`)
+
+    expect(res.status).toBe(401)
+  })
+
+  it('403s when the IdP silently dropped assets:read from the granted scopes', async () => {
+    // The IdP filters unknown/ungranted scopes with no error, so a client that was
+    // never granted assets:read still completes the flow and gets a token like this.
+    const token = await makeToken({ scope: 'openid profile email' })
+
+    const res = await request(makeApp()).get('/mcp').set('Authorization', `Bearer ${token}`)
+
+    expect(res.status).toBe(403)
+    expect(res.headers['www-authenticate']).toContain('insufficient_scope')
   })
 })

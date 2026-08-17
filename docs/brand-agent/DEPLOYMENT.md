@@ -1,8 +1,9 @@
 # Sliquid Asset MCP — deployment and security runbook
 
-The MCP server runs **inside the existing portal server** (Railway), mounted at `/mcp`, with
-OAuth 2.1 against `sso.sliquid.com`. This document covers standing it up, connecting ChatGPT,
-and the checks that must pass before it is shared beyond a pilot.
+The MCP server runs **inside the existing portal server** (Railway), mounted at `/mcp`, as an
+OAuth 2.1 resource server trusting the Sliquid IdP at `https://sso-api.sliquid.com`. This document
+covers standing it up, connecting ChatGPT, and the checks that must pass before it is shared
+beyond a pilot.
 
 ---
 
@@ -81,16 +82,66 @@ a date.
 
 ## 3. Register the OAuth client
 
-At `https://sso.sliquid.com` → Admin → Apps, register a client for ChatGPT:
+The IdP lives in a **separate repo** — `~/Desktop/sliquid-sso` (`Christ-SDT/Sliquid-SSO-Portal`).
+Audience pinning and the `assets:read` scope were added there in `53d8ec9`. MCP work routinely
+spans both repos; the portal alone is never the whole picture.
 
-- **Redirect URI** — ChatGPT supplies this during connector setup. It must byte-match.
-- **Scope** — add `assets:read`. This is the only scope the MCP tools require.
-- **Audience** — the IdP must issue tokens whose `aud` includes the MCP resource URI
-  (`https://<portal-server-domain>/mcp`). If the IdP cannot set a per-client audience, that is a
-  blocker: without it, audience binding cannot be enforced and the confused-deputy risk is real.
-  Resolve this before deploying with `MCP_AUTH_MODE=oauth`.
-- Prefer **CIMD**, else **DCR**, else pre-registered `client_id`/`client_secret`. ChatGPT supports
-  all three; the MCP spec now marks DCR deprecated in favour of CIMD.
+**Two hosts, easy to confuse:**
+
+| | |
+|---|---|
+| `https://sso-api.sliquid.com` | The **issuer**. Serves `/oauth2/*` and `/.well-known/openid-configuration`. This is `SSO_ISSUER`. |
+| `https://sso.sliquid.com` | The **admin UI** (React SPA). Where you register clients. Not the issuer. |
+
+The production `OIDC_ISSUER` value is a Railway env var and isn't committed anywhere, so confirm
+it before relying on it:
+
+```bash
+curl -s https://sso-api.sliquid.com/.well-known/openid-configuration | jq '{issuer, jwks_uri, scopes_supported}'
+```
+
+### Register at `https://sso.sliquid.com/admin/apps`
+
+| Field | Value | Notes |
+|---|---|---|
+| **Name** | e.g. `ChatGPT Brand Agent` | The `client_id` is **generated** from this (`slug-XXXX`). You cannot choose it. |
+| **Redirect URIs** | supplied by ChatGPT during connector setup | Exact string match, no wildcards. Re-checked at token exchange. |
+| **Scopes** | ✅ `openid` **and** ✅ `assets:read` | `openid` is locked on. **`assets:read` must be ticked explicitly.** |
+| **Audience** | `https://<portal-server-domain>/mcp` | Must equal `MCP_RESOURCE_URI` byte for byte, and must be a valid URL. |
+| **Confidential** | yes (`client_secret_basic`) | The secret is shown **once** on creation; otherwise rotate. |
+
+Register a **new** client rather than reusing the seeded `marketing-portal` one — that row has
+neither `assets:read` nor an audience, and it needs different redirect URIs anyway.
+
+### Two silent failure modes to know about
+
+⚠️ **An ungranted or unrecognized scope is dropped with no error.** The IdP's `parseScopes` /
+`effectiveScopes` filter silently; authorize still succeeds and a token is minted *without*
+`assets:read`. Every MCP call then 403s `insufficient_scope`, and nothing is logged on the IdP
+side. If you see that 403, inspect the `scope` value in the token response before debugging the
+resource server.
+
+⚠️ **A blank `audience` falls back to the client id.** `accessTokenAudience()` returns the pinned
+value if set, else `client.clientId`. Leaving the field empty means every token is rejected here —
+correctly, but the error gives no hint why.
+
+### What this IdP does not support
+
+- **No Dynamic Client Registration and no CIMD** — explicitly out of scope for v1, and no
+  `registration_endpoint` in discovery. Pre-registered `client_id`/`client_secret` is the only path.
+  (An earlier draft of this doc said to prefer CIMD then DCR. Neither exists here.)
+- **No `resource` parameter (RFC 8707).** Deliberate: the audience is pinned per client because
+  ChatGPT's connector may not send `resource`. Sending it is harmless but has no effect.
+- **No `client_credentials` grant.** Every token is user-bound through the browser auth-code flow,
+  so an MCP call is always attributable to a person who consented.
+- **No `/.well-known/oauth-authorization-server`** — only `openid-configuration`. Clients must fall
+  back to OIDC Discovery for AS metadata.
+- **No token introspection, and access tokens cannot be revoked.** Only refresh tokens are
+  revocable, so cutting off access takes up to one access-token TTL (**10 minutes** by default).
+  To cut it off immediately, unapprove the packshots or set `MCP_AUTH_MODE` away from `oauth`.
+
+PKCE **S256 is mandatory** for every client including confidential ones, `response_type` is `code`
+only, and grants are `authorization_code` + `refresh_token`.
 
 ChatGPT cannot present an API key, a custom header, or a client-credentials grant. OAuth or no
 auth are the only real options — see `AGENT-INSTRUCTIONS.md` for the sourcing on this.
@@ -103,11 +154,26 @@ New:
 
 | Var | Value | Notes |
 |---|---|---|
-| `MCP_AUTH_MODE` | `oauth` | `none` disables verification. Pilot only, never leave it set. |
-| `MCP_RESOURCE_URI` | `https://<server-domain>/mcp` | Must match the `aud` the IdP issues. Scheme required, no fragment. |
+| `MCP_AUTH_MODE` | `oauth` | `none` disables verification. Pilot only, never leave it set. Any other or missing value fails closed to `oauth`. |
+| `MCP_RESOURCE_URI` | `https://<server-domain>/mcp` | Must equal the client's `audience` byte for byte. Valid URL, no fragment. |
+| `MCP_SCOPES_SUPPORTED` | `openid assets:read` | Optional; this is the default. Both are needed — see §3. |
 
-Already present and reused: `SSO_ISSUER`, `SSO_JWKS_URL`, `ALLOWED_ORIGINS`, `S3_BUCKET`,
-`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `GEMINI_API_KEY`.
+Verify against the two SSO vars that already exist:
+
+| Var | Expected |
+|---|---|
+| `SSO_ISSUER` | `https://sso-api.sliquid.com` — the API origin, **not** `sso.sliquid.com` |
+| `SSO_JWKS_URL` | `https://sso-api.sliquid.com/oauth2/jwks` |
+
+Both must be set whenever `MCP_AUTH_MODE=oauth`, or `/mcp` returns **503**. That is deliberate:
+serving traffic with no audience to bind against is exactly the replay condition the audience check
+exists to prevent, so it fails closed rather than passing requests through.
+
+Also present and reused: `ALLOWED_ORIGINS`, `S3_BUCKET`, `AWS_ACCESS_KEY_ID`,
+`AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `GEMINI_API_KEY`.
+
+Note the IdP applies a global **300 req/min** rate limit covering its token endpoint and JWKS; the
+MCP router adds its own 60/min.
 
 `GEMINI_API_KEY` is optional: without it, `create_product_composition` falls back to a solid or
 gradient background instead of a generated one, and still composites correctly.
@@ -165,6 +231,8 @@ correct — ChatGPT will not show them.
 | No token | 401 + `WWW-Authenticate` naming the resource metadata URL |
 | **Portal session token replayed at `/mcp`** | **401 — wrong audience.** The confused-deputy case |
 | Valid token, missing `assets:read` | 403 + `insufficient_scope` |
+| Token response after consent | `scope` actually contains `assets:read` — the IdP drops it silently if the client wasn't granted it |
+| `MCP_RESOURCE_URI` unset | 503, not a pass-through |
 | Unapproved packshot requested by exact asset_id | Not found — approval gate cannot be bypassed |
 | Composition at 4:5, 1:1, 9:16 | Packaging pixel-preserved; no warp, recolor, or redraw |
 
