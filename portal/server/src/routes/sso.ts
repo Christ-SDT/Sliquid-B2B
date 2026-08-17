@@ -66,12 +66,15 @@ interface PortalUser {
 /**
  * Map the IdP's coarse `role` claim onto a portal tier.
  *
- * The SSO IdP collapses its five internal roles to `admin` | `employee` via
+ * The SSO IdP collapses its nine internal roles to `admin` | `employee` via
  * `externalRole()` before emitting the claim, so those two values are all we
- * ever see. Anything else — an absent claim, a new IdP role, a typo — lands on
- * tier1. That default is deliberate: this function runs before any human has
- * looked at the account, so an unrecognized role must yield the LEAST access,
- * never the most.
+ * ever see. `admin` covers three IdP roles — `sliquid_super_admin`,
+ * `sliquid_owner` and `sliquid_development` — so any of those becomes a portal
+ * admin here.
+ *
+ * Anything else — an absent claim, a new IdP role, a typo — lands on tier1. That
+ * default is deliberate: this function runs before any human has looked at the
+ * account, so an unrecognized role must yield the LEAST access, never the most.
  *
  * ⚠️ tier5 grants admin powers across the whole portal, which now includes
  * publishing brand assets to the external ChatGPT agent (see
