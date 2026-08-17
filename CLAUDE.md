@@ -1275,6 +1275,18 @@ selects `file_url` / `users` / `cert_rewards` nowhere. Byte retrieval lives sepa
 arbitrary caller-supplied URL server-side (an SSRF sink). It is behind `requireAuth`, so the MCP
 principal cannot reach it today. Keep it that way.
 
+⚠️ **`bytes.ts` carries a `TODO(iam)` public-HTTPS fallback — delete it once `s3:GetObject` is
+granted.** The server's IAM principal can `PutObject` but not `GetObject`, so the signed read 403s
+for every packshot. **The bucket policy cannot fix this**: it already grants `GetObject` both to
+`Principal: "*"` and explicitly to that user on `product-shots/*`, and *both* are denied while
+anonymous HTTPS reads return 200 — so the cap is a permissions boundary / `Deny` / SCP on the IAM
+principal. Until that is lifted, `loadPackshotBytes` retries over plain HTTPS **only** on a
+permission error (a 404 still throws), builds the URL from `S3_BUCKET` + `AWS_REGION` + `s3_key`
+and **never** from a DB `file_url` (that would be an SSRF sink, same as `proxy-download` above),
+and can be disabled with `MCP_S3_PUBLIC_FALLBACK=off`. The checksum gate is transport-independent,
+so tamper protection is unchanged — what the stopgap borrows is only the ability to make the bucket
+private later. Full diagnosis and the retest command are in `docs/brand-agent/DEPLOYMENT.md`.
+
 ⚠️ `/mcp` and `/.well-known` are deliberately **not** in `PUBLIC_PATHS` — that prefix matcher
 would clamp Allow-Methods to `GET, OPTIONS` and break the POST the protocol runs on. ChatGPT is
 server-to-server and sends no `Origin`, so it passes CORS already.
@@ -1295,7 +1307,7 @@ bottom edge. Green tests did not catch this — a rendered visual check did.
 | Path | Purpose |
 |---|---|
 | `portal/server/src/mcp/server.ts` | `createMcpRouter()` — stateless Streamable HTTP, fresh `McpServer` + transport per POST (a shared instance collides request ids), 405 on GET/DELETE |
-| `portal/server/src/mcp/bytes.ts` | S3 fetch + SHA-256 verification, 20-entry LRU keyed on `s3_key + sha256` |
+| `portal/server/src/mcp/bytes.ts` | S3 fetch + SHA-256 verification, 20-entry LRU keyed on `s3_key + sha256`; public-HTTPS fallback (see below) |
 | `portal/server/src/mcp/compose.ts` | sharp compositing; shadow/reflection drawn behind the product layer |
 | `portal/server/src/packshots.ts` | Read layer; `HARD_FILTER` approval gate; numeric size matching via `parseSize` |
 | `portal/server/src/middleware/mcpAuth.ts` | OAuth 2.1 resource server; audience binding; fails closed on misconfig (503) |

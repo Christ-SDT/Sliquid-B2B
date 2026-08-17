@@ -12,6 +12,28 @@ import type { PackshotRecord } from '../packshots.js'
  * WITHHELD, not served with a warning. A tampered or truncated packshot is
  * indistinguishable from an approved one to a downstream model, so the only
  * safe response is to fail closed.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * ⚠️ TODO(iam): REMOVE THE PUBLIC-HTTPS FALLBACK ONCE `s3:GetObject` IS GRANTED.
+ *
+ * The IAM principal this server runs as can `PutObject` but not `GetObject`, so
+ * `GetObjectCommand` returns 403 for every packshot. Verified against production
+ * 2026-08-17: `packshots/*`, `product-shots/*` and `portal-assets/*` all deny,
+ * INCLUDING a prefix the bucket policy explicitly grants that user — so the cap
+ * is an IAM permissions boundary (or an explicit Deny / SCP), not the bucket
+ * policy, and no bucket-policy edit can lift it. Anonymous HTTPS reads return
+ * 200 because the bucket policy grants `s3:GetObject` to `Principal: "*"`.
+ *
+ * So `fetchPublicObject` below reads the same object over plain HTTPS when — and
+ * only when — the signed call fails with a permission error. This is a stopgap,
+ * not the intended architecture: it makes retrieval depend on the bucket staying
+ * publicly readable. When the IAM grant lands, delete the fallback and this note.
+ *
+ * What the stopgap does NOT weaken: the checksum gate. Verification happens on
+ * whatever buffer arrives, after the fetch, so tamper protection is identical on
+ * both transports. Only the "we could make this bucket private later" property
+ * is on loan.
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 
 // ─── S3 helper ────────────────────────────────────────────────────────────────
@@ -96,6 +118,71 @@ export function clearPackshotBytesCache(): void {
   cache.clear()
 }
 
+// ─── Public-HTTPS fallback (see the TODO(iam) block at the top) ───────────────
+
+/** Wall-clock cap on the fallback fetch, so a hung read can't wedge a request. */
+const PUBLIC_FETCH_TIMEOUT_MS = 15_000
+
+/** `MCP_S3_PUBLIC_FALLBACK=off` disables the stopgap and restores hard failure. */
+function fallbackEnabled(): boolean {
+  return (process.env.MCP_S3_PUBLIC_FALLBACK ?? '').trim().toLowerCase() !== 'off'
+}
+
+/**
+ * A permission failure — the only condition that may trigger the fallback.
+ *
+ * Deliberately narrow. A 404 `NoSuchKey` must stay an error: falling through to
+ * a public fetch for a genuinely missing object would just turn one clear error
+ * into a vaguer one. Note S3 reports a missing key as 403 when the caller also
+ * lacks `s3:ListBucket`, so a 403 here can mean either — the public fetch then
+ * surfaces the real 404, which is the honest outcome.
+ */
+function isPermissionError(err: unknown): boolean {
+  const e = err as { name?: string; $metadata?: { httpStatusCode?: number } }
+  if (e?.$metadata?.httpStatusCode === 403) return true
+  return e?.name === 'AccessDenied' || e?.name === 'AllAccessDisabled'
+}
+
+let fallbackWarned = false
+
+function warnFallbackOnce(cause: string): void {
+  if (fallbackWarned) return
+  fallbackWarned = true
+  console.warn('[mcp/bytes] ***************************************************************')
+  console.warn('[mcp/bytes] * S3 GetObject denied — serving packshots over PUBLIC HTTPS.  *')
+  console.warn('[mcp/bytes] * This is a STOPGAP. Grant s3:GetObject on                    *')
+  console.warn('[mcp/bytes] *   arn:aws:s3:::<bucket>/*                                   *')
+  console.warn('[mcp/bytes] * to this server\'s IAM principal, then remove the fallback.    *')
+  console.warn('[mcp/bytes] * Checksum verification is UNAFFECTED and still enforced.      *')
+  console.warn('[mcp/bytes] ***************************************************************')
+  console.warn(`[mcp/bytes] first trigger: ${cause}`)
+}
+
+/**
+ * Read an object over plain HTTPS.
+ *
+ * ⚠️ The URL is built from `S3_BUCKET` + `AWS_REGION` + the record's `s3_key` —
+ * NEVER from a database-supplied `file_url`. A URL column is caller-influenced
+ * data and would make this a server-side request forgery sink; the bucket and
+ * region come from the environment, and `s3_key` only ever selects a path within
+ * that one host. `redirect: 'error'` keeps a redirect from moving the fetch off
+ * that host afterwards.
+ */
+async function fetchPublicObject(bucket: string, key: string): Promise<Buffer> {
+  const region = process.env.AWS_REGION ?? 'us-east-1'
+  const path = key.split('/').map(encodeURIComponent).join('/')
+  const url = `https://${bucket}.s3.${region}.amazonaws.com/${path}`
+
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(PUBLIC_FETCH_TIMEOUT_MS),
+    redirect: 'error',
+  })
+  if (!res.ok) {
+    throw new Error(`Public object fetch failed for ${key} — HTTP ${res.status} ${res.statusText}`)
+  }
+  return Buffer.from(await res.arrayBuffer())
+}
+
 // ─── Body → Buffer ────────────────────────────────────────────────────────────
 
 async function bodyToBuffer(body: unknown): Promise<Buffer> {
@@ -134,10 +221,21 @@ export async function loadPackshotBytes(rec: PackshotRecord): Promise<Buffer> {
   const bucket = process.env.S3_BUCKET
   if (!bucket) throw new Error('Asset storage is not configured (missing S3_BUCKET)')
 
-  const response = await getS3Client().send(
-    new GetObjectCommand({ Bucket: bucket, Key: rec.s3_key }),
-  )
-  const buffer = await bodyToBuffer(response.Body)
+  // Signed read first; fall back to public HTTPS only on a permission error.
+  // Both paths converge on the SAME verification below — the fallback changes
+  // the transport, never the integrity guarantee. See TODO(iam) at the top.
+  let buffer: Buffer
+  try {
+    const response = await getS3Client().send(
+      new GetObjectCommand({ Bucket: bucket, Key: rec.s3_key }),
+    )
+    buffer = await bodyToBuffer(response.Body)
+  } catch (err) {
+    if (!isPermissionError(err) || !fallbackEnabled()) throw err
+    const name = (err as { name?: string }).name ?? 'unknown'
+    warnFallbackOnce(`${name} on s3_key=${rec.s3_key}`)
+    buffer = await fetchPublicObject(bucket, rec.s3_key)
+  }
 
   const actual = createHash('sha256').update(buffer).digest('hex')
   const expected = rec.sha256.trim().toLowerCase()

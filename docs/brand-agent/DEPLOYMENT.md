@@ -82,14 +82,64 @@ This also means `--verify-objects` cannot be used, and it explains why the exist
 `GET /api/product-shots/:id/download` endpoint (same `GetObjectCommand` pattern) has never
 worked. This is a latent pre-existing bug, not something the MCP work introduced.
 
-**The fix:** add `s3:GetObject` for at least `arn:aws:s3:::sliquid-ai-creator/packshots/*` to that
-user's policy — `s3:ListBucket` too if you want `--verify-objects`. Granting it bucket-wide also
-repairs the product-shots download.
+#### The bucket policy is NOT the lever — do not keep editing it
 
-Do **not** work around this by having the MCP server fetch the public HTTPS URL instead. It would
-work today (see below) but silently makes the whole retrieval path depend on the bucket staying
-public, which is the opposite of where this should end up — and it would hide the
-misconfiguration rather than surface it.
+Follow-up probing on 2026-08-17 narrowed this considerably. The bucket policy already grants
+`s3:GetObject` twice over: once to `Principal: "*"` on `sliquid-ai-creator/*`, and once explicitly
+to `user/sliquid-portal-s3` on `product-shots/*`. Both are ineffective for this principal:
+
+| Probe (403 = denied, 404 = permitted but key absent) | Result |
+|---|---|
+| `GetObject packshots/…` | 403 |
+| `GetObject product-shots/…` — *explicitly granted in the bucket policy* | **403** |
+| `GetObject portal-assets/…` | 403 |
+| anonymous HTTPS GET, any prefix | **200** |
+
+`product-shots/*` failing is the conclusive part: a prefix the bucket policy explicitly grants that
+user is still denied, while anonymous reads of the same bucket succeed. Anonymous requests are
+unaffected by anything attached to an IAM principal, so the cap is **IAM-side** — a permissions
+boundary, an explicit `Deny`, or an SCP. Since `PutObject` works, a boundary covering
+`PutObject`/`DeleteObject` but not `GetObject` fits without needing any `Deny` at all: a boundary
+limits the principal to `boundary ∩ (identity ∪ resource)`, so a public bucket policy cannot reach
+past it.
+
+Confirm the principal first — the running container's key id is `AKIAQQCQDIL6EIEFLHDW` (the
+non-secret half; paste it into IAM search). Then on that user, in order:
+
+1. **Permissions boundary** — if set, it must include `s3:GetObject`. Primary suspect.
+2. **Attached / inline policies** — look for an explicit `Deny` on `s3:GetObject`, or a `NotAction`
+   deny that catches it.
+3. **SCPs**, if the account belongs to an AWS Organization.
+4. Then add `s3:GetObject` (+ `s3:ListBucket` on the bucket ARN **without** `/*`) to the identity
+   policy.
+
+Retest immediately — S3 evaluates per request, no deploy needed:
+
+```bash
+railway ssh node -e 'const{S3Client,GetObjectCommand}=require("@aws-sdk/client-s3");new S3Client({region:"us-east-2"}).send(new GetObjectCommand({Bucket:"sliquid-ai-creator",Key:"packshots/2025/balance-soak-green-tea.png"})).then(r=>console.log("OK",r.ContentLength)).catch(e=>console.log("FAIL",e.name))'
+```
+
+#### Interim: the public-HTTPS fallback in `bytes.ts`
+
+Because the IAM change may be org-gated, `loadPackshotBytes` now falls back to reading the object
+over plain HTTPS **when — and only when — the signed call fails with a permission error**. It is
+deliberately narrow and loud:
+
+- A 404 `NoSuchKey` or any non-permission error still throws; a missing object stays a clear error.
+- The URL is built from `S3_BUCKET` + `AWS_REGION` + `s3_key` — **never** from a DB `file_url`
+  column, which would be a server-side request forgery sink. `redirect: 'error'` keeps a redirect
+  from moving the fetch off that host.
+- `MCP_S3_PUBLIC_FALLBACK=off` disables it and restores hard failure.
+- It logs a one-per-process banner naming the IAM remediation.
+
+**The checksum gate is unaffected.** Verification runs on whatever buffer arrives, after the fetch,
+so tamper protection is identical on both transports — confirmed against production: three
+packshots fetched anonymously hash exactly to their recorded `sha256`. What the stopgap borrows is
+only the "we could make this bucket private later" property.
+
+⚠️ **This is a stopgap with a `TODO(iam)` at the top of `src/mcp/bytes.ts`. Delete it once
+`s3:GetObject` is granted** — leaving it in place makes retrieval permanently dependent on the
+bucket staying public, and buries the misconfiguration instead of surfacing it.
 
 ### S3 objects are currently world-readable
 
