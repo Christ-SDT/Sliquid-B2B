@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { Product } from '@/types'
-import { Search, Package, X, Download, Upload, Plus, Pencil, Trash2, Images } from 'lucide-react'
+import { Search, Package, X, Download, Upload, Plus, Pencil, Trash2, Images, Star, Bot, Ban, Clock, AlertTriangle, Loader2 } from 'lucide-react'
 
 const API_BASE = (import.meta.env.VITE_API_URL ?? '') + '/api'
 
@@ -22,6 +22,25 @@ interface GalleryImg {
   file_size: string
   mime_type: string
   created_at: string
+}
+
+/**
+ * A packshot that could serve as this product's image. The same row the ChatGPT
+ * Brand Agent serves — picking one here is what makes the product image and the
+ * agent's image the same file, rather than two copies to keep in step.
+ */
+interface PackshotCandidate {
+  id: number
+  label: string | null
+  filename: string
+  file_url: string
+  unit_size: string | null
+  package_version: string | null
+  approved: number
+  is_primary: number
+  packshot_status: 'active' | 'discontinued' | 'pending_approval'
+  sha256: string | null
+  asset_key: string | null
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -135,6 +154,153 @@ function GalleryPickerModal({
   )
 }
 
+// ── Packshot Picker ───────────────────────────────────────────────────────────
+
+/**
+ * Choose which packshot is this product's image.
+ *
+ * This is deliberately the ONLY place an image is chosen: the row picked here is
+ * the row the ChatGPT Brand Agent serves, so the catalog, the marketing site, the
+ * inventory list and the agent all read one file. There is no second copy.
+ *
+ * Keyed on SKU, not product id, so the picker works while ADDING a product too.
+ */
+function PackshotPicker({
+  sku, selectedId, onSelect,
+}: {
+  sku: string
+  selectedId: number | null
+  onSelect: (id: number | null) => void
+}) {
+  const [candidates, setCandidates] = useState<PackshotCandidate[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const trimmed = sku.trim()
+    if (!trimmed) { setCandidates([]); return }
+    setLoading(true)
+    let cancelled = false
+    api.get<{ candidates: PackshotCandidate[] }>(
+      `/products/packshot-candidates?sku=${encodeURIComponent(trimmed)}`,
+    )
+      .then(r => { if (!cancelled) setCandidates(r.candidates ?? []) })
+      .catch(() => { if (!cancelled) setCandidates([]) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [sku])
+
+  if (!sku.trim()) {
+    return (
+      <p className="text-on-canvas-muted text-xs">
+        Enter a SKU to see the packshots available for this product.
+      </p>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 text-on-canvas-muted text-xs py-2">
+        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        Looking for packshots for {sku.trim()}…
+      </div>
+    )
+  }
+
+  if (candidates.length === 0) {
+    return (
+      <p className="text-on-canvas-muted text-xs leading-relaxed">
+        No packshots exist for SKU <span className="font-mono">{sku.trim()}</span> yet. Import one with
+        the packshot scripts, or set a custom URL below as a stopgap.
+      </p>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {candidates.map(c => {
+          const selected = c.id === selectedId
+          const live = c.approved === 1 && c.packshot_status === 'active'
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => onSelect(selected ? null : c.id)}
+              title={`${c.label ?? c.filename}${c.unit_size ? ` — ${c.unit_size}` : ''}`}
+              className={`relative flex-shrink-0 w-24 rounded-lg overflow-hidden border-2 transition-all
+                ${selected
+                  ? 'border-portal-accent ring-2 ring-portal-accent/30'
+                  : 'border-portal-border hover:border-slate-500'}`}
+            >
+              <div className="aspect-square bg-portal-bg flex items-center justify-center">
+                <img
+                  src={c.file_url}
+                  alt={c.label ?? c.filename}
+                  loading="lazy"
+                  className="w-full h-full object-contain p-1"
+                  onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden' }}
+                />
+              </div>
+              {selected && (
+                <span className="absolute top-1 left-1 bg-portal-accent text-white rounded-full p-0.5">
+                  <Star className="w-2.5 h-2.5 fill-current" />
+                </span>
+              )}
+              <span className="absolute top-1 right-1">
+                {c.packshot_status === 'discontinued'
+                  ? <Ban className="w-3 h-3 text-on-canvas-muted" />
+                  : c.packshot_status === 'pending_approval'
+                    ? <Clock className="w-3 h-3 text-amber-500" />
+                    : live
+                      ? <Bot className="w-3 h-3 text-emerald-500" />
+                      : <Clock className="w-3 h-3 text-amber-500" />}
+              </span>
+              <span className="block text-[10px] text-on-canvas-subtle px-1 py-0.5 truncate">
+                {c.unit_size ?? 'size ?'}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* The gap that trips people up: chosen but not published shows nothing. */}
+      {(() => {
+        const chosen = candidates.find(c => c.id === selectedId)
+        if (!chosen) {
+          return (
+            <p className="text-on-canvas-muted text-[11px]">
+              Nothing selected — this product will show no image unless a custom URL is set below.
+            </p>
+          )
+        }
+        if (chosen.approved !== 1) {
+          return (
+            <p className="text-amber-600 dark:text-amber-300 text-[11px] leading-snug flex items-start gap-1">
+              <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-px" />
+              This packshot is not published yet, so the catalog will still show nothing. Publish it
+              under Media → Packshots to make it visible here and to the ChatGPT agent.
+            </p>
+          )
+        }
+        if (chosen.packshot_status === 'discontinued') {
+          return (
+            <p className="text-on-canvas-muted text-[11px] leading-snug">
+              Marked discontinued. The image still shows, flagged as discontinued, rather than
+              disappearing.
+            </p>
+          )
+        }
+        return (
+          <p className="text-emerald-600 dark:text-emerald-300 text-[11px] leading-snug flex items-start gap-1">
+            <Bot className="w-3 h-3 flex-shrink-0 mt-px" />
+            Live — the same file the catalog, the marketing site and the ChatGPT agent all serve.
+          </p>
+        )
+      })()}
+    </div>
+  )
+}
+
 // ── Product Form Modal ────────────────────────────────────────────────────────
 
 function ProductFormModal({
@@ -172,6 +338,29 @@ function ProductFormModal({
   const [error, setError] = useState('')
   const [showGallery, setShowGallery] = useState(false)
 
+  // Which packshot is this product's image. `null` = none chosen. Loaded from the
+  // candidates for this SKU so the picker opens showing the current state.
+  const [primaryId, setPrimaryId] = useState<number | null>(null)
+  const [initialPrimaryId, setInitialPrimaryId] = useState<number | null>(null)
+
+  useEffect(() => {
+    const trimmed = sku.trim()
+    if (!trimmed) { setPrimaryId(null); setInitialPrimaryId(null); return }
+    let cancelled = false
+    api.get<{ candidates: PackshotCandidate[] }>(
+      `/products/packshot-candidates?sku=${encodeURIComponent(trimmed)}`,
+    )
+      .then(r => {
+        if (cancelled) return
+        const current = (r.candidates ?? []).find(c => c.is_primary === 1)?.id ?? null
+        setPrimaryId(current)
+        setInitialPrimaryId(current)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+    // Only re-read when the SKU itself changes — the picker owns selection after that.
+  }, [sku])
+
   async function handleSave() {
     if (!name.trim() || !brand.trim() || !sku.trim() || !price) {
       setError('Name, brand, SKU, and price are required.')
@@ -202,6 +391,18 @@ function ProductFormModal({
         saved = await api.put<Product>(`/products/${product.id}`, payload)
       } else {
         saved = await api.post<Product>('/products', payload)
+      }
+
+      // Apply the packshot choice second, and only when it changed. The server
+      // clears `products.image_url` when a packshot is chosen, so this must run
+      // AFTER the field save or the payload's image_url would resurrect the
+      // override and outrank the pick.
+      if (primaryId !== initialPrimaryId) {
+        const res = await api.put<{ product: Product }>(
+          `/products/${saved.id}/image`,
+          { media_id: primaryId },
+        )
+        saved = res.product ?? saved
       }
       onSaved(saved)
     } catch (e: any) {
@@ -236,33 +437,73 @@ function ProductFormModal({
               </div>
             )}
 
-            {/* Image */}
-            <div>
-              <label className="block text-on-canvas-subtle text-xs font-medium mb-1.5 uppercase tracking-wide">
-                Product Image
-              </label>
-              <div className="flex gap-2">
-                <input
-                  value={imageUrl}
-                  onChange={e => setImageUrl(e.target.value)}
-                  placeholder="Paste image URL or pick from gallery…"
-                  className={inputCls}
+            {/* Image — the single place a product's image is set */}
+            <div className="space-y-3">
+              <div>
+                <label className="block text-on-canvas-subtle text-xs font-medium mb-1.5 uppercase tracking-wide">
+                  Product Image
+                </label>
+                <p className="text-on-canvas-muted text-[11px] leading-relaxed mb-2">
+                  Pick the packshot for this product. The same file is used by the product catalog,
+                  the marketing site, inventory and the ChatGPT Brand Agent — there is nowhere else
+                  to change it.
+                </p>
+                <PackshotPicker
+                  sku={sku}
+                  selectedId={primaryId}
+                  onSelect={id => {
+                    setPrimaryId(id)
+                    // A custom URL outranks the packshot, so choosing one here would
+                    // otherwise appear to do nothing. Drop it, matching what the
+                    // server does, so what is picked is what shows.
+                    if (id !== null) setImageUrl('')
+                  }}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowGallery(true)}
-                  title="Pick from Reference Gallery"
-                  className="px-3 py-2 border border-portal-border rounded-lg text-on-canvas-subtle
-                             hover:text-on-canvas hover:border-slate-500 flex-shrink-0 transition-colors"
-                >
-                  <Images className="w-4 h-4" />
-                </button>
               </div>
-              {imageUrl && (
-                <div className="mt-2 h-28 bg-portal-bg rounded-lg overflow-hidden flex items-center justify-center">
-                  <img src={imageUrl} alt="Preview" className="max-h-full max-w-full object-contain p-2" />
+
+              <details className="group">
+                <summary className="text-on-canvas-muted text-[11px] cursor-pointer hover:text-on-canvas-subtle">
+                  Custom image URL (overrides the packshot)
+                </summary>
+                <div className="mt-2 space-y-2">
+                  <p className="text-on-canvas-muted text-[11px] leading-relaxed">
+                    A fallback for products with no packshot. While set, this URL wins over any
+                    packshot chosen above — and the ChatGPT agent cannot use it, so the two surfaces
+                    will show different images. Clear it to go back to the packshot.
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      value={imageUrl}
+                      onChange={e => setImageUrl(e.target.value)}
+                      placeholder="Paste image URL or pick from gallery…"
+                      className={inputCls}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowGallery(true)}
+                      title="Pick from Reference Gallery"
+                      className="px-3 py-2 border border-portal-border rounded-lg text-on-canvas-subtle
+                                 hover:text-on-canvas hover:border-slate-500 flex-shrink-0 transition-colors"
+                    >
+                      <Images className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {imageUrl && (
+                    <>
+                      {primaryId !== null && (
+                        <p className="text-amber-600 dark:text-amber-300 text-[11px] leading-snug flex items-start gap-1">
+                          <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-px" />
+                          This URL is overriding the packshot selected above. The agent will still
+                          serve the packshot, so the two will not match.
+                        </p>
+                      )}
+                      <div className="h-28 bg-portal-bg rounded-lg overflow-hidden flex items-center justify-center">
+                        <img src={imageUrl} alt="Preview" className="max-h-full max-w-full object-contain p-2" />
+                      </div>
+                    </>
+                  )}
                 </div>
-              )}
+              </details>
             </div>
 
             {/* Basic Info */}

@@ -7,8 +7,17 @@ const router = Router()
 
 router.get('/', requireAuth, (req, res) => {
   const { brand, status, search } = req.query
+  // image_url resolves through the product's PRIMARY packshot, exactly as the
+  // products routes do — otherwise Inventory would be the one screen still
+  // showing a blank tile for a product whose image is set as a packshot.
   let sql = `
-    SELECT i.*, p.unit_size, p.image_url
+    SELECT i.*, p.unit_size,
+           COALESCE(p.image_url, (
+             SELECT m.file_url FROM media m
+              WHERE m.type = 'packshot' AND m.sku = p.sku
+                AND m.is_primary = 1 AND m.approved = 1
+              LIMIT 1
+           )) AS image_url
     FROM inventory i
     LEFT JOIN products p ON p.id = i.product_id
     WHERE 1=1`

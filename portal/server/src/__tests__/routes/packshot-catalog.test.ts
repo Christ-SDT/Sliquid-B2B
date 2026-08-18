@@ -342,3 +342,159 @@ describe('primary packshot propagation to products', () => {
     expect(row.image_url).toBeNull()
   })
 })
+
+// ─── The Products page is the single editor ──────────────────────────────────
+
+describe('product image is chosen from the Products page', () => {
+  it('403s for a non-admin', async () => {
+    const sku = 'SKU-AUTH'
+    const pid = seedProduct({ sku })
+    const p = seedPackshot({ sku })
+
+    const res = await request(app)
+      .put(`/api/products/${pid}/image`)
+      .set('Authorization', tier1())
+      .send({ media_id: p.id })
+
+    expect(res.status).toBe(403)
+    const row = db.prepare('SELECT is_primary FROM media WHERE id = ?').get(p.id) as any
+    expect(row.is_primary).toBe(0)
+  })
+
+  it('lists the packshot candidates for a SKU', async () => {
+    const sku = 'SKU-CAND'
+    seedProduct({ sku })
+    seedPackshot({ sku, unit_size: '4.2 oz' })
+    seedPackshot({ sku, unit_size: '8.5 oz' })
+    seedPackshot({ sku: 'SKU-OTHER' })
+
+    const res = await request(app)
+      .get(`/api/products/packshot-candidates?sku=${sku}`)
+      .set('Authorization', admin())
+
+    expect(res.status).toBe(200)
+    expect(res.body.candidates).toHaveLength(2)
+    expect(res.body.candidates.map((c: any) => c.unit_size).sort()).toEqual(['4.2 oz', '8.5 oz'])
+  })
+
+  it('returns an empty candidate list rather than erroring with no sku', async () => {
+    const res = await request(app)
+      .get('/api/products/packshot-candidates')
+      .set('Authorization', admin())
+
+    expect(res.status).toBe(200)
+    expect(res.body.candidates).toEqual([])
+  })
+
+  it('sets the product image and marks that packshot primary', async () => {
+    const sku = 'SKU-SET'
+    const pid = seedProduct({ sku })
+    const p = seedPackshot({ sku, approved: 1 })
+
+    const res = await request(app)
+      .put(`/api/products/${pid}/image`)
+      .set('Authorization', admin())
+      .send({ media_id: p.id })
+
+    expect(res.status).toBe(200)
+    expect(res.body.product.image_url).toBe(p.file_url)
+    const row = db.prepare('SELECT is_primary FROM media WHERE id = ?').get(p.id) as any
+    expect(row.is_primary).toBe(1)
+  })
+
+  it('clears a stale image_url override so the pick is not silently ignored', async () => {
+    const sku = 'SKU-STALE'
+    const pid = seedProduct({ sku })
+    db.prepare('UPDATE products SET image_url = ? WHERE id = ?')
+      .run('https://cdn.example/old.png', pid)
+    const p = seedPackshot({ sku, approved: 1 })
+
+    const res = await request(app)
+      .put(`/api/products/${pid}/image`)
+      .set('Authorization', admin())
+      .send({ media_id: p.id })
+
+    expect(res.status).toBe(200)
+    // Without the clear, the old URL would still outrank the choice just made.
+    expect(res.body.product.image_url).toBe(p.file_url)
+    const prod = db.prepare('SELECT image_url FROM products WHERE id = ?').get(pid) as any
+    expect(prod.image_url).toBeNull()
+  })
+
+  it('refuses a packshot belonging to a different SKU', async () => {
+    const pid = seedProduct({ sku: 'SKU-MINE' })
+    const other = seedPackshot({ sku: 'SKU-THEIRS' })
+
+    const res = await request(app)
+      .put(`/api/products/${pid}/image`)
+      .set('Authorization', admin())
+      .send({ media_id: other.id })
+
+    expect(res.status).toBe(400)
+    expect(res.body.message).toMatch(/different SKU/i)
+    const row = db.prepare('SELECT is_primary FROM media WHERE id = ?').get(other.id) as any
+    expect(row.is_primary).toBe(0)
+  })
+
+  it('switching the image demotes the previous choice', async () => {
+    const sku = 'SKU-SWITCH'
+    const pid = seedProduct({ sku })
+    const first = seedPackshot({ sku, approved: 1 })
+    const second = seedPackshot({ sku, approved: 1 })
+
+    await request(app).put(`/api/products/${pid}/image`)
+      .set('Authorization', admin()).send({ media_id: first.id })
+    await request(app).put(`/api/products/${pid}/image`)
+      .set('Authorization', admin()).send({ media_id: second.id })
+
+    const rows = db.prepare('SELECT id, is_primary FROM media WHERE sku = ? ORDER BY id')
+      .all(sku) as any[]
+    expect(rows.map(r => r.is_primary)).toEqual([0, 1])
+  })
+
+  it('clearing with media_id null drops both the packshot and the URL override', async () => {
+    const sku = 'SKU-CLEAR'
+    const pid = seedProduct({ sku })
+    const p = seedPackshot({ sku, approved: 1 })
+    await request(app).put(`/api/products/${pid}/image`)
+      .set('Authorization', admin()).send({ media_id: p.id })
+    db.prepare('UPDATE products SET image_url = ? WHERE id = ?')
+      .run('https://cdn.example/leftover.png', pid)
+
+    const res = await request(app)
+      .put(`/api/products/${pid}/image`)
+      .set('Authorization', admin())
+      .send({ media_id: null })
+
+    expect(res.status).toBe(200)
+    expect(res.body.product.image_url).toBeNull()
+    const row = db.prepare('SELECT is_primary FROM media WHERE id = ?').get(p.id) as any
+    expect(row.is_primary).toBe(0)
+  })
+
+  it('404s for a product that does not exist', async () => {
+    const res = await request(app)
+      .put('/api/products/99999/image')
+      .set('Authorization', admin())
+      .send({ media_id: null })
+
+    expect(res.status).toBe(404)
+  })
+
+  it('surfaces the chosen image on the inventory list too', async () => {
+    const sku = 'SKU-INV'
+    const pid = seedProduct({ sku })
+    const p = seedPackshot({ sku, approved: 1 })
+    db.prepare(
+      'INSERT INTO inventory (product_id, product_name, brand, sku, quantity, reorder_level, status) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).run(pid, 'Test Product', 'Sliquid', sku, 10, 5, 'in_stock')
+
+    await request(app).put(`/api/products/${pid}/image`)
+      .set('Authorization', admin()).send({ media_id: p.id })
+
+    const res = await request(app).get('/api/inventory').set('Authorization', admin())
+
+    const row = res.body.find((r: any) => r.sku === sku)
+    expect(row.image_url).toBe(p.file_url)
+  })
+})

@@ -1397,14 +1397,42 @@ product meant editing that script, regenerating the catalog, re-copying it and r
 the agent can still see. Clearing approval would turn every discontinuation into a silent
 disappearance — the exact failure the tool exists to avoid. It also leaves `is_primary` intact.
 
+### ONE editor: the Products page
+**A product's image is chosen only on the Products page** (`ProductFormModal` → `PackshotPicker`),
+so the catalog, the marketing site, Inventory and the ChatGPT agent all read the same `media` row
+and cannot drift. `PUT /api/products/:id/image` is the **only** writer of `is_primary`.
+
+⚠️ `PackshotApprovalPanel` shows a **read-only** `PrimaryIndicator`, not a control. Do not re-add a
+"set as main image" button there — two screens writing the same designation is exactly what this
+replaced, and neither would obviously be authoritative.
+
+⚠️ `PUT /:id/image` **clears `products.image_url`**. The override outranks the packshot in the
+COALESCE, so without the clear, picking a packshot on a product that already had a URL would be a
+silent no-op — no error, no change, nothing in the log. The client mirrors this by blanking its URL
+field on pick. Tested both directions.
+
+⚠️ It also refuses a packshot whose `sku` differs from the product's. A wrong id in the body would
+otherwise hang another product's bottle on this SKU, and the agent would serve it under the wrong
+name.
+
+The custom-URL field survives as a labelled fallback for products with **no** packshot (103 of 105
+live products had no published image at the time this landed). While set it wins, and the agent
+cannot use it — so the UI warns that the two surfaces will disagree.
+
 ### Endpoints (all `requireRole('tier5','admin')`)
 | Method | Path | Description |
 |---|---|---|
 | GET | `/api/media/packshots` | Approval queue; `?status`, `?approved`, `?search`. `counts` always spans the FULL set, never the filtered one |
 | PUT | `/api/media/packshots/:id/approved` | The publish switch; guards require `active` + `sha256` + `asset_key` |
 | PUT | `/api/media/packshots/:id/status` | `{ status }` — active / discontinued / pending_approval; stamps `status_set_by`/`status_set_at` |
-| PUT | `/api/media/packshots/:id/primary` | `{ primary }` — demote-then-promote in ONE transaction; 400 if the row has no SKU |
+| PUT | `/api/media/packshots/:id/primary` | `{ primary }` — low-level primary setter. Kept for symmetry/tests; the UI path is `PUT /api/products/:id/image` |
 | GET | `/api/media/packshots/coverage` | `{ missing, orphaned, discontinued, counts }` — products with no published image, packshots whose SKU matches no product, and everything discontinued |
+| GET | `/api/products/packshot-candidates?sku=` | Every packshot for a SKU, any status. Keyed on **sku not id** so the picker works while ADDING a product. Registered before `GET /:id` |
+| PUT | `/api/products/:id/image` | `{ media_id }` or `{ media_id: null }` — the single image writer; clears the URL override; 400 on a SKU mismatch |
+
+**Resolved `image_url` is returned by** `GET /api/products`, `/:id`, `/catalog` **and**
+`GET /api/inventory` — all four use the same COALESCE. A new image surface must add it too, or that
+screen silently shows a blank tile.
 
 ⚠️ `PUT /item/media/:id` (the generic media editor) **refuses packshot rows** — it writes `type`,
 and `type='packshot'` is half the catalog predicate. Packshots are managed only through

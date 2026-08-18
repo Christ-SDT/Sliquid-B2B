@@ -290,50 +290,32 @@ function ApprovalControl({
 // ─── Primary + status controls ────────────────────────────────────────────────
 
 /**
- * The "main image" switch. Marking a packshot primary is what makes it the image
- * the product catalog and the marketing site show — before this existed, those
- * surfaces read `products.image_url`, which only the CSV import ever wrote, so a
- * packshot approved here was invisible everywhere else.
+ * Read-only indicator of whether this packshot is the product's main image.
  *
- * Requires a SKU: a primary image is the primary image OF a product, and the
- * server refuses an unmatched row for the same reason.
+ * Deliberately NOT a control. The image a product uses is chosen in ONE place —
+ * the Products page — so that the catalog, the marketing site, inventory and the
+ * ChatGPT agent cannot drift apart, and so nobody has to remember which of two
+ * screens is authoritative. `PUT /api/products/:id/image` is the only writer.
  */
-function PrimaryControl({
-  packshot, busy, onSetPrimary,
-}: {
-  packshot: Packshot
-  busy: boolean
-  onSetPrimary: (next: boolean) => void
-}) {
+function PrimaryIndicator({ packshot }: { packshot: Packshot }) {
   const isPrimary = packshot.is_primary === 1
-  const noSku = !packshot.sku
   const unpublished = packshot.approved !== 1
+
+  if (!isPrimary) {
+    return (
+      <p className="text-on-canvas-muted text-[11px] leading-snug">
+        Not this product's main image. Choose the main image on the Products page.
+      </p>
+    )
+  }
 
   return (
     <div className="space-y-1">
-      <button
-        onClick={() => onSetPrimary(!isPrimary)}
-        disabled={busy || noSku}
-        title={
-          noSku
-            ? 'No SKU on this row — match it to a product before it can be a main image'
-            : isPrimary
-              ? 'Stop using this as the main image for this SKU'
-              : 'Use this as the main image for this SKU everywhere in the portal'
-        }
-        className={cn(
-          'w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
-          isPrimary
-            ? 'bg-portal-accent/15 border-portal-accent/50 text-portal-accent'
-            : 'bg-surface-elevated border-portal-border text-on-canvas hover:border-portal-accent/50',
-        )}
-      >
-        {busy
-          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          : <Star className={cn('w-3.5 h-3.5', isPrimary && 'fill-current')} />}
-        {isPrimary ? 'Main image for this SKU' : 'Set as main image'}
-      </button>
-      {isPrimary && unpublished && (
+      <p className="text-portal-accent text-[11px] font-medium leading-snug flex items-start gap-1">
+        <Star className="w-3 h-3 fill-current flex-shrink-0 mt-px" />
+        Main image for this SKU — change it on the Products page
+      </p>
+      {unpublished && (
         <p className="text-amber-600 dark:text-amber-300 text-[11px] leading-snug flex items-start gap-1">
           <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-px" />
           Main image, but not published — the catalog shows nothing until this is approved.
@@ -380,13 +362,12 @@ function StatusControl({
 // ─── Card ─────────────────────────────────────────────────────────────────────
 
 function PackshotCard({
-  packshot, busy, onToggle, onSetStatus, onSetPrimary,
+  packshot, busy, onToggle, onSetStatus,
 }: {
   packshot: Packshot
   busy: boolean
   onToggle: (next: boolean) => void
   onSetStatus: (next: PackshotStatus) => void
-  onSetPrimary: (next: boolean) => void
 }) {
   const approved = packshot.approved === 1
   const live = approved && packshot.packshot_status === 'active'
@@ -495,7 +476,7 @@ function PackshotCard({
         <StatusControl packshot={packshot} busy={busy} onSetStatus={onSetStatus} />
 
         <div className="mt-auto pt-1 space-y-2">
-          <PrimaryControl packshot={packshot} busy={busy} onSetPrimary={onSetPrimary} />
+          <PrimaryIndicator packshot={packshot} />
           <ApprovalControl packshot={packshot} busy={busy} onToggle={onToggle} />
         </div>
       </div>
@@ -808,13 +789,11 @@ export default function PackshotApprovalPanel() {
   }
 
   /**
-   * Status and primary are NOT optimistic, unlike approval above.
+   * Status is NOT optimistic, unlike approval above.
    *
-   * Both have server-side consequences the client cannot predict: setting a
-   * primary demotes whichever row previously held it (which may not even be on
-   * screen under the current filter), and a status change alters whether the row
-   * is publishable at all. Guessing either would show a state that never existed.
-   * The server returns the authoritative row and counts, so we simply wait.
+   * A status change alters whether the row is publishable at all and recomputes
+   * every summary count, so guessing would show a state that never existed. The
+   * server returns the authoritative row and counts, so we simply wait.
    */
   async function changeStatus(packshot: Packshot, next: PackshotStatus) {
     if (next === packshot.packshot_status) return
@@ -829,30 +808,6 @@ export default function PackshotApprovalPanel() {
       setCounts(res.counts ?? EMPTY_COUNTS)
     } catch (err: any) {
       setActionError(`${displayName(packshot)}: ${err.message ?? 'Failed to change status'}`)
-    } finally {
-      setBusyIds(prev => prev.filter(id => id !== packshot.id))
-    }
-  }
-
-  async function changePrimary(packshot: Packshot, next: boolean) {
-    setActionError('')
-    setBusyIds(prev => [...prev, packshot.id])
-    try {
-      const res = await api.put<ToggleResponse>(
-        `/media/packshots/${packshot.id}/primary`,
-        { primary: next },
-      )
-      // A promotion demotes the previous holder for this SKU, which may be
-      // another card in view — clear the flag locally on every sibling so two
-      // cards never both claim "Main".
-      setItems(prev => prev.map(i => {
-        if (i.id === packshot.id) return res.item
-        if (next && i.sku && i.sku === packshot.sku) return { ...i, is_primary: 0 }
-        return i
-      }))
-      setCounts(res.counts ?? EMPTY_COUNTS)
-    } catch (err: any) {
-      setActionError(`${displayName(packshot)}: ${err.message ?? 'Failed to set main image'}`)
     } finally {
       setBusyIds(prev => prev.filter(id => id !== packshot.id))
     }
@@ -1059,7 +1014,6 @@ export default function PackshotApprovalPanel() {
                 busy={busyIds.includes(p.id)}
                 onToggle={next => toggleApproval(p, next)}
                 onSetStatus={next => changeStatus(p, next)}
-                onSetPrimary={next => changePrimary(p, next)}
               />
             ))}
           </div>
