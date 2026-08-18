@@ -1215,6 +1215,45 @@ const migrations: Migration[] = [
       add('approved_at', 'TEXT')
     },
   },
+  {
+    version: 58,
+    name: 'packshot_primary_and_status_audit',
+    up: () => {
+      // Two gaps this closes.
+      //
+      // 1. `is_primary` gives a SKU ONE canonical image. Before this, a product's
+      //    image lived in `products.image_url` (set only by CSV import) while its
+      //    packshots lived here, with nothing connecting them — so "update the main
+      //    image" meant editing several places and hoping they agreed.
+      //
+      // 2. `packshot_status` was effectively write-once: the ONLY writer was the
+      //    importer, sourcing it from a hardcoded regex array in
+      //    scripts/packshot-data/build-catalog.mjs. Marking a product discontinued
+      //    meant editing that script, regenerating the catalog and re-importing.
+      //    Status is now settable over the API, so record who changed it — same
+      //    reasoning as approved_by/approved_at in v57.
+      const cols = (db.prepare(`SELECT name FROM pragma_table_info('media')`).all() as { name: string }[]).map(c => c.name)
+      const add = (col: string, def: string) => {
+        if (!cols.includes(col)) db.exec(`ALTER TABLE media ADD COLUMN ${col} ${def}`)
+      }
+      add('is_primary',     'INTEGER NOT NULL DEFAULT 0')
+      add('status_set_by',  'TEXT')
+      add('status_set_at',  'TEXT')
+
+      // One primary per SKU, enforced by the DB rather than by convention — a
+      // second writer racing the "demote the old primary" step would otherwise
+      // leave two, and every COALESCE read would pick arbitrarily.
+      //
+      // NULL skus are exempt: SQLite treats NULLs as distinct in a UNIQUE index,
+      // so unmatched packshots cannot collide with each other. The API refuses to
+      // mark a null-sku row primary anyway — there is no product for it to be the
+      // primary OF.
+      db.exec(`
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_media_primary_per_sku
+          ON media(sku) WHERE is_primary = 1 AND type = 'packshot';
+      `)
+    },
+  },
 ]
 
 function runMigrations(): void {

@@ -4,14 +4,58 @@ import { requireAuth, requireRole } from '../middleware/auth.js'
 
 const router = Router()
 
+/**
+ * Resolve a product's image and discontinued flag from its PRIMARY packshot.
+ *
+ * `products.image_url` is only ever written by the CSV import, so before this
+ * the two image systems could not agree: a packshot uploaded and approved for
+ * the Brand Agent was invisible to the catalog, and the catalog's image was
+ * invisible to the agent. Reading through COALESCE makes the packshot the single
+ * place to set a product's main image, while leaving an explicit `image_url`
+ * override winning — the same precedence the announcements code already uses for
+ * `COALESCE(override, wp_*)`.
+ *
+ * ⚠️ Requires `approved = 1`. These rows feed the PUBLIC catalog and the
+ * marketing site, so an image nobody has reviewed must not reach a customer;
+ * "published" means one thing everywhere. A product whose only packshot is still
+ * awaiting approval therefore shows no image — GET /api/media/packshots/coverage
+ * is what makes that visible instead of merely absent.
+ *
+ * ⚠️ Does NOT require status = 'active'. A discontinued product still has a
+ * correct image, and showing it alongside a discontinued flag is more useful than
+ * falling back to nothing. That is why the status comes back as its own field.
+ */
+const PRIMARY_PACKSHOT_SQL = `(
+  SELECT m.file_url FROM media m
+   WHERE m.type = 'packshot' AND m.sku = p.sku
+     AND m.is_primary = 1 AND m.approved = 1
+   LIMIT 1
+)`
+
+/**
+ * The discontinued signal lives on the packshot, not on the product — `products`
+ * has no such column. This surfaces the primary packshot's status so the catalog
+ * can badge a discontinued item rather than quietly keep selling it. NULL means
+ * "no primary packshot", which is not the same as active.
+ */
+const PRIMARY_STATUS_SQL = `(
+  SELECT COALESCE(m.packshot_status, 'active') FROM media m
+   WHERE m.type = 'packshot' AND m.sku = p.sku
+     AND m.is_primary = 1 AND m.approved = 1
+   LIMIT 1
+)`
+
 router.get('/', requireAuth, (req, res) => {
   const { brand, category, search } = req.query
-  let sql = 'SELECT * FROM products WHERE 1=1'
+  let sql = `SELECT p.*,
+                    COALESCE(p.image_url, ${PRIMARY_PACKSHOT_SQL}) AS image_url,
+                    ${PRIMARY_STATUS_SQL} AS primary_packshot_status
+               FROM products p WHERE 1=1`
   const params: any[] = []
-  if (brand) { sql += ' AND brand = ?'; params.push(brand) }
-  if (category) { sql += ' AND category = ?'; params.push(category) }
-  if (search) { sql += ' AND (name LIKE ? OR sku LIKE ?)'; params.push(`%${search}%`, `%${search}%`) }
-  sql += ' ORDER BY brand, name'
+  if (brand) { sql += ' AND p.brand = ?'; params.push(brand) }
+  if (category) { sql += ' AND p.category = ?'; params.push(category) }
+  if (search) { sql += ' AND (p.name LIKE ? OR p.sku LIKE ?)'; params.push(`%${search}%`, `%${search}%`) }
+  sql += ' ORDER BY p.brand, p.name'
   res.json(db.prepare(sql).all(...params))
 })
 
@@ -96,19 +140,27 @@ router.post('/import', requireAuth, requireRole('tier5', 'admin'), (req, res) =>
 // Public catalog — no auth required; omits wholesale pricing (price, case_cost)
 router.get('/catalog', (req, res) => {
   const { brand, category, search } = req.query
-  let sql = `SELECT id, name, brand, category, image_url, in_stock, unit_size,
-               unit_msrp, case_pack, case_weight, unit_dimensions, case_dimensions, description, is_new
-             FROM products WHERE name NOT LIKE '%Multilingual%'`
+  let sql = `SELECT p.id, p.name, p.brand, p.category, p.in_stock, p.unit_size,
+               p.unit_msrp, p.case_pack, p.case_weight, p.unit_dimensions, p.case_dimensions,
+               p.description, p.is_new,
+               COALESCE(p.image_url, ${PRIMARY_PACKSHOT_SQL}) AS image_url,
+               ${PRIMARY_STATUS_SQL} AS primary_packshot_status
+             FROM products p WHERE p.name NOT LIKE '%Multilingual%'`
   const params: any[] = []
-  if (brand) { sql += ' AND brand = ?'; params.push(brand) }
-  if (category) { sql += ' AND category = ?'; params.push(category) }
-  if (search) { sql += ' AND name LIKE ?'; params.push(`%${search}%`) }
-  sql += ' ORDER BY is_new DESC, brand, name'
+  if (brand) { sql += ' AND p.brand = ?'; params.push(brand) }
+  if (category) { sql += ' AND p.category = ?'; params.push(category) }
+  if (search) { sql += ' AND p.name LIKE ?'; params.push(`%${search}%`) }
+  sql += ' ORDER BY p.is_new DESC, p.brand, p.name'
   res.json(db.prepare(sql).all(...params))
 })
 
 router.get('/:id', requireAuth, (req, res) => {
-  const product = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id)
+  const product = db.prepare(`
+    SELECT p.*,
+           COALESCE(p.image_url, ${PRIMARY_PACKSHOT_SQL}) AS image_url,
+           ${PRIMARY_STATUS_SQL} AS primary_packshot_status
+      FROM products p WHERE p.id = ?
+  `).get(req.params.id)
   if (!product) { res.status(404).json({ message: 'Not found' }); return }
   res.json(product)
 })

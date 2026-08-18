@@ -278,8 +278,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 
 | 56 | `packshot_catalog_columns` | Adds `sku`, `unit_size`, `package_version`, `packshot_status`, `approved`, `sha256`, `asset_key` to `media`; partial UNIQUE index on `asset_key`, index on `(approved, packshot_status)`. Backs the MCP packshot catalog — see [Asset MCP Server](#asset-mcp-server--chatgpt-brand-agent) |
 | 57 | `packshot_approval_audit` | Adds `approved_by`, `approved_at` to `media` — records who published an asset to the external ChatGPT agent, and when |
+| 58 | `packshot_primary_and_status_audit` | Adds `is_primary`, `status_set_by`, `status_set_at` to `media`; partial UNIQUE index `idx_media_primary_per_sku` on `media(sku) WHERE is_primary = 1 AND type = 'packshot'`. Backs the main-image and discontinue controls — see [Packshot lifecycle](#packshot-lifecycle--main-image--coverage) |
 
-**Next migration version: 58**
+**Next migration version: 59**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -1342,13 +1343,91 @@ withhold an asset. Conflating them silently withheld six live Organics SKUs.
 ⚠️ Filename sizes are shorthand: `4z` → **4.2 oz**, `8z` → **8.5 oz**. There is no literal
 "4 oz" or "8 oz" SKU — same trap documented in `rewardOptions.ts`.
 
+---
+
+## Packshot lifecycle — main image + coverage
+
+### Two gates, and they are not the same thing
+| Gate | Column | Means |
+|---|---|---|
+| **Identity** | `sku`, `packshot_status` | which product this is, and whether it is still sold |
+| **Publication** | `approved` | may the external ChatGPT agent retrieve it |
+
+Identity is resolved **off-server** in `scripts/packshot-data/` before import: `build-catalog.mjs`
+parses filenames conservatively and emits `needs_review: true` + `status: 'pending_approval'`
+rather than guessing; `map-skus.mjs` only *proposes* filename→SKU matches, and low-confidence ones
+go to `overrides.json` for a human. Publication is the admin's click in `PackshotApprovalPanel`.
+
+### `is_primary` — one canonical image per SKU
+`products.image_url` is only ever written by the **CSV import**. WooCommerce auto-import inserts
+products with `brand='Imported'` and **no image at all**, and nothing else writes it — so before
+v58 a packshot approved for the agent was invisible to the catalog and vice versa.
+
+`media.is_primary` designates the canonical image for a SKU, and product reads resolve it:
+
+```sql
+COALESCE(products.image_url, <primary packshot file_url>) AS image_url
+```
+
+`PRIMARY_PACKSHOT_SQL` / `PRIMARY_STATUS_SQL` in `routes/products.ts` apply this to `GET /`,
+`GET /:id` and `GET /catalog`. An explicit `products.image_url` still wins — the same precedence
+as `COALESCE(override, wp_*)` in Announcements.
+
+⚠️ **The resolver requires `approved = 1`** — these rows feed the PUBLIC catalog and the marketing
+site, so an unreviewed image must never reach a customer. A product whose only packshot is awaiting
+approval therefore renders with **no image**; `GET /api/media/packshots/coverage` is what makes that
+visible rather than merely absent.
+
+⚠️ **The resolver deliberately does NOT require `status = 'active'`.** A discontinued product still
+has a correct image, so the catalog keeps showing it and returns
+`primary_packshot_status = 'discontinued'` alongside, letting the UI badge it instead of falling
+back to nothing. `products` has **no** discontinued column — the signal lives on the packshot.
+
+⚠️ One primary per SKU is enforced by a **partial UNIQUE index**, not by convention, so two
+concurrent writers cannot leave two primaries for `COALESCE` to pick between arbitrarily. NULL skus
+are exempt (SQLite treats NULLs as distinct), which is why `PUT /primary` refuses a row with no SKU.
+
+### Status is now settable — it used to be write-once
+Before v58 the **only** writer of `packshot_status` was `importPackshots.ts`, sourcing it from a
+hardcoded `DISCONTINUED` regex array in `scripts/packshot-data/build-catalog.mjs`. Discontinuing a
+product meant editing that script, regenerating the catalog, re-copying it and re-importing.
+
+⚠️ `PUT /packshots/:id/status` deliberately **does not clear `approved`** when moving off `active`.
+`search_packshots` reports "discontinued" instead of "not found", which is only possible for a row
+the agent can still see. Clearing approval would turn every discontinuation into a silent
+disappearance — the exact failure the tool exists to avoid. It also leaves `is_primary` intact.
+
+### Endpoints (all `requireRole('tier5','admin')`)
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/media/packshots` | Approval queue; `?status`, `?approved`, `?search`. `counts` always spans the FULL set, never the filtered one |
+| PUT | `/api/media/packshots/:id/approved` | The publish switch; guards require `active` + `sha256` + `asset_key` |
+| PUT | `/api/media/packshots/:id/status` | `{ status }` — active / discontinued / pending_approval; stamps `status_set_by`/`status_set_at` |
+| PUT | `/api/media/packshots/:id/primary` | `{ primary }` — demote-then-promote in ONE transaction; 400 if the row has no SKU |
+| GET | `/api/media/packshots/coverage` | `{ missing, orphaned, discontinued, counts }` — products with no published image, packshots whose SKU matches no product, and everything discontinued |
+
+⚠️ `PUT /item/media/:id` (the generic media editor) **refuses packshot rows** — it writes `type`,
+and `type='packshot'` is half the catalog predicate. Packshots are managed only through
+`/packshots/*`.
+
+### Client
+`PackshotApprovalPanel.tsx` has two tabs: **Approval queue** (cards with a status dropdown, a
+"Set as main image" star and the publish control) and **Coverage** (the gap report). Approval is
+optimistic; **status and primary are not** — both have server-side effects the client cannot
+predict (a promotion demotes a row that may be off-screen under the current filter), so the panel
+waits for the authoritative row rather than showing a state that never existed.
+
+Tests: `src/__tests__/routes/packshot-catalog.test.ts` (24 tests) covers the guards, the
+approved-survives-discontinue invariant, the unique index rejecting a second primary on a raw
+write, and that an unapproved primary never reaches the public catalog.
+
 ## Conventions
 
 - **Styling:** Tailwind only. Use the custom tokens (`bg-surface`, `bg-portal-bg`, `bg-surface-elevated`, `border-portal-border`, `text-portal-accent`) — do not use raw colors for structural elements.
 - **Icons:** `lucide-react` exclusively.
 - **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export), public pre-auth calls (e.g., `/api/stores` from RegisterPage), and the public certificate verify page use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **58**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **59**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
 - **`AnnouncementBody.tsx` is duplicated** in `src/components/` and `portal/client/src/components/`.

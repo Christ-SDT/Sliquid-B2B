@@ -3,6 +3,7 @@ import { api } from '@/api/client'
 import {
   Bot, ShieldCheck, ShieldOff, Search, Loader2, AlertCircle, AlertTriangle,
   Clock, Ban, PackageSearch, Fingerprint, KeyRound, EyeOff, RefreshCw,
+  Star, ImageOff, Unlink, ListChecks,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -46,6 +47,21 @@ export interface Packshot {
   product_category: string | null
   product_brand: string | null
   product_upc: string | null
+  is_primary: number
+  status_set_by: string | null
+  status_set_at: string | null
+}
+
+/** A product row from the coverage report — a product, not a packshot. */
+export interface UncoveredProduct {
+  id: number
+  sku: string
+  name: string
+  brand: string | null
+  category: string | null
+  unit_size: string | null
+  /** How many packshots exist for this SKU at all, published or not. */
+  packshot_count: number
 }
 
 interface PackshotCounts {
@@ -54,6 +70,20 @@ interface PackshotCounts {
   awaiting: number
   discontinued: number
   approved_not_active: number
+  primary_set: number
+  orphaned: number
+}
+
+interface CoverageResponse {
+  missing: UncoveredProduct[]
+  orphaned: Packshot[]
+  discontinued: Packshot[]
+  counts: PackshotCounts & {
+    products_total: number
+    products_missing: number
+    orphaned: number
+    discontinued_listed: number
+  }
 }
 
 interface PackshotResponse {
@@ -69,6 +99,7 @@ interface ToggleResponse {
 
 const EMPTY_COUNTS: PackshotCounts = {
   total: 0, live: 0, awaiting: 0, discontinued: 0, approved_not_active: 0,
+  primary_set: 0, orphaned: 0,
 }
 
 // ─── Filters ──────────────────────────────────────────────────────────────────
@@ -114,10 +145,10 @@ function statusLabel(status: PackshotStatus): string {
  */
 function blockedReason(p: Packshot): string | null {
   if (p.packshot_status === 'discontinued') {
-    return 'Discontinued packshots can never be published — the agent must not show a bottle that is no longer on shelf.'
+    return 'Discontinued packshots cannot be published — the agent must not show a bottle that is no longer on shelf. Set the status back to Active if this product is being sold again.'
   }
   if (p.packshot_status === 'pending_approval') {
-    return 'This packshot is still marked pending_approval in the catalog. Only rows the import marked active can be published.'
+    return 'Still marked pending approval, which means the import could not confirm which product this is. Confirm the identity, then set the status to Active.'
   }
   if (!p.sha256) {
     return 'No sha256 on this row — the file contents are unverifiable, so it cannot be published. Re-run the import to hash it.'
@@ -256,14 +287,106 @@ function ApprovalControl({
   )
 }
 
+// ─── Primary + status controls ────────────────────────────────────────────────
+
+/**
+ * The "main image" switch. Marking a packshot primary is what makes it the image
+ * the product catalog and the marketing site show — before this existed, those
+ * surfaces read `products.image_url`, which only the CSV import ever wrote, so a
+ * packshot approved here was invisible everywhere else.
+ *
+ * Requires a SKU: a primary image is the primary image OF a product, and the
+ * server refuses an unmatched row for the same reason.
+ */
+function PrimaryControl({
+  packshot, busy, onSetPrimary,
+}: {
+  packshot: Packshot
+  busy: boolean
+  onSetPrimary: (next: boolean) => void
+}) {
+  const isPrimary = packshot.is_primary === 1
+  const noSku = !packshot.sku
+  const unpublished = packshot.approved !== 1
+
+  return (
+    <div className="space-y-1">
+      <button
+        onClick={() => onSetPrimary(!isPrimary)}
+        disabled={busy || noSku}
+        title={
+          noSku
+            ? 'No SKU on this row — match it to a product before it can be a main image'
+            : isPrimary
+              ? 'Stop using this as the main image for this SKU'
+              : 'Use this as the main image for this SKU everywhere in the portal'
+        }
+        className={cn(
+          'w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+          isPrimary
+            ? 'bg-portal-accent/15 border-portal-accent/50 text-portal-accent'
+            : 'bg-surface-elevated border-portal-border text-on-canvas hover:border-portal-accent/50',
+        )}
+      >
+        {busy
+          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          : <Star className={cn('w-3.5 h-3.5', isPrimary && 'fill-current')} />}
+        {isPrimary ? 'Main image for this SKU' : 'Set as main image'}
+      </button>
+      {isPrimary && unpublished && (
+        <p className="text-amber-600 dark:text-amber-300 text-[11px] leading-snug flex items-start gap-1">
+          <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-px" />
+          Main image, but not published — the catalog shows nothing until this is approved.
+        </p>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Status editor. Until this existed the ONLY writer of `packshot_status` was the
+ * import script, sourcing it from a hardcoded regex list — so discontinuing a
+ * product meant editing that script and re-importing the whole catalog.
+ */
+function StatusControl({
+  packshot, busy, onSetStatus,
+}: {
+  packshot: Packshot
+  busy: boolean
+  onSetStatus: (next: PackshotStatus) => void
+}) {
+  return (
+    <label className="block">
+      <span className="text-on-canvas-muted uppercase tracking-wide text-[9px]">Product status</span>
+      <select
+        value={packshot.packshot_status}
+        disabled={busy}
+        onChange={e => onSetStatus(e.target.value as PackshotStatus)}
+        className="mt-0.5 w-full bg-portal-bg border border-portal-border rounded-md px-2 py-1.5 text-xs text-on-canvas focus:outline-none focus:border-portal-accent disabled:opacity-50"
+      >
+        <option value="active">Active</option>
+        <option value="pending_approval">Pending approval</option>
+        <option value="discontinued">Discontinued</option>
+      </select>
+      {packshot.status_set_by && (
+        <span className="block text-on-canvas-muted text-[10px] mt-0.5 truncate" title={`${packshot.status_set_by} · ${packshot.status_set_at ?? ''}`}>
+          set by {packshot.status_set_by}
+        </span>
+      )}
+    </label>
+  )
+}
+
 // ─── Card ─────────────────────────────────────────────────────────────────────
 
 function PackshotCard({
-  packshot, busy, onToggle,
+  packshot, busy, onToggle, onSetStatus, onSetPrimary,
 }: {
   packshot: Packshot
   busy: boolean
   onToggle: (next: boolean) => void
+  onSetStatus: (next: PackshotStatus) => void
+  onSetPrimary: (next: boolean) => void
 }) {
   const approved = packshot.approved === 1
   const live = approved && packshot.packshot_status === 'active'
@@ -296,6 +419,15 @@ function PackshotCard({
           <span className="absolute top-1.5 right-1.5 flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border font-semibold leading-none bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border-emerald-500/40">
             <Bot className="w-3 h-3" />
             Live
+          </span>
+        )}
+        {packshot.is_primary === 1 && (
+          <span
+            title="Main image for this SKU — shown in the product catalog and on the marketing site"
+            className="absolute bottom-1.5 left-1.5 flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border font-semibold leading-none bg-portal-accent/20 text-portal-accent border-portal-accent/40"
+          >
+            <Star className="w-3 h-3 fill-current" />
+            Main
           </span>
         )}
       </div>
@@ -360,10 +492,235 @@ function PackshotCard({
           </span>
         </div>
 
-        <div className="mt-auto pt-1">
+        <StatusControl packshot={packshot} busy={busy} onSetStatus={onSetStatus} />
+
+        <div className="mt-auto pt-1 space-y-2">
+          <PrimaryControl packshot={packshot} busy={busy} onSetPrimary={onSetPrimary} />
           <ApprovalControl packshot={packshot} busy={busy} onToggle={onToggle} />
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── Coverage ─────────────────────────────────────────────────────────────────
+
+/**
+ * The gap report. A product can reach `products` three ways — CSV import,
+ * WooCommerce auto-import, or manual create — and none of them touch `media`, so
+ * a product with no packshot was previously invisible: nothing anywhere asked the
+ * question. This is the surface that makes a new item without an image show up as
+ * a number instead of as an absence nobody noticed.
+ */
+function CoverageView() {
+  const [data, setData] = useState<CoverageResponse | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const load = useCallback(() => {
+    setLoading(true)
+    setError('')
+    api.get<CoverageResponse>('/media/packshots/coverage')
+      .then(d => { setData(d); setLoading(false) })
+      .catch(err => { setError(err.message ?? 'Failed to load coverage'); setLoading(false) })
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-portal-accent" />
+      </div>
+    )
+  }
+  if (error) {
+    return (
+      <div className="flex items-center gap-2 text-red-500 text-sm bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3">
+        <AlertCircle className="w-4 h-4 flex-shrink-0" />{error}
+      </div>
+    )
+  }
+  if (!data) return null
+
+  const { missing, orphaned, discontinued, counts } = data
+  const covered = counts.products_total - counts.products_missing
+
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <SummaryTile
+          icon={ShieldCheck}
+          value={covered}
+          title={`Covered of ${counts.products_total} products`}
+          subtitle="Has an approved, active packshot"
+          tone="live"
+        />
+        <SummaryTile
+          icon={ImageOff}
+          value={counts.products_missing}
+          title="No published image"
+          subtitle="Product exists, nothing live for it"
+          tone="awaiting"
+        />
+        <SummaryTile
+          icon={Unlink}
+          value={counts.orphaned}
+          title="Orphaned packshots"
+          subtitle="No product matches the SKU"
+          tone="muted"
+        />
+      </div>
+
+      <button
+        onClick={load}
+        className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border border-portal-border bg-surface-elevated text-on-canvas-subtle hover:text-on-canvas transition-colors"
+      >
+        <RefreshCw className={cn('w-3 h-3', loading && 'animate-spin')} />
+        Refresh
+      </button>
+
+      {/* Products with no published image */}
+      <section className="bg-surface border border-portal-border rounded-xl overflow-hidden">
+        <header className="px-4 py-3 border-b border-portal-border">
+          <h3 className="text-on-canvas text-sm font-semibold flex items-center gap-2">
+            <ImageOff className="w-4 h-4 text-amber-500" />
+            Products with no published image ({missing.length})
+          </h3>
+          <p className="text-on-canvas-muted text-xs mt-1 leading-relaxed">
+            A count in the "Packshots" column means files exist but none is approved and active —
+            approve one in the queue. A zero means nothing has been imported for that SKU at all.
+          </p>
+        </header>
+        {missing.length === 0 ? (
+          <p className="px-4 py-6 text-on-canvas-muted text-sm text-center">
+            Every product has a published image.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-on-canvas-muted text-[11px] uppercase tracking-wide">
+                  <th className="text-left font-medium px-4 py-2">Product</th>
+                  <th className="text-left font-medium px-4 py-2">SKU</th>
+                  <th className="text-left font-medium px-4 py-2">Brand</th>
+                  <th className="text-left font-medium px-4 py-2">Size</th>
+                  <th className="text-right font-medium px-4 py-2">Packshots</th>
+                </tr>
+              </thead>
+              <tbody>
+                {missing.map(m => (
+                  <tr key={m.id} className="border-t border-portal-border">
+                    <td className="px-4 py-2 text-on-canvas">{m.name}</td>
+                    <td className="px-4 py-2 text-on-canvas-subtle font-mono text-xs">{m.sku}</td>
+                    <td className="px-4 py-2 text-on-canvas-subtle">{m.brand ?? '—'}</td>
+                    <td className="px-4 py-2 text-on-canvas-subtle">{m.unit_size ?? '—'}</td>
+                    <td className="px-4 py-2 text-right">
+                      <span className={cn(
+                        'inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold border',
+                        m.packshot_count > 0
+                          ? 'bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/40'
+                          : 'bg-red-500/10 text-red-500 border-red-500/40',
+                      )}>
+                        {m.packshot_count}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {/* Orphaned packshots */}
+      <section className="bg-surface border border-portal-border rounded-xl overflow-hidden">
+        <header className="px-4 py-3 border-b border-portal-border">
+          <h3 className="text-on-canvas text-sm font-semibold flex items-center gap-2">
+            <Unlink className="w-4 h-4 text-on-canvas-muted" />
+            Orphaned packshots ({orphaned.length})
+          </h3>
+          <p className="text-on-canvas-muted text-xs mt-1 leading-relaxed">
+            No product row matches these SKUs, so they lose their name and category and can never be
+            a main image. Either the SKU is wrong or the product is missing from the catalog.
+          </p>
+        </header>
+        {orphaned.length === 0 ? (
+          <p className="px-4 py-6 text-on-canvas-muted text-sm text-center">
+            Every packshot matches a product.
+          </p>
+        ) : (
+          <ul className="divide-y divide-portal-border">
+            {orphaned.map(o => (
+              <li key={o.id} className="px-4 py-2.5 flex items-center gap-3">
+                <img
+                  src={o.thumbnail_url || o.file_url}
+                  alt={displayName(o)}
+                  loading="lazy"
+                  className="w-10 h-10 object-contain bg-portal-bg rounded border border-portal-border flex-shrink-0"
+                  onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden' }}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-on-canvas text-sm truncate">{displayName(o)}</p>
+                  <p className="text-on-canvas-muted text-xs font-mono truncate">
+                    {o.sku ? `sku ${o.sku} — no product` : 'no sku'}
+                  </p>
+                </div>
+                {o.approved === 1 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full border font-semibold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border-emerald-500/40 flex-shrink-0">
+                    Live
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Discontinued */}
+      <section className="bg-surface border border-portal-border rounded-xl overflow-hidden">
+        <header className="px-4 py-3 border-b border-portal-border">
+          <h3 className="text-on-canvas text-sm font-semibold flex items-center gap-2">
+            <Ban className="w-4 h-4 text-on-canvas-muted" />
+            Discontinued ({discontinued.length})
+          </h3>
+          <p className="text-on-canvas-muted text-xs mt-1 leading-relaxed">
+            Marked off shelf. The agent reports these as discontinued rather than "not found", and the
+            catalog still shows the image flagged as discontinued rather than falling back to nothing.
+          </p>
+        </header>
+        {discontinued.length === 0 ? (
+          <p className="px-4 py-6 text-on-canvas-muted text-sm text-center">
+            Nothing is marked discontinued.
+          </p>
+        ) : (
+          <ul className="divide-y divide-portal-border">
+            {discontinued.map(d => (
+              <li key={d.id} className="px-4 py-2.5 flex items-center gap-3">
+                <img
+                  src={d.thumbnail_url || d.file_url}
+                  alt={displayName(d)}
+                  loading="lazy"
+                  className="w-10 h-10 object-contain bg-portal-bg rounded border border-portal-border flex-shrink-0 opacity-60"
+                  onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden' }}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-on-canvas text-sm truncate">{displayName(d)}</p>
+                  <p className="text-on-canvas-muted text-xs truncate">
+                    {d.sku ? `sku ${d.sku}` : 'no sku'}
+                    {d.status_set_by ? ` — set by ${d.status_set_by}` : ''}
+                  </p>
+                </div>
+                {d.is_primary === 1 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full border font-semibold bg-portal-accent/20 text-portal-accent border-portal-accent/40 flex-shrink-0">
+                    Main
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   )
 }
@@ -378,6 +735,7 @@ export default function PackshotApprovalPanel() {
   const [actionError, setActionError] = useState('')
   const [busyIds, setBusyIds] = useState<number[]>([])
 
+  const [tab, setTab] = useState<'queue' | 'coverage'>('queue')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [approvalFilter, setApprovalFilter] = useState<string>('all')
   const [search, setSearch] = useState('')
@@ -449,10 +807,85 @@ export default function PackshotApprovalPanel() {
     }
   }
 
+  /**
+   * Status and primary are NOT optimistic, unlike approval above.
+   *
+   * Both have server-side consequences the client cannot predict: setting a
+   * primary demotes whichever row previously held it (which may not even be on
+   * screen under the current filter), and a status change alters whether the row
+   * is publishable at all. Guessing either would show a state that never existed.
+   * The server returns the authoritative row and counts, so we simply wait.
+   */
+  async function changeStatus(packshot: Packshot, next: PackshotStatus) {
+    if (next === packshot.packshot_status) return
+    setActionError('')
+    setBusyIds(prev => [...prev, packshot.id])
+    try {
+      const res = await api.put<ToggleResponse>(
+        `/media/packshots/${packshot.id}/status`,
+        { status: next },
+      )
+      setItems(prev => prev.map(i => i.id === packshot.id ? res.item : i))
+      setCounts(res.counts ?? EMPTY_COUNTS)
+    } catch (err: any) {
+      setActionError(`${displayName(packshot)}: ${err.message ?? 'Failed to change status'}`)
+    } finally {
+      setBusyIds(prev => prev.filter(id => id !== packshot.id))
+    }
+  }
+
+  async function changePrimary(packshot: Packshot, next: boolean) {
+    setActionError('')
+    setBusyIds(prev => [...prev, packshot.id])
+    try {
+      const res = await api.put<ToggleResponse>(
+        `/media/packshots/${packshot.id}/primary`,
+        { primary: next },
+      )
+      // A promotion demotes the previous holder for this SKU, which may be
+      // another card in view — clear the flag locally on every sibling so two
+      // cards never both claim "Main".
+      setItems(prev => prev.map(i => {
+        if (i.id === packshot.id) return res.item
+        if (next && i.sku && i.sku === packshot.sku) return { ...i, is_primary: 0 }
+        return i
+      }))
+      setCounts(res.counts ?? EMPTY_COUNTS)
+    } catch (err: any) {
+      setActionError(`${displayName(packshot)}: ${err.message ?? 'Failed to set main image'}`)
+    } finally {
+      setBusyIds(prev => prev.filter(id => id !== packshot.id))
+    }
+  }
+
   const filtersActive = statusFilter !== 'all' || approvalFilter !== 'all' || !!debouncedSearch.trim()
 
   return (
     <div className="space-y-5">
+
+      {/* Tabs */}
+      <div className="flex items-center gap-2">
+        {([
+          { value: 'queue',    label: 'Approval queue', icon: ListChecks },
+          { value: 'coverage', label: 'Coverage',       icon: ImageOff },
+        ] as const).map(t => (
+          <button
+            key={t.value}
+            onClick={() => setTab(t.value)}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors',
+              tab === t.value
+                ? 'bg-portal-accent border-portal-accent text-white'
+                : 'bg-surface-elevated border-portal-border text-on-canvas-subtle hover:text-on-canvas',
+            )}
+          >
+            <t.icon className="w-4 h-4" />
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'coverage' ? <CoverageView /> : <>
 
       {/* Stakes banner */}
       <div className="rounded-xl border border-portal-accent/40 bg-portal-accent/5 p-4 flex items-start gap-3">
@@ -625,11 +1058,15 @@ export default function PackshotApprovalPanel() {
                 packshot={p}
                 busy={busyIds.includes(p.id)}
                 onToggle={next => toggleApproval(p, next)}
+                onSetStatus={next => changeStatus(p, next)}
+                onSetPrimary={next => changePrimary(p, next)}
               />
             ))}
           </div>
         </>
       )}
+
+      </>}
     </div>
   )
 }

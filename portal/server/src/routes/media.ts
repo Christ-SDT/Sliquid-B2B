@@ -158,6 +158,7 @@ const PACKSHOT_SELECT = `
          ${PACKSHOT_STATUS_SQL} AS packshot_status,
          m.approved, m.sha256, m.asset_key,
          m.approved_by, m.approved_at,
+         m.is_primary, m.status_set_by, m.status_set_at,
          p.name     AS product_name,
          p.category AS product_category,
          p.brand    AS product_brand,
@@ -181,7 +182,11 @@ function packshotCounts() {
       SUM(CASE WHEN m.approved = 1 AND ${PACKSHOT_STATUS_SQL} = 'active'  THEN 1 ELSE 0 END) AS live,
       SUM(CASE WHEN m.approved = 0 AND ${PACKSHOT_STATUS_SQL} <> 'discontinued' THEN 1 ELSE 0 END) AS awaiting,
       SUM(CASE WHEN ${PACKSHOT_STATUS_SQL} = 'discontinued' THEN 1 ELSE 0 END) AS discontinued,
-      SUM(CASE WHEN m.approved = 1 AND ${PACKSHOT_STATUS_SQL} <> 'active' THEN 1 ELSE 0 END) AS approved_not_active
+      SUM(CASE WHEN m.approved = 1 AND ${PACKSHOT_STATUS_SQL} <> 'active' THEN 1 ELSE 0 END) AS approved_not_active,
+      SUM(CASE WHEN m.is_primary = 1 THEN 1 ELSE 0 END) AS primary_set,
+      SUM(CASE WHEN m.sku IS NULL OR NOT EXISTS (
+            SELECT 1 FROM products p2 WHERE p2.sku = m.sku
+          ) THEN 1 ELSE 0 END) AS orphaned
     FROM media m WHERE m.type = 'packshot'
   `).get() as Record<string, number>
 }
@@ -291,6 +296,165 @@ router.put('/packshots/:id/approved', requireAuth, requireRole('tier5', 'admin')
   } catch (err: any) {
     console.error('[media] packshot approve error:', err)
     res.status(500).json({ message: err.message ?? 'Failed to update approval' })
+  }
+})
+
+// ─── PUT /packshots/:id/status — the discontinue switch ──────────────────────
+
+router.put('/packshots/:id/status', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ message: 'Invalid id' }); return
+  }
+
+  const { status } = req.body ?? {}
+  if (typeof status !== 'string' || !VALID_PACKSHOT_STATUSES.includes(status)) {
+    res.status(400).json({
+      message: `status must be one of: ${VALID_PACKSHOT_STATUSES.join(', ')}`,
+    })
+    return
+  }
+
+  const row = getPackshotRow(id)
+  if (!row) { res.status(404).json({ message: 'Packshot not found' }); return }
+
+  try {
+    // ⚠️ Deliberately does NOT clear `approved` when moving off 'active'.
+    //
+    // The two flags answer different questions and `search_packshots` needs both:
+    // it reports "this product is discontinued" instead of "not found", which is
+    // only possible for a row the agent can still SEE (approved = 1) but which is
+    // no longer in the active feed. Clearing approval here would turn every
+    // discontinuation into a silent disappearance — the exact failure the tool
+    // was written to avoid.
+    //
+    // `is_primary` is likewise left alone: a discontinued product's packshot is
+    // still the correct image OF that product, and the catalog should keep
+    // showing it while flagged discontinued rather than fall back to nothing.
+    db.prepare(`
+      UPDATE media
+         SET packshot_status = ?, status_set_by = ?, status_set_at = datetime('now')
+       WHERE id = ? AND type = 'packshot'
+    `).run(status, req.user!.email, id)
+    res.json({ item: getPackshotRow(id), counts: packshotCounts() })
+  } catch (err: any) {
+    console.error('[media] packshot status error:', err)
+    res.status(500).json({ message: err.message ?? 'Failed to update status' })
+  }
+})
+
+// ─── PUT /packshots/:id/primary — designate the canonical image for a SKU ────
+
+router.put('/packshots/:id/primary', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ message: 'Invalid id' }); return
+  }
+
+  const { primary } = req.body ?? {}
+  if (typeof primary !== 'boolean') {
+    res.status(400).json({ message: 'primary must be a boolean' }); return
+  }
+
+  const row = getPackshotRow(id)
+  if (!row) { res.status(404).json({ message: 'Packshot not found' }); return }
+
+  // A primary image is the primary image OF a product. With no sku there is no
+  // product to attach it to, and the partial unique index treats NULLs as
+  // distinct, so it would silently permit any number of them.
+  if (primary && !row.sku) {
+    res.status(400).json({
+      message: 'Cannot mark a packshot with no SKU as primary — match it to a product first.',
+    })
+    return
+  }
+
+  try {
+    // Demote-then-promote in ONE transaction. Two statements outside a
+    // transaction can leave the old primary cleared and the new one unset if the
+    // second fails, which reads as "the product lost its image" rather than as an
+    // error, and the unique index would reject the interleaved state anyway.
+    db.transaction(() => {
+      if (primary) {
+        db.prepare(`
+          UPDATE media SET is_primary = 0
+           WHERE type = 'packshot' AND sku = ? AND id <> ?
+        `).run(row.sku, id)
+      }
+      db.prepare(`
+        UPDATE media SET is_primary = ? WHERE id = ? AND type = 'packshot'
+      `).run(primary ? 1 : 0, id)
+    })()
+    res.json({ item: getPackshotRow(id), counts: packshotCounts() })
+  } catch (err: any) {
+    console.error('[media] packshot primary error:', err)
+    res.status(500).json({ message: err.message ?? 'Failed to update primary' })
+  }
+})
+
+// ─── GET /packshots/coverage — what is missing, orphaned, or discontinued ────
+
+/**
+ * The question no query could answer before: which products have no image?
+ *
+ * A new product can reach `products` three ways — CSV import, WooCommerce
+ * auto-import, or manual create — and NONE of them touch `media`. So a product
+ * without a packshot was simply invisible, and a packshot whose sku matched no
+ * product silently lost its name/category enrichment through the LEFT JOIN. This
+ * endpoint surfaces both directions so a gap shows up as a number instead of as
+ * an image nobody notices is absent.
+ */
+router.get('/packshots/coverage', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
+  try {
+    // "Covered" means live-to-the-agent: approved AND active. A product whose only
+    // packshot is still awaiting approval genuinely has no published image, so
+    // counting it as covered would hide the work still to do.
+    const missing = db.prepare(`
+      SELECT p.id, p.sku, p.name, p.brand, p.category, p.unit_size,
+             (SELECT COUNT(*) FROM media m
+               WHERE m.type = 'packshot' AND m.sku = p.sku) AS packshot_count
+        FROM products p
+       WHERE p.sku IS NOT NULL AND p.sku <> ''
+         AND NOT EXISTS (
+           SELECT 1 FROM media m
+            WHERE m.type = 'packshot' AND m.sku = p.sku
+              AND m.approved = 1 AND ${PACKSHOT_STATUS_SQL} = 'active'
+         )
+       ORDER BY packshot_count ASC, LOWER(p.brand), LOWER(p.name)
+    `).all() as Record<string, unknown>[]
+
+    const orphaned = db.prepare(`
+      ${PACKSHOT_SELECT}
+       WHERE m.type = 'packshot'
+         AND (m.sku IS NULL OR m.sku = '' OR NOT EXISTS (
+              SELECT 1 FROM products p2 WHERE p2.sku = m.sku
+            ))
+       ORDER BY LOWER(COALESCE(m.label, m.filename))
+    `).all() as Record<string, unknown>[]
+
+    const discontinued = db.prepare(`
+      ${PACKSHOT_SELECT}
+       WHERE m.type = 'packshot' AND ${PACKSHOT_STATUS_SQL} = 'discontinued'
+       ORDER BY LOWER(COALESCE(p.name, m.label, m.filename))
+    `).all() as Record<string, unknown>[]
+
+    res.json({
+      missing,
+      orphaned,
+      discontinued,
+      counts: {
+        ...packshotCounts(),
+        products_total: (db.prepare(
+          "SELECT COUNT(*) AS n FROM products WHERE sku IS NOT NULL AND sku <> ''"
+        ).get() as { n: number }).n,
+        products_missing: missing.length,
+        orphaned: orphaned.length,
+        discontinued_listed: discontinued.length,
+      },
+    })
+  } catch (err: any) {
+    console.error('[media] packshot coverage error:', err)
+    res.status(500).json({ message: err.message ?? 'Failed to load coverage' })
   }
 })
 
