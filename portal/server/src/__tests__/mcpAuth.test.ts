@@ -103,9 +103,35 @@ describe('requireMcpScope — unauthenticated', () => {
     const res = await request(makeApp()).get('/mcp')
 
     expect(res.status).toBe(401)
+    // The 401 advertises the full set a client must REQUEST (scopesSupported()),
+    // NOT the single scope this resource enforces. A narrow challenge would make
+    // ChatGPT's connector build an authorize request without `openid`, which the
+    // Sliquid IdP rejects with invalid_scope.
     expect(res.headers['www-authenticate']).toBe(
-      `Bearer resource_metadata="https://api.sliquid.example/.well-known/oauth-protected-resource", scope="${SCOPE}"`,
+      'Bearer resource_metadata="https://api.sliquid.example/.well-known/oauth-protected-resource", scope="openid assets:read"',
     )
+  })
+
+  it('advertises scopesSupported() on the 401, mirroring the RFC 9728 document', async () => {
+    process.env['MCP_SCOPES_SUPPORTED'] = 'openid assets:read extra:scope'
+
+    const res = await request(makeApp()).get('/mcp')
+
+    expect(res.status).toBe(401)
+    expect(res.headers['www-authenticate']).toContain('scope="openid assets:read extra:scope"')
+    // One source of truth: the challenge and the discovery document must agree.
+    expect(protectedResourceMetadata()['scopes_supported']).toEqual([
+      'openid', 'assets:read', 'extra:scope',
+    ])
+  })
+
+  it('always includes openid in the 401 challenge — the IdP rejects authorize without it', async () => {
+    const res = await request(makeApp()).get('/mcp')
+
+    const challenge = res.headers['www-authenticate'] as string
+    const advertised = /scope="([^"]*)"/.exec(challenge)?.[1]?.split(' ') ?? []
+    expect(advertised).toContain('openid')
+    expect(advertised).toContain('assets:read')
   })
 
   it('401s on a malformed token', async () => {

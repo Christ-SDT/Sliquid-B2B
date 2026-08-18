@@ -194,9 +194,25 @@ function originAllowed(req: Request): boolean {
 }
 
 function denyUnauthorized(res: Response, scope: string, subject: string, detail: string) {
+  // ⚠️ The 401 and 403 challenges deliberately advertise DIFFERENT scope strings.
+  //
+  // A 401 means "you have no usable token" — so the client's next move is an
+  // authorize request, and what it needs from us is the full set it must REQUEST.
+  // That is `scopesSupported()`, which includes `openid`. The Sliquid IdP rejects
+  // any authorize request whose effective scope set lacks `openid`
+  // (apps/api/src/routes/oidc.ts → invalid_scope, 'openid scope required'), so a
+  // client that built its request from a narrow `scope="assets:read"` challenge
+  // could never complete the flow — and ChatGPT's connector does exactly that.
+  // Sourcing it from scopesSupported() also keeps ONE source of truth with the
+  // RFC 9728 document, which already advertises `openid assets:read`.
+  //
+  // The 403 below is the opposite case: the token is valid but lacks the one scope
+  // this resource enforces, and naming that single scope is the useful signal.
+  // Do not "unify" the two strings — they answer different questions.
+  const advertised = scopesSupported().join(' ') || scope
   res.setHeader(
     'WWW-Authenticate',
-    `Bearer resource_metadata="${resourceMetadataUrl()}", scope="${scope}"`,
+    `Bearer resource_metadata="${resourceMetadataUrl()}", scope="${advertised}"`,
   )
   auditMcp({ principal: subject, tool: 'mcp:auth', result: 'denied', detail })
   res.status(401).json({ message: 'Unauthorized' })
