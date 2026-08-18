@@ -195,16 +195,21 @@ curl -s https://sso-api.sliquid.com/.well-known/openid-configuration | jq '{issu
 
 ### Register it as a PUBLIC client, not confidential
 
-ChatGPT's connector form asks only for a **Client ID** — it has no field for a client secret, so it
-behaves as an OAuth public client and relies on PKCE. Registering the client as confidential
-(`client_secret_basic`) means the token exchange fails, because ChatGPT cannot present the secret
-the IdP then demands.
+**Confirmed working 2026-08-18** with `chatgpt-brand-agent-9eva4g`: public, no secret,
+`token_endpoint_auth_method: none`, scopes `openid assets:read`, audience byte-exact.
 
-This is safe here: the IdP enforces **PKCE S256 unconditionally**, on public and confidential
-clients alike, so the auth code cannot be replayed without the verifier.
+Choose public **because of PKCE**, not because a secret is impossible. An earlier version of this
+document claimed ChatGPT's form has no secret field — it does: an **OAuth Client Secret
+(Optional)** input, plus a **Token endpoint auth method** selector. Leave the secret empty and set
+that selector to `none`.
 
-If the connector form in your ChatGPT build *does* ask for a secret, flip the client to
-`client_secret_basic` and use the secret shown once at creation (otherwise rotate it).
+Public is safe here because the IdP enforces **PKCE S256 unconditionally**, on public and
+confidential clients alike, so an intercepted auth code cannot be redeemed without the verifier. A
+secret would add nothing a browser-delivered client can actually keep secret, and adds one more
+credential to rotate.
+
+Keep the scope list minimal — `openid` (required by the IdP, see below) and `assets:read`. The
+working client deliberately does **not** carry `profile` or `email`; the MCP endpoint reads neither.
 
 ### The redirect URI is a moving target
 
@@ -215,12 +220,18 @@ There is **no single documented value**, and OpenAI is mid-migration between two
 | `https://chatgpt.com/connector_platform_oauth_redirect` | Legacy but still supported and still what most integrations register. Start here. |
 | `https://chatgpt.com/connector/oauth/{callback_id}` | Current, and **per-connector** — the id does not exist until the connector does. |
 
-Because this IdP has no DCR, expect a one-time chicken-and-egg:
+Because this IdP has no DCR, expect a one-time chicken-and-egg. What actually worked:
 
 1. Pre-register the legacy fixed URI above.
-2. Start creating the connector in ChatGPT and open **Advanced settings**, looking for a
-   **Callback URL**. If one is shown, add it verbatim to the client's redirect URIs as well.
-3. Re-run the OAuth connect.
+2. Start creating the connector in ChatGPT and read the **per-connector callback** off the screen —
+   it looks like `https://chatgpt.com/connector/oauth/7x7MfTHT93nO`.
+3. Add that verbatim **alongside** the legacy one (the working client carries both), then re-run
+   the OAuth connect.
+
+⚠️ Do **not** put ChatGPT's agent *trigger* URL in this field. A
+`https://api.chatgpt.com/v1/workspace_agents/<agent-id>/trigger` URL is the endpoint you POST to in
+order to invoke the agent — it is not an OAuth callback, and registering it fails the authorize step
+with a redirect_uri mismatch. The first attempt at this client did exactly that.
 
 Matching is exact — protocol, host, path, trailing slash. Ignore
 `https://chatgpt.com/backend-api/aip/connectors/links/oauth/callback` if you see it in an error
@@ -237,6 +248,11 @@ neither `assets:read` nor an audience, and it needs different redirect URIs anyw
 `assets:read`. Every MCP call then 403s `insufficient_scope`, and nothing is logged on the IdP
 side. If you see that 403, inspect the `scope` value in the token response before debugging the
 resource server.
+
+⚠️ **ChatGPT reports DCR and CIMD as unavailable — both are cosmetic.** Its UI says "DCR is
+unavailable until a Registration URL is present" and "CIMD is unavailable because the server did not
+advertise CIMD support". Neither blocks anything: the pasted `client_id` path is what this IdP
+supports, and it completed the OAuth round trip. No `registration_endpoint` work is needed.
 
 ⚠️ **A blank `audience` falls back to the client id.** `accessTokenAudience()` returns the pinned
 value if set, else `client.clientId`. Leaving the field empty means every token is rejected here —
