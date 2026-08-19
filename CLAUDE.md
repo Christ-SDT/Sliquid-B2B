@@ -281,8 +281,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 58 | `packshot_primary_and_status_audit` | Adds `is_primary`, `status_set_by`, `status_set_at` to `media`; partial UNIQUE index `idx_media_primary_per_sku` on `media(sku) WHERE is_primary = 1 AND type = 'packshot'`. Backs the main-image and discontinue controls — see [Packshot lifecycle](#packshot-lifecycle--main-image--coverage) |
 | 59 | `retailer_checkins_table` | Creates `retailer_checkins` — one row per submission of the hidden `/retailer-check-in` page; backs the sequential `SRC-XXXX` reference and the 2-hour duplicate guard. Index on `email` |
 | 60 | `form_submissions_table` | Creates `form_submissions` (`form_key`, `email`, `created_at`) — the shared one-hour cooldown ledger for every public intake form. Index on `(form_key, email, created_at)` |
+| 61 | `form_submissions_name` | Adds `name` to `form_submissions` + index — lets the repeat limit count an identity rather than just an address |
 
-**Next migration version: 61**
+**Next migration version: 62**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -853,6 +854,67 @@ remain, but only to back the `SHP-XXXX` / `SRC-XXXX` reference numbers.
 
 ---
 
+## Spam Blocking (blocklist file + repeat limit)
+
+Two mechanisms, both applied by `screenSubmission()` in `formGate.ts` to all six
+public intake forms, ahead of the one-hour cooldown.
+
+### 1. `portal/server/src/assets/blocklist.json` — the admin-editable file
+Ships to the container via the Dockerfile's existing `cp -r src/assets dist/`, so
+`./assets/blocklist.json` resolves in both the source tree and the image. Override the
+location with `BLOCKLIST_PATH`.
+
+| Key | Blocks |
+|---|---|
+| `emails` | exact addresses |
+| `domains` | everything `@` that domain (a leading `@` is tolerated) |
+| `names` | exact full names |
+| `messageContains` | a substring anywhere in the message body |
+
+All matching is lowercased and trimmed. Reloaded on mtime change, so an edit needs no
+restart — though on Railway the file is inside the image, so in practice an edit still
+means a redeploy.
+
+### 2. `repeatLimit` — the automatic stopper
+Refuses a sender once `maxSubmissions` have **already been delivered**.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `maxSubmissions` | 2 | refuse the next one after this many got through |
+| `windowDays` | 30 | how far back to count; `0` = forever |
+| `scope` | `form` | `form` counts per form, `all` counts across every form |
+| `matchOn` | `email-or-name` | `email` matches the address only |
+
+⚠️ **`matchOn: 'email-or-name'` conflates people with a common name.** It exists so a
+sender who keeps their name and rotates the address still accrues a count — but it means a
+second "John Smith" can be refused because of the first. `'email'` removes the false
+positive and is trivially evaded. There is no setting that avoids both.
+
+⚠️ **The count is of DELIVERED submissions.** `form_submissions` rows are written only
+after the work succeeded, so a failed send never counts against anyone — the same
+invariant the cooldown relies on.
+
+### Refusal behaviour
+`mode: 'reject'` (default) → **403** with a message that names no rule and points the
+sender at `sales@sliquid.com`. `mode: 'silent'` → a normal success while the submission is
+dropped.
+
+⚠️ **`silent` is the better anti-bot answer and the worse anti-mistake one** — a wrongly
+listed human gets no signal at all. It is also the pattern that was just removed from
+`ContactPage` for lying to senders, so `reject` is the default deliberately. In silent mode
+`hp-apply` and `retailer-checkin` return no `SHP-`/`SRC-` reference, because fabricating
+one would be a second lie.
+
+⚠️ **A malformed or missing file fails OPEN** — logged loudly, nothing blocked, every form
+still working. A typo must not take the site's forms down. `maxSubmissions` is clamped to
+≥ 1 for the same reason: `0` would refuse the very first submission from everyone.
+
+⚠️ The 403 body deliberately does not say which rule matched. That detail goes to the
+server log only (`[blocklist] refused …`) — telling a spammer why they were stopped tells
+them what to change.
+
+---
+
 ## Certification System
 
 ### Overview
@@ -1259,6 +1321,8 @@ portal/server/src/__tests__/
                                   # forms, public-path CORS preflight
     form-gate-send-failure.test.ts # 4 tests: a failed send never starts the
                                   # cooldown (email module vi.mock'd)
+    blocklist.test.ts             # 23 tests: file matching, silent mode, fail-open
+                                  # on a broken file, repeat limit + every knob
     marketing-items.test.ts
     trainings.test.ts
     quiz.test.ts                  # quiz completion + certificate auto-issuance
@@ -1297,7 +1361,7 @@ src/__tests__/fixtures/announcement-shape-a.html  # the REAL body of WP post 126
   - `POST /reward`: 401 no auth; 403 no cert; 400 for each missing required field (product, shirtSize, address1, city, state, zip); 201 + DB row verified; address2 optional; idempotent (second call returns 200, no duplicate); per-user isolation; round-trip confirms `rewardSubmitted` flips to `true`
   - `GET /verify/:certNumber`: unknown 404; revoked 404; valid 200 + full shape; public (no auth); case-sensitive lookup
 
-**Total: 737 tests passing across 29 test files** (1 known pre-existing failure in
+**Total: 760 tests passing across 30 test files** (1 known pre-existing failure in
 `admin.test.ts` — it asserts tier3 is rejected on approve, which is no longer true).
 
 `certificates.test.ts` is now 42 tests — it additionally locks in the admin-only guards on
@@ -1579,7 +1643,7 @@ write, and that an unapproved primary never reaches the public catalog.
 - **Icons:** `lucide-react` exclusively.
 - **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export), public pre-auth calls (e.g., `/api/stores` from RegisterPage), and the public certificate verify page use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **61**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **62**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
 - **`AnnouncementBody.tsx` is duplicated** in `src/components/` and `portal/client/src/components/`.

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { db } from '../database.js'
 import { sendContactFormEmails, sendRetailerApplicationEmails, sendHPApplicationEmail, sendRetailerCheckInEmails } from '../email.js'
-import { FORM_KEYS, checkFormCooldown, recordFormSubmission, cooldownResponse } from '../formGate.js'
+import { FORM_KEYS, screenSubmission, recordFormSubmission } from '../formGate.js'
 
 const router = Router()
 
@@ -80,12 +80,14 @@ router.post('/contact', async (req, res) => {
     return
   }
 
-  const gate = checkFormCooldown(FORM_KEYS.contact, fromEmail)
-  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'message')); return }
+  const screen = screenSubmission(FORM_KEYS.contact, {
+    email: fromEmail, name: fromName, message, label: 'message',
+  })
+  if (!screen.ok) { res.status(screen.status).json(screen.body); return }
 
   try {
     await sendContactFormEmails({ fromName, fromEmail, company: company || '', phone: phone || '', subject, message })
-    recordFormSubmission(FORM_KEYS.contact, fromEmail)
+    recordFormSubmission(FORM_KEYS.contact, fromEmail, fromName)
     res.json({ ok: true })
   } catch (err: any) {
     console.error('[b2b-forms] Contact error:', err)
@@ -110,8 +112,10 @@ router.post('/retailer-apply', async (req, res) => {
     return
   }
 
-  const gate = checkFormCooldown(FORM_KEYS.retailerApply, email)
-  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'application')); return }
+  const screen = screenSubmission(FORM_KEYS.retailerApply, {
+    email, name: contactName, message: comments, label: 'application',
+  })
+  if (!screen.ok) { res.status(screen.status).json(screen.body); return }
 
   try {
     await sendRetailerApplicationEmails({
@@ -120,7 +124,7 @@ router.post('/retailer-apply', async (req, res) => {
       storeLocator: storeLocator || 'No',
       comments: comments || 'N/A',
     })
-    recordFormSubmission(FORM_KEYS.retailerApply, email)
+    recordFormSubmission(FORM_KEYS.retailerApply, email, contactName)
     res.json({ ok: true })
   } catch (err: any) {
     console.error('[b2b-forms] Retailer apply error:', err)
@@ -155,8 +159,10 @@ router.post('/hp-apply', async (req, res) => {
     return
   }
 
-  const gate = checkFormCooldown(FORM_KEYS.hpApply, email)
-  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'application')); return }
+  const screen = screenSubmission(FORM_KEYS.hpApply, {
+    email, name: contactName, label: 'application',
+  })
+  if (!screen.ok) { res.status(screen.status).json(screen.body); return }
 
   try {
     const result = db.prepare(
@@ -183,7 +189,7 @@ router.post('/hp-apply', async (req, res) => {
       throw emailErr
     }
 
-    recordFormSubmission(FORM_KEYS.hpApply, email)
+    recordFormSubmission(FORM_KEYS.hpApply, email, contactName)
     res.json({ ok: true, referenceNumber })
   } catch (err: any) {
     console.error('[b2b-forms] HP apply error:', err)
@@ -220,8 +226,10 @@ router.post('/retailer-checkin', async (req, res) => {
     return
   }
 
-  const gate = checkFormCooldown(FORM_KEYS.retailerCheckin, email)
-  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'check-in')); return }
+  const screen = screenSubmission(FORM_KEYS.retailerCheckin, {
+    email, name: contactName, message: comments, label: 'check-in',
+  })
+  if (!screen.ok) { res.status(screen.status).json(screen.body); return }
 
   try {
     const result = db.prepare(
@@ -252,7 +260,7 @@ router.post('/retailer-checkin', async (req, res) => {
       throw emailErr
     }
 
-    recordFormSubmission(FORM_KEYS.retailerCheckin, email)
+    recordFormSubmission(FORM_KEYS.retailerCheckin, email, contactName)
     res.json({ ok: true, referenceNumber })
   } catch (err: any) {
     console.error('[b2b-forms] Retailer check-in error:', err)
@@ -277,12 +285,14 @@ router.post('/booth-signup', async (req, res) => {
     return
   }
 
-  const gate = checkFormCooldown(FORM_KEYS.boothSignup, email)
-  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'signup')); return }
+  const screen = screenSubmission(FORM_KEYS.boothSignup, {
+    email, name, label: 'signup',
+  })
+  if (!screen.ok) { res.status(screen.status).json(screen.body); return }
 
   try {
     await addToMailchimp({ email, name, businessName, businessType, storeNames, storeCount, websiteUrl, contactName, contactPhone })
-    recordFormSubmission(FORM_KEYS.boothSignup, email)
+    recordFormSubmission(FORM_KEYS.boothSignup, email, name)
     res.json({ ok: true })
   } catch (err: any) {
     console.error('[b2b-forms] Booth signup error:', err)

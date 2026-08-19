@@ -1309,6 +1309,24 @@ const migrations: Migration[] = [
         ON form_submissions(form_key, email, created_at);
     `),
   },
+  {
+    version: 61,
+    name: 'form_submissions_name',
+    // The repeat-limit stopper counts an IDENTITY, not an address: a spammer
+    // who keeps the name and rotates the email would otherwise reset their
+    // count on every submission. Storing the name is what lets the count
+    // survive that.
+    up: () => {
+      const cols = (
+        db.prepare("SELECT name FROM pragma_table_info('form_submissions')").all() as { name: string }[]
+      ).map(c => c.name)
+      if (!cols.includes('name')) db.exec('ALTER TABLE form_submissions ADD COLUMN name TEXT')
+      db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_form_submissions_name
+          ON form_submissions(name, created_at);
+      `)
+    },
+  },
 ]
 
 function runMigrations(): void {
