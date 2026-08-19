@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Partner check-in — Sliquid</title>
+</head>
+<!--
+  Template ID : b2b_retailer_checkin_admin
+  Subject     : [{{reference_number}}] Partner check-in: {{company}}
+  Variables   : {{reference_number}}, {{company}}, {{contact_name}}, {{email}},
+                {{phone}}, {{point_of_contact}}, {{brands_carried}},
+                {{interests}}, {{site_feedback}}, {{comments}}
+  Recipient   : Sliquid sales — ADMIN ONLY.
+  To Email    : set a FIXED address in EmailJS (e.g. sales@sliquid.com).
+                This template has NO {{to_email}} on purpose — it carries the
+                partner's contact details and must never be routed to them.
+-->
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:Inter,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0f4f8;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+          <!-- HEADER -->
+          <tr>
+            <td style="background-color:#fefaf4;border-radius:8px 8px 0 0;border-bottom:1px solid #ddc9ae;padding:24px 40px;text-align:center;">
+              <p style="margin:0;font-size:22px;font-weight:700;color:#0A84C0;letter-spacing:2px;">SLIQUID</p>
+              <p style="margin:4px 0 0;font-size:11px;color:#a08060;letter-spacing:3px;text-transform:uppercase;">Internal — Partner Check-In</p>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="background-color:#ffffff;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:36px 40px 32px;">
+
+              <!-- Reference badge -->
+              <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:18px;">
+                <tr>
+                  <td style="background-color:#e6f4fb;border:1px solid #bee3f8;border-radius:4px;padding:4px 12px;">
+                    <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:0.06em;color:#0A84C0;">{{reference_number}}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <h1 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#1a202c;">Existing retailer checked in</h1>
+              <p style="margin:0 0 26px;font-size:14px;color:#718096;line-height:1.6;">
+                Submitted from the hidden <strong>/retailer-check-in</strong> page. This partner
+                already stocks us — treat as a relationship touchpoint, not a new application.
+              </p>
+
+              <!-- Routing callout -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:26px;background-color:#fefaf4;border:1px solid #ddc9ae;border-radius:8px;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#a08060;text-transform:uppercase;letter-spacing:0.5px;">Route to</p>
+                    <p style="margin:0;font-size:16px;font-weight:700;color:#2c1a0a;">{{point_of_contact}}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Contact block -->
+              <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#2b6cb0;text-transform:uppercase;letter-spacing:0.5px;">Contact</p>
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:26px;border:1px solid #e2e8f0;border-radius:8px;">
+                <tr>
+                  <td style="padding:12px 18px;border-bottom:1px solid #edf2f7;width:38%;font-size:13px;color:#718096;">Store / Company</td>
+                  <td style="padding:12px 18px;border-bottom:1px solid #edf2f7;font-size:14px;color:#1a202c;font-weight:600;">{{company}}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 18px;border-bottom:1px solid #edf2f7;font-size:13px;color:#718096;">Name</td>
+                  <td style="padding:12px 18px;border-bottom:1px solid #edf2f7;font-size:14px;color:#1a202c;">{{contact_name}}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 18px;border-bottom:1px solid #edf2f7;font-size:13px;color:#718096;">Email</td>
+                  <td style="padding:12px 18px;border-bottom:1px solid #edf2f7;font-size:14px;">
+                    <a href="mailto:{{email}}" style="color:#0A84C0;text-decoration:none;">{{email}}</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 18px;font-size:13px;color:#718096;">Phone</td>
+                  <td style="padding:12px 18px;font-size:14px;color:#1a202c;">{{phone}}</td>
+                </tr>
+              </table>
+
+              <!-- Brands carried -->
+              <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#2b6cb0;text-transform:uppercase;letter-spacing:0.5px;">Brands carried</p>
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:24px;background-color:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                <tr><td style="padding:14px 18px;"><p style="margin:0;font-size:14px;color:#2d3748;line-height:1.7;">{{brands_carried}}</p></td></tr>
+              </table>
+
+              <!-- Asks -->
+              <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#2b6cb0;text-transform:uppercase;letter-spacing:0.5px;">What they need</p>
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:24px;background-color:#f0f8ff;border:1px solid #bee3f8;border-radius:8px;">
+                <tr><td style="padding:14px 18px;"><p style="margin:0;font-size:14px;color:#2d3748;line-height:1.7;">{{interests}}</p></td></tr>
+              </table>
+
+              <!-- Rebrand feedback -->
+              <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#2b6cb0;text-transform:uppercase;letter-spacing:0.5px;">On the new look</p>
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:24px;background-color:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                <tr><td style="padding:14px 18px;"><p style="margin:0;font-size:14px;color:#2d3748;line-height:1.7;">{{site_feedback}}</p></td></tr>
+              </table>
+
+              <!-- Comments -->
+              <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#2b6cb0;text-transform:uppercase;letter-spacing:0.5px;">Comments</p>
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:8px;background-color:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                <tr><td style="padding:14px 18px;"><p style="margin:0;font-size:14px;color:#2d3748;line-height:1.7;">{{comments}}</p></td></tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background-color:#f7fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;padding:20px 40px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#718096;">Internal notification — hq.sliquid.com/retailer-check-in</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

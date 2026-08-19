@@ -1254,6 +1254,36 @@ const migrations: Migration[] = [
       `)
     },
   },
+  {
+    version: 59,
+    name: 'retailer_checkins_table',
+    // Backs the hidden /retailer-check-in page — a re-engagement touchpoint for
+    // partners who ALREADY stock us, not an application. Two reasons it needs a
+    // table rather than being email-only like /retailer-apply:
+    //
+    //   1. The sequential SRC-XXXX reference number, derived from the row id —
+    //      same pattern as hp_applications (SHP-XXXX), deliberately NOT the
+    //      random-hex certificate format, so support can order submissions.
+    //   2. The 2-hour duplicate guard. This link is mailed out and hyperlinked
+    //      from other sites, so double-submits are expected.
+    up: () => db.exec(`
+      CREATE TABLE IF NOT EXISTS retailer_checkins (
+        id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        company          TEXT NOT NULL,
+        contact_name     TEXT NOT NULL,
+        email            TEXT NOT NULL,
+        phone            TEXT,
+        point_of_contact TEXT,
+        brands_carried   TEXT,
+        interests        TEXT,
+        site_feedback    TEXT,
+        comments         TEXT,
+        created_at       TEXT DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_retailer_checkins_email
+        ON retailer_checkins(email);
+    `),
+  },
 ]
 
 function runMigrations(): void {

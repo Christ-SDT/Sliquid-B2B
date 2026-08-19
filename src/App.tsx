@@ -13,6 +13,7 @@ import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import HealthPractitionersPage from '@/pages/HealthPractitionersPage'
 import BecomeARetailerPage from '@/pages/BecomeARetailerPage'
+import RetailerCheckInPage from '@/pages/RetailerCheckInPage'
 import ProductCatalogPage from '@/pages/ProductCatalogPage'
 import MapPolicyPage from '@/pages/MapPolicyPage'
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage'
@@ -43,6 +44,9 @@ export default function App() {
         <Route path="reset-password" element={<ResetPasswordPage />} />
         <Route path="health-practitioners" element={<HealthPractitionersPage />} />
         <Route path="become-a-retailer" element={<BecomeARetailerPage />} />
+        {/* Unlisted — not in NAV_LINKS, noindex'd by the page and robots.txt.
+            Sent directly to existing partners and hyperlinked from our sites. */}
+        <Route path="retailer-check-in" element={<RetailerCheckInPage />} />
         <Route path="catalog" element={<ProductCatalogPage />} />
         <Route path="map-policy" element={<MapPolicyPage />} />
         <Route path="privacy-policy" element={<PrivacyPolicyPage />} />

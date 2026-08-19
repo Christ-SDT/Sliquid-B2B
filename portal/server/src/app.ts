@@ -57,7 +57,7 @@ console.log('[cors] Allowed origins:', allowedOrigins)
 // hardcoded 'GET, OPTIONS' Allow-Methods below — breaking admin PUT/POST/DELETE
 // preflights in the browser while every supertest test still passed, because
 // supertest sends no Origin header.
-const PUBLIC_PATHS = ['/api/products/catalog', '/api/b2b/contact', '/api/b2b/retailer-apply', '/api/b2b/hp-apply', '/api/b2b/booth-signup', '/api/gdpr/request', '/api/announcements/public']
+const PUBLIC_PATHS = ['/api/products/catalog', '/api/b2b/contact', '/api/b2b/retailer-apply', '/api/b2b/retailer-checkin', '/api/b2b/hp-apply', '/api/b2b/booth-signup', '/api/gdpr/request', '/api/announcements/public']
 
 const strictCors = cors({
   origin: (origin, callback) => {
@@ -73,7 +73,12 @@ app.use((req, res, next) => {
   const isPublic = PUBLIC_PATHS.some(p => req.path === p || req.path.startsWith(p + '/'))
   if (isPublic) {
     res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
+    // POST belongs here: every public path except /api/products/catalog and
+    // /api/announcements/public is a POST-only intake endpoint. A JSON body
+    // triggers a preflight, and a preflight that omits POST fails the request
+    // in the browser — while every supertest test still passes, because
+    // supertest sends no Origin and so never preflights.
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
     if (req.method === 'OPTIONS') { res.status(204).end(); return }
     next()

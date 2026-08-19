@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { db } from '../database.js'
-import { sendContactFormEmails, sendRetailerApplicationEmails, sendHPApplicationEmail } from '../email.js'
+import { sendContactFormEmails, sendRetailerApplicationEmails, sendHPApplicationEmail, sendRetailerCheckInEmails } from '../email.js'
 
 const router = Router()
 
@@ -186,6 +186,82 @@ router.post('/hp-apply', async (req, res) => {
   } catch (err: any) {
     console.error('[b2b-forms] HP apply error:', err)
     res.status(500).json({ message: "We hit a temporary issue sending your application. Please try again in a moment — you won't be blocked from retrying." })
+  }
+})
+
+// ─── POST /api/b2b/retailer-checkin ───────────────────────────────────────────
+// Hidden /retailer-check-in page — EXISTING retailers only. Public (the link is
+// mailed out and hyperlinked from our other sites), no auth.
+//
+// Note this is NOT /retailer-apply with different copy: it writes a row so the
+// submission gets a durable SRC-XXXX reference, and it deliberately collects no
+// address or MAP agreement — we already have both on file for these partners.
+
+router.post('/retailer-checkin', async (req, res) => {
+  const {
+    company, contactName, email, phone,
+    pointOfContact, brandsCarried, interests, siteFeedback, comments,
+  } = req.body
+
+  const missing: string[] = []
+  if (!company)     missing.push('Store / Company')
+  if (!contactName) missing.push('Your Name')
+  if (!email)       missing.push('Email')
+  if (missing.length > 0) {
+    res.status(400).json({ message: `Please fill in the following: ${missing.join(', ')}.` })
+    return
+  }
+
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRe.test(email)) {
+    res.status(400).json({ message: 'Invalid email address.' })
+    return
+  }
+
+  try {
+    const recent = db.prepare(
+      `SELECT id FROM retailer_checkins WHERE LOWER(email) = LOWER(?) AND created_at >= datetime('now', '-2 hours') LIMIT 1`
+    ).get(email)
+    if (recent) {
+      res.status(429).json({
+        alreadySubmitted: true,
+        message: "Thanks — we already have your check-in. Your rep will be in touch shortly.",
+      })
+      return
+    }
+
+    const result = db.prepare(
+      `INSERT INTO retailer_checkins
+         (company, contact_name, email, phone, point_of_contact, brands_carried, interests, site_feedback, comments)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(
+      company, contactName, email,
+      phone || null, pointOfContact || null, brandsCarried || null,
+      interests || null, siteFeedback || null, comments || null,
+    )
+    const referenceNumber = `SRC-${String(result.lastInsertRowid).padStart(4, '0')}`
+
+    try {
+      await sendRetailerCheckInEmails({
+        referenceNumber, company, contactName, email,
+        phone:          phone || '',
+        pointOfContact: pointOfContact || '',
+        brandsCarried:  brandsCarried || '',
+        interests:      interests || '',
+        siteFeedback:   siteFeedback || '',
+        comments:       comments || '',
+      })
+    } catch (emailErr) {
+      // Same rollback as hp-apply: a failed send must not leave a row behind, or
+      // the 2-hour cooldown above would lock the partner out of ever retrying.
+      db.prepare('DELETE FROM retailer_checkins WHERE id = ?').run(result.lastInsertRowid)
+      throw emailErr
+    }
+
+    res.json({ ok: true, referenceNumber })
+  } catch (err: any) {
+    console.error('[b2b-forms] Retailer check-in error:', err)
+    res.status(500).json({ message: "We hit a temporary issue sending your check-in. Please try again in a moment — you won't be blocked from retrying." })
   }
 })
 

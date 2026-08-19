@@ -46,12 +46,19 @@ HTML email templates for the portal's EmailJS integration. All templates use the
 | `portal_marketing_admin` | `[Portal] Marketing request: {{user_name}}` |
 | `portal_asset_broadcast` | `New in the Sliquid Product Library: {{asset_name}}` |
 | `portal_password_reset` | `Reset your Sliquid Partner Portal password` |
+| `b2b_retailer_checkin_confirm` | `Thanks for checking in, {{contact_name}} — {{reference_number}}` |
+| `b2b_retailer_checkin_admin` | `[{{reference_number}}] Partner check-in: {{company}}` |
 
 ---
 
 ---
 
 ## B2B Site Templates (Main sliquid.com)
+
+⚠️ There are **two** retailer template pairs and they are not interchangeable. `b2b_retailer_*`
+greets a stranger applying to carry us (`/become-a-retailer`); `b2b_retailer_checkin_*` thanks a
+partner who already does (the hidden `/retailer-check-in`). Sending the applicant copy to a
+ten-year customer reads as though we forgot who they are.
 
 These templates are used by the main marketing site (`@emailjs/browser`). Set the env vars in Cloudflare Pages for the **sliquid-b2b** project.
 
@@ -63,6 +70,8 @@ These templates are used by the main marketing site (`@emailjs/browser`). Set th
 | `b2b_hp_application.html` | `VITE_EMAILJS_HP_TID` | Health Practitioners application | `practice_type`, `practice_name`, `practice_address`, `practice_phone`, `practice_website`, `contact_name`, `relationship`, `email`, `contact_phone`, `preferred_contact`, `add_to_directory`, `to_email` |
 | `b2b_retailer_admin.html` | `VITE_EMAILJS_RETAILER_ADMIN_TID` | Retailer/distributor application (admin copy) | `company`, `contact_name`, `address`, `phone`, `email`, `website`, `brands`, `comments` |
 | `b2b_retailer_confirm.html` | `VITE_EMAILJS_RETAILER_CONFIRM_TID` | Retailer/distributor application (auto-reply to applicant) | `company`, `contact_name`, `brands`, `to_email` |
+| `b2b_retailer_checkin_admin.html` | `b2b_retailer_checkin_admin` | **Existing** retailer check-in from the hidden `/retailer-check-in` page (admin copy) | `reference_number`, `company`, `contact_name`, `email`, `phone`, `point_of_contact`, `brands_carried`, `interests`, `site_feedback`, `comments` |
+| `b2b_retailer_checkin_confirm.html` | `b2b_retailer_checkin_confirm` | Existing retailer check-in (auto-reply to the partner) | `reference_number`, `contact_name`, `company`, `point_of_contact`, `interests`, `to_email` |
 
 **B2B site EmailJS env vars** (set in Cloudflare Pages → sliquid-b2b → Settings → Environment Variables):
 ```
@@ -82,8 +91,12 @@ Note: the B2B site uses the same EmailJS account/service as the portal. Only the
 
 ## Admin-only Templates
 
-`portal_register_admin` and `portal_marketing_admin` do **not** use `{{to_email}}`.
-Set the **To Email** field in EmailJS to your fixed admin address (e.g. `admin@sliquid.com`).
+`portal_register_admin`, `portal_marketing_admin` and `b2b_retailer_checkin_admin` do **not**
+use `{{to_email}}`. Set the **To Email** field in EmailJS to your fixed admin address
+(e.g. `admin@sliquid.com`, or `sales@sliquid.com` for the check-in).
+
+⚠️ `b2b_retailer_checkin_admin` carries the partner's phone and email. Giving it a
+`{{to_email}}` would let the form's own input choose where those get delivered.
 
 ---
 

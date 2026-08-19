@@ -1,0 +1,5 @@
+# Unlisted partner pages. These are reachable by anyone with the link — the
+# Disallow keeps them out of search results, it is not an access control.
+User-agent: *
+Disallow: /retailer-check-in
+Disallow: /erospain-2026

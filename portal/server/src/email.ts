@@ -281,6 +281,47 @@ export async function sendRetailerApplicationEmails(opts: {
   if (sent) console.log(`[email] Retailer application emails sent for ${email}`)
 }
 
+// ─── B2B site — Existing retailer check-in ────────────────────────────────────
+// The hidden /retailer-check-in page. Distinct templates from
+// b2b_retailer_* on purpose: those greet a stranger applying to carry us,
+// these thank a partner who already does. Same variables would read as a
+// cold form letter to someone who has stocked Sliquid for a decade.
+
+export async function sendRetailerCheckInEmails(opts: {
+  referenceNumber: string
+  company: string
+  contactName: string
+  email: string
+  phone: string
+  pointOfContact: string
+  brandsCarried: string
+  interests: string
+  siteFeedback: string
+  comments: string
+}): Promise<void> {
+  await sendEmail('b2b_retailer_checkin_admin', {
+    reference_number:  opts.referenceNumber,
+    company:           opts.company,
+    contact_name:      opts.contactName,
+    email:             opts.email,
+    phone:             opts.phone || 'N/A',
+    point_of_contact:  opts.pointOfContact || 'Not specified',
+    brands_carried:    opts.brandsCarried || 'None selected',
+    interests:         opts.interests || 'None selected',
+    site_feedback:     opts.siteFeedback || 'No answer',
+    comments:          opts.comments || 'N/A',
+  })
+  const sent = await sendEmail('b2b_retailer_checkin_confirm', {
+    reference_number: opts.referenceNumber,
+    contact_name:     opts.contactName,
+    company:          opts.company,
+    point_of_contact: opts.pointOfContact || 'a member of our sales team',
+    interests:        opts.interests || 'None selected',
+    to_email:         opts.email,
+  })
+  if (sent) console.log(`[email] Retailer check-in emails sent for ${opts.email} (${opts.referenceNumber})`)
+}
+
 // ─── B2B site — Health Practitioners application ──────────────────────────────
 
 export async function sendHPApplicationEmail(opts: {

@@ -201,6 +201,22 @@ export const EXECUTIVES: readonly Executive[] = [
   },
 ] as const
 
+/**
+ * Point-of-contact choices on the hidden /retailer-check-in form.
+ *
+ * Kept here rather than inline in the page so staff changes are a one-line edit
+ * in one file. The two non-person options are deliberate: a retailer who bought
+ * through a distributor often has never spoken to anyone at Sliquid, and
+ * forcing them to pick a name they don't recognise routes the lead wrongly.
+ */
+export const RETAILER_CONTACTS: readonly string[] = [
+  'Michelle Marcus — VP of Sales',
+  'Colin Roy — Senior Vice President',
+  'Erik Vasquez — VP of Marketing',
+  'My distributor rep',
+  "Not sure / I don't have one",
+] as const
+
 // ─── EmailJS configuration ────────────────────────────────────────────────────
 export const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string | undefined
 export const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined

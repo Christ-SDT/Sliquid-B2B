@@ -12,6 +12,8 @@ export function resetDb(): void {
     DELETE FROM notifications;
     DELETE FROM quiz_results;
     DELETE FROM retailer_applications;
+    DELETE FROM retailer_checkins;
+    DELETE FROM hp_applications;
     DELETE FROM inventory;
     DELETE FROM woo_sync_log;
     DELETE FROM woo_settings;

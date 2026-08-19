@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thanks for checking in — Sliquid</title>
+</head>
+<!--
+  Template ID : b2b_retailer_checkin_confirm
+  Subject     : Thanks for checking in, {{contact_name}} — {{reference_number}}
+  Variables   : {{reference_number}}, {{contact_name}}, {{company}},
+                {{point_of_contact}}, {{interests}}, {{to_email}}
+  Recipient   : the EXISTING retailer who submitted the check-in
+  To Email    : {{to_email}}  (set in EmailJS template settings)
+
+  This is NOT b2b_retailer_confirm. That one greets a stranger applying to
+  carry us; this one thanks a partner who already does. Keep the tone apart.
+-->
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:Inter,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0f4f8;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+          <!-- HEADER -->
+          <tr>
+            <td style="background-color:#fefaf4;border-radius:8px 8px 0 0;border-bottom:1px solid #ddc9ae;padding:24px 40px;text-align:center;">
+              <img src="https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/reference-images/58439771-8fd8-454f-81eb-e2e5123dede5.png" alt="Sliquid" style="max-width:180px;height:auto;display:block;margin:0 auto;" />
+              <p style="margin:10px 0 0;font-size:22px;font-weight:700;color:#0A84C0;letter-spacing:2px;">SLIQUID</p>
+              <p style="margin:4px 0 0;font-size:11px;color:#a08060;letter-spacing:3px;text-transform:uppercase;">Partner Check-In</p>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="background-color:#ffffff;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:40px 40px 32px;">
+
+              <!-- Reference badge -->
+              <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+                <tr>
+                  <td style="background-color:#e6f4fb;border:1px solid #bee3f8;border-radius:4px;padding:4px 12px;">
+                    <p style="margin:0;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#0A84C0;">Reference {{reference_number}}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#1a202c;">Thank you, {{contact_name}}.</h1>
+              <p style="margin:0 0 16px;font-size:15px;color:#4a5568;line-height:1.7;">
+                We got your check-in for <strong>{{company}}</strong> — and more than that, thank you
+                for the shelf space. Partners like you are the reason a small, ingredient-obsessed
+                brand got to have a twenty-year run.
+              </p>
+              <p style="margin:0 0 24px;font-size:15px;color:#4a5568;line-height:1.7;">
+                <strong>{{point_of_contact}}</strong> will follow up with you shortly.
+              </p>
+
+              <!-- Divider -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
+                <tr><td style="border-top:1px solid #e2e8f0;"></td></tr>
+              </table>
+
+              <!-- What they asked for -->
+              <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#2b6cb0;text-transform:uppercase;letter-spacing:0.5px;">What you asked us for</p>
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:28px;background-color:#f0f8ff;border:1px solid #bee3f8;border-radius:8px;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <p style="margin:0;font-size:14px;color:#2d3748;line-height:1.7;">{{interests}}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- What happens next -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:32px;background-color:#fefaf4;border-radius:8px;border:1px solid #ddc9ae;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 12px;font-size:13px;font-weight:700;color:#a08060;text-transform:uppercase;letter-spacing:0.5px;">What happens next</p>
+                    <p style="margin:0 0 8px;font-size:13px;color:#4a5568;line-height:1.6;">
+                      ① Your contact reviews the check-in — usually within <strong>1–2 business days</strong>.
+                    </p>
+                    <p style="margin:0 0 8px;font-size:13px;color:#4a5568;line-height:1.6;">
+                      ② Anything you asked for — marketing materials, product images, training — gets sent your way.
+                    </p>
+                    <p style="margin:0;font-size:13px;color:#4a5568;line-height:1.6;">
+                      ③ Quote <strong>{{reference_number}}</strong> in any reply and we'll pull your check-in straight up.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+                <tr>
+                  <td style="background-color:#0A84C0;border-radius:8px;">
+                    <a href="https://portal.sliquid.com"
+                       style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">
+                      Open the Partner Portal
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;font-size:13px;color:#718096;line-height:1.6;">
+                Need something sooner? Email
+                <a href="mailto:sales@sliquid.com" style="color:#0A84C0;text-decoration:none;">sales@sliquid.com</a>.
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background-color:#f7fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;padding:20px 40px;text-align:center;">
+              <p style="margin:0 0 4px;font-size:12px;color:#718096;">Submitted via hq.sliquid.com/retailer-check-in</p>
+              <p style="margin:0;font-size:11px;color:#a0aec0;">© Sliquid. All rights reserved.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

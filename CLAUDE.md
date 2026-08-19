@@ -279,8 +279,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 56 | `packshot_catalog_columns` | Adds `sku`, `unit_size`, `package_version`, `packshot_status`, `approved`, `sha256`, `asset_key` to `media`; partial UNIQUE index on `asset_key`, index on `(approved, packshot_status)`. Backs the MCP packshot catalog — see [Asset MCP Server](#asset-mcp-server--chatgpt-brand-agent) |
 | 57 | `packshot_approval_audit` | Adds `approved_by`, `approved_at` to `media` — records who published an asset to the external ChatGPT agent, and when |
 | 58 | `packshot_primary_and_status_audit` | Adds `is_primary`, `status_set_by`, `status_set_at` to `media`; partial UNIQUE index `idx_media_primary_per_sku` on `media(sku) WHERE is_primary = 1 AND type = 'packshot'`. Backs the main-image and discontinue controls — see [Packshot lifecycle](#packshot-lifecycle--main-image--coverage) |
+| 59 | `retailer_checkins_table` | Creates `retailer_checkins` — one row per submission of the hidden `/retailer-check-in` page; backs the sequential `SRC-XXXX` reference and the 2-hour duplicate guard. Index on `email` |
 
-**Next migration version: 59**
+**Next migration version: 60**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -444,9 +445,21 @@ Mounted from `portal/server/src/routes/b2b-forms.ts`. All routes public (no auth
 | POST | `/contact` | Main site contact form → `sendContactFormEmails()` |
 | POST | `/retailer-apply` | "Become a Retailer" form → `sendRetailerApplicationEmails()` |
 | POST | `/hp-apply` | Health Practitioner application (`src/pages/HealthPractitionersPage.tsx`) — inserts a row into `hp_applications`, derives a sequential `SHP-XXXX` reference number from the new row's id, then calls `sendHPApplicationEmail()` with `referenceNumber` |
+| POST | `/retailer-checkin` | **Existing**-retailer check-in from the hidden `/retailer-check-in` page — inserts into `retailer_checkins`, derives a sequential `SRC-XXXX` reference, then sends `sendRetailerCheckInEmails()`. 429s a repeat from the same email inside 2 hours |
 | POST | `/booth-signup` | Hidden Erospain 2026 booth intake → Mailchimp |
 
 **HP application reference numbers:** `hp_applications` table (migration v54) exists solely to back a durable, sequential counter — `SHP-${String(id).padStart(4, '0')}` (e.g. `SHP-0001`, `SHP-0002`), NOT date-based or random like certificate numbers. Displayed in the `b2b_hp_application` admin email template as a badge above the "New HP Application" heading. Do not reuse the certificate-number random-hex pattern here — this is intentionally sequential so admins can tell submission order apart from timestamps.
+
+**Retailer check-in reference numbers:** same shape, different prefix —
+`SRC-${String(id).padStart(4, '0')}` from `retailer_checkins` (migration v59). The row exists for
+the reference number *and* the 2-hour duplicate guard: this link is emailed to named partners and
+hyperlinked from our other sites, so double-submits are the normal case, not the edge case. Like
+`hp-apply`, a failed email send **rolls the row back** — otherwise the cooldown would lock a
+partner out of ever retrying after a transient EmailJS failure.
+
+⚠️ `/retailer-checkin` is **not** `/retailer-apply` with warmer copy. It collects no address and
+no MAP agreement, because we already hold both for these partners, and it writes a row while
+`/retailer-apply` is email-only.
 
 ### WooCommerce — `/api/woo`
 All endpoints require `requireAuth + requireRole('tier5', 'admin')`.
@@ -731,6 +744,64 @@ Deliberately **not** piggybacked on the WooCommerce interval, which is gated by
   marketing site while working fine in the portal** (the portal has no CSP).
 - `InsightsPage` is now WordPress-driven (the hardcoded `FEATURED_NEWS` grid was retired) and
   `/insights/:slug` renders the real detail page, closing six previously-dead links.
+
+---
+
+## Hidden Partner Pages (marketing site)
+
+Two routes on the marketing site are **unlisted**: absent from `NAV_LINKS`, so nothing on the site
+links to them, and reachable only by someone holding the URL.
+
+| Route | Page | Audience |
+|---|---|---|
+| `/retailer-check-in` | `src/pages/RetailerCheckInPage.tsx` | Retailers who **already** stock Sliquid — a re-engagement touchpoint, emailed out and hyperlinked from our other sites |
+| `/erospain-2026` | `src/pages/ErospainBoothPage.tsx` | Trade-show booth intake |
+
+⚠️ **Unlisted is not access control.** Anyone with the link can open these pages, and anyone can
+POST to their public endpoints. Do not put anything behind one that actually needs authentication —
+that is what the portal is for.
+
+Kept out of search two ways, because either alone is leaky: `public/robots.txt` disallows both
+paths, and `RetailerCheckInPage` injects `<meta name="robots" content="noindex, nofollow">` on
+mount and **removes it on unmount** (this is an SPA — a meta tag left in `<head>` would silently
+deindex whatever route the visitor navigated to next).
+
+### `/retailer-check-in` structure
+1. **Gate** — a modal asking "does your store already carry Sliquid?" before the form is usable.
+   "No" routes to a decline screen whose only real CTA is `/become-a-retailer`. The answer is
+   stored in `sessionStorage` under `sliquid_retailer_checkin_confirmed` so a refresh doesn't
+   re-ask. It is a router, not a check — it stops a prospect wasting time on the wrong form, and
+   is trivially bypassed by anyone who wants to.
+2. **Hero** — thank-you copy plus the "how do you like the new look?" prompt.
+3. **Brands** — all three houses, rendered from the shared `BRANDS` constant so this page can
+   never drift from `/our-brands`.
+4. **Form** → `POST /api/b2b/retailer-checkin`. Only Store, Name and Email are required; an
+   existing partner answering as a favour should not meet a wall of red asterisks.
+5. **Not-a-retailer CTA** — repeated in the page body, because prospects arrive here on
+   forwarded links.
+
+**Point of contact** comes from `RETAILER_CONTACTS` in `src/utils/constants.ts` — one exported
+array so a staff change is a one-line edit. It deliberately includes "My distributor rep" and
+"Not sure / I don't have one": a retailer who buys through a distributor may never have spoken to
+anyone at Sliquid, and forcing a name they don't recognise routes the lead wrongly.
+
+### Emails
+`b2b_retailer_checkin_confirm` (to the partner) and `b2b_retailer_checkin_admin` (to sales),
+both in `portal/email-templates/`.
+
+⚠️ There are now **two** retailer template pairs. `b2b_retailer_*` greets a stranger applying to
+carry us; `b2b_retailer_checkin_*` thanks a partner who already does. Sending the applicant copy
+to a ten-year customer reads as though we forgot who they are.
+
+⚠️ `b2b_retailer_checkin_admin` has **no** `{{to_email}}` — set a fixed address in EmailJS. It
+carries the partner's phone and email, and a `to_email` would let form input choose where those
+get delivered.
+
+⚠️ **`PUBLIC_PATHS` in `app.ts` now advertises `GET, POST, OPTIONS`.** Every public path except
+`/api/products/catalog` and `/api/announcements/public` is a POST-only intake endpoint; a JSON
+body triggers a preflight, and the old `GET, OPTIONS` failed it in the browser — while every
+supertest test passed, because supertest sends no `Origin` and never preflights. Covered now by
+explicit `.set('Origin', …)` preflight assertions in `b2b-forms.test.ts`.
 
 ---
 
@@ -1135,6 +1206,8 @@ portal/server/src/__tests__/
     inventory.test.ts
     notifications.test.ts
     retailer.test.ts
+    b2b-forms.test.ts             # 18 tests: /retailer-checkin validation, SRC-XXXX
+                                  # sequence, 2h duplicate guard, public-path CORS preflight
     marketing-items.test.ts
     trainings.test.ts
     quiz.test.ts                  # quiz completion + certificate auto-issuance
@@ -1173,7 +1246,7 @@ src/__tests__/fixtures/announcement-shape-a.html  # the REAL body of WP post 126
   - `POST /reward`: 401 no auth; 403 no cert; 400 for each missing required field (product, shirtSize, address1, city, state, zip); 201 + DB row verified; address2 optional; idempotent (second call returns 200, no duplicate); per-user isolation; round-trip confirms `rewardSubmitted` flips to `true`
   - `GET /verify/:certNumber`: unknown 404; revoked 404; valid 200 + full shape; public (no auth); case-sensitive lookup
 
-**Total: 511 tests passing across 22 test files** (1 known pre-existing failure in
+**Total: 696 tests passing across 28 test files** (1 known pre-existing failure in
 `admin.test.ts` — it asserts tier3 is rejected on approve, which is no longer true).
 
 `certificates.test.ts` is now 42 tests — it additionally locks in the admin-only guards on
@@ -1455,7 +1528,7 @@ write, and that an unapproved primary never reaches the public catalog.
 - **Icons:** `lucide-react` exclusively.
 - **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export), public pre-auth calls (e.g., `/api/stores` from RegisterPage), and the public certificate verify page use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **59**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **60**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
 - **`AnnouncementBody.tsx` is duplicated** in `src/components/` and `portal/client/src/components/`.
