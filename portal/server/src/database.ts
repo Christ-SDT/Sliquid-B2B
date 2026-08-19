@@ -1284,6 +1284,31 @@ const migrations: Migration[] = [
         ON retailer_checkins(email);
     `),
   },
+  {
+    version: 60,
+    name: 'form_submissions_table',
+    // One shared cooldown ledger for every public intake form, so the guard is
+    // identical everywhere instead of being reimplemented per route (hp-apply
+    // and retailer-checkin each grew their own, with a 2-hour window that
+    // matched neither the other forms nor anything documented).
+    //
+    // Deliberately holds ONLY (form_key, email, created_at) — no payload. The
+    // forms already persist whatever they need in their own tables, and a
+    // second copy of names and messages here would be PII with no owner and no
+    // retention story.
+    up: () => db.exec(`
+      CREATE TABLE IF NOT EXISTS form_submissions (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        form_key   TEXT NOT NULL,
+        email      TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      -- Column order matches the lookup: equality on form_key + email, range on
+      -- created_at, so SQLite can use the whole index for the cooldown check.
+      CREATE INDEX IF NOT EXISTS idx_form_submissions_lookup
+        ON form_submissions(form_key, email, created_at);
+    `),
+  },
 ]
 
 function runMigrations(): void {

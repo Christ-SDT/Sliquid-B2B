@@ -280,8 +280,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 57 | `packshot_approval_audit` | Adds `approved_by`, `approved_at` to `media` — records who published an asset to the external ChatGPT agent, and when |
 | 58 | `packshot_primary_and_status_audit` | Adds `is_primary`, `status_set_by`, `status_set_at` to `media`; partial UNIQUE index `idx_media_primary_per_sku` on `media(sku) WHERE is_primary = 1 AND type = 'packshot'`. Backs the main-image and discontinue controls — see [Packshot lifecycle](#packshot-lifecycle--main-image--coverage) |
 | 59 | `retailer_checkins_table` | Creates `retailer_checkins` — one row per submission of the hidden `/retailer-check-in` page; backs the sequential `SRC-XXXX` reference and the 2-hour duplicate guard. Index on `email` |
+| 60 | `form_submissions_table` | Creates `form_submissions` (`form_key`, `email`, `created_at`) — the shared one-hour cooldown ledger for every public intake form. Index on `(form_key, email, created_at)` |
 
-**Next migration version: 60**
+**Next migration version: 61**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -805,6 +806,53 @@ explicit `.set('Origin', …)` preflight assertions in `b2b-forms.test.ts`.
 
 ---
 
+## Form Submission Gate (one hour)
+
+Every **public intake form** accepts one submission per email address per hour.
+
+| Form | Endpoint | `form_key` | Client lock |
+|---|---|---|---|
+| Contact | `POST /api/b2b/contact` | `b2b_contact` | yes |
+| Become a Retailer | `POST /api/b2b/retailer-apply` | `b2b_retailer_apply` | yes |
+| Retailer Check-In | `POST /api/b2b/retailer-checkin` | `b2b_retailer_checkin` | yes |
+| Health Practitioners | `POST /api/b2b/hp-apply` | `b2b_hp_apply` | yes |
+| Erospain booth | `POST /api/b2b/booth-signup` | `b2b_booth_signup` | **no** — see below |
+| GDPR request | `POST /api/gdpr/request` | `gdpr_request_access` / `gdpr_request_deletion` | yes |
+
+Server: `portal/server/src/formGate.ts` — `checkFormCooldown()`, `recordFormSubmission()`,
+`cooldownResponse()`, and `FORM_KEYS`. Blocked callers get **429** with
+`{ alreadySubmitted: true, retryAfterMinutes, message }`.
+Client: `src/utils/formCooldown.ts` + `src/components/FormCooldownNotice.tsx`
+(`useFormCooldown(formId)` → `{ blocked, minutesLeft, start, lock }`).
+
+⚠️ **`recordFormSubmission()` runs only AFTER the work succeeded.** Recording up front would let
+a transient EmailJS outage lock a visitor out for an hour from a submission nobody received —
+the same failure the `hp_applications` row rollback exists to undo. Locked in by
+`form-gate-send-failure.test.ts`, which `vi.mock`s the whole email module at module scope (an
+ESM namespace spy cannot intercept `email.ts` calling its own `sendEmail`).
+
+⚠️ **The booth page gets NO client-side lock.** It runs on a shared kiosk at a trade show, where a
+browser-level lock would turn one signup into a closed sign-up sheet for everyone behind them in
+the queue. It relies on the server gate, which keys on the email and so lets the next visitor
+through.
+
+⚠️ **GDPR keys split by request type.** Exercising the right of access must not consume the window
+for a subsequent deletion request — two different legal asks that happen to share one form.
+
+⚠️ **Auth flows are deliberately ungated** — login, register, forgot-password, reset-password. An
+hour-long lockout on password reset turns a mistyped email into a support ticket. A regression
+test asserts `forgot-password` never 429s.
+
+⚠️ The client lock is a **courtesy, not a control**: per-browser, cleared with localStorage. When
+the server answers 429 it also reports `retryAfterMinutes`, and the client takes that number over
+its own — so someone who submitted from their phone still sees the true remaining time.
+
+**This replaced two bespoke guards.** `hp-apply` and `retailer-checkin` each had their own
+2-hour check against their own table. Both now use the shared helper at 1 hour; their tables
+remain, but only to back the `SHP-XXXX` / `SRC-XXXX` reference numbers.
+
+---
+
 ## Certification System
 
 ### Overview
@@ -1206,8 +1254,11 @@ portal/server/src/__tests__/
     inventory.test.ts
     notifications.test.ts
     retailer.test.ts
-    b2b-forms.test.ts             # 18 tests: /retailer-checkin validation, SRC-XXXX
-                                  # sequence, 2h duplicate guard, public-path CORS preflight
+    b2b-forms.test.ts             # 55 tests: /retailer-checkin validation, SRC-XXXX
+                                  # sequence, the 1h gate across all six intake
+                                  # forms, public-path CORS preflight
+    form-gate-send-failure.test.ts # 4 tests: a failed send never starts the
+                                  # cooldown (email module vi.mock'd)
     marketing-items.test.ts
     trainings.test.ts
     quiz.test.ts                  # quiz completion + certificate auto-issuance
@@ -1246,7 +1297,7 @@ src/__tests__/fixtures/announcement-shape-a.html  # the REAL body of WP post 126
   - `POST /reward`: 401 no auth; 403 no cert; 400 for each missing required field (product, shirtSize, address1, city, state, zip); 201 + DB row verified; address2 optional; idempotent (second call returns 200, no duplicate); per-user isolation; round-trip confirms `rewardSubmitted` flips to `true`
   - `GET /verify/:certNumber`: unknown 404; revoked 404; valid 200 + full shape; public (no auth); case-sensitive lookup
 
-**Total: 696 tests passing across 28 test files** (1 known pre-existing failure in
+**Total: 737 tests passing across 29 test files** (1 known pre-existing failure in
 `admin.test.ts` — it asserts tier3 is rejected on approve, which is no longer true).
 
 `certificates.test.ts` is now 42 tests — it additionally locks in the admin-only guards on
@@ -1528,7 +1579,7 @@ write, and that an unapproved primary never reaches the public catalog.
 - **Icons:** `lucide-react` exclusively.
 - **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export), public pre-auth calls (e.g., `/api/stores` from RegisterPage), and the public certificate verify page use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **60**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **61**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
 - **`AnnouncementBody.tsx` is duplicated** in `src/components/` and `portal/client/src/components/`.

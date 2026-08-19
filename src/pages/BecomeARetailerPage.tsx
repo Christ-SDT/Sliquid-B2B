@@ -1,5 +1,6 @@
 import { useState, useId } from 'react'
 import { sanitizeFormData } from '@/utils/sanitize'
+import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -168,6 +169,7 @@ export default function BecomeARetailerPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [sendError, setSendError] = useState('')
+  const cooldown = useFormCooldown('retailer-apply')
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     const { name, value, type } = e.target
@@ -212,10 +214,14 @@ export default function BecomeARetailerPage() {
           comments:     safe.comments || 'N/A',
         }),
       })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { message?: string }
-        throw new Error(data.message ?? 'Request failed')
+      const data = await res.json().catch(() => ({})) as { message?: string; retryAfterMinutes?: number }
+      if (res.status === 429) {
+        cooldown.lock(data.retryAfterMinutes ?? 60)
+        setSendError(data.message ?? 'You have already applied recently.')
+        return
       }
+      if (!res.ok) throw new Error(data.message ?? 'Request failed')
+      cooldown.start()
       setSubmitted(true)
     } catch {
       setSendError('Something went wrong sending your application. Please try again or email sales@sliquid.com directly.')
@@ -252,6 +258,9 @@ export default function BecomeARetailerPage() {
             </h2>
           </div>
 
+          {cooldown.blocked ? (
+            <FormCooldownNotice minutes={cooldown.minutesLeft} noun="application" />
+          ) : (
           <form onSubmit={handleSubmit} noValidate className="space-y-6">
             {sendError && (
               <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-red-700 text-sm">
@@ -534,6 +543,7 @@ export default function BecomeARetailerPage() {
               {submitting ? 'Submitting…' : 'Submit'}
             </button>
           </form>
+          )}
         </div>
       </section>
     </>

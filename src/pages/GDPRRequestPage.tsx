@@ -1,5 +1,6 @@
 import { useState, useId } from 'react'
 import { sanitizeFormData } from '@/utils/sanitize'
+import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -21,6 +22,7 @@ function RequestForm({ type, onSuccess }: { type: RequestType; onSuccess: () => 
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [sendError, setSendError] = useState('')
+  const cooldown = useFormCooldown(type === 'deletion' ? 'gdpr-deletion' : 'gdpr-access')
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target
@@ -48,16 +50,24 @@ function RequestForm({ type, onSuccess }: { type: RequestType; onSuccess: () => 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, name: safe.name, email: safe.email, message: safe.message || undefined }),
       })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { message?: string }
-        throw new Error(data.message ?? 'Submission failed')
+      const data = await res.json().catch(() => ({})) as { message?: string; retryAfterMinutes?: number }
+      if (res.status === 429) {
+        cooldown.lock(data.retryAfterMinutes ?? 60)
+        setSendError(data.message ?? 'We have already received this request.')
+        return
       }
+      if (!res.ok) throw new Error(data.message ?? 'Submission failed')
+      cooldown.start()
       onSuccess()
     } catch (err: any) {
       setSendError(err.message ?? 'Something went wrong. Please try again.')
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (cooldown.blocked) {
+    return <FormCooldownNotice minutes={cooldown.minutesLeft} noun="request" />
   }
 
   return (

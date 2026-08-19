@@ -1,5 +1,6 @@
 import { useState, useId } from 'react'
 import { sanitizeFormData } from '@/utils/sanitize'
+import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -321,6 +322,7 @@ export default function HealthPractitionersPage() {
   const [showThankYouModal, setShowThankYouModal] = useState(false)
   const [sendError, setSendError] = useState('')
   const [alreadySubmitted, setAlreadySubmitted] = useState(false)
+  const cooldown = useFormCooldown('hp-apply')
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     const { name, value, type } = e.target
@@ -358,13 +360,19 @@ export default function HealthPractitionersPage() {
         }),
       })
       if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { message?: string; alreadySubmitted?: boolean }
+        const data = await res.json().catch(() => ({})) as {
+          message?: string; alreadySubmitted?: boolean; retryAfterMinutes?: number
+        }
         if (data.alreadySubmitted) {
+          // Keep the existing dedicated screen, but also start the clock so a
+          // reload shows the cooldown notice instead of an empty form.
+          cooldown.lock(data.retryAfterMinutes ?? 60)
           setAlreadySubmitted(true)
           return
         }
         throw new HPApiError(data.message ?? 'The server returned an unexpected error. Please try again.')
       }
+      cooldown.start()
       setSubmitted(true)
       setShowThankYouModal(true)
     } catch (err) {
@@ -528,6 +536,8 @@ export default function HealthPractitionersPage() {
             <SubmittedPanel />
           ) : alreadySubmitted ? (
             <AlreadySubmittedPanel />
+          ) : cooldown.blocked ? (
+            <FormCooldownNotice minutes={cooldown.minutesLeft} noun="application" />
           ) : (
           <>
           {/* Gate — show prompt if not yet accepted */}

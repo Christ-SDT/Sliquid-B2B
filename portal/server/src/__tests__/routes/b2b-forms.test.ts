@@ -96,7 +96,9 @@ describe('POST /api/b2b/retailer-checkin', () => {
 
     it('lets the same email through once the window has passed', async () => {
       await request(app).post('/api/b2b/retailer-checkin').send(VALID)
-      db.prepare(`UPDATE retailer_checkins SET created_at = datetime('now', '-3 hours')`).run()
+      // The clock lives in form_submissions now — ageing retailer_checkins
+      // would not move it, which is exactly what this test caught.
+      db.prepare(`UPDATE form_submissions SET created_at = datetime('now', '-61 minutes')`).run()
       const res = await request(app).post('/api/b2b/retailer-checkin').send(VALID)
       expect(res.status).toBe(200)
       expect(res.body.referenceNumber).toBe('SRC-0002')
@@ -134,4 +136,144 @@ describe('CORS on the public B2B intake paths', () => {
       expect(res.headers['access-control-allow-origin']).toBe('*')
     })
   }
+})
+
+// ─── Shared one-hour submission gate ─────────────────────────────────────────
+
+describe('one-hour submission gate', () => {
+  // Every public intake form, its minimum valid payload, and the field the
+  // gate keys on. Driving the suite off this table means a newly added form
+  // that forgets the gate has to be added here to pass — or it isn't covered.
+  const FORMS = [
+    {
+      name: 'contact',
+      path: '/api/b2b/contact',
+      table: null,
+      payload: { fromName: 'Ann', fromEmail: 'ann@shop.example', subject: 'retailer', message: 'Hi' },
+      emailField: 'fromEmail',
+      okStatus: 200,
+    },
+    {
+      name: 'retailer-apply',
+      path: '/api/b2b/retailer-apply',
+      table: null,
+      payload: { company: 'Shop', contactName: 'Ann', email: 'ann@shop.example', phone: '555', brands: 'Sliquid' },
+      emailField: 'email',
+      okStatus: 200,
+    },
+    {
+      name: 'hp-apply',
+      path: '/api/b2b/hp-apply',
+      table: 'hp_applications',
+      payload: { practiceType: 'Clinic', practiceName: 'C', contactName: 'Ann', contactPhone: '555', email: 'ann@shop.example' },
+      emailField: 'email',
+      okStatus: 200,
+    },
+    {
+      name: 'retailer-checkin',
+      path: '/api/b2b/retailer-checkin',
+      table: 'retailer_checkins',
+      payload: { company: 'Shop', contactName: 'Ann', email: 'ann@shop.example' },
+      emailField: 'email',
+      okStatus: 200,
+    },
+    {
+      name: 'booth-signup',
+      path: '/api/b2b/booth-signup',
+      table: null,
+      payload: { name: 'Ann', email: 'ann@shop.example', businessName: 'Shop', businessType: 'Retailer', contactName: 'Ann' },
+      emailField: 'email',
+      okStatus: 200,
+    },
+    {
+      name: 'gdpr-request',
+      path: '/api/gdpr/request',
+      table: 'gdpr_requests',
+      payload: { type: 'access', name: 'Ann', email: 'ann@shop.example' },
+      emailField: 'email',
+      okStatus: 201,
+    },
+  ] as const
+
+  for (const form of FORMS) {
+    describe(form.name, () => {
+      it('accepts the first submission', async () => {
+        const res = await request(app).post(form.path).send(form.payload)
+        expect(res.status).toBe(form.okStatus)
+      })
+
+      it('429s an immediate resubmission from the same email', async () => {
+        await request(app).post(form.path).send(form.payload)
+        const res = await request(app).post(form.path).send(form.payload)
+        expect(res.status).toBe(429)
+        expect(res.body.alreadySubmitted).toBe(true)
+        expect(res.body.retryAfterMinutes).toBeGreaterThan(0)
+        expect(res.body.retryAfterMinutes).toBeLessThanOrEqual(60)
+      })
+
+      it('matches the email case-insensitively', async () => {
+        await request(app).post(form.path).send(form.payload)
+        const upper = { ...form.payload, [form.emailField]: (form.payload as any)[form.emailField].toUpperCase() }
+        const res = await request(app).post(form.path).send(upper)
+        expect(res.status).toBe(429)
+      })
+
+      it('lets a different email through immediately', async () => {
+        await request(app).post(form.path).send(form.payload)
+        const other = { ...form.payload, [form.emailField]: 'someone.else@other.example' }
+        const res = await request(app).post(form.path).send(other)
+        expect(res.status).toBe(form.okStatus)
+      })
+
+      it('lets the same email back in once the hour has passed', async () => {
+        await request(app).post(form.path).send(form.payload)
+        db.prepare(`UPDATE form_submissions SET created_at = datetime('now', '-61 minutes')`).run()
+        const res = await request(app).post(form.path).send(form.payload)
+        expect(res.status).toBe(form.okStatus)
+      })
+
+      if (form.table) {
+        it('writes no row while blocked', async () => {
+          await request(app).post(form.path).send(form.payload)
+          const before = db.prepare(`SELECT COUNT(*) c FROM ${form.table}`).get() as { c: number }
+          await request(app).post(form.path).send(form.payload)
+          const after = db.prepare(`SELECT COUNT(*) c FROM ${form.table}`).get() as { c: number }
+          expect(after.c).toBe(before.c)
+        })
+      }
+    })
+  }
+
+  it('keys the window per form, not per email', async () => {
+    // Contacting sales must not block a retailer application from the same person.
+    await request(app).post('/api/b2b/contact')
+      .send({ fromName: 'Ann', fromEmail: 'ann@shop.example', subject: 'retailer', message: 'Hi' })
+    const res = await request(app).post('/api/b2b/retailer-apply')
+      .send({ company: 'Shop', contactName: 'Ann', email: 'ann@shop.example', phone: '555', brands: 'Sliquid' })
+    expect(res.status).toBe(200)
+  })
+
+  it('does not let a GDPR access request block a deletion request', async () => {
+    // Two distinct legal rights that happen to share one form.
+    const a = await request(app).post('/api/gdpr/request')
+      .send({ type: 'access', name: 'Ann', email: 'ann@shop.example' })
+    const d = await request(app).post('/api/gdpr/request')
+      .send({ type: 'deletion', name: 'Ann', email: 'ann@shop.example' })
+    expect(a.status).toBe(201)
+    expect(d.status).toBe(201)
+  })
+
+  it('records nothing when validation rejects the submission', async () => {
+    await request(app).post('/api/b2b/retailer-checkin').send({ company: 'X', contactName: 'Y', email: 'bad' })
+    expect(db.prepare('SELECT COUNT(*) c FROM form_submissions').get()).toEqual({ c: 0 })
+  })
+
+  it('leaves auth flows ungated — a reset lockout is worse than a duplicate', async () => {
+    // forgot-password always returns ok:true (no enumeration); the point is
+    // that a second attempt is not refused.
+    const body = { email: 'nobody@example.com' }
+    await request(app).post('/api/auth/forgot-password').send(body)
+    const res = await request(app).post('/api/auth/forgot-password').send(body)
+    expect(res.status).not.toBe(429)
+  })
 })

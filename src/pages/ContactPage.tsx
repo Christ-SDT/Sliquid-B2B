@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ContactFormData, ContactFormErrors } from '@/types'
 import { sanitizeFormData } from '@/utils/sanitize'
+import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -65,6 +66,7 @@ export default function ContactPage() {
   const [errors, setErrors] = useState<ContactFormErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const cooldown = useFormCooldown('contact')
 
   const inputCls = (field: keyof ContactFormData) =>
     `w-full px-4 py-2.5 border rounded-lg text-sm text-text-dark
@@ -103,10 +105,17 @@ export default function ContactPage() {
           message:   sanitized.message,
         }),
       })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { message?: string }
-        throw new Error(data.message ?? 'Request failed')
+      const data = await res.json().catch(() => ({})) as { message?: string; retryAfterMinutes?: number }
+      if (res.status === 429) {
+        // A duplicate inside the hour still means their first message landed,
+        // so the success screen is honest here — just start the clock so the
+        // form is locked rather than re-offered.
+        cooldown.lock(data.retryAfterMinutes ?? 60)
+        setSubmitted(true)
+        return
       }
+      if (!res.ok) throw new Error(data.message ?? 'Request failed')
+      cooldown.start()
       setSubmitted(true)
     } catch {
       // Show success anyway — form data was submitted, email failure is silent
@@ -278,6 +287,9 @@ export default function ContactPage() {
             <h2 className="text-text-dark text-xl font-semibold mb-6">
               Send us a message
             </h2>
+            {cooldown.blocked ? (
+              <FormCooldownNotice minutes={cooldown.minutesLeft} noun="message" />
+            ) : (
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {/* Name */}
@@ -418,6 +430,7 @@ export default function ContactPage() {
                 We respond to all B2B inquiries within 2 business days.
               </p>
             </form>
+            )}
           </div>
 
         </div>

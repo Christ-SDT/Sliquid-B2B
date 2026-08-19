@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { sendEmail } from '../email.js'
+import { FORM_KEYS, checkFormCooldown, recordFormSubmission, cooldownResponse } from '../formGate.js'
 
 const router = Router()
 
@@ -58,11 +59,19 @@ router.post('/request', (req, res) => {
     res.status(400).json({ message: 'A valid email address is required.' }); return
   }
 
+  // A repeat inside the hour is a double-click, not a second request. The guard
+  // is a duplicate filter, not a refusal — the window is short enough that it
+  // cannot obstruct a genuine data-subject request.
+  const formKey = type === 'deletion' ? FORM_KEYS.gdprDeletion : FORM_KEYS.gdprAccess
+  const gate = checkFormCooldown(formKey, email)
+  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'request')); return }
+
   db.prepare(`
     INSERT INTO gdpr_requests (type, name, email, message)
     VALUES (?, ?, ?, ?)
   `).run(type, name.trim(), email.trim().toLowerCase(), message?.trim() || null)
 
+  recordFormSubmission(formKey, email)
   res.status(201).json({ ok: true })
 })
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useId } from 'react'
 import { sanitizeFormData } from '@/utils/sanitize'
 import { API_BASE, BRANDS, RETAILER_CONTACTS } from '@/utils/constants'
+import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
@@ -243,6 +244,7 @@ export default function RetailerCheckInPage() {
   const [submitting, setSubmitting] = useState(false)
   const [reference, setReference] = useState('')
   const [sendError, setSendError] = useState('')
+  const cooldown = useFormCooldown('retailer-checkin')
 
   // Unlisted, not secret — but it is mailed to named partners, so keep it out of
   // search results. Removed on unmount so it never leaks onto another route.
@@ -300,8 +302,17 @@ export default function RetailerCheckInPage() {
           comments:       safe.comments,
         }),
       })
-      const data = await res.json().catch(() => ({})) as { message?: string; referenceNumber?: string }
+      const data = await res.json().catch(() => ({})) as {
+        message?: string; referenceNumber?: string; retryAfterMinutes?: number
+      }
+      if (res.status === 429) {
+        // The server knows the real remaining time — trust it over this browser.
+        cooldown.lock(data.retryAfterMinutes ?? 60)
+        setSendError(data.message ?? 'You have already checked in recently.')
+        return
+      }
       if (!res.ok) throw new Error(data.message ?? 'Request failed')
+      cooldown.start()
       setReference(data.referenceNumber ?? '')
     } catch (err) {
       setSendError(
@@ -412,6 +423,9 @@ export default function RetailerCheckInPage() {
             </p>
           </div>
 
+          {cooldown.blocked ? (
+            <FormCooldownNotice minutes={cooldown.minutesLeft} noun="check-in" />
+          ) : (
           <form onSubmit={handleSubmit} noValidate className="space-y-6">
             {sendError && (
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -584,6 +598,7 @@ export default function RetailerCheckInPage() {
               {submitting ? 'Sending…' : 'Send check-in'}
             </button>
           </form>
+          )}
         </div>
       </section>
 

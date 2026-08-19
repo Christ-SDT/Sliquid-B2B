@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { db } from '../database.js'
 import { sendContactFormEmails, sendRetailerApplicationEmails, sendHPApplicationEmail, sendRetailerCheckInEmails } from '../email.js'
+import { FORM_KEYS, checkFormCooldown, recordFormSubmission, cooldownResponse } from '../formGate.js'
 
 const router = Router()
 
@@ -79,8 +80,12 @@ router.post('/contact', async (req, res) => {
     return
   }
 
+  const gate = checkFormCooldown(FORM_KEYS.contact, fromEmail)
+  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'message')); return }
+
   try {
     await sendContactFormEmails({ fromName, fromEmail, company: company || '', phone: phone || '', subject, message })
+    recordFormSubmission(FORM_KEYS.contact, fromEmail)
     res.json({ ok: true })
   } catch (err: any) {
     console.error('[b2b-forms] Contact error:', err)
@@ -105,6 +110,9 @@ router.post('/retailer-apply', async (req, res) => {
     return
   }
 
+  const gate = checkFormCooldown(FORM_KEYS.retailerApply, email)
+  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'application')); return }
+
   try {
     await sendRetailerApplicationEmails({
       company, contactName, address: address || '', phone, email,
@@ -112,6 +120,7 @@ router.post('/retailer-apply', async (req, res) => {
       storeLocator: storeLocator || 'No',
       comments: comments || 'N/A',
     })
+    recordFormSubmission(FORM_KEYS.retailerApply, email)
     res.json({ ok: true })
   } catch (err: any) {
     console.error('[b2b-forms] Retailer apply error:', err)
@@ -146,18 +155,10 @@ router.post('/hp-apply', async (req, res) => {
     return
   }
 
-  try {
-    const recent = db.prepare(
-      `SELECT id FROM hp_applications WHERE LOWER(email) = LOWER(?) AND created_at >= datetime('now', '-2 hours') LIMIT 1`
-    ).get(email)
-    if (recent) {
-      res.status(429).json({
-        alreadySubmitted: true,
-        message: 'You have already submitted an application. Our team will be in touch as soon as possible.',
-      })
-      return
-    }
+  const gate = checkFormCooldown(FORM_KEYS.hpApply, email)
+  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'application')); return }
 
+  try {
     const result = db.prepare(
       'INSERT INTO hp_applications (practice_name, contact_name, email) VALUES (?, ?, ?)'
     ).run(practiceName, contactName, email)
@@ -182,6 +183,7 @@ router.post('/hp-apply', async (req, res) => {
       throw emailErr
     }
 
+    recordFormSubmission(FORM_KEYS.hpApply, email)
     res.json({ ok: true, referenceNumber })
   } catch (err: any) {
     console.error('[b2b-forms] HP apply error:', err)
@@ -218,18 +220,10 @@ router.post('/retailer-checkin', async (req, res) => {
     return
   }
 
-  try {
-    const recent = db.prepare(
-      `SELECT id FROM retailer_checkins WHERE LOWER(email) = LOWER(?) AND created_at >= datetime('now', '-2 hours') LIMIT 1`
-    ).get(email)
-    if (recent) {
-      res.status(429).json({
-        alreadySubmitted: true,
-        message: "Thanks — we already have your check-in. Your rep will be in touch shortly.",
-      })
-      return
-    }
+  const gate = checkFormCooldown(FORM_KEYS.retailerCheckin, email)
+  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'check-in')); return }
 
+  try {
     const result = db.prepare(
       `INSERT INTO retailer_checkins
          (company, contact_name, email, phone, point_of_contact, brands_carried, interests, site_feedback, comments)
@@ -258,6 +252,7 @@ router.post('/retailer-checkin', async (req, res) => {
       throw emailErr
     }
 
+    recordFormSubmission(FORM_KEYS.retailerCheckin, email)
     res.json({ ok: true, referenceNumber })
   } catch (err: any) {
     console.error('[b2b-forms] Retailer check-in error:', err)
@@ -282,8 +277,12 @@ router.post('/booth-signup', async (req, res) => {
     return
   }
 
+  const gate = checkFormCooldown(FORM_KEYS.boothSignup, email)
+  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'signup')); return }
+
   try {
     await addToMailchimp({ email, name, businessName, businessType, storeNames, storeCount, websiteUrl, contactName, contactPhone })
+    recordFormSubmission(FORM_KEYS.boothSignup, email)
     res.json({ ok: true })
   } catch (err: any) {
     console.error('[b2b-forms] Booth signup error:', err)
