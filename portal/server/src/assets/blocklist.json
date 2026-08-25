@@ -1,0 +1,57 @@
+{
+  "_readme": [
+    "SPAM BLOCKLIST for the public forms (contact, become-a-retailer,",
+    "retailer check-in, health practitioners, Erospain booth, GDPR).",
+    "",
+    "Edit this file, commit, and redeploy the server. No code change needed.",
+    "Matching is case-insensitive and ignores surrounding whitespace.",
+    "",
+    "  emails          exact addresses            'jane@store.com'",
+    "  domains         everything @ that domain   'spam-farm.example'",
+    "  names           exact full names           'Jane Doe'",
+    "  messageContains substring in the message   'crypto investment'",
+    "",
+    "mode:  'reject' returns 403 and tells the sender to email us directly, so",
+    "       someone blocked by mistake still has a way through. 'silent'",
+    "       returns a normal success and quietly drops the submission, which",
+    "       is better against bots but leaves a wrongly-blocked human with no",
+    "       signal at all. Start with 'reject'.",
+    "",
+    "repeatLimit: the automatic stopper, applied to everyone whether or not",
+    "       they are listed above. Counts DELIVERED submissions only.",
+    "         maxSubmissions  refuse once this many have already gone through",
+    "         windowDays      how far back to count; 0 means forever",
+    "         scope           'form' counts per form, 'all' counts across every",
+    "                         form together",
+    "         matchOn         'email-or-name' also catches someone who keeps",
+    "                         their name and rotates the address. Note this",
+    "                         conflates two different people with a common",
+    "                         name — a second 'John Smith' can be refused",
+    "                         because of the first. Set 'email' to match on",
+    "                         the address alone.",
+    "",
+    "A malformed file is ignored with a loud server log and every form keeps",
+    "working — a typo here must never take the site's forms down."
+  ],
+
+  "mode": "reject",
+
+  "repeatLimit": {
+    "maxSubmissions": 2,
+    "windowDays": 30,
+    "scope": "form",
+    "matchOn": "email-or-name"
+  },
+
+  "emails": [
+    "jane@store.com"
+  ],
+
+  "domains": [],
+
+  "names": [
+    "Jane Doe"
+  ],
+
+  "messageContains": []
+}

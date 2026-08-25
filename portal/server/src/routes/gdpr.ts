@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { sendEmail } from '../email.js'
-import { FORM_KEYS, checkFormCooldown, recordFormSubmission, cooldownResponse } from '../formGate.js'
+import { FORM_KEYS, screenSubmission, recordFormSubmission } from '../formGate.js'
 
 const router = Router()
 
@@ -63,15 +63,15 @@ router.post('/request', (req, res) => {
   // is a duplicate filter, not a refusal — the window is short enough that it
   // cannot obstruct a genuine data-subject request.
   const formKey = type === 'deletion' ? FORM_KEYS.gdprDeletion : FORM_KEYS.gdprAccess
-  const gate = checkFormCooldown(formKey, email)
-  if (gate.blocked) { res.status(429).json(cooldownResponse(gate, 'request')); return }
+  const screen = screenSubmission(formKey, { email, name, message, label: 'request' })
+  if (!screen.ok) { res.status(screen.status).json(screen.body); return }
 
   db.prepare(`
     INSERT INTO gdpr_requests (type, name, email, message)
     VALUES (?, ?, ?, ?)
   `).run(type, name.trim(), email.trim().toLowerCase(), message?.trim() || null)
 
-  recordFormSubmission(formKey, email)
+  recordFormSubmission(formKey, email, name)
   res.status(201).json({ ok: true })
 })
 

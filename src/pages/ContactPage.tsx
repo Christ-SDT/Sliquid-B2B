@@ -66,6 +66,7 @@ export default function ContactPage() {
   const [errors, setErrors] = useState<ContactFormErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [sendError, setSendError] = useState('')
   const cooldown = useFormCooldown('contact')
 
   const inputCls = (field: keyof ContactFormData) =>
@@ -92,6 +93,7 @@ export default function ContactPage() {
       return
     }
     setSubmitting(true)
+    setSendError('')
     try {
       const res = await fetch(`${API_BASE}/api/b2b/contact`, {
         method: 'POST',
@@ -118,8 +120,16 @@ export default function ContactPage() {
       cooldown.start()
       setSubmitted(true)
     } catch {
-      // Show success anyway — form data was submitted, email failure is silent
-      setSubmitted(true)
+      // Do NOT show success here. This branch used to call setSubmitted(true)
+      // "because email failure is silent" — but it fires on a network error,
+      // a CORS rejection or a 500, i.e. exactly when the message did NOT
+      // arrive. It told the sender their message landed, and because the
+      // submission never completed it also left the one-hour gate unarmed, so
+      // the form was wide open when they came back. Both symptoms, one line.
+      setSendError(
+        "We couldn't send your message just now. Please try again, or email " +
+        'sales@sliquid.com directly.',
+      )
     } finally {
       setSubmitting(false)
     }
@@ -291,6 +301,11 @@ export default function ContactPage() {
               <FormCooldownNotice minutes={cooldown.minutesLeft} noun="message" />
             ) : (
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
+              {sendError && (
+                <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {sendError}
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {/* Name */}
                 <div>

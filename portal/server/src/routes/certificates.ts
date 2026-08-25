@@ -158,16 +158,22 @@ router.get('/rewards', requireAuth, requireRole('tier5', 'admin'), (req, res) =>
   res.json(rows)
 })
 
-// PUT /api/certificates/rewards/:id/fulfilled — toggle fulfilled status
+// PUT /api/certificates/rewards/:id/fulfilled — toggle "items sent" status.
+// Shared by the Marketing Requests page and the per-user switch in User Management,
+// so it returns the stored row: the caller must not have to guess the timestamp.
 router.put('/rewards/:id/fulfilled', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const id = Number(req.params.id)
   const { fulfilled } = req.body as { fulfilled: boolean }
+  const exists = db.prepare('SELECT id FROM cert_rewards WHERE id = ?').get(id)
+  if (!exists) { res.status(404).json({ message: 'Reward claim not found' }); return }
+
+  const sentAt = fulfilled ? new Date().toISOString() : null
   db.prepare(`
     UPDATE cert_rewards
     SET fulfilled = ?, fulfilled_at = ?
     WHERE id = ?
-  `).run(fulfilled ? 1 : 0, fulfilled ? new Date().toISOString() : null, id)
-  res.json({ ok: true })
+  `).run(fulfilled ? 1 : 0, sentAt, id)
+  res.json({ ok: true, id, fulfilled: fulfilled ? 1 : 0, fulfilled_at: sentAt })
 })
 
 // GET /api/certificates/reward-options — what the reward form renders.

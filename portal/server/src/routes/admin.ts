@@ -6,24 +6,27 @@ import { notifyUser } from '../notifications.js'
 
 const router = Router()
 
+// Reward-shipment columns come from cert_rewards, which is UNIQUE(user_id) — so the
+// LEFT JOIN stays 1:1 and cannot fan a user out into duplicate rows. A certified user
+// with no claim yet has reward_id NULL, which the client renders as "nothing to ship".
+const USER_COLS = `
+  u.id, u.name, u.email, u.company, u.role, u.created_at, u.last_login, u.status, u.requested_role,
+  c.certificate_number,
+  cr.id           AS reward_id,
+  cr.product      AS reward_product,
+  cr.shirt_size   AS reward_shirt_size,
+  cr.fulfilled    AS reward_sent,
+  cr.fulfilled_at AS reward_sent_at
+  FROM users u
+  LEFT JOIN certificates c  ON c.user_id  = u.id AND c.is_valid = 1
+  LEFT JOIN cert_rewards cr ON cr.user_id = u.id
+`
+
 router.get('/users', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const statusFilter = (req.query.status as string) || null
   const users = statusFilter
-    ? db.prepare(`
-        SELECT u.id, u.name, u.email, u.company, u.role, u.created_at, u.last_login, u.status, u.requested_role,
-               c.certificate_number
-        FROM users u
-        LEFT JOIN certificates c ON c.user_id = u.id AND c.is_valid = 1
-        WHERE u.status = ?
-        ORDER BY u.created_at DESC
-      `).all(statusFilter)
-    : db.prepare(`
-        SELECT u.id, u.name, u.email, u.company, u.role, u.created_at, u.last_login, u.status, u.requested_role,
-               c.certificate_number
-        FROM users u
-        LEFT JOIN certificates c ON c.user_id = u.id AND c.is_valid = 1
-        ORDER BY u.created_at DESC
-      `).all()
+    ? db.prepare(`SELECT ${USER_COLS} WHERE u.status = ? ORDER BY u.created_at DESC`).all(statusFilter)
+    : db.prepare(`SELECT ${USER_COLS} ORDER BY u.created_at DESC`).all()
   res.json(users)
 })
 

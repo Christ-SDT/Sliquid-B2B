@@ -541,6 +541,39 @@ describe('PUT /api/certificates/rewards/:id/fulfilled', () => {
     expect(row.fulfilled).toBe(0)
   })
 
+  it('returns 404 for a reward claim that does not exist', async () => {
+    const res = await request(app)
+      .put('/api/certificates/rewards/9999/fulfilled')
+      .send({ fulfilled: true })
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(404)
+  })
+
+  it('returns the stored row so the caller need not guess the timestamp', async () => {
+    seedCertificate(tier1Id, tier1Name)
+    const rewardId = seedCertReward(tier1Id)
+
+    const on = await request(app)
+      .put(`/api/certificates/rewards/${rewardId}/fulfilled`)
+      .send({ fulfilled: true })
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    expect(on.body.fulfilled).toBe(1)
+    const stored = db.prepare('SELECT fulfilled_at FROM cert_rewards WHERE id = ?').get(rewardId) as any
+    expect(on.body.fulfilled_at).toBe(stored.fulfilled_at)
+
+    const off = await request(app)
+      .put(`/api/certificates/rewards/${rewardId}/fulfilled`)
+      .send({ fulfilled: false })
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    expect(off.body.fulfilled).toBe(0)
+    expect(off.body.fulfilled_at).toBeNull()
+    const cleared = db.prepare('SELECT fulfilled, fulfilled_at FROM cert_rewards WHERE id = ?').get(rewardId) as any
+    expect(cleared.fulfilled).toBe(0)
+    expect(cleared.fulfilled_at).toBeNull()
+  })
+
   it('lets an admin mark a reward fulfilled', async () => {
     seedCertificate(tier1Id, tier1Name)
     const rewardId = seedCertReward(tier1Id)
