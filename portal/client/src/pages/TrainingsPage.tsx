@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
-import { isAdmin } from '@/types'
+import { isAdmin, isReadOnlyAdmin } from '@/types'
 import { GraduationCap, Clock, CheckCircle2, ChevronRight, Award, Plus, Pencil, Trash2, Loader2, X, FlaskConical, RotateCcw, MoreVertical, Package, Shirt } from 'lucide-react'
 import RewardOptionsModal from '@/components/RewardOptionsModal'
 import CertificateGenerator from '@/components/CertificateGenerator'
 import CertRewardForm from '@/components/CertRewardForm'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 
 type CertData = {
   firstName: string
@@ -218,13 +219,13 @@ function EditTrainingModal({ training, onClose, onSaved }: { training: Training;
 function QuizCard({
   training,
   bestResult,
-  adminMode,
+  canEdit,
   onEdit,
   onDelete,
 }: {
   training: Training
   bestResult?: QuizResult
-  adminMode: boolean
+  canEdit: boolean
   onEdit: () => void
   onDelete: () => void
 }) {
@@ -283,7 +284,7 @@ function QuizCard({
         </button>
 
         {/* Admin controls */}
-        {adminMode && (
+        {canEdit && (
           <div className="mt-3 flex gap-2">
             {confirmDelete ? (
               <>
@@ -320,7 +321,7 @@ function QuizCard({
 
 export default function TrainingsPage() {
   const { user } = useAuth()
-  const adminMode = isAdmin(user?.role ?? '')
+  const canEdit = isAdmin(user?.role ?? '')
   const [trainings, setTrainings] = useState<Training[]>([])
   const [results, setResults] = useState<QuizResult[]>([])
   const [loading, setLoading] = useState(true)
@@ -407,6 +408,7 @@ export default function TrainingsPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
+      {isReadOnlyAdmin(user?.role ?? '') && <ReadOnlyNotice />}
       {/* Page header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
@@ -415,7 +417,7 @@ export default function TrainingsPage() {
             Earn your official Sliquid Certification by completing this digital training course. For each section, watch the video, take the quiz, and pass at 80% or higher. Once all sections are complete, you will receive a digital certificate and be sent a Sliquid Certified Expert pin and t-shirt. As a bonus for completing the course, you will also receive a Sliquid product of your choice. Your Sliquid product knowledge journey begins here. Good luck!
           </p>
         </div>
-        {adminMode && (
+        {canEdit && (
           <div className="flex-shrink-0 flex items-center gap-2">
             <button
               onClick={() => setShowAddModal(true)}
@@ -534,7 +536,7 @@ export default function TrainingsPage() {
               key={training.id}
               training={training}
               bestResult={bestFor(training.quiz_id)}
-              adminMode={adminMode}
+              canEdit={canEdit}
               onEdit={() => setEditTarget(training)}
               onDelete={() => handleDelete(training.id)}
             />
@@ -578,7 +580,7 @@ export default function TrainingsPage() {
 
             {/* Loading */}
             {/* Admin test controls — reset the reward claim to replay the prompt */}
-            {adminMode && (
+            {canEdit && (
               <div className="mb-4 px-3 py-2.5 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center justify-between gap-3">
                 <p className="text-on-canvas-muted text-xs">
                   {certData?.rewardSubmitted

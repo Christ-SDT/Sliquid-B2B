@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
-import { isAdmin as checkAdmin } from '@/types'
+import { isAdmin as checkAdmin, canViewAdmin, isReadOnlyAdmin } from '@/types'
 import {
   Image as ImageIcon, Upload, Copy, Check, Pencil, Trash2, X, ExternalLink,
   Search, Loader2, AlertCircle, Save, ChevronDown, Sparkles, CheckCircle2, CheckCheck, BookOpen,
@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import PackshotApprovalPanel from '@/components/PackshotApprovalPanel'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -287,11 +288,13 @@ function DetailModal({
   onClose,
   onDeleted,
   onUpdated,
+  canEdit,
 }: {
   item: MediaItem
   onClose: () => void
   onDeleted: (source: Source, id: number) => void
   onUpdated: (item: MediaItem) => void
+  canEdit: boolean
 }) {
   const [tab, setTab] = useState<'info' | 'edit'>('info')
   const [editState, setEditState] = useState<EditState>(() => buildEditState(item))
@@ -303,8 +306,6 @@ function DetailModal({
 
   // Reset edit state if item changes (e.g. after save)
   useEffect(() => { setEditState(buildEditState(item)) }, [item.id])
-
-  const canEdit = true
 
   async function handleApprove() {
     setAssetWorking(true)
@@ -513,15 +514,17 @@ function DetailModal({
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           Published in Asset Library
                         </span>
-                        <button
-                          onClick={handleUnapprove}
-                          disabled={assetWorking}
-                          className="px-3 py-1 rounded-lg text-xs font-medium bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-red-400 hover:border-red-400/40 transition-colors disabled:opacity-50"
-                        >
-                          {assetWorking ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Remove'}
-                        </button>
+                        {canEdit && (
+                          <button
+                            onClick={handleUnapprove}
+                            disabled={assetWorking}
+                            className="px-3 py-1 rounded-lg text-xs font-medium bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-red-400 hover:border-red-400/40 transition-colors disabled:opacity-50"
+                          >
+                            {assetWorking ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Remove'}
+                          </button>
+                        )}
                       </div>
-                    ) : (
+                    ) : canEdit ? (
                       <div className="space-y-2">
                         <p className="text-on-canvas-muted text-xs">This image is pending review. Approve it to publish it to Creator Creations in the Asset Library.</p>
                         <button
@@ -533,6 +536,8 @@ function DetailModal({
                           Approve to Creator Creations
                         </button>
                       </div>
+                    ) : (
+                      <p className="text-on-canvas-muted text-sm">Pending review — not yet published.</p>
                     )}
                   </div>
                 )}
@@ -547,15 +552,17 @@ function DetailModal({
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           Saved to Media Library
                         </span>
-                        <button
-                          onClick={handleRemoveAiFromAssets}
-                          disabled={assetWorking}
-                          className="px-3 py-1 rounded-lg text-xs font-medium bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-red-400 hover:border-red-400/40 transition-colors disabled:opacity-50"
-                        >
-                          {assetWorking ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Remove'}
-                        </button>
+                        {canEdit && (
+                          <button
+                            onClick={handleRemoveAiFromAssets}
+                            disabled={assetWorking}
+                            className="px-3 py-1 rounded-lg text-xs font-medium bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-red-400 hover:border-red-400/40 transition-colors disabled:opacity-50"
+                          >
+                            {assetWorking ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Remove'}
+                          </button>
+                        )}
                       </div>
-                    ) : (
+                    ) : canEdit ? (
                       <div className="space-y-2">
                         <p className="text-on-canvas-muted text-xs">Save this image to the Media Library (admin-only folder).</p>
                         <button
@@ -567,6 +574,8 @@ function DetailModal({
                           Save to Media Library
                         </button>
                       </div>
+                    ) : (
+                      <p className="text-on-canvas-muted text-sm">Not saved to the Media Library.</p>
                     )}
                   </div>
                 )}
@@ -581,63 +590,69 @@ function DetailModal({
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           Published to User Creations
                         </span>
-                        <button
-                          onClick={handleRemoveFromAssets}
-                          disabled={assetWorking}
-                          className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-red-400 hover:border-red-400/40 transition-colors disabled:opacity-50"
-                        >
-                          {assetWorking ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-                          Remove
-                        </button>
+                        {canEdit && (
+                          <button
+                            onClick={handleRemoveFromAssets}
+                            disabled={assetWorking}
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-red-400 hover:border-red-400/40 transition-colors disabled:opacity-50"
+                          >
+                            {assetWorking ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                            Remove
+                          </button>
+                        )}
                       </div>
                     ) : (
                       <div className="flex items-center justify-between gap-3 bg-portal-bg border border-portal-border rounded-lg px-3 py-2.5">
                         <span className="text-on-canvas-muted text-sm">Not in User Creations</span>
-                        <button
-                          onClick={handleAddToAssets}
-                          disabled={assetWorking}
-                          className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-portal-accent text-white hover:bg-portal-accent/90 transition-colors disabled:opacity-50"
-                        >
-                          {assetWorking ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-                          Add to User Creations
-                        </button>
+                        {canEdit && (
+                          <button
+                            onClick={handleAddToAssets}
+                            disabled={assetWorking}
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-portal-accent text-white hover:bg-portal-accent/90 transition-colors disabled:opacity-50"
+                          >
+                            {assetWorking ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                            Add to User Creations
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
                 )}
 
                 {/* Delete zone */}
-                <div className="border-t border-portal-border pt-4">
-                  <p className="text-on-canvas-muted text-xs mb-3">
-                    Deleting removes this file from the {sourceLabel(item._source)} library and from S3 storage permanently.
-                  </p>
-                  {confirmDelete ? (
-                    <div className="flex items-center gap-2">
+                {canEdit && (
+                  <div className="border-t border-portal-border pt-4">
+                    <p className="text-on-canvas-muted text-xs mb-3">
+                      Deleting removes this file from the {sourceLabel(item._source)} library and from S3 storage permanently.
+                    </p>
+                    {confirmDelete ? (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleDelete}
+                          disabled={deleting}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 disabled:opacity-50"
+                        >
+                          {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                          Yes, delete permanently
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete(false)}
+                          className="px-3 py-1.5 text-sm text-on-canvas-muted hover:text-on-canvas border border-portal-border rounded-lg"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
                       <button
-                        onClick={handleDelete}
-                        disabled={deleting}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 disabled:opacity-50"
+                        onClick={() => setConfirmDelete(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 border border-red-500/40 text-red-400 rounded-lg text-sm hover:bg-red-500/10 transition-colors"
                       >
-                        {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                        Yes, delete permanently
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Delete this file
                       </button>
-                      <button
-                        onClick={() => setConfirmDelete(false)}
-                        className="px-3 py-1.5 text-sm text-on-canvas-muted hover:text-on-canvas border border-portal-border rounded-lg"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setConfirmDelete(true)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 border border-red-500/40 text-red-400 rounded-lg text-sm hover:bg-red-500/10 transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      Delete this file
-                    </button>
-                  )}
-                </div>
+                    )}
+                  </div>
+                )}
               </div>
             </>
           ) : (
@@ -933,7 +948,8 @@ export default function MediaPage() {
   // surface that shows that state instead of being mixed into the gallery.
   const [tab, setTab] = useState<'media' | 'packshots'>('media')
 
-  const isAdmin = user ? checkAdmin(user.role) : false
+  const canEdit = user ? checkAdmin(user.role) : false
+  const canView = user ? canViewAdmin(user.role) : false
 
   const load = useCallback(() => {
     setLoading(true)
@@ -1009,7 +1025,7 @@ export default function MediaPage() {
               </p>
             </div>
           </div>
-          {isAdmin && tab === 'media' && (
+          {canEdit && tab === 'media' && (
             <button onClick={() => setShowUpload(true)}
               className="flex items-center gap-2 px-4 py-2 bg-portal-accent text-white rounded-lg text-sm font-medium hover:bg-portal-accent/90 transition-colors">
               <Upload className="w-4 h-4" />
@@ -1018,8 +1034,10 @@ export default function MediaPage() {
           )}
         </div>
 
-        {/* Tabs — Packshots is admin-only, matching the server guard */}
-        {isAdmin && (
+        {user && isReadOnlyAdmin(user.role) && <ReadOnlyNotice />}
+
+        {/* Tabs — Packshots is admin/Legal-only, matching the server guard */}
+        {canView && (
           <div className="flex border-b border-portal-border">
             {([
               { key: 'media',     label: 'All Media', icon: ImageIcon },
@@ -1042,7 +1060,7 @@ export default function MediaPage() {
           </div>
         )}
 
-        {tab === 'packshots' && isAdmin && <PackshotApprovalPanel />}
+        {tab === 'packshots' && canView && <PackshotApprovalPanel />}
 
         {tab === 'media' && (<>
 
@@ -1100,14 +1118,16 @@ export default function MediaPage() {
                 {pendingAi.length} awaiting review
               </span>
               {/* Approve All */}
-              <button
-                onClick={handleApproveAll}
-                disabled={approvingAll}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-xs font-medium transition-colors"
-              >
-                {approvingAll ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCheck className="w-3 h-3" />}
-                {approvingAll ? 'Approving…' : 'Approve All'}
-              </button>
+              {canEdit && (
+                <button
+                  onClick={handleApproveAll}
+                  disabled={approvingAll}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-xs font-medium transition-colors"
+                >
+                  {approvingAll ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCheck className="w-3 h-3" />}
+                  {approvingAll ? 'Approving…' : 'Approve All'}
+                </button>
+              )}
               {/* Collapse / expand toggle */}
               <button
                 onClick={() => setShowAllPending(p => !p)}
@@ -1196,6 +1216,7 @@ export default function MediaPage() {
           onClose={() => setSelectedItem(null)}
           onDeleted={handleDeleted}
           onUpdated={handleUpdated}
+          canEdit={canEdit}
         />
       )}
 

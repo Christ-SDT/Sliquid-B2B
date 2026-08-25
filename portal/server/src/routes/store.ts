@@ -1,15 +1,26 @@
 import { Router } from 'express'
 import { db } from '../database.js'
 import { requireAuth } from '../middleware/auth.js'
+import { canViewAdmin } from '../roles.js'
 
 const router = Router()
 
 // GET /api/store/members
 // Tier2 (Retail Management): sees users with same company + quiz results
 // Tier5/admin: sees all non-admin users, optionally filtered by ?company=
+//
+// Invariant 4 (see roles.ts): admin here bypasses the per-company scope, not an
+// ownership check on another system — a pure read-scope widening inside this
+// app, the kind the task description says is fine to extend to the read-only
+// viewer role on its own judgement. Chose to extend it: `canViewAdmin` (which
+// includes tier8/Legal) gets the same "see every company" scope as a full
+// admin, since this endpoint only ever reads and Legal's whole purpose is
+// seeing every admin surface. It does NOT grant tier8 anything it couldn't
+// already reach via GET /api/admin/users (requireAdminViewer), which returns
+// the same company field for every user — so this bypass adds no new exposure.
 router.get('/members', requireAuth, (req, res) => {
   const { role, company } = req.user!
-  const isAdmin = role === 'tier5' || role === 'admin'
+  const isAdmin = canViewAdmin(role)
   const isManager = role === 'tier2'
 
   if (!isAdmin && !isManager) {

@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
+import { useAuth } from '@/context/AuthContext'
+import { isReadOnlyAdmin } from '@/types'
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts'
 import { TrendingUp, DollarSign, Package, BarChart3 } from 'lucide-react'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 
 interface RevenueData {
   byBrand: { brand: string; revenue: number; units: number }[]
@@ -25,6 +28,7 @@ function Card({ children, title }: { children: React.ReactNode; title: string })
 }
 
 export default function StatsPage() {
+  const { user } = useAuth()
   const [orders, setOrders] = useState<OrderData[]>([])
   const [revenue, setRevenue] = useState<RevenueData | null>(null)
   const [overview, setOverview] = useState<any>(null)
@@ -62,6 +66,8 @@ export default function StatsPage() {
   return (
     <div className="space-y-5">
       <h1 className="text-on-canvas text-2xl font-bold">Analytics</h1>
+
+      {user && isReadOnlyAdmin(user.role) && <ReadOnlyNotice />}
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

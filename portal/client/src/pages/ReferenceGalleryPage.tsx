@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback, DragEvent, ChangeEvent } from 'react'
 import { Images, Upload, Search, Pencil, Trash2, X, Check, AlertCircle, Loader2, ChevronDown, ChevronUp, Copy, ExternalLink, Maximize2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/context/AuthContext'
+import { isAdmin, isReadOnlyAdmin } from '@/types'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -426,6 +429,8 @@ function EditModal({ img, onClose, onSaved }: EditModalProps) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ReferenceGalleryPage() {
+  const { user } = useAuth()
+  const canEdit = isAdmin(user?.role ?? '')
   const [images, setImages] = useState<RefImg[]>([])
   const [totalBytes, setTotalBytes] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -544,6 +549,7 @@ export default function ReferenceGalleryPage() {
 
   return (
     <div className="space-y-6">
+      {isReadOnlyAdmin(user?.role ?? '') && <ReadOnlyNotice />}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -555,13 +561,15 @@ export default function ReferenceGalleryPage() {
             <p className="text-on-canvas-muted text-sm">Reference images for AI Creator generations</p>
           </div>
         </div>
-        <button
-          onClick={() => setShowUpload(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white text-sm font-medium rounded-lg transition-colors"
-        >
-          <Upload className="w-4 h-4" />
-          Upload
-        </button>
+        {canEdit && (
+          <button
+            onClick={() => setShowUpload(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            <Upload className="w-4 h-4" />
+            Upload
+          </button>
+        )}
       </div>
 
       {/* Storage indicator */}
@@ -605,7 +613,7 @@ export default function ReferenceGalleryPage() {
           <option value="name">Name A–Z</option>
           <option value="size">Largest first</option>
         </select>
-        {filtered.length > 0 && (
+        {canEdit && filtered.length > 0 && (
           <button
             onClick={toggleAll}
             className="flex items-center gap-1.5 px-3 py-2 text-sm text-on-canvas-subtle hover:text-on-canvas border border-portal-border rounded-lg transition-colors"
@@ -617,7 +625,7 @@ export default function ReferenceGalleryPage() {
       </div>
 
       {/* Bulk delete bar */}
-      {selected.size > 0 && (
+      {canEdit && selected.size > 0 && (
         <div className="flex items-center justify-between bg-surface border border-portal-border rounded-xl px-4 py-3">
           <span className="text-on-canvas text-sm font-medium">{selected.size} selected</span>
           <div className="flex items-center gap-2">
@@ -666,10 +674,11 @@ export default function ReferenceGalleryPage() {
               <div
                 key={img.id}
                 className={cn(
-                  'group relative aspect-square rounded-xl overflow-hidden border transition-all cursor-pointer',
+                  'group relative aspect-square rounded-xl overflow-hidden border transition-all',
                   isSelected ? 'border-portal-accent ring-2 ring-portal-accent/30' : 'border-portal-border hover:border-portal-accent/50',
+                  canEdit ? 'cursor-pointer' : '',
                 )}
-                onClick={() => toggleSelect(img.id)}
+                onClick={() => canEdit && toggleSelect(img.id)}
               >
                 <img
                   src={img.file_url}
@@ -679,14 +688,16 @@ export default function ReferenceGalleryPage() {
                 />
 
                 {/* Selection checkbox */}
-                <div className={cn(
-                  'absolute top-2 left-2 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all',
-                  isSelected
-                    ? 'bg-portal-accent border-portal-accent'
-                    : 'bg-black/40 border-white/60 opacity-0 group-hover:opacity-100',
-                )}>
-                  {isSelected && <Check className="w-3 h-3 text-white" />}
-                </div>
+                {canEdit && (
+                  <div className={cn(
+                    'absolute top-2 left-2 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all',
+                    isSelected
+                      ? 'bg-portal-accent border-portal-accent'
+                      : 'bg-black/40 border-white/60 opacity-0 group-hover:opacity-100',
+                  )}>
+                    {isSelected && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                )}
 
                 {/* Hover overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
@@ -695,36 +706,38 @@ export default function ReferenceGalleryPage() {
                 </div>
 
                 {/* Action buttons */}
-                <div
-                  className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={e => e.stopPropagation()}
-                >
-                  <button
-                    onClick={() => setEditTarget(img)}
-                    className="w-6 h-6 rounded-md bg-black/60 hover:bg-black/80 flex items-center justify-center transition-colors"
-                    title="Rename"
+                {canEdit && (
+                  <div
+                    className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={e => e.stopPropagation()}
                   >
-                    <Pencil className="w-3 h-3 text-white" />
-                  </button>
-                  {isConfirmDelete ? (
                     <button
-                      onClick={() => handleDelete(img.id)}
-                      disabled={deleting}
-                      className="w-6 h-6 rounded-md bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors"
-                      title="Confirm delete"
+                      onClick={() => setEditTarget(img)}
+                      className="w-6 h-6 rounded-md bg-black/60 hover:bg-black/80 flex items-center justify-center transition-colors"
+                      title="Rename"
                     >
-                      {deleting ? <Loader2 className="w-3 h-3 text-white animate-spin" /> : <Check className="w-3 h-3 text-white" />}
+                      <Pencil className="w-3 h-3 text-white" />
                     </button>
-                  ) : (
-                    <button
-                      onClick={() => setConfirmDeleteId(img.id)}
-                      className="w-6 h-6 rounded-md bg-black/60 hover:bg-red-500 flex items-center justify-center transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-3 h-3 text-white" />
-                    </button>
-                  )}
-                </div>
+                    {isConfirmDelete ? (
+                      <button
+                        onClick={() => handleDelete(img.id)}
+                        disabled={deleting}
+                        className="w-6 h-6 rounded-md bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors"
+                        title="Confirm delete"
+                      >
+                        {deleting ? <Loader2 className="w-3 h-3 text-white animate-spin" /> : <Check className="w-3 h-3 text-white" />}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDeleteId(img.id)}
+                        className="w-6 h-6 rounded-md bg-black/60 hover:bg-red-500 flex items-center justify-center transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3 h-3 text-white" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             )
           })}

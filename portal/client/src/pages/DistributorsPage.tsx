@@ -1,9 +1,9 @@
 import { useEffect, useState, FormEvent } from 'react'
 import { api } from '@/api/client'
-import { Distributor } from '@/types'
+import { Distributor, isAdmin, isReadOnlyAdmin } from '@/types'
 import { useAuth } from '@/context/AuthContext'
-import { isAdmin } from '@/types'
 import { Search, MapPin, Phone, Mail, Globe, AlertTriangle, Plus, Pencil, Trash2, X, Loader2 } from 'lucide-react'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 
 const DEFAULT_REGION_SUGGESTIONS = ['US', 'Canada', 'UK', 'Mexico', 'US, Canada', 'Australia', 'Europe']
 
@@ -238,7 +238,7 @@ function DistributorFormModal({ initial, onClose, onSaved, existingRegions = [] 
 
 export default function DistributorsPage() {
   const { user } = useAuth()
-  const adminUser = isAdmin(user?.role ?? '')
+  const canEdit = isAdmin(user?.role ?? '')
 
   const [distributors, setDistributors] = useState<Distributor[]>([])
   const [allDistributors, setAllDistributors] = useState<Distributor[]>([])
@@ -299,13 +299,14 @@ export default function DistributorsPage() {
 
   return (
     <div className="space-y-5">
+      {isReadOnlyAdmin(user?.role ?? '') && <ReadOnlyNotice />}
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-on-canvas text-2xl font-bold">Distributors</h1>
           <p className="text-on-canvas-muted text-sm mt-1">Find authorized Sliquid distribution partners in your area.</p>
         </div>
-        {adminUser && (
+        {canEdit && (
           <button
             onClick={() => setShowAdd(true)}
             className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90
@@ -360,7 +361,7 @@ export default function DistributorsPage() {
         <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <MapPin className="w-12 h-12 mb-3 opacity-40" />
           <p>No distributors found</p>
-          {adminUser && (
+          {canEdit && (
             <button
               onClick={() => setShowAdd(true)}
               className="mt-4 flex items-center gap-2 px-4 py-2 bg-portal-accent/10 hover:bg-portal-accent/20
@@ -387,7 +388,7 @@ export default function DistributorsPage() {
                     <span className="px-2 py-0.5 bg-portal-accent/10 text-portal-accent rounded-full text-xs font-medium">
                       {d.region}
                     </span>
-                    {adminUser && !isPendingDelete && (
+                    {canEdit && !isPendingDelete && (
                       <>
                         <button
                           onClick={() => setEditing(d)}

@@ -1,15 +1,19 @@
 import { Router } from 'express'
 import { db } from '../database.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 import { woo, runWooSync } from '../woocommerce.js'
 
 const router = Router()
 
-// All woo routes require tier5 (admin) or legacy 'admin' role
+// Every woo WRITE requires tier5 (admin) or legacy 'admin'.
 const adminOnly = requireRole('tier5', 'admin')
+// GET /status is a read-only oversight surface: it returns { configured, lastPull,
+// lastPush } and NO credentials, so Legal (tier8) may read it. The credential
+// writes below stay on adminOnly. Read guard on a GET only — see roles.ts.
+const adminRead = requireAdminViewer
 
 // GET /api/woo/status
-router.get('/status', requireAuth, adminOnly, (_req, res) => {
+router.get('/status', requireAuth, adminRead, (_req, res) => {
   const lastPull = db.prepare(
     "SELECT * FROM woo_sync_log WHERE direction = 'pull' ORDER BY id DESC LIMIT 1"
   ).get() ?? null

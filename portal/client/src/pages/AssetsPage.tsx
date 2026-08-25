@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, FormEvent } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
-import { isAdmin } from '@/types'
+import { isAdmin, isReadOnlyAdmin } from '@/types'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 import { Asset, Creative, AiImage } from '@/types'
 import {
   Search, FolderOpen, Download, ExternalLink, Eye,
@@ -2432,7 +2433,7 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
 
 export default function AssetsPage() {
   const { user } = useAuth()
-  const adminUser = isAdmin(user?.role ?? '')
+  const canEdit = isAdmin(user?.role ?? '')
   const [allItems, setAllItems] = useState<LibraryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -2555,6 +2556,7 @@ export default function AssetsPage() {
 
   return (
     <div className="space-y-5">
+      {isReadOnlyAdmin(user?.role ?? '') && <ReadOnlyNotice />}
       {/* Header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
@@ -2573,7 +2575,7 @@ export default function AssetsPage() {
                          placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors w-52"
             />
           </div>
-          {adminUser && (
+          {canEdit && (
             <button
               onClick={() => setShowAddModal(true)}
               className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90
@@ -2587,7 +2589,7 @@ export default function AssetsPage() {
       </div>
 
       {/* Product Shots — always visible, independent of brand sections */}
-      <ProductShotsSection isAdmin={adminUser} />
+      <ProductShotsSection isAdmin={canEdit} />
 
       {/* Content */}
       {loading ? (
@@ -2600,7 +2602,7 @@ export default function AssetsPage() {
         <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <FolderOpen className="w-12 h-12 mb-3 opacity-40" />
           <p>{search ? 'No items match your search' : 'No items in the library yet'}</p>
-          {adminUser && !search && (
+          {canEdit && !search && (
             <button
               onClick={() => setShowAddModal(true)}
               className="mt-4 flex items-center gap-2 px-4 py-2 bg-portal-accent/10 hover:bg-portal-accent/20
@@ -2622,7 +2624,7 @@ export default function AssetsPage() {
               onToggle={() => toggleBrand(brand)}
               onShowAll={section => setOpenExplorer({ brand, section })}
               onSelectItem={item => setDetailItem(item)}
-              isAdmin={adminUser}
+              isAdmin={canEdit}
               onToggleFeatured={handleToggleFeatured}
             />
           ))}
@@ -2637,10 +2639,10 @@ export default function AssetsPage() {
           items={explorerItems}
           onClose={closeAll}
           onSelect={item => setDetailItem(item)}
-          onEdit={adminUser ? item => setEditingItem(item) : undefined}
+          onEdit={canEdit ? item => setEditingItem(item) : undefined}
           onDelete={item => handleDelete(item)}
           canDeleteItem={item =>
-            adminUser || (item._source === 'ai' && (item as any).user_id === user?.id)
+            canEdit || (item._source === 'ai' && (item as any).user_id === user?.id)
           }
         />
       )}
@@ -2651,9 +2653,9 @@ export default function AssetsPage() {
           item={detailItem}
           onBack={() => setDetailItem(null)}
           onClose={() => setDetailItem(null)}
-          onEdit={adminUser ? () => setEditingItem(detailItem) : undefined}
+          onEdit={canEdit ? () => setEditingItem(detailItem) : undefined}
           onDelete={
-            adminUser || (detailItem._source === 'ai' && (detailItem as any).user_id === user?.id)
+            canEdit || (detailItem._source === 'ai' && (detailItem as any).user_id === user?.id)
               ? () => handleDelete(detailItem)
               : undefined
           }

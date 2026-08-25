@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Activity, Pause, Play, Trash2, Download, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { canViewAdmin, isReadOnlyAdmin } from '@/types'
 import { cn } from '@/lib/utils'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 
 interface LogEntry {
   id: number
@@ -133,7 +135,9 @@ export default function LogsPage() {
     error: logs.filter(l => l.level === 'error').length,
   }
 
-  if (!user || (user.role !== 'tier5' && (user.role as string) !== 'admin')) {
+  // This page has no server-mutating controls — Pause/Clear/Download only affect
+  // the local display, so Legal gets the same view access as admins here.
+  if (!user || !canViewAdmin(user.role)) {
     return (
       <div className="flex items-center justify-center h-64 text-on-canvas-muted">
         Access restricted to admins.
@@ -143,6 +147,7 @@ export default function LogsPage() {
 
   return (
     <div className="flex flex-col h-full gap-4">
+      {isReadOnlyAdmin(user.role) && <ReadOnlyNotice />}
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">

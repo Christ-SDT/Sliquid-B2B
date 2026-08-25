@@ -2,7 +2,7 @@ export interface User {
   id: number
   email: string
   name: string
-  role: 'tier1' | 'tier2' | 'tier3' | 'tier4' | 'tier5' | 'tier6' | 'tier7'
+  role: 'tier1' | 'tier2' | 'tier3' | 'tier4' | 'tier5' | 'tier6' | 'tier7' | 'tier8'
   company?: string
   status?: string
 }
@@ -15,6 +15,7 @@ export const TIER_LABEL: Record<string, string> = {
   tier5: 'Admin',
   tier6: 'Medical Partner',
   tier7: 'Media',
+  tier8: 'Legal (Read-Only)',
 }
 
 export function isLimitedTier(role: string): boolean {
@@ -27,6 +28,30 @@ export function isProspect(role: string): boolean {
 
 export function isAdmin(role: string): boolean {
   return role === 'tier5' || role === 'admin'
+}
+
+/** Legal: tier8. Sees every admin surface, changes nothing. */
+export function isLegal(role: string): boolean {
+  return role === 'tier8'
+}
+
+/**
+ * Gates admin **reads/navigation** — every admin route and nav row a real
+ * admin can reach, Legal can also reach. Strict superset of `isAdmin`.
+ * Never use this to guard a write — see `isAdmin`.
+ */
+export function canViewAdmin(role: string): boolean {
+  return isAdmin(role) || isLegal(role)
+}
+
+/**
+ * `isAdmin` continues to gate every **write** path in the app — do not add
+ * tier8 to it. This flag exists only to drive read-only UI (banners,
+ * disabled/hidden controls, plain-text stand-ins for editors) for a caller
+ * that can view admin surfaces but must not be able to write to them.
+ */
+export function isReadOnlyAdmin(role: string): boolean {
+  return !isAdmin(role) && isLegal(role)
 }
 
 export interface Product {

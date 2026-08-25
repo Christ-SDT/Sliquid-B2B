@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, FormEvent } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
-import { isAdmin } from '@/types'
+import { isAdmin, isReadOnlyAdmin } from '@/types'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 import {
   CheckCircle, LayoutGrid, Flag, Zap, Check, Loader2, Package,
   Star, Megaphone, Plus, Pencil, Trash2, X, Users, Clock, ThumbsUp, ThumbsDown,
@@ -492,12 +493,12 @@ interface ItemCardProps {
   selected: SelectedItem | undefined
   onToggle: () => void
   onToggleVariant: (v: string) => void
-  adminMode: boolean
+  canEdit: boolean
   onEdit: () => void
   onDelete: () => void
 }
 
-function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit, onDelete }: ItemCardProps) {
+function ItemCard({ item, selected, onToggle, onToggleVariant, canEdit, onEdit, onDelete }: ItemCardProps) {
   const isSelected = !!selected
   const Icon = ICON_MAP[item.icon_name] ?? Package
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -518,7 +519,7 @@ function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit
             <Check className="w-3.5 h-3.5 text-white" />
           </div>
         )}
-        {adminMode && (
+        {canEdit && (
           <div className="absolute top-2 left-2 flex gap-1.5">
             <button onClick={e => { e.stopPropagation(); onEdit() }}
               className="w-7 h-7 rounded-lg bg-surface/80 backdrop-blur-sm border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors">
@@ -597,7 +598,7 @@ function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit
 
 export default function MedicalMarketingPage() {
   const { user } = useAuth()
-  const adminMode = isAdmin(user?.role ?? '')
+  const canEdit = isAdmin(user?.role ?? '')
 
   type PriorRequest = {
     id: number
@@ -757,6 +758,7 @@ export default function MedicalMarketingPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      {isReadOnlyAdmin(user?.role ?? '') && <ReadOnlyNotice />}
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -768,7 +770,7 @@ export default function MedicalMarketingPage() {
             Browse our clinical education materials below. Select the ones you'd like for your practice, then fill out your details and submit.
           </p>
         </div>
-        {adminMode && (
+        {canEdit && (
           <button onClick={() => setShowAddModal(true)}
             className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" />
@@ -828,7 +830,7 @@ export default function MedicalMarketingPage() {
                 selected={selectedItems.find(s => s.id === item.id)}
                 onToggle={() => toggleItem(item)}
                 onToggleVariant={v => toggleVariant(item.id, v)}
-                adminMode={adminMode}
+                canEdit={canEdit}
                 onEdit={() => setEditTarget(item)}
                 onDelete={() => handleDeleteItem(item.id)}
               />
@@ -841,7 +843,7 @@ export default function MedicalMarketingPage() {
       <div>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-on-canvas font-semibold text-base">Clinical Education Request</h2>
-          {adminMode && (
+          {canEdit && (
             <button onClick={() => setShowAddTrainingModal(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-xs font-medium transition-colors">
               <Plus className="w-3.5 h-3.5" />
@@ -870,7 +872,7 @@ export default function MedicalMarketingPage() {
                         {opt.subtitle && <p className="text-portal-accent text-xs font-medium mt-0.5">{opt.subtitle}</p>}
                       </div>
                       <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {adminMode && !isPendingDelete && (
+                        {canEdit && !isPendingDelete && (
                           <>
                             <button onClick={() => setEditTrainingTarget(opt)} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors">
                               <Pencil className="w-3 h-3" />
@@ -880,7 +882,7 @@ export default function MedicalMarketingPage() {
                             </button>
                           </>
                         )}
-                        {adminMode && isPendingDelete && (
+                        {canEdit && isPendingDelete && (
                           <>
                             <button onClick={() => handleDeleteTrainingOption(opt.id)} className="px-2 h-6 rounded-md bg-red-500/80 text-white text-xs font-medium">Delete</button>
                             <button onClick={() => setConfirmDeleteTrainingId(null)} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors"><X className="w-3 h-3" /></button>

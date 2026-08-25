@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
+import { useAuth } from '@/context/AuthContext'
+import { isAdmin, isReadOnlyAdmin } from '@/types'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 import { Megaphone, ChevronDown, Loader2, Mail, CheckCircle, XCircle, Clock, Stethoscope, Search, Filter, GraduationCap } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -92,6 +95,7 @@ function RequestList({
   updating,
   onStatusChange,
   emptyLabel,
+  canEdit,
 }: {
   requests: MarketingRequest[]
   loading: boolean
@@ -100,6 +104,7 @@ function RequestList({
   updating: number | null
   onStatusChange: (id: number, status: string) => void
   emptyLabel: string
+  canEdit: boolean
 }) {
   if (loading) {
     return (
@@ -186,42 +191,44 @@ function RequestList({
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-3 pt-1">
-                <p className="text-on-canvas-muted text-xs mr-1">Move to:</p>
-                {r.status !== 'approved' && (
-                  <button
-                    onClick={() => onStatusChange(r.id, 'approved')}
-                    disabled={updating === r.id}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/40
-                               text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold transition-colors disabled:opacity-50"
-                  >
-                    {updating === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
-                    Confirm Approved
-                  </button>
-                )}
-                {r.status !== 'pending' && (
-                  <button
-                    onClick={() => onStatusChange(r.id, 'pending')}
-                    disabled={updating === r.id}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/40
-                               text-amber-400 hover:bg-amber-500/20 text-xs font-semibold transition-colors disabled:opacity-50"
-                  >
-                    {updating === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
-                    Move to Pending
-                  </button>
-                )}
-                {r.status !== 'declined' && (
-                  <button
-                    onClick={() => onStatusChange(r.id, 'declined')}
-                    disabled={updating === r.id}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/40
-                               text-red-400 hover:bg-red-500/20 text-xs font-semibold transition-colors disabled:opacity-50"
-                  >
-                    {updating === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
-                    Decline
-                  </button>
-                )}
-              </div>
+              {canEdit && (
+                <div className="flex items-center gap-3 pt-1">
+                  <p className="text-on-canvas-muted text-xs mr-1">Move to:</p>
+                  {r.status !== 'approved' && (
+                    <button
+                      onClick={() => onStatusChange(r.id, 'approved')}
+                      disabled={updating === r.id}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/40
+                                 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold transition-colors disabled:opacity-50"
+                    >
+                      {updating === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                      Confirm Approved
+                    </button>
+                  )}
+                  {r.status !== 'pending' && (
+                    <button
+                      onClick={() => onStatusChange(r.id, 'pending')}
+                      disabled={updating === r.id}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/40
+                                 text-amber-400 hover:bg-amber-500/20 text-xs font-semibold transition-colors disabled:opacity-50"
+                    >
+                      {updating === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
+                      Move to Pending
+                    </button>
+                  )}
+                  {r.status !== 'declined' && (
+                    <button
+                      onClick={() => onStatusChange(r.id, 'declined')}
+                      disabled={updating === r.id}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/40
+                                 text-red-400 hover:bg-red-500/20 text-xs font-semibold transition-colors disabled:opacity-50"
+                    >
+                      {updating === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                      Decline
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -236,10 +243,12 @@ function RewardsList({
   rewards,
   loading,
   onToggle,
+  canEdit,
 }: {
   rewards: RewardClaim[]
   loading: boolean
   onToggle: (id: number, fulfilled: boolean) => void
+  canEdit: boolean
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
   const [toggling, setToggling] = useState<number | null>(null)
@@ -344,22 +353,33 @@ function RewardsList({
                     <Mail className="w-3 h-3" />
                     Email
                   </a>
-                  <button
-                    onClick={() => handleToggle(r.id, !!r.fulfilled)}
-                    disabled={toggling === r.id}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors disabled:opacity-50 ${
+                  {canEdit ? (
+                    <button
+                      onClick={() => handleToggle(r.id, !!r.fulfilled)}
+                      disabled={toggling === r.id}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors disabled:opacity-50 ${
+                        r.fulfilled
+                          ? 'border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
+                          : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                      }`}
+                    >
+                      {toggling === r.id
+                        ? <Loader2 className="w-3 h-3 animate-spin" />
+                        : r.fulfilled
+                          ? <XCircle className="w-3 h-3" />
+                          : <CheckCircle className="w-3 h-3" />}
+                      {r.fulfilled ? 'Mark Incomplete' : 'Mark Completed'}
+                    </button>
+                  ) : (
+                    <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium ${
                       r.fulfilled
-                        ? 'border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
-                        : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                    }`}
-                  >
-                    {toggling === r.id
-                      ? <Loader2 className="w-3 h-3 animate-spin" />
-                      : r.fulfilled
-                        ? <XCircle className="w-3 h-3" />
-                        : <CheckCircle className="w-3 h-3" />}
-                    {r.fulfilled ? 'Mark Incomplete' : 'Mark Completed'}
-                  </button>
+                        ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                        : 'border-amber-500/40 bg-amber-500/10 text-amber-400'
+                    }`}>
+                      {r.fulfilled ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                      {r.fulfilled ? 'Completed' : 'Pending'}
+                    </span>
+                  )}
                   <button
                     onClick={() => setExpanded(expanded === r.id ? null : r.id)}
                     className="text-on-canvas-muted hover:text-on-canvas transition-colors"
@@ -405,6 +425,10 @@ function RewardsList({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MarketingRequestsPage() {
+  const { user: currentUser } = useAuth()
+  const canEdit = isAdmin(currentUser?.role ?? '')
+  const readOnly = isReadOnlyAdmin(currentUser?.role ?? '')
+
   const [requests, setRequests] = useState<MarketingRequest[]>([])
   const [medicalRequests, setMedicalRequests] = useState<MarketingRequest[]>([])
   const [rewards, setRewards] = useState<RewardClaim[]>([])
@@ -519,6 +543,8 @@ export default function MarketingRequestsPage() {
 
   return (
     <div className="space-y-6">
+      {readOnly && <ReadOnlyNotice />}
+
       {/* Header */}
       <div>
         <h1 className="text-on-canvas text-2xl font-bold flex items-center gap-3">
@@ -596,7 +622,7 @@ export default function MarketingRequestsPage() {
       {/* Requests list */}
       <div className="bg-surface border border-portal-border rounded-xl overflow-hidden">
         {activeTab === 'rewards' ? (
-          <RewardsList rewards={rewards} loading={rewardsLoading} onToggle={handleToggleFulfilled} />
+          <RewardsList rewards={rewards} loading={rewardsLoading} onToggle={handleToggleFulfilled} canEdit={canEdit} />
         ) : activeTab === 'medical' ? (
           <RequestList
             requests={visibleMedical}
@@ -606,6 +632,7 @@ export default function MarketingRequestsPage() {
             updating={medicalUpdating}
             onStatusChange={handleMedicalStatusChange}
             emptyLabel={(search || filterStatus) ? 'No medical requests match your filters.' : 'No medical requests yet.'}
+            canEdit={canEdit}
           />
         ) : (
           <RequestList
@@ -616,6 +643,7 @@ export default function MarketingRequestsPage() {
             updating={updating}
             onStatusChange={handleStatusChange}
             emptyLabel={(search || filterStatus) ? 'No requests match your filters.' : `No ${activeTab} requests.`}
+            canEdit={canEdit}
           />
         )}
       </div>

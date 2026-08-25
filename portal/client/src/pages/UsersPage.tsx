@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
-import { TIER_LABEL } from '@/types'
+import { useAuth } from '@/context/AuthContext'
+import { TIER_LABEL, isAdmin, isReadOnlyAdmin } from '@/types'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 import {
   Search, Users, RefreshCw, CheckCircle, XCircle, Loader2, Cpu,
   X, Award, GraduationCap, ExternalLink, ShieldCheck, Trash2, Clock, PackageCheck, Package,
@@ -58,6 +60,7 @@ function roleBadgeClass(role: string) {
     case 'tier2': return 'bg-emerald-600 border-emerald-600 text-white'
     case 'tier6': return 'bg-rose-600 border-rose-600 text-white'
     case 'tier7': return 'bg-indigo-500 border-indigo-500 text-white'
+    case 'tier8': return 'bg-slate-700 border-slate-700 text-white'
     default:      return 'bg-slate-500 border-slate-500 text-white'
   }
 }
@@ -67,6 +70,7 @@ function roleBadgeClass(role: string) {
 function UserDetailModal({
   user,
   stores,
+  canEdit,
   onClose,
   onRoleChange,
   onCompanyChange,
@@ -77,6 +81,7 @@ function UserDetailModal({
 }: {
   user: PortalUser
   stores: Store[]
+  canEdit: boolean
   onClose: () => void
   onRoleChange: (id: number, role: string) => void
   onCompanyChange: (id: number, company: string) => void
@@ -240,65 +245,78 @@ function UserDetailModal({
 
           </div>
 
-          {/* ── Editable: Store / Company ── */}
+          {/* ── Store / Company ── */}
           <div>
             <label className="block text-on-canvas-subtle text-xs font-medium mb-2">Store / Company</label>
-            <div className="flex items-center gap-2">
-              <select
-                value={selectedCompany}
-                onChange={e => { setSelectedCompany(e.target.value); setCompanySaveState('idle'); setCompanyError('') }}
-                className="flex-1 bg-portal-bg border border-portal-border rounded-lg px-3 py-2
-                           text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
-              >
-                <option value="">— no company —</option>
-                {stores.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-              </select>
-              {companyChanged && (
-                <button
-                  onClick={saveCompany}
-                  disabled={companySaveState === 'saving'}
-                  className="px-3 py-2 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
-                             text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0"
+            {canEdit ? (
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedCompany}
+                  onChange={e => { setSelectedCompany(e.target.value); setCompanySaveState('idle'); setCompanyError('') }}
+                  className="flex-1 bg-portal-bg border border-portal-border rounded-lg px-3 py-2
+                             text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
                 >
-                  {companySaveState === 'saving' ? 'Saving…' : 'Save'}
-                </button>
-              )}
-              {companySaveState === 'saved'  && <span className="text-emerald-400 text-xs font-medium flex-shrink-0">Saved</span>}
-              {companySaveState === 'error'  && <span className="text-red-400 text-xs flex-shrink-0">{companyError}</span>}
-            </div>
+                  <option value="">— no company —</option>
+                  {stores.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                </select>
+                {companyChanged && (
+                  <button
+                    onClick={saveCompany}
+                    disabled={companySaveState === 'saving'}
+                    className="px-3 py-2 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
+                               text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0"
+                  >
+                    {companySaveState === 'saving' ? 'Saving…' : 'Save'}
+                  </button>
+                )}
+                {companySaveState === 'saved'  && <span className="text-emerald-400 text-xs font-medium flex-shrink-0">Saved</span>}
+                {companySaveState === 'error'  && <span className="text-red-400 text-xs flex-shrink-0">{companyError}</span>}
+              </div>
+            ) : (
+              <p className="px-3 py-2 bg-portal-bg border border-portal-border rounded-lg text-on-canvas text-sm">
+                {user.company || '— no company —'}
+              </p>
+            )}
           </div>
 
-          {/* ── Editable: Account Type ── */}
+          {/* ── Account Type ── */}
           <div>
             <label className="block text-on-canvas-subtle text-xs font-medium mb-2">Account Type</label>
-            <div className="flex items-center gap-2">
-              <select
-                value={selectedRole}
-                onChange={e => { setSelectedRole(e.target.value); setRoleSaveState('idle'); setRoleError('') }}
-                className="flex-1 bg-portal-bg border border-portal-border rounded-lg px-3 py-2
-                           text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
-              >
-                <option value="tier1">Retail Store Employee</option>
-                <option value="tier2">Retail Management</option>
-                <option value="tier3">Distributor</option>
-                <option value="tier4">Prospect</option>
-                <option value="tier5">Admin</option>
-                <option value="tier6">Medical Partner</option>
-                <option value="tier7">Media</option>
-              </select>
-              {roleChanged && (
-                <button
-                  onClick={saveRole}
-                  disabled={roleSaveState === 'saving'}
-                  className="px-3 py-2 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
-                             text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0"
+            {canEdit ? (
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedRole}
+                  onChange={e => { setSelectedRole(e.target.value); setRoleSaveState('idle'); setRoleError('') }}
+                  className="flex-1 bg-portal-bg border border-portal-border rounded-lg px-3 py-2
+                             text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
                 >
-                  {roleSaveState === 'saving' ? 'Saving…' : 'Save'}
-                </button>
-              )}
-              {roleSaveState === 'saved' && <span className="text-emerald-400 text-xs font-medium flex-shrink-0">Saved</span>}
-              {roleSaveState === 'error' && <span className="text-red-400 text-xs flex-shrink-0">{roleError}</span>}
-            </div>
+                  <option value="tier1">Retail Store Employee</option>
+                  <option value="tier2">Retail Management</option>
+                  <option value="tier3">Distributor</option>
+                  <option value="tier4">Prospect</option>
+                  <option value="tier5">Admin</option>
+                  <option value="tier6">Medical Partner</option>
+                  <option value="tier7">Media</option>
+                  <option value="tier8">Legal (Read-Only)</option>
+                </select>
+                {roleChanged && (
+                  <button
+                    onClick={saveRole}
+                    disabled={roleSaveState === 'saving'}
+                    className="px-3 py-2 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-60
+                               text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0"
+                  >
+                    {roleSaveState === 'saving' ? 'Saving…' : 'Save'}
+                  </button>
+                )}
+                {roleSaveState === 'saved' && <span className="text-emerald-400 text-xs font-medium flex-shrink-0">Saved</span>}
+                {roleSaveState === 'error' && <span className="text-red-400 text-xs flex-shrink-0">{roleError}</span>}
+              </div>
+            ) : (
+              <p className="px-3 py-2 bg-portal-bg border border-portal-border rounded-lg text-on-canvas text-sm">
+                {TIER_LABEL[user.role] ?? user.role}
+              </p>
+            )}
           </div>
 
           {/* ── Registration Status ── */}
@@ -326,48 +344,50 @@ function UserDetailModal({
                 </div>
 
                 {/* Action buttons */}
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {user.status !== 'active' && (
-                    <button
-                      onClick={handleApprove}
-                      disabled={actionWorking}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500
-                                 disabled:opacity-60 text-white text-xs font-semibold transition-colors"
-                    >
-                      {actionWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
-                      {user.status === 'declined' ? 'Approve & Activate' : 'Confirm Approved'}
-                    </button>
-                  )}
-                  {user.status === 'active' && (
-                    <button
-                      onClick={handleApprove}
-                      disabled={actionWorking}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-portal-accent/10 border border-portal-accent/40
-                                 hover:bg-portal-accent/20 disabled:opacity-60 text-portal-accent text-xs font-semibold transition-colors"
-                    >
-                      {actionWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-                      Update Role
-                    </button>
-                  )}
-                  {user.status !== 'declined' && (
-                    <button
-                      onClick={handleDecline}
-                      disabled={actionWorking}
-                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-semibold transition-colors disabled:opacity-60
-                        ${confirmDecline
-                          ? 'bg-red-600 border-red-600 text-white hover:bg-red-500'
-                          : 'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20'}`}
-                    >
-                      {actionWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
-                      {confirmDecline ? 'Confirm Decline' : 'Decline'}
-                    </button>
-                  )}
-                  {confirmDecline && (
-                    <button onClick={() => setConfirmDecline(false)} className="text-on-canvas-muted text-xs hover:text-on-canvas transition-colors self-center">
-                      Cancel
-                    </button>
-                  )}
-                </div>
+                {canEdit && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {user.status !== 'active' && (
+                      <button
+                        onClick={handleApprove}
+                        disabled={actionWorking}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500
+                                   disabled:opacity-60 text-white text-xs font-semibold transition-colors"
+                      >
+                        {actionWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                        {user.status === 'declined' ? 'Approve & Activate' : 'Confirm Approved'}
+                      </button>
+                    )}
+                    {user.status === 'active' && (
+                      <button
+                        onClick={handleApprove}
+                        disabled={actionWorking}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-portal-accent/10 border border-portal-accent/40
+                                   hover:bg-portal-accent/20 disabled:opacity-60 text-portal-accent text-xs font-semibold transition-colors"
+                      >
+                        {actionWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                        Update Role
+                      </button>
+                    )}
+                    {user.status !== 'declined' && (
+                      <button
+                        onClick={handleDecline}
+                        disabled={actionWorking}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-semibold transition-colors disabled:opacity-60
+                          ${confirmDecline
+                            ? 'bg-red-600 border-red-600 text-white hover:bg-red-500'
+                            : 'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20'}`}
+                      >
+                        {actionWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                        {confirmDecline ? 'Confirm Decline' : 'Decline'}
+                      </button>
+                    )}
+                    {confirmDecline && (
+                      <button onClick={() => setConfirmDecline(false)} className="text-on-canvas-muted text-xs hover:text-on-canvas transition-colors self-center">
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -434,24 +454,30 @@ function UserDetailModal({
                     </div>
 
                     {/* Switch */}
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={rewardSent}
-                      aria-label="Reward items sent"
-                      onClick={toggleRewardSent}
-                      disabled={sentSaving}
-                      className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full
-                                  border transition-colors disabled:opacity-50
-                                  ${rewardSent
-                                    ? 'bg-emerald-600 border-emerald-600'
-                                    : 'bg-surface border-portal-border'}`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
-                                    ${rewardSent ? 'translate-x-6' : 'translate-x-1'}`}
-                      />
-                    </button>
+                    {canEdit ? (
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={rewardSent}
+                        aria-label="Reward items sent"
+                        onClick={toggleRewardSent}
+                        disabled={sentSaving}
+                        className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full
+                                    border transition-colors disabled:opacity-50
+                                    ${rewardSent
+                                      ? 'bg-emerald-600 border-emerald-600'
+                                      : 'bg-surface border-portal-border'}`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
+                                      ${rewardSent ? 'translate-x-6' : 'translate-x-1'}`}
+                        />
+                      </button>
+                    ) : (
+                      <span className={`text-xs font-medium flex-shrink-0 ${rewardSent ? 'text-emerald-400' : 'text-amber-400'}`}>
+                        {rewardSent ? 'Sent' : 'Not sent'}
+                      </span>
+                    )}
                   </div>
 
                   {rewardSent && user.reward_product && (
@@ -471,7 +497,7 @@ function UserDetailModal({
           </div>
 
           {/* ── Delete User ── */}
-          {user.role !== 'tier5' && user.role !== 'admin' && (
+          {canEdit && user.role !== 'tier5' && user.role !== 'admin' && (
             <div className="border-t border-portal-border pt-4">
               <p className="text-on-canvas-muted text-xs mb-3">
                 Permanently remove this user and all their data. This cannot be undone.
@@ -684,7 +710,7 @@ const AI_MODELS = [
   },
 ]
 
-function AiModelPanel() {
+function AiModelPanel({ canEdit }: { canEdit: boolean }) {
   const [activeModel, setActiveModel] = useState('imagen-4.0-generate-001')
   const [selected, setSelected] = useState('imagen-4.0-generate-001')
   const [loading, setLoading] = useState(true)
@@ -731,8 +757,9 @@ function AiModelPanel() {
             <button
               key={m.id}
               type="button"
+              disabled={!canEdit}
               onClick={() => setSelected(m.id)}
-              className={`w-full text-left px-4 py-3.5 rounded-xl border transition-colors ${
+              className={`w-full text-left px-4 py-3.5 rounded-xl border transition-colors ${!canEdit ? 'cursor-default' : ''} ${
                 selected === m.id
                   ? 'border-portal-accent bg-portal-accent/10'
                   : 'border-portal-border hover:border-slate-500 bg-portal-bg'
@@ -763,34 +790,36 @@ function AiModelPanel() {
         </div>
       )}
 
-      <div className="flex items-center gap-3 pt-1">
-        <button
-          onClick={handleSave}
-          disabled={!isDirty || saveState === 'saving'}
-          className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90
-                     disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          {saveState === 'saving' && <Loader2 className="w-4 h-4 animate-spin" />}
-          {saveState === 'saving' ? 'Saving…' : 'Apply Model'}
-        </button>
-        {saveState === 'saved' && (
-          <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-medium">
-            <CheckCircle className="w-4 h-4" /> Saved
-          </span>
-        )}
-        {saveState === 'error' && (
-          <span className="flex items-center gap-1.5 text-red-400 text-sm">
-            <XCircle className="w-4 h-4" /> Failed to save
-          </span>
-        )}
-      </div>
+      {canEdit && (
+        <div className="flex items-center gap-3 pt-1">
+          <button
+            onClick={handleSave}
+            disabled={!isDirty || saveState === 'saving'}
+            className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90
+                       disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            {saveState === 'saving' && <Loader2 className="w-4 h-4 animate-spin" />}
+            {saveState === 'saving' ? 'Saving…' : 'Apply Model'}
+          </button>
+          {saveState === 'saved' && (
+            <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-medium">
+              <CheckCircle className="w-4 h-4" /> Saved
+            </span>
+          )}
+          {saveState === 'error' && (
+            <span className="flex items-center gap-1.5 text-red-400 text-sm">
+              <XCircle className="w-4 h-4" /> Failed to save
+            </span>
+          )}
+        </div>
+      )}
     </div>
   )
 }
 
 // ─── WooCommerce Panel ────────────────────────────────────────────────────────
 
-function WooPanel() {
+function WooPanel({ canEdit }: { canEdit: boolean }) {
   const [wooStatus, setWooStatus] = useState<WooStatus | null>(null)
   const [wooLoading, setWooLoading] = useState(true)
 
@@ -912,27 +941,29 @@ function WooPanel() {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-3">
-        <button
-          onClick={handleTest}
-          disabled={testing || !wooStatus?.configured}
-          className="flex items-center gap-2 px-4 py-2 border border-portal-border text-on-canvas-subtle
-                     hover:text-on-canvas hover:border-slate-500 disabled:opacity-40 rounded-lg text-sm transition-colors"
-        >
-          {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-          Test Connection
-        </button>
-        <button
-          onClick={handleSync}
-          disabled={syncing || !wooStatus?.configured}
-          className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90
-                     disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-          {syncing ? 'Syncing…' : 'Sync Now'}
-        </button>
-        {syncMsg && <p className="text-on-canvas-subtle text-sm self-center">{syncMsg}</p>}
-      </div>
+      {canEdit && (
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={handleTest}
+            disabled={testing || !wooStatus?.configured}
+            className="flex items-center gap-2 px-4 py-2 border border-portal-border text-on-canvas-subtle
+                       hover:text-on-canvas hover:border-slate-500 disabled:opacity-40 rounded-lg text-sm transition-colors"
+          >
+            {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            Test Connection
+          </button>
+          <button
+            onClick={handleSync}
+            disabled={syncing || !wooStatus?.configured}
+            className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90
+                       disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            {syncing ? 'Syncing…' : 'Sync Now'}
+          </button>
+          {syncMsg && <p className="text-on-canvas-subtle text-sm self-center">{syncMsg}</p>}
+        </div>
+      )}
 
       {testResult && (
         <div className={`rounded-lg px-4 py-3 text-sm ${testResult.ok ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
@@ -940,47 +971,49 @@ function WooPanel() {
         </div>
       )}
 
-      <div className="border-t border-portal-border pt-5 space-y-4">
-        <p className="text-on-canvas-subtle text-sm font-medium">
-          {wooStatus?.configured ? 'Update Credentials' : 'Enter Credentials'}
-        </p>
-        <div className="grid grid-cols-1 gap-4">
-          <div>
-            <label className="text-on-canvas-muted text-xs mb-1.5 block">WooCommerce Store URL</label>
-            <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://your-store.com"
-              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors" />
+      {canEdit && (
+        <div className="border-t border-portal-border pt-5 space-y-4">
+          <p className="text-on-canvas-subtle text-sm font-medium">
+            {wooStatus?.configured ? 'Update Credentials' : 'Enter Credentials'}
+          </p>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <label className="text-on-canvas-muted text-xs mb-1.5 block">WooCommerce Store URL</label>
+              <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://your-store.com"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors" />
+            </div>
+            <div>
+              <label className="text-on-canvas-muted text-xs mb-1.5 block">Consumer Key</label>
+              <input type="text" value={consumerKey} onChange={e => setConsumerKey(e.target.value)} placeholder="ck_xxxxxxxxxxxxxxxxxxxx"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono" />
+            </div>
+            <div>
+              <label className="text-on-canvas-muted text-xs mb-1.5 block">Consumer Secret</label>
+              <input type="password" value={consumerSecret} onChange={e => setConsumerSecret(e.target.value)} placeholder="cs_xxxxxxxxxxxxxxxxxxxx"
+                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
+                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono" />
+            </div>
           </div>
-          <div>
-            <label className="text-on-canvas-muted text-xs mb-1.5 block">Consumer Key</label>
-            <input type="text" value={consumerKey} onChange={e => setConsumerKey(e.target.value)} placeholder="ck_xxxxxxxxxxxxxxxxxxxx"
-              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono" />
-          </div>
-          <div>
-            <label className="text-on-canvas-muted text-xs mb-1.5 block">Consumer Secret</label>
-            <input type="password" value={consumerSecret} onChange={e => setConsumerSecret(e.target.value)} placeholder="cs_xxxxxxxxxxxxxxxxxxxx"
-              className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                         placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono" />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleSaveCreds}
+              disabled={credSaveState === 'saving' || !url || !consumerKey || !consumerSecret}
+              className="px-5 py-2.5 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-40
+                         text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {credSaveState === 'saving' ? 'Saving…' : 'Save Credentials'}
+            </button>
+            {credSaveState === 'saved' && (
+              <span className="text-emerald-400 text-sm flex items-center gap-1.5">
+                <CheckCircle className="w-4 h-4" /> Saved
+              </span>
+            )}
+            {credSaveState === 'error' && <span className="text-red-400 text-sm">{credError}</span>}
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleSaveCreds}
-            disabled={credSaveState === 'saving' || !url || !consumerKey || !consumerSecret}
-            className="px-5 py-2.5 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-40
-                       text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            {credSaveState === 'saving' ? 'Saving…' : 'Save Credentials'}
-          </button>
-          {credSaveState === 'saved' && (
-            <span className="text-emerald-400 text-sm flex items-center gap-1.5">
-              <CheckCircle className="w-4 h-4" /> Saved
-            </span>
-          )}
-          {credSaveState === 'error' && <span className="text-red-400 text-sm">{credError}</span>}
-        </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -988,6 +1021,10 @@ function WooPanel() {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function UsersPage() {
+  const { user: currentUser } = useAuth()
+  const canEdit = isAdmin(currentUser?.role ?? '')
+  const readOnly = isReadOnlyAdmin(currentUser?.role ?? '')
+
   const [users, setUsers]   = useState<PortalUser[]>([])
   const [stores, setStores] = useState<Store[]>([])
   const [loading, setLoading] = useState(true)
@@ -1073,6 +1110,8 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
+      {readOnly && <ReadOnlyNotice />}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -1124,6 +1163,7 @@ export default function UsersPage() {
           <option value="tier5">Admin</option>
           <option value="tier6">Medical Partner</option>
           <option value="tier7">Media</option>
+          <option value="tier8">Legal (Read-Only)</option>
         </select>
         <select
           value={filterStatus}
@@ -1194,10 +1234,10 @@ export default function UsersPage() {
       </p>
 
       {/* WooCommerce Panel */}
-      <WooPanel />
+      <WooPanel canEdit={canEdit} />
 
       {/* AI Model Panel */}
-      <AiModelPanel />
+      <AiModelPanel canEdit={canEdit} />
 
       {/* Certified Users Modal */}
       {showCertified && (
@@ -1213,6 +1253,7 @@ export default function UsersPage() {
         <UserDetailModal
           user={selectedUser}
           stores={stores}
+          canEdit={canEdit}
           onClose={() => setSelectedUser(null)}
           onRoleChange={handleRoleChange}
           onCompanyChange={handleCompanyChange}

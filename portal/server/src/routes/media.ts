@@ -4,7 +4,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client
 import { randomUUID } from 'crypto'
 import path from 'path'
 import { db } from '../database.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 import { notifyUsers } from '../notifications.js'
 import { sendBroadcastEmail } from '../email.js'
 
@@ -68,7 +68,7 @@ router.get('/proxy-download', requireAuth, async (req, res) => {
 
 // ─── GET / — aggregated gallery from all sources ─────────────────────────────
 
-router.get('/', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
+router.get('/', requireAuth, requireAdminViewer, (_req, res) => {
   const assets = db.prepare(`
     SELECT id, 'asset' as _source, name as label, brand, type,
            file_url, thumbnail_url, file_size, dimensions, s3_key, NULL as description,
@@ -193,7 +193,7 @@ function packshotCounts() {
 
 // ─── GET /packshots — list packshots for the approval queue ──────────────────
 
-router.get('/packshots', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+router.get('/packshots', requireAuth, requireAdminViewer, (req, res) => {
   const { status, approved, search } = req.query as {
     status?: string; approved?: string; search?: string
   }
@@ -404,7 +404,7 @@ router.put('/packshots/:id/primary', requireAuth, requireRole('tier5', 'admin'),
  * endpoint surfaces both directions so a gap shows up as a number instead of as
  * an image nobody notices is absent.
  */
-router.get('/packshots/coverage', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
+router.get('/packshots/coverage', requireAuth, requireAdminViewer, (_req, res) => {
   try {
     // "Covered" means live-to-the-agent: approved AND active. A product whose only
     // packshot is still awaiting approval genuinely has no published image, so

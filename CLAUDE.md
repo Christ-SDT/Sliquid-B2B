@@ -153,8 +153,104 @@ VITE_API_URL=http://localhost:3001
 | `tier5` | Admin | Violet | Full unrestricted access |
 | `tier6` | Medical Partner | — | Restricted access (same set as tier1) |
 | `tier7` | Media | — | Restricted access (routed to the tier2 allow-list) |
+| `tier8` | Legal (Read-Only) | Slate 700 | **Oversight.** Reads every admin surface, writes none |
 
 `isLimitedTier(role)` in `types/index.ts` returns `true` for tier1/2/3/**6/7**.
+
+### Legal (tier8) — read-only oversight
+
+Legal is an **oversight** tier: it may read every administrative surface and change none of
+them. Three tiers, strictest last:
+
+| Tier | Set | May read admin | May write admin |
+|---|---|---|---|
+| Read-only viewer | `tier8` (Legal) | yes | **no** |
+| Admin | `tier5`, legacy `admin` | yes | yes |
+
+**The viewer set is NOT a member of the admin set.** This is the whole design. `isAdmin()` /
+`ADMIN_ROLES` were left byte-identical, so every one of the ~100 existing write guards rejects
+tier8 exactly as it always did, with **no change to any write path**. Read access is a separate,
+opt-in widening. Never add tier8 to the admin set and subtract it back out in the write path.
+
+**Canonical role modules — no hand-copied role lists anywhere.**
+
+| | Server | Client |
+|---|---|---|
+| module | `portal/server/src/roles.ts` | `portal/client/src/types/index.ts` |
+| write set | `ADMIN_ROLES` = `{tier5, admin}` | `isAdmin()` |
+| viewer set | `ADMIN_VIEWER_ROLES` = `{tier8}` | `isLegal()` |
+| read gate | `canViewAdmin()` | `canViewAdmin()` |
+| read-only UI flag | `isReadOnlyAdminRole()` | `isReadOnlyAdmin()` |
+
+`canViewAdmin` is **derived** (`isAdminRole(role) || ADMIN_VIEWER_ROLES.has(role)`), so it is a
+guaranteed strict superset of the write set. Gate admin **reads** on `canViewAdmin`, every
+**write** on `isAdmin`, and drive read-only UI from `isReadOnlyAdmin` only.
+
+⚠️ **A hand-copied `['tier5','admin']` list is the failure mode this design has already hit
+once.** `RequestsPage.tsx` filtered staff out of Partner Requests with a literal pair, so a Legal
+account surfaced as if it were a pending partner registration. It now filters on
+`!canViewAdmin(u.role)`. Grep for literal role pairs before adding a new one.
+
+### The read guard belongs on GET/HEAD and nothing else
+
+`requireAdminViewer` (and `requireRoleOrAdminViewer(...roles)` for GETs shared with a non-admin
+tier, e.g. the tier6 medical-marketing reads) live in `middleware/auth.ts`.
+
+⛔ **Only ever attach a read guard to a GET or HEAD route.** Nothing in the type system enforces
+this — attaching `requireAdminViewer` to a POST silently hands Legal a write and returns 200,
+with no error anywhere. That is why `admin-route-table.test.ts` exists.
+
+Every guard is tagged with `__roleGuard: 'read' | 'write' | 'authenticate'` (and `__roles`).
+Express has no Fastify-style `onRoute` hook, and `requireRole(...)` returns an anonymous closure
+that would otherwise be unclassifiable, so the route-table test walks `app._router.stack` and
+reads these tags. **Do not remove the tags** — the test degrades to vacuous without them.
+
+Converted GETs: `admin` `/users` · `media` `/`, `/packshots`, `/packshots/coverage` · `gdpr`
+`/requests` · `certificates` `/rewards`, `/reward-options/all` · `retailer` `/applications` ·
+`logs` `/`, `/stream` · `creator` `/settings` · `products` `/packshot-candidates` ·
+`medical-marketing` `/applications` (+ `/items`, `/training-options` via
+`requireRoleOrAdminViewer`) · `announcements` `/admin`, `/admin/:id`, `/admin/sync/status` · `woo` `/status`
+(status only — every credential write stays on `requireRole`).
+
+### No bypass for viewers
+
+Wherever an admin role bypasses a per-resource allow-list, tier8 must **not** inherit it —
+launching into another system would hand the user that system's permissions, which this app
+cannot keep read-only.
+
+- `GET /api/store/members` — the per-company filter bypass **was** widened to `canViewAdmin`.
+  Judgement call: it is a pure in-app read widening, and Legal already sees the same company
+  field via `GET /api/admin/users`. Pinned by test.
+- `DELETE /api/creator/:id` — admin bypasses ownership to delete any user's image. **Left on
+  `isAdmin`**; it is a write.
+
+### No migration — SQLite has no role enum
+
+`users.role` is `TEXT NOT NULL DEFAULT 'partner'` with **no CHECK constraint**, so adding tier8
+needed no migration. (The equivalent change in the SSO portal *is* a Postgres `ALTER TYPE`.) The
+one server-side value list that needed extending is `validRoles` in `PUT /api/admin/users/:id/role`.
+
+⚠️ **Manual assignment is currently the ONLY way to become Legal** — see the SSO caveat below —
+so the `tier8` option in the `UsersPage` role dropdown is load-bearing, not cosmetic.
+
+### ⚠️ SSO levels Legal UP to full admin — unresolved, and not fixable from this repo
+
+`ssoRoleToTier()` maps the IdP's coarse claim `admin` → **tier5**, `employee`/anything else →
+tier1. The claim has only **two** values: the IdP flattens `sliquid_legal` **up** to `admin`,
+because an app with no viewer tier would otherwise see Legal as tier1 and show it nothing.
+
+**That levelling-up is a real write grant, not a label.** A Legal user arriving over SSO today
+lands on tier5 — full portal admin, which per the Packshot section includes publishing brand
+assets to the external ChatGPT agent. **"Read-only" is currently a property of the SSO portal,
+not of the estate.**
+
+This repo cannot fix it: no emitted claim value distinguishes Legal from a real admin. Closing
+the loop needs a **third claim value** (e.g. `admin_readonly`) in `sliquid-sso`
+(`packages/shared/src/roles.ts` → `externalRole()`), which is a **breaking change for every
+relying party that switches on the claim** — so every consumer needs a viewer tier or a safe
+default *before* the IdP starts emitting it. Do not fabricate a mapping from a value the IdP
+does not send.
+
 `isProspect(role)` returns `true` for tier4. `isAdmin(role)` returns `true` for tier5 or 'admin'.
 
 **Role badge colors** — defined in `roleBadgeClass()` in `UsersPage.tsx`. Uses solid filled Tailwind classes (e.g. `bg-violet-600 text-white`) for strong readability. Do not revert to transparent/muted variants.
@@ -223,6 +319,17 @@ TS error on access. Keys: `restricted`, `tier23`, `prospectVisible`, `managerOnl
 `/verify` and `/employee-login` are outside `<Shell>` — no auth required, accessible to anyone. `/employee-login` is the Sliquid-staff SSO entry point; staff land on the tier derived by `ssoRoleToTier()` — tier5 for an IdP `admin`, tier1 otherwise.
 
 Restricted tiers redirected to `/dashboard` for any disallowed route (enforced in `Shell.tsx`).
+
+**tier8 (Legal) is unguarded in `Shell.tsx`, like tier5/admin** — it reaches every route in the
+matrix above. It appears in neither `isLimitedTier` nor any `*_ALLOWED` array, so it already fell
+through unguarded; an explicit `isLegalRole` branch was added anyway so a future edit to those
+arrays cannot silently pull Legal down into `TIER1_ALLOWED`. **Losing read access is a different
+bug from having too much write access** — never "fix" Legal by downgrading it to tier1.
+
+⚠️ **UI hiding is a hint, never the enforcement.** Every admin page computes
+`canEdit = isAdmin(user.role)` (never `canViewAdmin`) and hides — not disables — its write
+controls, rendering the plain label/status in place of an editing `<select>`. The server rejects
+the mutation regardless of what the client renders.
 
 ### Self-Registration
 `POST /api/auth/register` accepts an optional `role` field. Valid values: `tier1`, `tier2`, `tier3`, `tier4` (Prospect). Defaults to `tier1`. `tier5` cannot be self-registered.
@@ -1676,4 +1783,10 @@ write, and that an unapproved primary never reaches the public catalog.
 - **Video files:** `.mp4`, `.mov`, `.webm`, `.avi`, `.m4v` are in `.gitignore` — never commit large video files. Use YouTube or a CDN URL instead.
 - **Stores dropdown:** Registration and admin company-edit use the `stores` table. To add/edit stores, use the admin API or the DB directly. Do not hardcode store names in client code.
 - **Certificate verification URL:** Always `/verify` (no cert number in the path) — users type the cert number into the search form on that page.
+- **Admin reads gate on `canViewAdmin`, admin writes on `isAdmin`.** Never widen `isAdmin` /
+  `ADMIN_ROLES` to include a viewer tier. Never hand-copy `['tier5','admin']` — derive from the
+  canonical sets in `server/src/roles.ts` / `client/src/types/index.ts`.
+- **A read guard (`requireAdminViewer`) goes on GET/HEAD routes only.** On a POST it silently
+  grants a write and returns 200. Guards carry `__roleGuard` tags so the route-table test can
+  catch this; do not strip them.
 - **Role badge colors:** Always solid filled (`bg-{color}-{shade} text-white`). Do not revert to transparent/muted variants — they were hard to read.

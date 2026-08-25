@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
+import { useAuth } from '@/context/AuthContext'
+import { isAdmin, isReadOnlyAdmin } from '@/types'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 import { ShieldCheck, Clock, CheckCircle, Loader2, AlertCircle, RefreshCw, Send, Trash2 } from 'lucide-react'
 
 type RequestStatus = 'pending' | 'in_progress' | 'completed'
@@ -46,6 +49,10 @@ function timeAgo(s: string) {
 }
 
 export default function GDPRRequestsPage() {
+  const { user: currentUser } = useAuth()
+  const canEdit = isAdmin(currentUser?.role ?? '')
+  const readOnly = isReadOnlyAdmin(currentUser?.role ?? '')
+
   const [requests, setRequests] = useState<GDPRRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -121,6 +128,8 @@ export default function GDPRRequestsPage() {
 
   return (
     <div className="space-y-6">
+
+      {readOnly && <ReadOnlyNotice />}
 
       {/* Header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -235,47 +244,55 @@ export default function GDPRRequestsPage() {
 
                 {/* Right: actions */}
                 <div className="flex flex-col gap-2 flex-shrink-0 min-w-[160px]">
-                  {/* Primary action based on request type */}
-                  {r.status !== 'completed' && r.type === 'access' && (
-                    <button
-                      onClick={() => sendData(r.id)}
-                      disabled={updating === r.id}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30 hover:bg-purple-500/30 rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      {updating === r.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
-                      Send Data to User
-                    </button>
-                  )}
-                  {r.status !== 'completed' && r.type === 'deletion' && (
-                    <button
-                      onClick={() => deleteData(r.id, r.name)}
-                      disabled={updating === r.id}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      {updating === r.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
-                      Delete User Data
-                    </button>
-                  )}
-                  {/* Status controls */}
-                  {r.status !== 'completed' && (
-                    <div className="flex gap-1.5">
-                      {r.status === 'pending' && (
+                  {canEdit ? (
+                    <>
+                      {/* Primary action based on request type */}
+                      {r.status !== 'completed' && r.type === 'access' && (
                         <button
-                          onClick={() => updateStatus(r.id, 'in_progress')}
+                          onClick={() => sendData(r.id)}
                           disabled={updating === r.id}
-                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-[10px] font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30 rounded-lg transition-colors disabled:opacity-50"
+                          className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30 hover:bg-purple-500/30 rounded-lg transition-colors disabled:opacity-50"
                         >
-                          In Progress
+                          {updating === r.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                          Send Data to User
                         </button>
                       )}
-                      <button
-                        onClick={() => updateStatus(r.id, 'completed')}
-                        disabled={updating === r.id}
-                        className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-[10px] font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 rounded-lg transition-colors disabled:opacity-50"
-                      >
-                        Complete
-                      </button>
-                    </div>
+                      {r.status !== 'completed' && r.type === 'deletion' && (
+                        <button
+                          onClick={() => deleteData(r.id, r.name)}
+                          disabled={updating === r.id}
+                          className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                          {updating === r.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                          Delete User Data
+                        </button>
+                      )}
+                      {/* Status controls */}
+                      {r.status !== 'completed' && (
+                        <div className="flex gap-1.5">
+                          {r.status === 'pending' && (
+                            <button
+                              onClick={() => updateStatus(r.id, 'in_progress')}
+                              disabled={updating === r.id}
+                              className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-[10px] font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30 rounded-lg transition-colors disabled:opacity-50"
+                            >
+                              In Progress
+                            </button>
+                          )}
+                          <button
+                            onClick={() => updateStatus(r.id, 'completed')}
+                            disabled={updating === r.id}
+                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-[10px] font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            Complete
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <span className={`text-center px-2 py-1.5 text-[10px] font-semibold uppercase rounded-lg border ${STATUS_COLORS[r.status]}`}>
+                      {STATUS_LABELS[r.status]}
+                    </span>
                   )}
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import { db } from '../database.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 import {
   LIVE_SQL,
   ORDER_SQL,
@@ -23,6 +23,9 @@ import {
 
 const router = Router()
 const adminOnly = [requireAuth, requireRole('tier5', 'admin')] as const
+// Read-only admin surfaces — full admins plus the Legal (tier8) viewer role.
+// Only ever attach this to GET/HEAD routes; see requireAdminViewer's doc comment.
+const adminView = [requireAuth, requireAdminViewer] as const
 
 /**
  * ROUTE ORDER MATTERS. Express matches in registration order and `/:id` is
@@ -145,7 +148,7 @@ router.get('/public/:idOrSlug', publicLimiter, (req, res) => {
 
 // ══ 3–9. ADMIN ═══════════════════════════════════════════════════════════════
 
-router.get('/admin/sync/status', ...adminOnly, (_req, res) => {
+router.get('/admin/sync/status', ...adminView, (_req, res) => {
   const cfg = wp.getConfig()
   const lastSync = db.prepare(
     'SELECT * FROM announcement_sync_log ORDER BY id DESC LIMIT 1'
@@ -233,7 +236,7 @@ router.post('/admin/reorder', ...adminOnly, (req, res) => {
   res.json({ ok: true })
 })
 
-router.get('/admin', ...adminOnly, (req, res) => {
+router.get('/admin', ...adminView, (req, res) => {
   let sql = `SELECT ${ADMIN_COLS} FROM announcements WHERE 1=1`
   const params: any[] = []
   if (req.query.status) { sql += ' AND status = ?'; params.push(req.query.status) }
@@ -246,7 +249,7 @@ router.get('/admin', ...adminOnly, (req, res) => {
   res.json(db.prepare(sql).all(...params))
 })
 
-router.get('/admin/:id', ...adminOnly, (req, res) => {
+router.get('/admin/:id', ...adminView, (req, res) => {
   const row = db.prepare(`
     SELECT ${ADMIN_COLS}, wp_content_html, body_html_override,
            COALESCE(body_html_override, wp_content_html) AS body_html

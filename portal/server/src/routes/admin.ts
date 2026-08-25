@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { db } from '../database.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 import { sendApprovalEmail, sendDeclineEmail } from '../email.js'
 import { notifyUser } from '../notifications.js'
 
@@ -22,7 +22,7 @@ const USER_COLS = `
   LEFT JOIN cert_rewards cr ON cr.user_id = u.id
 `
 
-router.get('/users', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+router.get('/users', requireAuth, requireAdminViewer, (req, res) => {
   const statusFilter = (req.query.status as string) || null
   const users = statusFilter
     ? db.prepare(`SELECT ${USER_COLS} WHERE u.status = ? ORDER BY u.created_at DESC`).all(statusFilter)
@@ -32,7 +32,7 @@ router.get('/users', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
 
 router.put('/users/:id/role', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const { role } = req.body
-  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4', 'tier5', 'tier6', 'tier7']
+  const validRoles = ['tier1', 'tier2', 'tier3', 'tier4', 'tier5', 'tier6', 'tier7', 'tier8']
   if (!validRoles.includes(role)) {
     res.status(400).json({ message: 'Invalid role' })
     return

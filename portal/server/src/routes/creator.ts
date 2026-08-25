@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto'
 import fs from 'fs'
 import path from 'path'
 import { db } from '../database.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 
 const router = Router()
 
@@ -110,7 +110,7 @@ function getActiveModel(): string {
 
 // ─── GET /api/creator/settings ────────────────────────────────────────────────
 
-router.get('/settings', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
+router.get('/settings', requireAuth, requireAdminViewer, (_req, res) => {
   res.json({ model: getActiveModel() })
 })
 
