@@ -3,7 +3,7 @@ import { api } from '@/api/client'
 import { TIER_LABEL } from '@/types'
 import {
   Search, Users, RefreshCw, CheckCircle, XCircle, Loader2, Cpu,
-  X, Award, GraduationCap, ExternalLink, ShieldCheck, Trash2, Clock,
+  X, Award, GraduationCap, ExternalLink, ShieldCheck, Trash2, Clock, PackageCheck, Package,
 } from 'lucide-react'
 
 interface PortalUser {
@@ -16,6 +16,13 @@ interface PortalUser {
   created_at?: string
   last_login?: string | null
   certificate_number?: string | null
+  /* Reward shipment — null reward_id means the user has not filled in the reward
+     form yet, so there is no address to ship to and nothing to mark sent. */
+  reward_id?: number | null
+  reward_product?: string | null
+  reward_shirt_size?: string | null
+  reward_sent?: number | null
+  reward_sent_at?: string | null
 }
 
 interface WooStatus {
@@ -66,6 +73,7 @@ function UserDetailModal({
   onDeleted,
   onApprove,
   onDecline,
+  onRewardSentChange,
 }: {
   user: PortalUser
   stores: Store[]
@@ -75,6 +83,7 @@ function UserDetailModal({
   onDeleted: (id: number) => void
   onApprove: (id: number, role: string) => Promise<void>
   onDecline: (id: number) => Promise<void>
+  onRewardSentChange: (id: number, sent: boolean) => Promise<void>
 }) {
   const [selectedRole, setSelectedRole]       = useState(user.role)
   const [roleSaveState, setRoleSaveState]     = useState<SaveState>('idle')
@@ -90,6 +99,24 @@ function UserDetailModal({
 
   const [actionWorking, setActionWorking] = useState(false)
   const [confirmDecline, setConfirmDecline] = useState(false)
+
+  const [sentSaving, setSentSaving] = useState(false)
+  const [sentError, setSentError]   = useState('')
+
+  const rewardSent = !!user.reward_sent
+
+  async function toggleRewardSent() {
+    if (sentSaving) return
+    setSentSaving(true)
+    setSentError('')
+    try {
+      await onRewardSentChange(user.id, !rewardSent)
+    } catch (err: any) {
+      setSentError(err?.message ?? 'Could not update')
+    } finally {
+      setSentSaving(false)
+    }
+  }
 
   async function handleApprove() {
     setActionWorking(true)
@@ -383,6 +410,64 @@ function UserDetailModal({
                 </div>
               </div>
             )}
+
+            {/* Reward shipment — the switch admins flip once the winner's items go out. */}
+            {user.certificate_number && (
+              user.reward_id ? (
+                <div className="mt-2 px-4 py-3 bg-surface-elevated border border-portal-border rounded-xl">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {rewardSent
+                        ? <PackageCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                        : <Package className="w-5 h-5 text-amber-400 flex-shrink-0" />}
+                      <div className="min-w-0">
+                        <p className={`text-sm font-medium ${rewardSent ? 'text-emerald-400' : 'text-amber-400'}`}>
+                          {rewardSent ? 'Items sent' : 'Items not sent'}
+                        </p>
+                        <p className="text-on-canvas-muted text-xs mt-0.5 truncate">
+                          {rewardSent && user.reward_sent_at
+                            ? `Marked sent ${formatDate(user.reward_sent_at)}`
+                            : [user.reward_product, user.reward_shirt_size && `Shirt ${user.reward_shirt_size}`]
+                                .filter(Boolean).join(' · ') || 'Reward claim submitted'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Switch */}
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={rewardSent}
+                      aria-label="Reward items sent"
+                      onClick={toggleRewardSent}
+                      disabled={sentSaving}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full
+                                  border transition-colors disabled:opacity-50
+                                  ${rewardSent
+                                    ? 'bg-emerald-600 border-emerald-600'
+                                    : 'bg-surface border-portal-border'}`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
+                                    ${rewardSent ? 'translate-x-6' : 'translate-x-1'}`}
+                      />
+                    </button>
+                  </div>
+
+                  {rewardSent && user.reward_product && (
+                    <p className="text-on-canvas-muted text-xs mt-2 pl-8 truncate">
+                      {[user.reward_product, user.reward_shirt_size && `Shirt ${user.reward_shirt_size}`]
+                        .filter(Boolean).join(' · ')}
+                    </p>
+                  )}
+                  {sentError && <p className="text-red-400 text-xs mt-2">{sentError}</p>}
+                </div>
+              ) : (
+                <p className="text-on-canvas-muted text-xs mt-2 px-1">
+                  No reward claim submitted yet — nothing to ship until this user fills in the reward form.
+                </p>
+              )
+            )}
           </div>
 
           {/* ── Delete User ── */}
@@ -560,7 +645,17 @@ function CertifiedUsersModal({
                   {u.email}{u.company ? ` · ${u.company}` : ''}
                 </p>
               </div>
-              <span className="font-mono text-[11px] text-emerald-600 flex-shrink-0">{u.certificate_number}</span>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-medium
+                                  ${u.reward_sent
+                                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
+                                    : 'bg-amber-500/15 border-amber-500/30 text-amber-400'}`}>
+                  {u.reward_sent
+                    ? <><PackageCheck className="w-2.5 h-2.5" /> Sent</>
+                    : <><Package className="w-2.5 h-2.5" /> Not sent</>}
+                </span>
+                <span className="font-mono text-[11px] text-emerald-600">{u.certificate_number}</span>
+              </div>
             </button>
           ))}
         </div>
@@ -941,11 +1036,29 @@ export default function UsersPage() {
     setSelectedUser(prev => prev?.id === id ? { ...prev, status: 'declined' } : prev)
   }
 
+  // Flip the reward shipment switch. The server owns the timestamp, so we apply the
+  // row it returns rather than a locally-guessed one.
+  async function handleRewardSentChange(id: number, sent: boolean) {
+    const user = users.find(u => u.id === id)
+    if (!user?.reward_id) return
+    const row = await api.put<{ fulfilled: number; fulfilled_at: string | null }>(
+      `/certificates/rewards/${user.reward_id}/fulfilled`,
+      { fulfilled: sent },
+    )
+    const patch = { reward_sent: row.fulfilled, reward_sent_at: row.fulfilled_at }
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, ...patch } : u))
+    setSelectedUser(prev => prev?.id === id ? { ...prev, ...patch } : prev)
+  }
+
   const filtered = users.filter(u => {
     if (filterRole && u.role !== filterRole) return false
     if (filterStatus && u.status !== filterStatus) return false
     if (filterCert === 'certified' && !u.certificate_number) return false
     if (filterCert === 'uncertified' && u.certificate_number) return false
+    // "Items not sent" includes certified users who have not claimed yet — they are
+    // still outstanding from a fulfilment point of view.
+    if (filterCert === 'items-not-sent' && (!u.certificate_number || !!u.reward_sent)) return false
+    if (filterCert === 'items-sent' && !u.reward_sent) return false
     if (!search) return true
     const q = search.toLowerCase()
     return (
@@ -1032,6 +1145,8 @@ export default function UsersPage() {
           <option value="">All Certification</option>
           <option value="certified">Certified</option>
           <option value="uncertified">Not Certified</option>
+          <option value="items-not-sent">Certified · Items not sent</option>
+          <option value="items-sent">Certified · Items sent</option>
         </select>
       </div>
 
@@ -1104,6 +1219,7 @@ export default function UsersPage() {
           onDeleted={handleUserDeleted}
           onApprove={handleApprove}
           onDecline={handleDecline}
+          onRewardSentChange={handleRewardSentChange}
         />
       )}
     </div>

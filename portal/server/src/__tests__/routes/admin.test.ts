@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest'
 import request from 'supertest'
 import { app } from '../../app.js'
-import { db, resetDb, seedTestUsers, seedUser } from '../helpers/db.js'
+import { db, resetDb, seedTestUsers, seedUser, seedCertificate, seedCertReward } from '../helpers/db.js'
 import { bearerToken } from '../helpers/auth.js'
 
 let adminId: number
@@ -36,6 +36,67 @@ describe('GET /api/admin/users', () => {
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body)).toBe(true)
     expect(res.body.length).toBeGreaterThan(0)
+  })
+
+  it('exposes the reward shipment state for a certified user with a claim', async () => {
+    const { name } = db.prepare('SELECT name FROM users WHERE id = ?').get(tier1Id) as { name: string }
+    seedCertificate(tier1Id, name)
+    const rewardId = seedCertReward(tier1Id, { product: 'Sliquid Sassy', shirtSize: 'L' })
+
+    const res = await request(app)
+      .get('/api/admin/users')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    const row = res.body.find((u: any) => u.id === tier1Id)
+    expect(row.reward_id).toBe(rewardId)
+    expect(row.reward_product).toBe('Sliquid Sassy')
+    expect(row.reward_shirt_size).toBe('L')
+    expect(row.reward_sent).toBe(0)
+    expect(row.reward_sent_at).toBeNull()
+  })
+
+  it('leaves reward_id null for a certified user who has not claimed', async () => {
+    const { name } = db.prepare('SELECT name FROM users WHERE id = ?').get(tier1Id) as { name: string }
+    seedCertificate(tier1Id, name)
+
+    const res = await request(app)
+      .get('/api/admin/users')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    const row = res.body.find((u: any) => u.id === tier1Id)
+    expect(row.certificate_number).toBeTruthy()
+    expect(row.reward_id).toBeNull()
+  })
+
+  it('does not duplicate a user row when a reward claim exists', async () => {
+    const { name } = db.prepare('SELECT name FROM users WHERE id = ?').get(tier1Id) as { name: string }
+    seedCertificate(tier1Id, name)
+    seedCertReward(tier1Id)
+
+    const res = await request(app)
+      .get('/api/admin/users')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    expect(res.body.filter((u: any) => u.id === tier1Id)).toHaveLength(1)
+  })
+
+  it('reflects a reward marked sent', async () => {
+    const { name } = db.prepare('SELECT name FROM users WHERE id = ?').get(tier1Id) as { name: string }
+    seedCertificate(tier1Id, name)
+    const rewardId = seedCertReward(tier1Id)
+
+    await request(app)
+      .put(`/api/certificates/rewards/${rewardId}/fulfilled`)
+      .send({ fulfilled: true })
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    const res = await request(app)
+      .get('/api/admin/users')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+
+    const row = res.body.find((u: any) => u.id === tier1Id)
+    expect(row.reward_sent).toBe(1)
+    expect(row.reward_sent_at).toBeTruthy()
   })
 
   it('includes status field in each user row', async () => {

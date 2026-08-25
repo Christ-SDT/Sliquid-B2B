@@ -384,7 +384,7 @@ Mounted at the app root (NOT under `/api`) so the OIDC callback is `/auth/google
 | GET | `/mine` | requireAuth | Returns `{ firstName, lastName, completionDate, certificateNumber, rewardSubmitted }` for current user; 404 if no cert |
 | POST | `/reward` | requireAuth | Save reward claim (product, shirtSize, address1, address2, city, state, zip); 400 if missing fields; 403 if no valid cert; no-op if already submitted |
 | GET | `/rewards` | tier5/admin only | All reward claims joined with `users.email` + `certificates.certificate_number` + `avg_score`; unfulfilled first. Backs `MarketingRequestsPage` |
-| PUT | `/rewards/:id/fulfilled` | tier5/admin only | `{ fulfilled: boolean }` — sets `fulfilled` + `fulfilled_at` |
+| PUT | `/rewards/:id/fulfilled` | tier5/admin only | `{ fulfilled: boolean }` — sets `fulfilled` + `fulfilled_at`; 404 if the claim does not exist. Returns the stored row (`{ ok, id, fulfilled, fulfilled_at }`) so callers apply the server's timestamp instead of guessing one. Shared by **Marketing Requests** and the per-user switch in **User Management** |
 | GET | `/reward-options` | requireAuth | `{ products, shirtSizes }` — what the reward form renders. Any tier: it drives the partner picker |
 | GET | `/reward-options/all` | tier5/admin only | Full derived catalog + `allowedSkus` (null = no curation saved) + `shirtSizes` + `defaultShirtSizes`. Backs `RewardOptionsModal` |
 | PUT | `/reward-options` | tier5/admin only | `{ products?: string[], shirtSizes?: string[] }` — both independently optional so the two editors save separately |
@@ -404,7 +404,7 @@ convenience into a way to silently destroy another user's reward claim.
 ### Admin — `/api/admin`
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/users` | tier5/admin only | List all users; includes `last_login`, `status`, and `certificate_number` (null if not certified) via LEFT JOIN |
+| GET | `/users` | tier5/admin only | List all users; includes `last_login`, `status`, `certificate_number` (null if not certified) and the reward-shipment columns `reward_id`, `reward_product`, `reward_shirt_size`, `reward_sent`, `reward_sent_at` via LEFT JOINs on `certificates` + `cert_rewards` |
 | PUT | `/users/:id/role` | tier5/admin only | Update a user's role; valid values: tier1–tier5; also sets `status = 'active'` |
 | POST | `/users/:id/approve` | tier5/admin only | Approves a pending registration: sets role + `status = 'active'`; adds the user's `company` to the `stores` table (`INSERT OR IGNORE`) so it appears in future registration dropdowns; sends approval email |
 | POST | `/users/:id/decline` | tier5/admin only | Sets `status = 'declined'`; declined users are blocked at login (see `routes/auth.ts`) and their company is never added to `stores` |
@@ -1083,6 +1083,27 @@ Shows full user profile. Contains:
 - **Certification:**
   - If certified: green panel with `Award` icon, "Sliquid Certified Expert", cert number, **Verify** link opening `/verify` in new tab
   - If not certified: gray panel with `GraduationCap` icon, "Training Not Completed"
+
+### Reward Shipment Switch ("Items sent")
+The Certification block in `UserDetailModal` carries a switch that flips
+`cert_rewards.fulfilled` — the same column the **Marketing Requests** page toggles, so the two
+screens can never disagree. `GET /api/admin/users` LEFT JOINs `cert_rewards` (UNIQUE on
+`user_id`, so the join stays 1:1 and cannot duplicate a user row) to supply `reward_id`,
+`reward_product`, `reward_shirt_size`, `reward_sent`, `reward_sent_at`.
+
+- Certified **with** a claim → switch, the chosen product + shirt size, and the sent date.
+- Certified **without** a claim → `reward_id` is null, so no switch: there is no address to ship
+  to until the user fills in `CertRewardForm`. Do not fabricate a `cert_rewards` row to give the
+  switch something to write — the row IS the shipping address.
+- The `/users` filter gains **Certified · Items not sent** / **Certified · Items sent**.
+  "Items not sent" deliberately includes certified users who have not claimed yet — they are
+  still outstanding from a fulfilment point of view.
+- The toggle is **not optimistic**: `fulfilled_at` is stamped server-side, so the client applies
+  the returned row.
+
+⚠️ There is exactly **one** writer of this flag (`PUT /certificates/rewards/:id/fulfilled`) and
+one column behind it. Do not add a second "sent" field for the User Management surface — the
+Marketing Requests page would then show a different answer for the same shipment.
 
 ### last_login Tracking
 - `last_login TEXT` column added to `users` table (migration v14)
