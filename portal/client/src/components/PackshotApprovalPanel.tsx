@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { api } from '@/api/client'
+import { useAuth } from '@/context/AuthContext'
+import { isAdmin } from '@/types'
 import {
   Bot, ShieldCheck, ShieldOff, Search, Loader2, AlertCircle, AlertTriangle,
   Clock, Ban, PackageSearch, Fingerprint, KeyRound, EyeOff, RefreshCw,
@@ -194,11 +196,12 @@ function SummaryTile({
 // ─── Approval control ─────────────────────────────────────────────────────────
 
 function ApprovalControl({
-  packshot, busy, onToggle,
+  packshot, busy, onToggle, canEdit,
 }: {
   packshot: Packshot
   busy: boolean
   onToggle: (next: boolean) => void
+  canEdit: boolean
 }) {
   const approved = packshot.approved === 1
   const blocked = blockedReason(packshot)
@@ -210,16 +213,18 @@ function ApprovalControl({
       <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2.5 space-y-2">
         <p className="text-amber-600 dark:text-amber-300 text-xs font-medium flex items-start gap-1.5">
           <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
-          Still approved but no longer active — revoke it.
+          Still approved but no longer active{canEdit ? ' — revoke it.' : '.'}
         </p>
-        <button
-          onClick={() => onToggle(false)}
-          disabled={busy}
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-surface-elevated border border-portal-border text-on-canvas hover:border-red-500/50 hover:text-red-500 transition-colors disabled:opacity-50"
-        >
-          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldOff className="w-3.5 h-3.5" />}
-          Revoke agent access
-        </button>
+        {canEdit && (
+          <button
+            onClick={() => onToggle(false)}
+            disabled={busy}
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-surface-elevated border border-portal-border text-on-canvas hover:border-red-500/50 hover:text-red-500 transition-colors disabled:opacity-50"
+          >
+            {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldOff className="w-3.5 h-3.5" />}
+            Revoke agent access
+          </button>
+        )}
       </div>
     )
   }
@@ -234,15 +239,17 @@ function ApprovalControl({
         <p className="text-on-canvas-muted text-[11px] leading-snug">
           Anyone chatting with the Sliquid Brand Agent can retrieve this image right now.
         </p>
-        <button
-          onClick={() => onToggle(false)}
-          disabled={busy}
-          title="Removes this image from the agent immediately"
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-surface-elevated border border-portal-border text-on-canvas hover:border-red-500/50 hover:text-red-500 transition-colors disabled:opacity-50"
-        >
-          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldOff className="w-3.5 h-3.5" />}
-          Revoke agent access
-        </button>
+        {canEdit && (
+          <button
+            onClick={() => onToggle(false)}
+            disabled={busy}
+            title="Removes this image from the agent immediately"
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-surface-elevated border border-portal-border text-on-canvas hover:border-red-500/50 hover:text-red-500 transition-colors disabled:opacity-50"
+          >
+            {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldOff className="w-3.5 h-3.5" />}
+            Revoke agent access
+          </button>
+        )}
       </div>
     )
   }
@@ -254,15 +261,17 @@ function ApprovalControl({
           <Ban className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
           Cannot be published
         </p>
-        <button
-          disabled
-          title={blocked}
-          aria-label={blocked}
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-portal-bg border border-portal-border text-on-canvas-muted cursor-not-allowed opacity-70"
-        >
-          <Ban className="w-3.5 h-3.5" />
-          Approval unavailable
-        </button>
+        {canEdit && (
+          <button
+            disabled
+            title={blocked}
+            aria-label={blocked}
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-portal-bg border border-portal-border text-on-canvas-muted cursor-not-allowed opacity-70"
+          >
+            <Ban className="w-3.5 h-3.5" />
+            Approval unavailable
+          </button>
+        )}
         <p className="text-on-canvas-muted text-[11px] leading-snug">{blocked}</p>
       </div>
     )
@@ -274,15 +283,17 @@ function ApprovalControl({
         <EyeOff className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
         Not visible to the agent
       </p>
-      <button
-        onClick={() => onToggle(true)}
-        disabled={busy}
-        title="Publishes this image to the Sliquid Brand Agent in ChatGPT"
-        className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-portal-accent text-white hover:bg-portal-accent/90 transition-colors disabled:opacity-50"
-      >
-        {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-        Publish to ChatGPT agent
-      </button>
+      {canEdit && (
+        <button
+          onClick={() => onToggle(true)}
+          disabled={busy}
+          title="Publishes this image to the Sliquid Brand Agent in ChatGPT"
+          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-portal-accent text-white hover:bg-portal-accent/90 transition-colors disabled:opacity-50"
+        >
+          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+          Publish to ChatGPT agent
+        </button>
+      )}
     </div>
   )
 }
@@ -331,12 +342,27 @@ function PrimaryIndicator({ packshot }: { packshot: Packshot }) {
  * product meant editing that script and re-importing the whole catalog.
  */
 function StatusControl({
-  packshot, busy, onSetStatus,
+  packshot, busy, onSetStatus, canEdit,
 }: {
   packshot: Packshot
   busy: boolean
   onSetStatus: (next: PackshotStatus) => void
+  canEdit: boolean
 }) {
+  if (!canEdit) {
+    return (
+      <div>
+        <span className="text-on-canvas-muted uppercase tracking-wide text-[9px]">Product status</span>
+        <p className="mt-0.5 text-on-canvas text-xs">{statusLabel(packshot.packshot_status)}</p>
+        {packshot.status_set_by && (
+          <span className="block text-on-canvas-muted text-[10px] mt-0.5 truncate" title={`${packshot.status_set_by} · ${packshot.status_set_at ?? ''}`}>
+            set by {packshot.status_set_by}
+          </span>
+        )}
+      </div>
+    )
+  }
+
   return (
     <label className="block">
       <span className="text-on-canvas-muted uppercase tracking-wide text-[9px]">Product status</span>
@@ -362,12 +388,13 @@ function StatusControl({
 // ─── Card ─────────────────────────────────────────────────────────────────────
 
 function PackshotCard({
-  packshot, busy, onToggle, onSetStatus,
+  packshot, busy, onToggle, onSetStatus, canEdit,
 }: {
   packshot: Packshot
   busy: boolean
   onToggle: (next: boolean) => void
   onSetStatus: (next: PackshotStatus) => void
+  canEdit: boolean
 }) {
   const approved = packshot.approved === 1
   const live = approved && packshot.packshot_status === 'active'
@@ -473,11 +500,11 @@ function PackshotCard({
           </span>
         </div>
 
-        <StatusControl packshot={packshot} busy={busy} onSetStatus={onSetStatus} />
+        <StatusControl packshot={packshot} busy={busy} onSetStatus={onSetStatus} canEdit={canEdit} />
 
         <div className="mt-auto pt-1 space-y-2">
           <PrimaryIndicator packshot={packshot} />
-          <ApprovalControl packshot={packshot} busy={busy} onToggle={onToggle} />
+          <ApprovalControl packshot={packshot} busy={busy} onToggle={onToggle} canEdit={canEdit} />
         </div>
       </div>
     </div>
@@ -709,6 +736,8 @@ function CoverageView() {
 // ─── Panel ────────────────────────────────────────────────────────────────────
 
 export default function PackshotApprovalPanel() {
+  const { user } = useAuth()
+  const canEdit = user ? isAdmin(user.role) : false
   const [items, setItems] = useState<Packshot[]>([])
   const [counts, setCounts] = useState<PackshotCounts>(EMPTY_COUNTS)
   const [loading, setLoading] = useState(true)
@@ -1014,6 +1043,7 @@ export default function PackshotApprovalPanel() {
                 busy={busyIds.includes(p.id)}
                 onToggle={next => toggleApproval(p, next)}
                 onSetStatus={next => changeStatus(p, next)}
+                canEdit={canEdit}
               />
             ))}
           </div>

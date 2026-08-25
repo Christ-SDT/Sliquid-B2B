@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
-import { Product } from '@/types'
+import { Product, isAdmin, isReadOnlyAdmin } from '@/types'
 import { Search, Package, X, Download, Upload, Plus, Pencil, Trash2, Images, Star, Bot, Ban, Clock, AlertTriangle, Loader2 } from 'lucide-react'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 
 const API_BASE = (import.meta.env.VITE_API_URL ?? '') + '/api'
 
@@ -686,13 +687,13 @@ function ProductFormModal({
 function ProductModal({
   product,
   onClose,
-  isAdmin,
+  canEdit,
   onEdit,
   onDelete,
 }: {
   product: Product
   onClose: () => void
-  isAdmin: boolean
+  canEdit: boolean
   onEdit: (p: Product) => void
   onDelete: (id: number) => Promise<void>
 }) {
@@ -773,7 +774,7 @@ function ProductModal({
           <p className="text-on-canvas-muted text-xs mt-3 text-right">Effective Jan 1, 2026</p>
 
           {/* Admin actions */}
-          {isAdmin && (
+          {canEdit && (
             <div className="flex items-center gap-2 mt-4 pt-4 border-t border-portal-border">
               <button
                 onClick={() => onEdit(product)}
@@ -912,7 +913,7 @@ function parseCSV(text: string): Record<string, string>[] {
 
 export default function ProductsPage() {
   const { user } = useAuth()
-  const isAdmin = (user?.role as string) === 'tier5' || (user?.role as string) === 'admin'
+  const canEdit = isAdmin(user?.role ?? '')
 
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -1000,7 +1001,7 @@ export default function ProductsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-on-canvas text-2xl font-bold">Products</h1>
         <div className="flex items-center gap-3">
-          {isAdmin && (
+          {canEdit && (
             <>
               <button
                 onClick={() => setFormProduct('new')}
@@ -1038,6 +1039,8 @@ export default function ProductsPage() {
           <span className="text-on-canvas-muted text-sm">{products.length} items</span>
         </div>
       </div>
+
+      {isReadOnlyAdmin(user?.role ?? '') && <ReadOnlyNotice />}
 
       {importMsg && (
         <div className="bg-surface border border-portal-border rounded-lg px-4 py-3 text-on-canvas-subtle text-sm">
@@ -1109,7 +1112,7 @@ export default function ProductsPage() {
         <ProductModal
           product={selected}
           onClose={() => setSelected(null)}
-          isAdmin={isAdmin}
+          canEdit={canEdit}
           onEdit={p => { setSelected(null); setFormProduct(p) }}
           onDelete={handleDelete}
         />

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { db } from '../database.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 import { sendEmail } from '../email.js'
 import { FORM_KEYS, screenSubmission, recordFormSubmission } from '../formGate.js'
 
@@ -78,7 +78,7 @@ router.post('/request', (req, res) => {
 // ─── GET /api/gdpr/requests ───────────────────────────────────────────────────
 // Admin only — list all GDPR requests, newest first.
 
-router.get('/requests', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+router.get('/requests', requireAuth, requireAdminViewer, (req, res) => {
   const { status, type } = req.query
   let sql = 'SELECT * FROM gdpr_requests WHERE 1=1'
   const params: any[] = []

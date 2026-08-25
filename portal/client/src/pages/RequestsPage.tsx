@@ -1,5 +1,8 @@
 import { useEffect, useState, useMemo } from 'react'
 import { api } from '@/api/client'
+import { useAuth } from '@/context/AuthContext'
+import { isAdmin, isReadOnlyAdmin, canViewAdmin } from '@/types'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 import { Users, Loader2, CheckCircle, XCircle, UserCheck, Clock, Search, X, Building2, Mail, CalendarDays, ShieldCheck, Stethoscope, Camera } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -53,12 +56,14 @@ function fmt(dateStr: string) {
 
 function UserRequestModal({
   user,
+  canEdit,
   onClose,
   onApprove,
   onDecline,
   working,
 }: {
   user: PartnerUser
+  canEdit: boolean
   onClose: () => void
   onApprove: (id: number, role: string) => Promise<void>
   onDecline: (id: number) => Promise<void>
@@ -154,69 +159,77 @@ function UserRequestModal({
             <label className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider">
               Assign Role
             </label>
-            <select
-              value={selectedRole}
-              onChange={e => setSelectedRole(e.target.value)}
-              className="w-full bg-portal-bg border border-portal-border rounded-xl px-3 py-2.5 text-on-canvas text-sm
-                         focus:outline-none focus:border-portal-accent transition-colors"
-            >
-              {ROLE_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
+            {canEdit ? (
+              <select
+                value={selectedRole}
+                onChange={e => setSelectedRole(e.target.value)}
+                className="w-full bg-portal-bg border border-portal-border rounded-xl px-3 py-2.5 text-on-canvas text-sm
+                           focus:outline-none focus:border-portal-accent transition-colors"
+              >
+                {ROLE_OPTIONS.map(o => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            ) : (
+              <p className="w-full bg-portal-bg border border-portal-border rounded-xl px-3 py-2.5 text-on-canvas text-sm">
+                {ROLE_LABEL[selectedRole] ?? selectedRole}
+              </p>
+            )}
           </div>
 
           {/* Action buttons */}
-          <div className="space-y-2 pt-1">
-            {user.status !== 'active' && (
-              <button
-                onClick={approve}
-                disabled={working}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
-                           bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-sm font-semibold transition-colors"
-              >
-                {working ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                {user.status === 'declined' ? 'Approve & Activate' : 'Confirm Approved'}
-              </button>
-            )}
+          {canEdit && (
+            <div className="space-y-2 pt-1">
+              {user.status !== 'active' && (
+                <button
+                  onClick={approve}
+                  disabled={working}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+                             bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-sm font-semibold transition-colors"
+                >
+                  {working ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                  {user.status === 'declined' ? 'Approve & Activate' : 'Confirm Approved'}
+                </button>
+              )}
 
-            {user.status === 'active' && (
-              <button
-                onClick={approve}
-                disabled={working}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
-                           bg-portal-accent/10 border border-portal-accent/40 hover:bg-portal-accent/20
-                           disabled:opacity-60 text-portal-accent text-sm font-semibold transition-colors"
-              >
-                {working ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                Update Role
-              </button>
-            )}
+              {user.status === 'active' && (
+                <button
+                  onClick={approve}
+                  disabled={working}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+                             bg-portal-accent/10 border border-portal-accent/40 hover:bg-portal-accent/20
+                             disabled:opacity-60 text-portal-accent text-sm font-semibold transition-colors"
+                >
+                  {working ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                  Update Role
+                </button>
+              )}
 
-            {user.status !== 'declined' && (
-              <button
-                onClick={decline}
-                disabled={working}
-                className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
-                            text-sm font-semibold transition-colors disabled:opacity-60
-                            ${confirmDecline
-                              ? 'bg-red-600 hover:bg-red-500 text-white'
-                              : 'bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400'}`}
-              >
-                {working ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                {confirmDecline ? 'Confirm Decline' : 'Decline'}
-              </button>
-            )}
+              {user.status !== 'declined' && (
+                <button
+                  onClick={decline}
+                  disabled={working}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+                              text-sm font-semibold transition-colors disabled:opacity-60
+                              ${confirmDecline
+                                ? 'bg-red-600 hover:bg-red-500 text-white'
+                                : 'bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400'}`}
+                >
+                  {working ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                  {confirmDecline ? 'Confirm Decline' : 'Decline'}
+                </button>
+              )}
 
-            {confirmDecline && (
-              <button
-                onClick={() => setConfirmDecline(false)}
-                className="w-full text-on-canvas-muted text-xs hover:text-on-canvas transition-colors py-1"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
+              {confirmDecline && (
+                <button
+                  onClick={() => setConfirmDecline(false)}
+                  className="w-full text-on-canvas-muted text-xs hover:text-on-canvas transition-colors py-1"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -226,6 +239,10 @@ function UserRequestModal({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function RequestsPage() {
+  const { user: currentUser } = useAuth()
+  const canEdit = isAdmin(currentUser?.role ?? '')
+  const readOnly = isReadOnlyAdmin(currentUser?.role ?? '')
+
   const [users, setUsers] = useState<PartnerUser[]>([])
   const [loading, setLoading] = useState(true)
   const [working, setWorking] = useState<number | null>(null)
@@ -236,7 +253,10 @@ export default function RequestsPage() {
   useEffect(() => {
     api.get<PartnerUser[]>('/admin/users')
       .then(data => {
-        setUsers(data.filter(u => u.role !== 'tier5' && u.role !== 'admin'))
+        // Staff accounts are not partner registrations. Derived from canViewAdmin so
+        // the read-only Legal tier (tier8) is excluded too — a hand-copied
+        // ['tier5','admin'] list here would have surfaced Legal as a pending partner.
+        setUsers(data.filter(u => !canViewAdmin(u.role)))
       })
       .catch(console.error)
       .finally(() => setLoading(false))
@@ -321,6 +341,8 @@ export default function RequestsPage() {
 
   return (
     <div className="space-y-6">
+      {readOnly && <ReadOnlyNotice />}
+
       {/* Header */}
       <div>
         <h1 className="text-on-canvas text-2xl font-bold flex items-center gap-3">
@@ -441,6 +463,7 @@ export default function RequestsPage() {
       {liveSelectedUser && (
         <UserRequestModal
           user={liveSelectedUser}
+          canEdit={canEdit}
           onClose={() => setSelectedUser(null)}
           onApprove={handleApprove}
           onDecline={handleDecline}

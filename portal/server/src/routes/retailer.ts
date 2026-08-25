@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { db } from '../database.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 import { notifyAdmins } from '../notifications.js'
 import { sendMarketingRequestEmails } from '../email.js'
 
@@ -48,7 +48,7 @@ router.get('/status', requireAuth, (req, res) => {
   res.json(app ?? null)
 })
 
-router.get('/applications', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
+router.get('/applications', requireAuth, requireAdminViewer, (_req, res) => {
   const apps = db.prepare(`
     SELECT
       ra.id, ra.contact_name, ra.business_name, ra.address,

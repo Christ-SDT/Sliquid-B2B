@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { db } from '../database.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 
 const router = Router()
 
@@ -166,7 +166,7 @@ router.get('/catalog', (req, res) => {
  *
  * Registered before `GET /:id` so the literal path is not swallowed by the param.
  */
-router.get('/packshot-candidates', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+router.get('/packshot-candidates', requireAuth, requireAdminViewer, (req, res) => {
   const sku = typeof req.query['sku'] === 'string' ? req.query['sku'].trim() : ''
   if (!sku) { res.json({ candidates: [] }); return }
 

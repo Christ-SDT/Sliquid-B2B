@@ -80,6 +80,17 @@ interface PortalUser {
  * publishing brand assets to the external ChatGPT agent (see
  * PackshotApprovalPanel). Do not widen this mapping to floor everyone at tier5
  * for convenience — that is exactly the bug this replaced.
+ *
+ * ⚠️ SECTION B CAVEAT — Legal (tier8) has no SSO mapping yet, and a Legal user
+ * arriving over SSO today lands on tier5 (full write admin), not tier8. The
+ * IdP's coarse `role` claim only ever emits `admin` | `employee` — `sliquid_legal`
+ * is one of the IdP roles `externalRole()` levels UP into `admin` (see the
+ * `sliquid-sso` repo's `packages/shared/src/roles.ts`), so this function cannot
+ * distinguish "Legal" from "super admin" using the claim it receives today.
+ * Closing that gap needs a THIRD claim value (e.g. `admin_readonly`) minted on
+ * the IdP side — a coordinated change in the `sliquid-sso` repo, not something
+ * to fabricate here from a claim value the IdP does not emit. Until that lands,
+ * tier8 must be assigned manually by an admin via `PUT /api/admin/users/:id/role`.
  */
 export function ssoRoleToTier(role?: string): string {
   return role?.trim().toLowerCase() === 'admin' ? 'tier5' : 'tier1'

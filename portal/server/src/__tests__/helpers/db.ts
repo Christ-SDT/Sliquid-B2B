@@ -114,6 +114,31 @@ export function seedTestUsers() {
 }
 
 /**
+ * A tier8 (Legal) user — sees every admin surface via `canViewAdmin`, writes
+ * nothing (`isAdminRole('tier8')` is false; see roles.ts).
+ *
+ * Deliberately NOT part of seedTestUsers() for the same reason seedPendingUser
+ * isn't: several existing tests assert exact user counts/ordering off that
+ * shared fixture, so a fifth row would break them. Call this only from tests
+ * that need a Legal account.
+ */
+export function seedLegalUser(overrides: Partial<{
+  name: string; email: string; company: string
+}> = {}) {
+  const h = (p: string) => bcrypt.hashSync(p, 10)
+  const row = {
+    name: 'Legal Reviewer',
+    email: 'legal@test.com',
+    company: 'Sliquid',
+    ...overrides,
+  }
+  const result = db.prepare(
+    "INSERT INTO users (name, email, password_hash, role, company, status) VALUES (?, ?, ?, 'tier8', ?, 'active')"
+  ).run(row.name, row.email, h('Legal1234!'), row.company)
+  return result.lastInsertRowid as number
+}
+
+/**
  * A registration awaiting admin approval.
  *
  * Deliberately NOT part of seedTestUsers() — several existing tests assert exact

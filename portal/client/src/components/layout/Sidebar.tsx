@@ -3,11 +3,11 @@ import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { useNotifications } from '@/context/NotificationContext'
 import { cn } from '@/lib/utils'
-import { TIER_LABEL } from '@/types'
+import { TIER_LABEL, canViewAdmin, isReadOnlyAdmin } from '@/types'
 import {
   LayoutDashboard, BookOpen,
   MapPin, Megaphone, GraduationCap, LogOut, X, Users, Moon, Sun, Sparkles,
-  Image as ImageIcon, Stethoscope, ShieldCheck, Newspaper,
+  Image as ImageIcon, Stethoscope, ShieldCheck, Newspaper, Eye,
 } from 'lucide-react'
 
 // restricted: tier1/2/3/6  |  tier23: tier2+tier3 only  |  prospectVisible: tier4  |  adminOnly: tier5 only  |  medicalOnly: admin only  |  hideTier3: hidden from tier3 (Distributor)
@@ -40,11 +40,16 @@ export default function Sidebar({ onClose }: Props) {
   const isRestricted = ['tier1', 'tier2', 'tier3', 'tier6', 'tier7'].includes(user?.role ?? '')
 
   const role: string | undefined = user?.role
-  const isAdminRole = role === 'tier5' || role === 'admin'
+  // `canView` gates admin-only nav rows (adminOnly / medicalOnly / managerOnly).
+  // Legal (tier8) is a strict superset of admin here — it sees every admin
+  // surface — while write buttons on those pages stay gated on `isAdmin`.
+  const canView = canViewAdmin(role ?? '')
+  const readOnly = isReadOnlyAdmin(role ?? '')
   const isProspectRole = role === 'tier4'
   // Only treat as pending if the user is still in a prospect/unassigned state.
-  // If an admin has already assigned a real role, show the full nav regardless of status.
-  const isPending = user?.status === 'pending' && !isAdminRole && !isRestricted && !isProspectRole
+  // If an admin (or Legal) has already been assigned a real role, show the
+  // full nav regardless of status.
+  const isPending = user?.status === 'pending' && !canView && !isRestricted && !isProspectRole
   const visibleNav = NAV.filter(item => {
     // `prospectVisible` is effectively dead: this branch short-circuits before
     // any row flag is read, which is why tier4 sees only Dashboard. Do NOT
@@ -55,9 +60,9 @@ export default function Sidebar({ onClose }: Props) {
       return item.to === '/dashboard' || item.to === '/announcements'
     }
     if (item.hideTier3 && role === 'tier3') return false
-    if (item.adminOnly) return isAdminRole
-    if (item.medicalOnly) return isAdminRole
-    if (item.managerOnly) return role === 'tier2' || isAdminRole
+    if (item.adminOnly) return canView
+    if (item.medicalOnly) return canView
+    if (item.managerOnly) return role === 'tier2' || canView
     if (isRestricted) return item.restricted || (item.tier23 && (role === 'tier2' || role === 'tier3' || role === 'tier7'))
     return true
   })
@@ -117,6 +122,17 @@ export default function Sidebar({ onClose }: Props) {
         </ul>
 
       </nav>
+
+      {/* Read-only indicator (Legal / tier8) */}
+      {readOnly && (
+        <div className="mx-3 mb-3 flex items-start gap-2 px-3 py-2.5 rounded-lg
+                        bg-surface-elevated border border-portal-border">
+          <Eye className="w-3.5 h-3.5 text-portal-accent flex-shrink-0 mt-0.5" />
+          <p className="text-on-canvas-muted text-xs leading-snug">
+            Read-only access — you can view everything here, but not change it.
+          </p>
+        </div>
+      )}
 
       {/* Theme toggle */}
       <div className="border-t border-portal-border px-4 py-3 flex items-center justify-between">

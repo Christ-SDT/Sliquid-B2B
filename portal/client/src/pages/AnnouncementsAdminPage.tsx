@@ -6,11 +6,12 @@ import {
 } from 'lucide-react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
-import { isAdmin, type Announcement, type AnnouncementSyncStatus } from '@/types'
+import { isAdmin, canViewAdmin, isReadOnlyAdmin, type Announcement, type AnnouncementSyncStatus } from '@/types'
 import {
   formatDateTime, timeUntil, timeAgo, toLocalInputValue, fromLocalInputValue, cn,
 } from '@/lib/utils'
 import AnnouncementBody from '@/components/AnnouncementBody'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 
 const inputCls = 'w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors'
 const labelCls = 'block text-on-canvas-subtle text-sm font-medium mb-1.5'
@@ -269,11 +270,12 @@ function AnnouncementFormModal({ initial, onClose, onSaved }: {
 
 // ─── Row ──────────────────────────────────────────────────────────────────────
 
-function Row({ a, onPatch, onEdit, onRemoved }: {
+function Row({ a, onPatch, onEdit, onRemoved, canEdit }: {
   a: Announcement
   onPatch: (patch: Partial<Announcement>) => void
   onEdit: () => void
   onRemoved: (archived: boolean) => void
+  canEdit: boolean
 }) {
   const [busy, setBusy] = useState(false)
   const [confirming, setConfirming] = useState(false)
@@ -352,23 +354,42 @@ function Row({ a, onPatch, onEdit, onRemoved }: {
       </td>
 
       <td className="px-3 py-3 align-top text-center">
-        <Switch on={a.show_in_portal === 1} busy={busy}
-                onClick={() => toggle('portal-visibility')} label="Show in portal" />
+        {canEdit ? (
+          <Switch on={a.show_in_portal === 1} busy={busy}
+                  onClick={() => toggle('portal-visibility')} label="Show in portal" />
+        ) : (
+          <span className={cn('text-xs font-medium',
+            a.show_in_portal === 1 ? 'text-portal-accent' : 'text-on-canvas-muted')}>
+            {a.show_in_portal === 1 ? 'Yes' : 'No'}
+          </span>
+        )}
       </td>
       <td className="px-3 py-3 align-top text-center">
-        <Switch on={a.show_on_public === 1} busy={busy}
-                onClick={() => toggle('public-visibility')} label="Show on public site" />
+        {canEdit ? (
+          <Switch on={a.show_on_public === 1} busy={busy}
+                  onClick={() => toggle('public-visibility')} label="Show on public site" />
+        ) : (
+          <span className={cn('text-xs font-medium',
+            a.show_on_public === 1 ? 'text-portal-accent' : 'text-on-canvas-muted')}>
+            {a.show_on_public === 1 ? 'Yes' : 'No'}
+          </span>
+        )}
       </td>
       <td className="px-3 py-3 align-top text-center">
-        <button onClick={() => toggle('pinned')} disabled={busy} aria-label="Pin"
-                className={cn('p-1.5 rounded transition-colors',
-                  a.pinned === 1 ? 'text-portal-accent' : 'text-on-canvas-muted hover:text-on-canvas')}>
-          <Pin className={cn('w-4 h-4', a.pinned === 1 && 'fill-current')} />
-        </button>
+        {canEdit ? (
+          <button onClick={() => toggle('pinned')} disabled={busy} aria-label="Pin"
+                  className={cn('p-1.5 rounded transition-colors',
+                    a.pinned === 1 ? 'text-portal-accent' : 'text-on-canvas-muted hover:text-on-canvas')}>
+            <Pin className={cn('w-4 h-4', a.pinned === 1 && 'fill-current')} />
+          </button>
+        ) : (
+          <Pin className={cn('w-4 h-4 mx-auto',
+            a.pinned === 1 ? 'text-portal-accent fill-current' : 'text-on-canvas-muted/40')} />
+        )}
       </td>
 
       <td className="px-4 py-3 align-top">
-        {confirming ? (
+        {!canEdit ? null : confirming ? (
           <div className="flex items-center gap-2">
             <button onClick={remove} disabled={busy}
                     className="px-2 py-1 rounded bg-red-500/15 text-red-400 text-xs font-medium
@@ -415,7 +436,11 @@ export default function AnnouncementsAdminPage() {
 
   // Route-level access is enforced by Shell's allow-lists, but guard the page
   // itself too — that enforcement is negative-space and easy to break.
-  if (!isAdmin(user?.role ?? '')) return <Navigate to="/dashboard" replace />
+  // Legal (tier8) gets the same read access as admins; every write below is
+  // gated separately on `canEdit`.
+  if (!canViewAdmin(user?.role ?? '')) return <Navigate to="/dashboard" replace />
+
+  const canEdit = isAdmin(user?.role ?? '')
 
   function load() {
     return Promise.all([
@@ -471,21 +496,25 @@ export default function AnnouncementsAdminPage() {
             New items arrive hidden until you publish them.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={runSync} disabled={syncing}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-portal-border
-                             text-on-canvas-subtle text-sm hover:bg-surface-elevated transition-colors
-                             disabled:opacity-60">
-            <RefreshCw className={cn('w-4 h-4', syncing && 'animate-spin')} />
-            {syncing ? 'Syncing…' : 'Sync now'}
-          </button>
-          <button onClick={() => { setEditTarget(null); setShowForm(true) }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-portal-accent
-                             hover:bg-portal-accent/90 text-white text-sm font-medium transition-colors">
-            <Plus className="w-4 h-4" /> New
-          </button>
-        </div>
+        {canEdit && (
+          <div className="flex items-center gap-2">
+            <button onClick={runSync} disabled={syncing}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-portal-border
+                               text-on-canvas-subtle text-sm hover:bg-surface-elevated transition-colors
+                               disabled:opacity-60">
+              <RefreshCw className={cn('w-4 h-4', syncing && 'animate-spin')} />
+              {syncing ? 'Syncing…' : 'Sync now'}
+            </button>
+            <button onClick={() => { setEditTarget(null); setShowForm(true) }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-portal-accent
+                               hover:bg-portal-accent/90 text-white text-sm font-medium transition-colors">
+              <Plus className="w-4 h-4" /> New
+            </button>
+          </div>
+        )}
       </header>
+
+      {isReadOnlyAdmin(user?.role ?? '') && <ReadOnlyNotice />}
 
       {syncMsg && (
         <div className="mb-4 px-4 py-2.5 rounded-lg bg-portal-accent/10 border border-portal-accent/30
@@ -548,7 +577,7 @@ export default function AnnouncementsAdminPage() {
         <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <Megaphone className="w-12 h-12 mb-3 opacity-40" />
           <p>No announcements {filter !== 'all' ? 'in this view' : 'yet'}</p>
-          {filter === 'all' && (
+          {filter === 'all' && canEdit && (
             <button onClick={runSync}
                     className="mt-4 flex items-center gap-2 px-4 py-2 bg-portal-accent/10
                                hover:bg-portal-accent/20 text-portal-accent rounded-lg text-sm font-medium">
@@ -579,6 +608,7 @@ export default function AnnouncementsAdminPage() {
                 <Row
                   key={a.id}
                   a={a}
+                  canEdit={canEdit}
                   onPatch={patch => setItems(prev =>
                     prev.map(x => x.id === a.id ? { ...x, ...patch } : x))}
                   onEdit={() => { setEditTarget(a); setShowForm(true) }}

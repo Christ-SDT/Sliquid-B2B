@@ -4,7 +4,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client
 import { randomUUID } from 'crypto'
 import path from 'path'
 import { db } from '../database.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireRole, requireAdminViewer, requireRoleOrAdminViewer } from '../middleware/auth.js'
 import { notifyAdmins } from '../notifications.js'
 import { sendMedicalMarketingRequestEmails } from '../email.js'
 
@@ -52,7 +52,7 @@ function parseOption(row: Record<string, unknown>) {
 
 // ─── Items — GET ──────────────────────────────────────────────────────────────
 
-router.get('/items', requireAuth, requireRole('tier5', 'tier6', 'admin'), (_req, res) => {
+router.get('/items', requireAuth, requireRoleOrAdminViewer('tier5', 'tier6', 'admin'), (_req, res) => {
   const rows = db.prepare('SELECT * FROM medical_marketing_items ORDER BY sort_order, id').all() as Record<string, unknown>[]
   res.json(rows.map(parseItem))
 })
@@ -169,7 +169,7 @@ router.delete('/items/:id', requireAuth, requireRole('tier5', 'admin'), async (r
 
 // ─── Training Options — GET ───────────────────────────────────────────────────
 
-router.get('/training-options', requireAuth, requireRole('tier5', 'tier6', 'admin'), (_req, res) => {
+router.get('/training-options', requireAuth, requireRoleOrAdminViewer('tier5', 'tier6', 'admin'), (_req, res) => {
   const rows = db.prepare('SELECT * FROM medical_training_options ORDER BY sort_order, id').all() as Record<string, unknown>[]
   res.json(rows.map(parseOption))
 })
@@ -260,7 +260,7 @@ router.get('/status', requireAuth, (req: any, res) => {
 
 // ─── Applications — GET /applications (admin) ─────────────────────────────────
 
-router.get('/applications', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
+router.get('/applications', requireAuth, requireAdminViewer, (_req, res) => {
   const apps = db.prepare(`
     SELECT
       ma.id, ma.contact_name, ma.business_name, ma.address,

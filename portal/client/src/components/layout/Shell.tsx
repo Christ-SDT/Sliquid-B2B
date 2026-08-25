@@ -63,21 +63,31 @@ export default function Shell() {
 
   const isRestricted = ['tier1', 'tier2', 'tier3', 'tier6', 'tier7'].includes(user.role)
   const isProspectRole = user.role === 'tier4'
+  // Legal (tier8): read-only admin. Routing treats it like tier5/admin — every
+  // admin route is reachable, nothing here restricts it. Neither isRestricted
+  // nor isProspectRole lists tier8 today, so this branch is not strictly load-
+  // bearing yet, but it is written explicitly (and checked below BEFORE the
+  // restricted/prospect redirects) so tier8 can never be silently pulled into
+  // TIER1_ALLOWED/PROSPECT_ALLOWED by a future edit to those arrays — the same
+  // way an unrecognized role would be if it fell through unguarded by accident.
+  const isLegalRole = user.role === 'tier8'
   const isPending = user.status === 'pending'
 
   // Pending users (awaiting approval) can only see the dashboard and announcements
   if (isPending && !PENDING_ALLOWED.some(p => location.pathname.startsWith(p))) {
     return <Navigate to="/dashboard" replace />
   }
-  const restrictedAllowed = user.role === 'tier3' ? TIER3_ALLOWED
-    : (user.role === 'tier2' || user.role === 'tier7') ? TIER2_ALLOWED
-    : user.role === 'tier6' ? TIER6_ALLOWED
-    : TIER1_ALLOWED
-  if (!isPending && isRestricted && !restrictedAllowed.some(p => location.pathname.startsWith(p))) {
-    return <Navigate to="/dashboard" replace />
-  }
-  if (!isPending && isProspectRole && !PROSPECT_ALLOWED.some(p => location.pathname.startsWith(p))) {
-    return <Navigate to="/dashboard" replace />
+  if (!isPending && !isLegalRole) {
+    const restrictedAllowed = user.role === 'tier3' ? TIER3_ALLOWED
+      : (user.role === 'tier2' || user.role === 'tier7') ? TIER2_ALLOWED
+      : user.role === 'tier6' ? TIER6_ALLOWED
+      : TIER1_ALLOWED
+    if (isRestricted && !restrictedAllowed.some(p => location.pathname.startsWith(p))) {
+      return <Navigate to="/dashboard" replace />
+    }
+    if (isProspectRole && !PROSPECT_ALLOWED.some(p => location.pathname.startsWith(p))) {
+      return <Navigate to="/dashboard" replace />
+    }
   }
 
   return (

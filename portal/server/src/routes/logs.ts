@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireAdminViewer } from '../middleware/auth.js'
 import { getRecentLogs, addSubscriber, removeSubscriber } from '../logger.js'
 
 const router = Router()
@@ -13,15 +13,17 @@ function requireAuthOrToken(req: Request, res: Response, next: NextFunction) {
   }
   requireAuth(req, res, next)
 }
+// Tag so a route-table test can classify this as the authentication step.
+;(requireAuthOrToken as any).__roleGuard = 'authenticate'
 
 // GET /api/logs — last N entries (default 200)
-router.get('/', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+router.get('/', requireAuth, requireAdminViewer, (req, res) => {
   const limit = Math.min(parseInt((req.query.limit as string) ?? '200', 10), 500)
   res.json({ logs: getRecentLogs(limit) })
 })
 
 // GET /api/logs/stream — SSE live stream
-router.get('/stream', requireAuthOrToken, requireRole('tier5', 'admin'), (req, res) => {
+router.get('/stream', requireAuthOrToken, requireAdminViewer, (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream')
   res.setHeader('Cache-Control', 'no-cache')
   res.setHeader('Connection', 'keep-alive')

@@ -180,3 +180,69 @@ describe('DELETE /api/distributors/:id', () => {
     expect(res.status).toBe(401)
   })
 })
+
+// Regression: `distributors.state` is TEXT NOT NULL, but only `name` + `region`
+// are required by the route, and the admin form sends `state: state || null`
+// when the field is left blank. That null used to hit the NOT NULL constraint
+// and 500 on a request the route itself considered valid.
+describe('optional state (NOT NULL column, optional field)', () => {
+  it('POST accepts a null state and stores it as an empty string', async () => {
+    const res = await request(app)
+      .post('/api/distributors')
+      .send({ ...distPayload, state: null })
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(201)
+    expect(res.body.state).toBe('')
+
+    const row = db.prepare('SELECT state FROM distributors WHERE id = ?').get(res.body.id) as any
+    expect(row.state).toBe('')
+  })
+
+  it('POST accepts a completely omitted state', async () => {
+    const { state, ...noState } = distPayload
+    const res = await request(app)
+      .post('/api/distributors')
+      .send(noState)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(201)
+    expect(res.body.state).toBe('')
+  })
+
+  it('PUT accepts a null state on an existing row', async () => {
+    const created = await request(app)
+      .post('/api/distributors')
+      .send(distPayload)
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(created.body.state).toBe('TX, OK')
+
+    const res = await request(app)
+      .put(`/api/distributors/${created.body.id}`)
+      .send({ ...distPayload, state: null })
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(200)
+    expect(res.body.state).toBe('')
+  })
+
+  it('still rejects a missing name or region with 400, not 500', async () => {
+    const noName = await request(app)
+      .post('/api/distributors')
+      .send({ ...distPayload, name: undefined })
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(noName.status).toBe(400)
+
+    const noRegion = await request(app)
+      .post('/api/distributors')
+      .send({ ...distPayload, region: undefined })
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(noRegion.status).toBe(400)
+  })
+
+  it('trims a whitespace-only state to an empty string', async () => {
+    const res = await request(app)
+      .post('/api/distributors')
+      .send({ ...distPayload, state: '   ' })
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(res.status).toBe(201)
+    expect(res.body.state).toBe('')
+  })
+})

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { randomBytes } from 'crypto'
 import { db } from '../database.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 import { sendRewardConfirmEmail, sendRewardAdminEmail } from '../email.js'
 import { notifyAdmins } from '../notifications.js'
 import {
@@ -130,7 +130,7 @@ router.post('/reward', requireAuth, (req, res) => {
 })
 
 // GET /api/certificates/rewards — admin: list all reward claims with user + cert info
-router.get('/rewards', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
+router.get('/rewards', requireAuth, requireAdminViewer, (req, res) => {
   const rows = db.prepare(`
     SELECT
       cr.id,
@@ -186,7 +186,7 @@ router.get('/reward-options', requireAuth, (_req, res) => {
 // Returns the FULL derived catalog plus the current selection, so the admin can
 // tick items on and off. `allowedSkus: null` means "no curation saved yet",
 // which the client renders as everything-selected.
-router.get('/reward-options/all', requireAuth, requireRole('tier5', 'admin'), (_req, res) => {
+router.get('/reward-options/all', requireAuth, requireAdminViewer, (_req, res) => {
   res.json({
     products: deriveRewardProducts(),
     allowedSkus: getAllowedSkus(),

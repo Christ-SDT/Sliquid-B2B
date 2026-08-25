@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { api } from '@/api/client'
-import { InventoryItem } from '@/types'
+import { useAuth } from '@/context/AuthContext'
+import { InventoryItem, isAdmin, isReadOnlyAdmin } from '@/types'
 import { Search, Archive, RefreshCw, X, Pencil, ChevronRight, RotateCcw } from 'lucide-react'
+import ReadOnlyNotice from '@/components/ReadOnlyNotice'
 
 const BRANDS = ['All', 'Sliquid', 'RIDE', 'Ride Rocco']
 const STATUSES = ['All', 'in_stock', 'low_stock', 'out_of_stock']
@@ -470,6 +472,8 @@ interface PendingSync {
 }
 
 export default function InventoryPage() {
+  const { user } = useAuth()
+  const canEdit = isAdmin(user?.role ?? '')
   const [items, setItems] = useState<InventoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [brand, setBrand] = useState('All')
@@ -707,7 +711,7 @@ export default function InventoryPage() {
         <h1 className="text-on-canvas text-2xl font-bold">Inventory</h1>
         <div className="flex items-center gap-3">
           <span className="text-on-canvas-muted text-sm">{items.length} SKUs</span>
-          {editMode ? (
+          {canEdit && (editMode ? (
             <button
               onClick={exitEditMode}
               className="flex items-center gap-1.5 px-3 py-2 border border-portal-border text-on-canvas-subtle
@@ -725,9 +729,11 @@ export default function InventoryPage() {
               <Pencil className="w-4 h-4" />
               Edit Mode
             </button>
-          )}
+          ))}
         </div>
       </div>
+
+      {isReadOnlyAdmin(user?.role ?? '') && <ReadOnlyNotice />}
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
@@ -802,13 +808,13 @@ export default function InventoryPage() {
                     return (
                       <tr
                         key={item.id}
-                        onClick={() => !editMode && setEditing(item)}
+                        onClick={() => !editMode && canEdit && setEditing(item)}
                         className={`border-b border-portal-border/50 transition-colors
                           ${editMode
                             ? isChanged
                               ? 'border-l-2 border-l-portal-accent bg-portal-accent/5'
                               : ''
-                            : 'hover:bg-surface-elevated/50 cursor-pointer'
+                            : canEdit ? 'hover:bg-surface-elevated/50 cursor-pointer' : ''
                           }`}
                       >
                         <td className="px-4 py-3">
@@ -820,7 +826,7 @@ export default function InventoryPage() {
                         <td className="px-4 py-3 text-on-canvas-subtle">{item.brand}</td>
                         <td className="px-4 py-3 text-on-canvas-muted font-mono text-xs hidden sm:table-cell">{item.sku}</td>
                         <td className="px-4 py-3 text-right">
-                          {editMode ? (
+                          {editMode && canEdit ? (
                             <input
                               type="number"
                               min="0"
@@ -845,7 +851,7 @@ export default function InventoryPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          {!editMode && item.status !== 'in_stock' && (
+                          {canEdit && !editMode && item.status !== 'in_stock' && (
                             <button
                               onClick={e => { e.stopPropagation(); setRestocking(item) }}
                               className="flex items-center gap-1.5 px-3 py-1.5 bg-portal-accent/10 hover:bg-portal-accent/20
