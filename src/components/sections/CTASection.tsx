@@ -69,7 +69,7 @@ export default function CTASection() {
                     placeholder="your@company.com"
                     maxLength={254}
                     autoComplete="email"
-                    className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg
+                    className="w-full px-4 py-2.5 text-sm border border-gray-500 rounded-lg
                                focus:outline-none focus:ring-2 focus:ring-sliquid-blue focus:border-transparent
                                bg-bg-off-white"
                     aria-describedby={error ? 'cta-email-error' : undefined}

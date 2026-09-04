@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { sanitizeText } from '@/utils/sanitize'
 import { NAV_LINKS } from '@/utils/constants'
@@ -7,6 +7,22 @@ import { NAV_LINKS } from '@/utils/constants'
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('')
   const [mobileOpen, setMobileOpen] = useState(false)
+  const mobileToggleRef = useRef<HTMLButtonElement>(null)
+
+  // Escape closes the mobile drawer and returns focus to the trigger that opened it,
+  // per WCAG 4.1.2 (Name, Role, Value) — the drawer stays mounted (see `hidden` below)
+  // so aria-controls keeps resolving whether it's open or closed.
+  useEffect(() => {
+    if (!mobileOpen) return
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setMobileOpen(false)
+        mobileToggleRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [mobileOpen])
 
   function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchQuery(sanitizeText(e.target.value))
@@ -72,7 +88,7 @@ export default function Header() {
                   maxLength={100}
                   autoComplete="off"
                   aria-label="Search"
-                  className="w-[200px] pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-full
+                  className="w-[200px] pl-10 pr-4 py-2 text-sm border border-gray-500 rounded-full
                              focus:outline-none focus:ring-2 focus:ring-sliquid-blue focus:border-transparent
                              bg-bg-off-white text-text-dark placeholder:text-text-light-gray"
                 />
@@ -92,6 +108,7 @@ export default function Header() {
 
             {/* Mobile hamburger */}
             <button
+              ref={mobileToggleRef}
               type="button"
               onClick={() => setMobileOpen((prev) => !prev)}
               className="md:hidden p-2 rounded-md text-text-gray hover:text-sliquid-blue
@@ -113,14 +130,16 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile nav drawer */}
-        {mobileOpen && (
-          <nav
-            id="mobile-nav"
-            className="md:hidden pb-4 pt-2 border-t border-gray-100"
-            aria-label="Mobile navigation"
-          >
-            <ul className="space-y-1">
+        {/* Mobile nav drawer — stays mounted (open and closed) so aria-controls="mobile-nav"
+            on the toggle button always resolves; `hidden` removes it from the tab order
+            and accessibility tree while collapsed. */}
+        <nav
+          id="mobile-nav"
+          hidden={!mobileOpen}
+          className="md:hidden pb-4 pt-2 border-t border-gray-100"
+          aria-label="Mobile navigation"
+        >
+          <ul className="space-y-1">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <NavLink
@@ -151,7 +170,7 @@ export default function Header() {
                   maxLength={100}
                   autoComplete="off"
                   aria-label="Search"
-                  className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-full
+                  className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-500 rounded-full
                              focus:outline-none focus:ring-2 focus:ring-sliquid-blue bg-bg-off-white"
                 />
                 <svg
@@ -167,8 +186,7 @@ export default function Header() {
                 </svg>
               </div>
             </form>
-          </nav>
-        )}
+        </nav>
       </div>
     </header>
   )

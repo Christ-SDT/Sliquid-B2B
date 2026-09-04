@@ -4,6 +4,7 @@ import { API_BASE } from '@/utils/constants'
 import { formatDate, isoDate } from '@/utils/date'
 import type { Announcement } from '@/types'
 import AnnouncementBody from '@/components/AnnouncementBody'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 function BackLink() {
   return (
@@ -39,6 +40,11 @@ export default function AnnouncementDetailPage() {
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
   }, [slug])
+
+  // Overrides Layout's generic "Announcement" default once the real title
+  // (or the not-found state) is known — see useDocumentTitle for why this
+  // works even though Layout's own effect already ran first.
+  useDocumentTitle(loading ? 'Announcement' : notFound || !item ? 'Announcement Not Found' : item.title)
 
   if (loading) {
     return (

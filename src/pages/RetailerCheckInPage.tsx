@@ -93,7 +93,7 @@ function Label({ htmlFor, required, children }: { htmlFor: string; required?: bo
 const inputCls = (hasError?: boolean) =>
   `w-full rounded-lg border px-3.5 py-2.5 text-sm text-text-dark placeholder:text-text-light-gray bg-white
    focus:outline-none focus:ring-2 focus:ring-sliquid-blue/30 transition
-   ${hasError ? 'border-red-400' : 'border-gray-200 focus:border-sliquid-blue'}`
+   ${hasError ? 'border-red-500' : 'border-gray-500 focus:border-sliquid-blue'}`
 
 /** The "you're in the wrong place, and that's fine" button. Repeated on the
  *  gate, in the page body and on the decline screen — a prospect who lands on a

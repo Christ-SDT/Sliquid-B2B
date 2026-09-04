@@ -5,7 +5,7 @@ import type { TopBarLink } from '@/types'
 function TopBarItem({ link }: { link: TopBarLink }) {
   const cls = `text-sm font-medium transition-colors duration-150 ${
     link.highlighted
-      ? 'text-sliquid-blue font-semibold'
+      ? 'text-sliquid-blue-on-dark font-semibold'
       : 'text-gray-400 hover:text-white'
   }`
 

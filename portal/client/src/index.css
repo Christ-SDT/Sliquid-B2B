@@ -30,6 +30,25 @@
     --text-primary:      #2c1a0a;   /* deep warm brown */
     --text-secondary:    #6b4c30;   /* medium warm brown */
     --text-muted:        #a08060;   /* muted tan */
+
+    /*
+     * WCAG 1.4.3 remediation (Sept 2026 audit, same defect class as HQ 06 on
+     * the marketing site): the flat #0A84C0 brand blue that portal.accent
+     * used to be measures well under 4.5:1 against --surface/--portal-bg in
+     * BOTH themes (3.6-4.1:1), and there's no single static hex that clears
+     * 4.5:1 in both light and dark at once — a lighter blue that passes on
+     * dark surfaces fails on light ones and vice versa. So, like every other
+     * portal color, it's now a theme-aware CSS var instead of a static
+     * Tailwind hex.
+     *
+     * Stored as space-separated RGB (not a hex string) and consumed via
+     * `rgb(var(--portal-accent) / <alpha-value>)` in tailwind.config.ts —
+     * that's what lets `bg-portal-accent/20` etc. (used throughout the
+     * portal) keep working; a bare hex var breaks Tailwind's opacity
+     * modifier syntax.
+     */
+    --portal-accent:       8 112 163;   /* #0870a3 — 5.24:1 / 4.77:1 on light surface/portal-bg */
+    --portal-accent-hover: 7 93 133;    /* #075d85 — 6.93:1 / 6.32:1 */
   }
 
   .dark {
@@ -40,6 +59,9 @@
     --text-primary:      #ffffff;
     --text-secondary:    #94a3b8;
     --text-muted:        #64748b;
+
+    --portal-accent:       77 180 230;  /* #4db4e6 — 7.2:1 / 8.08:1 on dark surface/portal-bg */
+    --portal-accent-hover: 125 208 240; /* #7dd0f0 — 9.73:1 / 10.92:1 — lighter for hover, since darkening loses contrast on a dark background */
   }
 }
 
@@ -53,6 +75,33 @@
   ::-webkit-scrollbar-track { @apply bg-portal-bg; }
   ::-webkit-scrollbar-thumb { @apply bg-portal-border rounded-full; }
   ::-webkit-scrollbar-thumb:hover { @apply bg-slate-600; }
+}
+
+/*
+ * Shared skip link (WCAG 2.4.1 Bypass Blocks) — first focusable element in
+ * Shell.tsx, rendered before Sidebar/TopBar. Visually hidden until focused.
+ * Uses fixed, explicit colors (not the theme's --surface/--text vars) so it
+ * reads correctly regardless of light/dark mode; #0870a3/white passes 4.5:1.
+ */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 1rem;
+  z-index: 100;
+  background-color: #0870a3;
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: top 0.15s ease-in-out;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
 }
 
 /**

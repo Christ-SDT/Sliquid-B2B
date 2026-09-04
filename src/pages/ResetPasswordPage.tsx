@@ -104,7 +104,7 @@ export default function ResetPasswordPage() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="At least 8 characters"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-text-dark text-sm
+                className="w-full border border-gray-500 rounded-lg px-4 py-2.5 text-text-dark text-sm
                            placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
                            focus:ring-1 focus:ring-sliquid-blue transition-colors"
               />
@@ -122,7 +122,7 @@ export default function ResetPasswordPage() {
                 value={confirm}
                 onChange={e => setConfirm(e.target.value)}
                 placeholder="••••••••"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-text-dark text-sm
+                className="w-full border border-gray-500 rounded-lg px-4 py-2.5 text-text-dark text-sm
                            placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
                            focus:ring-1 focus:ring-sliquid-blue transition-colors"
               />

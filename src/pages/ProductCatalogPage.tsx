@@ -242,6 +242,7 @@ export default function ProductCatalogPage() {
   const [activeBrand, setActiveBrand] = useState('Sliquid')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<CatalogProduct | null>(null)
+  const [announcedCount, setAnnouncedCount] = useState<number | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -283,8 +284,17 @@ export default function ProductCatalogPage() {
       return a.name.localeCompare(b.name)
     })
 
+  // Debounces the polite live-region announcement below so screen readers get
+  // one "N products" update after the filtered set settles, rather than a new
+  // announcement per keystroke while typing in the search box (HQ 05).
+  useEffect(() => {
+    if (loading || error) return
+    const timer = setTimeout(() => setAnnouncedCount(filtered.length), 400)
+    return () => clearTimeout(timer)
+  }, [filtered.length, loading, error])
+
   return (
-    <main className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen">
 
       {/* ── Page Header ─────────────────────────────────────────────────────── */}
       <section className="bg-bg-off-white border-b border-gray-100 py-12 px-4 sm:px-6">
@@ -305,15 +315,17 @@ export default function ProductCatalogPage() {
       <section className="sticky top-0 z-10 bg-white border-b border-gray-100 py-4 px-4 sm:px-6">
         <div className="max-w-[1240px] mx-auto flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
           {/* Brand tabs */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap" role="group" aria-label="Filter by brand">
             {BRAND_TABS.map(b => (
               <button
                 key={b}
+                type="button"
+                aria-pressed={activeBrand === b}
                 onClick={() => setActiveBrand(b)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors border
                   ${activeBrand === b
                     ? 'bg-sliquid-blue text-white border-sliquid-blue'
-                    : 'bg-white text-text-gray border-gray-200 hover:border-gray-400 hover:text-text-dark'
+                    : 'bg-white text-text-gray border-gray-500 hover:border-gray-600 hover:text-text-dark'
                   }`}
               >
                 {b}
@@ -322,16 +334,22 @@ export default function ProductCatalogPage() {
           </div>
 
           {/* Search */}
-          <div className="relative w-full sm:w-64">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="search"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search products…"
-              className="w-full border border-gray-200 rounded-full pl-9 pr-4 py-2 text-sm text-text-dark
-                         placeholder:text-gray-400 focus:outline-none focus:border-sliquid-blue transition-colors"
-            />
+          <div className="w-full sm:w-64">
+            <label htmlFor="catalog-search" className="block text-xs font-medium text-text-gray mb-1">
+              Search products
+            </label>
+            <div className="relative">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                id="catalog-search"
+                type="search"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="e.g. Naturals, Satin…"
+                className="w-full border border-gray-500 rounded-full pl-9 pr-4 py-2 text-sm text-text-dark
+                           placeholder:text-gray-400 focus:outline-none focus:border-sliquid-blue transition-colors"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -339,6 +357,14 @@ export default function ProductCatalogPage() {
       {/* ── Product Grid ─────────────────────────────────────────────────────── */}
       <section className="py-10 px-4 sm:px-6">
         <div className="max-w-[1240px] mx-auto">
+          {/* Single persistent live region — updated (debounced above) rather than
+              mounted/unmounted per branch, so screen readers reliably announce
+              result-count changes after filtering settles (HQ 05). */}
+          <p className="text-text-gray text-sm mb-5" role="status" aria-live="polite" aria-atomic="true">
+            {!loading && !error && announcedCount !== null
+              ? `${announcedCount} product${announcedCount !== 1 ? 's' : ''}`
+              : ''}
+          </p>
           {error ? (
             <div className="text-center py-20">
               <p className="text-text-gray">{error}</p>
@@ -361,14 +387,11 @@ export default function ProductCatalogPage() {
               )}
             </div>
           ) : (
-            <>
-              <p className="text-text-gray text-sm mb-5">{filtered.length} product{filtered.length !== 1 ? 's' : ''}</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {filtered.map(p => (
-                  <ProductCard key={p.id} product={p} onClick={() => setSelected(p)} />
-                ))}
-              </div>
-            </>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {filtered.map(p => (
+                <ProductCard key={p.id} product={p} onClick={() => setSelected(p)} />
+              ))}
+            </div>
           )}
         </div>
       </section>
@@ -420,6 +443,6 @@ export default function ProductCatalogPage() {
 
       {/* Modal */}
       {selected && <ProductModal product={selected} onClose={() => setSelected(null)} />}
-    </main>
+    </div>
   )
 }

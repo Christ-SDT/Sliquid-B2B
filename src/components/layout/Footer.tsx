@@ -106,8 +106,9 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
+        {/* text-gray-400 (was gray-500, 3.04:1 on this bg — below the 4.5:1 AA floor for normal text) */}
         <div className="border-t border-gray-700 pt-8 flex flex-col sm:flex-row justify-between
-                        items-center gap-4 text-xs text-gray-500">
+                        items-center gap-4 text-xs text-gray-400">
           <p>Copyright © {year} Sliquid, LLC. All rights reserved.</p>
           <div className="flex gap-5">
             <Link to="/accessibility" className="hover:text-gray-300 transition-colors">

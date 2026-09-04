@@ -4,6 +4,8 @@ import { useAuth } from '@/context/AuthContext'
 import { NotificationProvider } from '@/context/NotificationContext'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { getDefaultTitle } from '@/utils/pageTitles'
 
 const INACTIVITY_MS = 2 * 60 * 60 * 1000  // 2 hours
 const CHECK_INTERVAL = 60 * 1000           // check once per minute
@@ -41,6 +43,11 @@ export default function Shell() {
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const lastActivityRef = useRef(Date.now())
+
+  // Must run before the `loading`/`!user` early returns below so hook order
+  // stays stable across renders; harmless while loading since nothing reads
+  // the title yet.
+  useDocumentTitle(getDefaultTitle(location.pathname))
 
   useEffect(() => {
     if (!user) return
@@ -93,6 +100,9 @@ export default function Shell() {
   return (
     <NotificationProvider>
     <div className="flex h-screen bg-portal-bg overflow-hidden">
+      <a href="#portal-main-content" className="skip-link">
+        Skip to main content
+      </a>
       {/* Desktop sidebar */}
       <div className="hidden md:flex">
         <Sidebar />
@@ -114,7 +124,7 @@ export default function Shell() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main id="portal-main-content" tabIndex={-1} className="flex-1 overflow-y-auto p-4 md:p-6 outline-none">
           <Outlet />
         </main>
       </div>

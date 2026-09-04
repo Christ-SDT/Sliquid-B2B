@@ -63,7 +63,7 @@ function FieldError({ message }: { message: string }) {
 const inputCls = (hasError?: boolean) =>
   `w-full rounded-lg border px-4 py-3 text-sm bg-white text-gray-900 placeholder:text-gray-400
    focus:outline-none focus:ring-2 focus:ring-sliquid-blue/30 transition
-   ${hasError ? 'border-red-400' : 'border-gray-300 focus:border-sliquid-blue'}`
+   ${hasError ? 'border-red-500' : 'border-gray-500 focus:border-sliquid-blue'}`
 
 export default function ErospainBoothPage() {
   const uid = useId()

@@ -143,7 +143,7 @@ export default function RegisterPage() {
                 onChange={e => setName(e.target.value)}
                 placeholder="Jane Smith"
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-text-dark text-sm
+                className="w-full border border-gray-500 rounded-lg px-4 py-2.5 text-text-dark text-sm
                            placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
                            focus:ring-1 focus:ring-sliquid-blue transition-colors"
               />
@@ -167,13 +167,13 @@ export default function RegisterPage() {
                     onFocus={() => setShowDropdown(true)}
                     placeholder="Enter or search for your store…"
                     autoComplete="off"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 pr-9 text-text-dark text-sm
+                    className="w-full border border-gray-500 rounded-lg px-4 py-2.5 pr-9 text-text-dark text-sm
                                placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
                                focus:ring-1 focus:ring-sliquid-blue transition-colors"
                   />
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   {showDropdown && filteredStores.length > 0 && (
-                    <ul className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    <ul className="absolute z-20 mt-1 w-full bg-white border border-gray-500 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                       {filteredStores.map(s => (
                         <li key={s.id}>
                           <button
@@ -195,7 +195,7 @@ export default function RegisterPage() {
                   onChange={e => setCompany(e.target.value)}
                   placeholder="Enter or search for your store…"
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-text-dark text-sm
+                  className="w-full border border-gray-500 rounded-lg px-4 py-2.5 text-text-dark text-sm
                              placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
                              focus:ring-1 focus:ring-sliquid-blue transition-colors"
                 />
@@ -214,7 +214,7 @@ export default function RegisterPage() {
                     type="checkbox"
                     checked={requestedRole === 'tier1'}
                     onChange={() => setRequestedRole(prev => prev === 'tier1' ? null : 'tier1')}
-                    className="w-4 h-4 rounded border-gray-300 text-sliquid-blue focus:ring-sliquid-blue"
+                    className="w-4 h-4 rounded border-gray-500 text-sliquid-blue focus:ring-sliquid-blue"
                   />
                   Retail Store Employee
                 </label>
@@ -223,7 +223,7 @@ export default function RegisterPage() {
                     type="checkbox"
                     checked={requestedRole === 'tier2'}
                     onChange={() => setRequestedRole(prev => prev === 'tier2' ? null : 'tier2')}
-                    className="w-4 h-4 rounded border-gray-300 text-sliquid-blue focus:ring-sliquid-blue"
+                    className="w-4 h-4 rounded border-gray-500 text-sliquid-blue focus:ring-sliquid-blue"
                   />
                   Retail Management
                 </label>
@@ -243,7 +243,7 @@ export default function RegisterPage() {
                 placeholder="you@company.com"
                 required
                 autoComplete="email"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-text-dark text-sm
+                className="w-full border border-gray-500 rounded-lg px-4 py-2.5 text-text-dark text-sm
                            placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
                            focus:ring-1 focus:ring-sliquid-blue transition-colors"
               />
@@ -263,7 +263,7 @@ export default function RegisterPage() {
                   placeholder="Min. 8 characters"
                   required
                   autoComplete="new-password"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 pr-10 text-text-dark text-sm
+                  className="w-full border border-gray-500 rounded-lg px-4 py-2.5 pr-10 text-text-dark text-sm
                              placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
                              focus:ring-1 focus:ring-sliquid-blue transition-colors"
                 />
@@ -290,7 +290,7 @@ export default function RegisterPage() {
                 placeholder="Re-enter password"
                 required
                 autoComplete="new-password"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-text-dark text-sm
+                className="w-full border border-gray-500 rounded-lg px-4 py-2.5 text-text-dark text-sm
                            placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
                            focus:ring-1 focus:ring-sliquid-blue transition-colors"
               />

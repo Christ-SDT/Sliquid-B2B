@@ -14,7 +14,7 @@ function DownloadIcon({ className }: { className?: string }) {
 
 export default function MapPolicyPage() {
   return (
-    <main className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen">
 
       {/* ── Header ────────────────────────────────────────────────────────────── */}
       <section className="bg-bg-off-white border-b border-gray-100 py-12 px-4 sm:px-6">
@@ -156,6 +156,6 @@ export default function MapPolicyPage() {
         </div>
       </section>
 
-    </main>
+    </div>
   )
 }

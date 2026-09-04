@@ -14,8 +14,12 @@ const config: Config = {
         portal: {
           bg: 'var(--portal-bg)',
           border: 'var(--portal-border)',
-          accent: '#0A84C0',
-          'accent-hover': '#0870a3',
+          // Theme-aware (see index.css) — a flat hex here can't pass 4.5:1
+          // contrast in both light and dark mode at once. rgb(var(...) / <alpha-value>)
+          // is Tailwind's documented pattern for a CSS-var color that still
+          // supports opacity modifiers (bg-portal-accent/20, etc.).
+          accent: 'rgb(var(--portal-accent) / <alpha-value>)',
+          'accent-hover': 'rgb(var(--portal-accent-hover) / <alpha-value>)',
         },
         // Text tokens
         'on-canvas': 'var(--text-primary)',

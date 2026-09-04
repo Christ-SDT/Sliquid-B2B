@@ -72,7 +72,7 @@ export default function ContactPage() {
   const inputCls = (field: keyof ContactFormData) =>
     `w-full px-4 py-2.5 border rounded-lg text-sm text-text-dark
      focus:outline-none focus:ring-2 focus:ring-sliquid-blue focus:border-transparent
-     ${errors[field] ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-bg-off-white'}`
+     ${errors[field] ? 'border-red-500 bg-red-50' : 'border-gray-500 bg-bg-off-white'}`
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
