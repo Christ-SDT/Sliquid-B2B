@@ -6,6 +6,7 @@ import { useTheme } from '@/context/ThemeContext'
 import { useNotifications } from '@/context/NotificationContext'
 import { isAdmin } from '@/types'
 import { cn } from '@/lib/utils'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 interface Props {
   onMenuClick: () => void
@@ -92,6 +93,8 @@ export default function TopBar({ onMenuClick }: Props) {
       <div className="hidden md:block" />
 
       <div className="flex items-center gap-3">
+
+        <LanguageSwitcher />
 
         {/* ── Notification Bell ────────────────────────────────────────── */}
         <div className="relative" ref={notifRef}>

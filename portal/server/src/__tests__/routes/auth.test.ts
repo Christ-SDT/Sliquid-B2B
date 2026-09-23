@@ -142,3 +142,53 @@ describe('GET /api/auth/me', () => {
     expect(res.status).toBe(401)
   })
 })
+
+// Own rate-limit bucket: earlier tests in this file already exhaust loginLimiter's
+// 15-per-window budget for the default supertest IP.
+const LANG_TEST_IP = '203.0.113.62'
+
+describe('preferred language', () => {
+  it('is null on /me and login until the user picks one', async () => {
+    const me = await request(app).get('/api/auth/me').set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(me.body.preferred_language).toBeNull()
+    const login = await request(app).post('/api/auth/login').set('X-Forwarded-For', LANG_TEST_IP).send({ email: 'admin@test.com', password: 'Admin1234!' })
+    expect(login.body.user.preferred_language).toBeNull()
+  })
+
+  it('PUT /me/language saves it, and /me and login return it', async () => {
+    const put = await request(app)
+      .put('/api/auth/me/language')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ language: 'es' })
+    expect(put.status).toBe(200)
+    expect(put.body.preferred_language).toBe('es')
+
+    const me = await request(app).get('/api/auth/me').set('Authorization', bearerToken(adminId, 'tier5'))
+    expect(me.body.preferred_language).toBe('es')
+    const login = await request(app).post('/api/auth/login').set('X-Forwarded-For', LANG_TEST_IP).send({ email: 'admin@test.com', password: 'Admin1234!' })
+    expect(login.body.user.preferred_language).toBe('es')
+  })
+
+  it('only changes the calling user', async () => {
+    const { tier1Id } = db.prepare("SELECT id AS tier1Id FROM users WHERE email = 'tier1@test.com'").get() as { tier1Id: number }
+    await request(app)
+      .put('/api/auth/me/language')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ language: 'fr' })
+    const row = db.prepare('SELECT preferred_language FROM users WHERE id = ?').get(tier1Id) as { preferred_language: string | null }
+    expect(row.preferred_language).toBeNull()
+  })
+
+  it.each([['de'], [''], [null], [123], ['EN']])('rejects unsupported language %p with 400', async (language) => {
+    const res = await request(app)
+      .put('/api/auth/me/language')
+      .set('Authorization', bearerToken(adminId, 'tier5'))
+      .send({ language })
+    expect(res.status).toBe(400)
+  })
+
+  it('requires auth', async () => {
+    const res = await request(app).put('/api/auth/me/language').send({ language: 'es' })
+    expect(res.status).toBe(401)
+  })
+})

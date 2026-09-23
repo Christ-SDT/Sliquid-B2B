@@ -5,9 +5,11 @@ import Header from './Header'
 import Footer from './Footer'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { getDefaultTitle } from '@/utils/pageTitles'
+import { useTranslation } from 'react-i18next'
 
 export default function Layout() {
   const { pathname } = useLocation()
+  const { t } = useTranslation()
 
   // Route-level default; AnnouncementDetailPage and NotFoundPage override this
   // with a more specific title once they know what they're rendering.
@@ -20,7 +22,7 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col">
       <a href="#main-content" className="skip-link">
-        Skip to main content
+        {t('skipToContent')}
       </a>
       <TopBar />
       <Header />

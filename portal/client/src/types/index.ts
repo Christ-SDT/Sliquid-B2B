@@ -5,6 +5,8 @@ export interface User {
   role: 'tier1' | 'tier2' | 'tier3' | 'tier4' | 'tier5' | 'tier6' | 'tier7' | 'tier8'
   company?: string
   status?: string
+  /** 'en' | 'es' | 'fr', or null if the user never picked one (browser language applies). */
+  preferred_language?: string | null
 }
 
 export const TIER_LABEL: Record<string, string> = {

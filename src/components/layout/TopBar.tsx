@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { TOP_BAR_LINKS } from '@/utils/constants'
 import type { TopBarLink } from '@/types'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 function TopBarItem({ link }: { link: TopBarLink }) {
   const cls = `text-sm font-medium transition-colors duration-150 ${
@@ -32,10 +33,11 @@ function TopBarItem({ link }: { link: TopBarLink }) {
 export default function TopBar() {
   return (
     <div className="bg-footer text-white text-sm py-2.5">
-      <div className="max-w-[1240px] mx-auto px-6 flex justify-end gap-6">
+      <div className="max-w-[1240px] mx-auto px-6 flex flex-wrap justify-end items-center gap-x-6 gap-y-2">
         {TOP_BAR_LINKS.map((link) => (
           <TopBarItem key={link.href} link={link} />
         ))}
+        <LanguageSwitcher />
       </div>
     </div>
   )

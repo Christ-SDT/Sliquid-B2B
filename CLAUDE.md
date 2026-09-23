@@ -389,8 +389,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 59 | `retailer_checkins_table` | Creates `retailer_checkins` — one row per submission of the hidden `/retailer-check-in` page; backs the sequential `SRC-XXXX` reference and the 2-hour duplicate guard. Index on `email` |
 | 60 | `form_submissions_table` | Creates `form_submissions` (`form_key`, `email`, `created_at`) — the shared one-hour cooldown ledger for every public intake form. Index on `(form_key, email, created_at)` |
 | 61 | `form_submissions_name` | Adds `name` to `form_submissions` + index — lets the repeat limit count an identity rather than just an address |
+| 62 | `add_preferred_language_to_users` | Adds `preferred_language TEXT` to `users` (`en`/`es`/`fr`, NULL = never chose). See [Internationalization](#internationalization-i18n) |
 
-**Next migration version: 62**
+**Next migration version: 63**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -409,7 +410,8 @@ Managed in `portal/server/src/database.ts`. Rules:
 |---|---|---|---|
 | POST | `/login` | — | Returns `{ token, user }`; stamps `last_login` on the user row |
 | POST | `/register` | — | Accepts `name, email, company, password, role` |
-| GET | `/me` | requireAuth | Returns current user |
+| GET | `/me` | requireAuth | Returns current user, including `preferred_language` |
+| PUT | `/me/language` | requireAuth | `{ language: 'en' \| 'es' \| 'fr' }` — saves the caller's own language; 400 on anything else. Login also returns `preferred_language` |
 | POST | `/forgot-password` | — | Accepts `email`; generates reset token (1hr expiry); sends `portal_password_reset` email; always returns `{ ok: true }` (no enumeration) |
 | POST | `/reset-password` | — | Accepts `token, password`; validates token + expiry; updates password hash; clears token fields |
 
@@ -1765,13 +1767,43 @@ Tests: `src/__tests__/routes/packshot-catalog.test.ts` (24 tests) covers the gua
 approved-survives-discontinue invariant, the unique index rejecting a second primary on a raw
 write, and that an unapproved primary never reaches the public catalog.
 
+## Internationalization (i18n)
+
+Languages: **English (default), Spanish, French.** Stack: `i18next` + `react-i18next` +
+`i18next-browser-languagedetector` + `i18next-resources-to-backend`, set up separately in each
+app (`src/i18n/` and `portal/client/src/i18n/`, near-identical copies — edit both).
+
+- **Detection:** explicit pick in `localStorage` (`sliquid_language`) → browser language →
+  English. `nonExplicitSupportedLngs` maps `fr-CA`/`es-MX` onto `fr`/`es`. **No IP detection**
+  (decided). The detected browser language is deliberately *not* cached — only
+  `setLanguage()` persists, so a later browser-language change is still noticed.
+- **Portal accounts:** `users.preferred_language` (v62). `AuthContext` applies it on login and
+  session restore (`applyAccountLanguage`); the portal `LanguageSwitcher` saves it via
+  `PUT /api/auth/me/language`. It is the field future email/caption language will key on.
+- **`<html lang>`** is kept in step on every change (WCAG 3.1.1).
+- **Loading:** English is bundled; es/fr load via `import.meta.glob` as content-hashed chunks.
+  ⚠️ Not `i18next-http-backend` — fixed `/locales/*.json` URLs would be served stale by
+  Cloudflare after a translation update.
+- **Translations:** `i18n/locales/{en,es,fr}/common.json`. `src/__tests__/i18n.test.ts` fails
+  if any es/fr file (in **either** app) is missing a key or has an empty value.
+- **Switcher:** native `<select>` in the marketing TopBar and portal TopBar; each option is
+  labelled in its own language with a `lang` attribute.
+- Rollout plan: Phase 1 (this) is the foundation — only the skip link and switcher label are
+  translated so far. Next: marketing pages, portal UI, YouTube caption tracks
+  (`cc_lang_pref`), per-language email templates. Captivate SCORM quizzes can't be translated
+  from code (text is compiled into `project.js`); they need per-language re-exports.
+
+⚠️ Node 26 (this machine's default) ships an experimental global `localStorage` that shadows
+jsdom's and is undefined in tests; `src/__tests__/setup.ts` installs an in-memory shim when that
+happens.
+
 ## Conventions
 
 - **Styling:** Tailwind only. Use the custom tokens (`bg-surface`, `bg-portal-bg`, `bg-surface-elevated`, `border-portal-border`, `text-portal-accent`) — do not use raw colors for structural elements.
 - **Icons:** `lucide-react` exclusively.
 - **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export), public pre-auth calls (e.g., `/api/stores` from RegisterPage), and the public certificate verify page use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **62**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **63**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
 - **`AnnouncementBody.tsx` is duplicated** in `src/components/` and `portal/client/src/components/`.

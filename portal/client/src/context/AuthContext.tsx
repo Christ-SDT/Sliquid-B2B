@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import { api, setToken, clearToken } from '@/api/client'
 import type { User } from '@/types'
+import { applyAccountLanguage } from '@/i18n'
 
 interface AuthState {
   user: User | null
@@ -29,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = localStorage.getItem('portal_token')
     if (!token) { setLoading(false); return }
     api.get<User>('/auth/me')
-      .then(setUser)
+      .then(u => { setUser(u); applyAccountLanguage(u.preferred_language) })
       .catch(() => clearToken())
       .finally(() => setLoading(false))
   }, [])
@@ -38,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await api.post<{ token: string; user: User }>('/auth/login', { email, password })
     setToken(res.token)
     setUser(res.user)
+    applyAccountLanguage(res.user.preferred_language)
   }
 
   async function register(name: string, email: string, company: string, password: string, requestedRole?: string) {

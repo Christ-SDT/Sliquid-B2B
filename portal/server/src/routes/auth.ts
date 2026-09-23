@@ -40,7 +40,10 @@ router.post('/login', loginLimiter, (req, res) => {
   const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' })
   res.json({
     token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role, company: user.company, status: user.status },
+    user: {
+      id: user.id, name: user.name, email: user.email, role: user.role, company: user.company, status: user.status,
+      preferred_language: user.preferred_language ?? null,
+    },
   })
 })
 
@@ -92,7 +95,21 @@ router.post('/register', loginLimiter, async (req, res) => {
 })
 
 router.get('/me', requireAuth, (req, res) => {
-  res.json(req.user)
+  const row = db.prepare('SELECT preferred_language FROM users WHERE id = ?').get(req.user!.id) as
+    { preferred_language: string | null } | undefined
+  res.json({ ...req.user, preferred_language: row?.preferred_language ?? null })
+})
+
+// Must match SUPPORTED_LANGUAGES in both clients' i18n setup.
+export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr'] as const
+
+router.put('/me/language', requireAuth, (req, res) => {
+  const { language } = req.body ?? {}
+  if (!SUPPORTED_LANGUAGES.includes(language)) {
+    return res.status(400).json({ message: `language must be one of: ${SUPPORTED_LANGUAGES.join(', ')}` })
+  }
+  db.prepare('UPDATE users SET preferred_language = ? WHERE id = ?').run(language, req.user!.id)
+  res.json({ ok: true, preferred_language: language })
 })
 
 // ─── Forgot password ──────────────────────────────────────────────────────────

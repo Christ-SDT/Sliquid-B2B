@@ -1327,6 +1327,21 @@ const migrations: Migration[] = [
       `)
     },
   },
+  {
+    version: 62,
+    name: 'add_preferred_language_to_users',
+    // NULL = the user never chose; the client falls back to browser language.
+    // Stored server-side so the choice follows the user across devices, and so
+    // emails/captions can be sent in it later.
+    up: () => {
+      const cols = (
+        db.prepare("SELECT name FROM pragma_table_info('users')").all() as { name: string }[]
+      ).map(c => c.name)
+      if (!cols.includes('preferred_language')) {
+        db.exec('ALTER TABLE users ADD COLUMN preferred_language TEXT')
+      }
+    },
+  },
 ]
 
 function runMigrations(): void {
