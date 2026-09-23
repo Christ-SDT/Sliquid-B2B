@@ -4,11 +4,8 @@ import { Trans, useTranslation } from 'react-i18next'
 import { API_BASE } from '@/utils/constants'
 import { formatDate, isoDate } from '@/utils/date'
 import type { Announcement } from '@/types'
+import { htmlToText } from '@/utils/htmlToText'
 
-function stripHtml(html?: string | null): string {
-  if (!html) return ''
-  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
-}
 
 function SkeletonCard() {
   return (
@@ -25,7 +22,7 @@ function SkeletonCard() {
 
 function AnnouncementCard({ a, featured = false }: { a: Announcement; featured?: boolean }) {
   const { t } = useTranslation('news')
-  const excerpt = stripHtml(a.excerpt)
+  const excerpt = htmlToText(a.excerpt)
 
   return (
     <Link

@@ -4,14 +4,11 @@ import { Megaphone, Pin, ArrowRight, ExternalLink } from 'lucide-react'
 import { api } from '@/api/client'
 import type { Announcement } from '@/types'
 import { formatDate } from '@/lib/utils'
+import { htmlToText } from '@/lib/htmlToText'
 
-function stripHtml(html?: string | null): string {
-  if (!html) return ''
-  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
-}
 
 function AnnouncementCard({ a }: { a: Announcement }) {
-  const excerpt = stripHtml(a.excerpt)
+  const excerpt = htmlToText(a.excerpt)
 
   return (
     <Link

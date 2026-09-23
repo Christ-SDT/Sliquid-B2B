@@ -7,7 +7,7 @@
   "holding": {
     "heading": "How We Hold Your Data",
     "mailchimp": "Sliquid uses <bold>Mailchimp</bold> (operated by The Rocket Science Group, LLC) as our email marketing platform. When you sign up to receive communications from us through our website, a trade show, or another channel, your name, email address, and any associated preferences are stored in Mailchimp's systems. Mailchimp processes this data on our behalf under a data processing agreement compliant with GDPR.",
-    "database": "In addition to Mailchimp, we may store submission data (such as retailer applications, contact form entries, and booth intake forms) in our own secure database hosted on Railway infrastructure in order to fulfil your request and maintain a record of consent.",
+    "database": "In addition to Mailchimp, we may store submission data (such as retailer applications, contact form entries, and booth intake forms) in our own secure database hosted on Railway infrastructure in order to fulfill your request and maintain a record of consent.",
     "noSale": "We do not sell your personal data to any third party. For full details, see our <cta>Privacy Policy</cta>."
   },
   "tabs": {

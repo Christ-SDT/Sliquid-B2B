@@ -4,6 +4,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { API_BASE } from '@/utils/constants'
 import { formatDate } from '@/utils/date'
 import type { Announcement } from '@/types'
+import { htmlToText } from '@/utils/htmlToText'
 
 /**
  * The news on this page is now live, driven by WordPress press releases via the
@@ -24,16 +25,12 @@ type Article = {
   featured: boolean
 }
 
-function stripHtml(html?: string | null): string {
-  if (!html) return ''
-  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
-}
 
 function toArticle(a: Announcement, index: number): Article {
   return {
     id: String(a.id),
     title: a.title,
-    excerpt: stripHtml(a.excerpt),
+    excerpt: htmlToText(a.excerpt),
     category: 'Press Release',
     date: a.published_at ?? '',
     imageUrl: a.image_url ?? null,
