@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Trans, useTranslation } from 'react-i18next'
 import { API_BASE } from '@/utils/constants'
 import { formatDate, isoDate } from '@/utils/date'
 import type { Announcement } from '@/types'
@@ -23,6 +24,7 @@ function SkeletonCard() {
 }
 
 function AnnouncementCard({ a, featured = false }: { a: Announcement; featured?: boolean }) {
+  const { t } = useTranslation('news')
   const excerpt = stripHtml(a.excerpt)
 
   return (
@@ -45,7 +47,7 @@ function AnnouncementCard({ a, featured = false }: { a: Announcement; featured?:
       <div className="p-6 flex flex-col flex-1">
         <div className="flex items-center gap-3 mb-3">
           <span className="bg-bg-light-blue text-sliquid-blue text-xs font-semibold px-2.5 py-1 rounded-full">
-            Press Release
+            {t('pressRelease')}
           </span>
           <time
             dateTime={isoDate(a.published_at)}
@@ -71,7 +73,7 @@ function AnnouncementCard({ a, featured = false }: { a: Announcement; featured?:
           className="inline-flex items-center gap-1.5 text-sliquid-blue font-semibold text-sm mt-5
                      group-hover:gap-3 transition-all duration-150"
         >
-          Read more
+          {t('readMore')}
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
@@ -82,6 +84,7 @@ function AnnouncementCard({ a, featured = false }: { a: Announcement; featured?:
 }
 
 export default function AnnouncementsPage() {
+  const { t } = useTranslation('news')
   const [items, setItems] = useState<Announcement[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -95,7 +98,7 @@ export default function AnnouncementsPage() {
         return r.json()
       })
       .then((data: Announcement[]) => setItems(data))
-      .catch(() => setError('Unable to load announcements. Please try again later.'))
+      .catch(() => setError('loadError'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -107,26 +110,25 @@ export default function AnnouncementsPage() {
       <section className="bg-bg-off-white border-b border-gray-100 py-12 px-4 sm:px-6">
         <div className="max-w-[1240px] mx-auto">
           <p className="text-sliquid-blue text-sm font-semibold uppercase tracking-widest mb-2">
-            Newsroom
+            {t('newsroom')}
           </p>
           <h1 className="text-text-dark text-[36px] font-semibold tracking-[-0.5px] leading-tight">
-            Announcements
+            {t('announcements.title')}
           </h1>
           <p className="text-text-gray text-lg mt-4 max-w-2xl leading-relaxed">
-            Official Sliquid press releases — product launches, awards, distribution
-            news, and company milestones.
+            {t('announcements.intro')}
           </p>
         </div>
       </section>
 
       <section className="py-14 md:py-20" aria-labelledby="announcements-heading">
         <h2 id="announcements-heading" className="sr-only">
-          Press releases
+          {t('announcements.listHeading')}
         </h2>
         <div className="max-w-[1240px] mx-auto px-6">
           {error && (
             <div className="rounded-card border border-gray-100 bg-bg-off-white p-8 text-center">
-              <p className="text-text-gray">{error}</p>
+              <p className="text-text-gray">{t(`announcements.${error}`)}</p>
             </div>
           )}
 
@@ -136,13 +138,15 @@ export default function AnnouncementsPage() {
             </div>
           ) : !error && items.length === 0 ? (
             <div className="rounded-card border border-gray-100 bg-bg-off-white p-12 text-center">
-              <p className="text-text-dark font-semibold text-lg">No announcements yet</p>
+              <p className="text-text-dark font-semibold text-lg">{t('announcements.emptyTitle')}</p>
               <p className="text-text-gray mt-2">
-                Check back soon, or{' '}
-                <Link to="/contact" className="text-sliquid-blue font-medium hover:underline">
-                  get in touch
-                </Link>{' '}
-                with our press team.
+                <Trans
+                  t={t}
+                  i18nKey="announcements.emptyBody"
+                  components={{
+                    contactLink: <Link to="/contact" className="text-sliquid-blue font-medium hover:underline" />,
+                  }}
+                />
               </p>
             </div>
           ) : (

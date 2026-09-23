@@ -1,0 +1,56 @@
+{
+  "header": {
+    "eyebrow": "Erospain 2026",
+    "title": "Formulario de registro de socios",
+    "intro": "Complete el siguiente formulario y nos pondremos en contacto con usted. Recibirá un correo de confirmación para completar su registro."
+  },
+  "success": {
+    "title": "¡Gracias!",
+    "body": "Gracias por completar nuestro formulario de registro. Revise su bandeja de entrada: recibirá un correo de confirmación y deberá hacer clic en el enlace para completar su registro.",
+    "spam": "Si no lo ve, revise su carpeta de correo no deseado.",
+    "reset_one": "Este formulario se restablecerá en <count>{{count}}</count> segundo…",
+    "reset_other": "Este formulario se restablecerá en <count>{{count}}</count> segundos…"
+  },
+  "gdprNotice": "<bold>Importante: doble confirmación y RGPD.</bold> Al enviar este formulario, usted manifiesta su interés en recibir comunicaciones de Sliquid. Recibirá un correo de confirmación aparte en el que <bold>debe hacer clic</bold> para completar su registro. Puede darse de baja en cualquier momento. Tratamos sus datos de conformidad con el RGPD. Nunca venderemos ni compartiremos su información.",
+  "fields": {
+    "name": "Nombre completo",
+    "namePlaceholder": "Ana García",
+    "email": "Correo electrónico",
+    "emailPlaceholder": "ana@suempresa.com",
+    "businessName": "Nombre de la empresa",
+    "businessNamePlaceholder": "Su Empresa S.L.",
+    "businessType": "Tipo de negocio",
+    "businessTypePlaceholder": "Seleccione un tipo…",
+    "storeNames": "Nombre(s) de la(s) tienda(s)",
+    "storeNamesPlaceholder": "p. ej., Boutique Centro, Plaza Mayor",
+    "storeCount": "Número de tiendas",
+    "storeCountPlaceholder": "p. ej., 3",
+    "websiteUrl": "URL del sitio web",
+    "websiteUrlPlaceholder": "https://sutienda.com",
+    "contactName": "Nombre del contacto de la empresa",
+    "contactNamePlaceholder": "Contacto principal de su empresa",
+    "contactPhone": "Teléfono de contacto de la empresa + extensión",
+    "contactPhonePlaceholder": "p. ej., +34 91 234 5678 ext. 101",
+    "consent": "Doy mi consentimiento para que Sliquid almacene y utilice mi información para enviarme novedades de productos y comunicaciones de marketing. Entiendo que recibiré un correo de confirmación para completar mi registro y que puedo darme de baja en cualquier momento haciendo clic en el enlace para cancelar la suscripción en cualquier correo que reciba."
+  },
+  "businessTypes": {
+    "Retailer": "Minorista",
+    "Distribution": "Distribución",
+    "E-Commerce": "Comercio electrónico",
+    "Other": "Otro"
+  },
+  "errors": {
+    "nameRequired": "El nombre completo es obligatorio.",
+    "emailInvalid": "Se requiere un correo electrónico válido.",
+    "businessNameRequired": "El nombre de la empresa es obligatorio.",
+    "businessTypeRequired": "Seleccione un tipo de negocio.",
+    "storeNamesRequired": "Introduzca el nombre de su(s) tienda(s).",
+    "websiteUrlRequired": "La URL del sitio web es obligatoria para negocios de comercio electrónico.",
+    "contactNameRequired": "El nombre del contacto es obligatorio.",
+    "consentRequired": "Debe dar su consentimiento para continuar.",
+    "generic": "Algo salió mal. Inténtelo de nuevo."
+  },
+  "submit": "Enviar",
+  "submitting": "Enviando…",
+  "copyright": "© {{year}} Sliquid, LLC · Todos los derechos reservados"
+}

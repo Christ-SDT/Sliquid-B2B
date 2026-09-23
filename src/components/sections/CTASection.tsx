@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import emailjs from '@emailjs/browser'
+import { useTranslation } from 'react-i18next'
 import { sanitizeText } from '@/utils/sanitize'
 import {
   EMAILJS_PUBLIC_KEY,
@@ -8,6 +9,7 @@ import {
 } from '@/utils/constants'
 
 export default function CTASection() {
+  const { t } = useTranslation('home')
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
@@ -17,7 +19,7 @@ export default function CTASection() {
     const clean = sanitizeText(email.trim())
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRe.test(clean)) {
-      setError('Please enter a valid email address.')
+      setError(t('cta.invalidEmail'))
       return
     }
     setError('')
@@ -44,12 +46,12 @@ export default function CTASection() {
         >
           <div className="flex-1">
             <h2 className="text-text-dark text-[28px] font-semibold mb-2">
-              Stay updated with the latest Sliquid news
+              {t('cta.heading')}
             </h2>
 
             {submitted ? (
               <p className="text-sliquid-blue font-semibold mt-3">
-                Thank you for subscribing!
+                {t('cta.thanks')}
               </p>
             ) : (
               <form
@@ -59,14 +61,14 @@ export default function CTASection() {
               >
                 <div className="flex-1">
                   <label htmlFor="cta-email" className="sr-only">
-                    Email address
+                    {t('cta.emailLabel')}
                   </label>
                   <input
                     id="cta-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@company.com"
+                    placeholder={t('cta.placeholder')}
                     maxLength={254}
                     autoComplete="email"
                     className="w-full px-4 py-2.5 text-sm border border-gray-500 rounded-lg
@@ -89,7 +91,7 @@ export default function CTASection() {
                   className="bg-sliquid-blue hover:bg-sliquid-dark-blue text-white font-semibold
                              px-6 py-2.5 rounded-lg text-sm transition-colors duration-150 whitespace-nowrap"
                 >
-                  Subscribe
+                  {t('cta.subscribe')}
                 </button>
               </form>
             )}

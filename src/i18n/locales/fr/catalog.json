@@ -1,0 +1,51 @@
+{
+  "header": {
+    "eyebrow": "Catalogue de produits",
+    "title": "Des produits sans danger pour le corps, <lineBreak/>formulés en toute transparence",
+    "body": "Découvrez notre gamme complète de produits de bien-être intime. Chaque formule est sans glycérine, sans parabènes et conçue pour être sans danger pour le corps. Les prix de gros et les commandes des partenaires sont offerts dans le <portalLink>portail des partenaires</portalLink>."
+  },
+  "filters": {
+    "brandGroup": "Filtrer par marque",
+    "all": "Toutes",
+    "searchLabel": "Rechercher des produits",
+    "searchPlaceholder": "p. ex. Naturals, Satin…"
+  },
+  "results": {
+    "count_one": "{{count}} produit",
+    "count_other": "{{count}} produits",
+    "loadError": "Impossible de charger le catalogue de produits. Veuillez réessayer plus tard.",
+    "empty": "Aucun produit trouvé",
+    "clearSearch": "Effacer la recherche"
+  },
+  "product": {
+    "new": "Nouveau",
+    "inStock": "En stock",
+    "outOfStock": "En rupture de stock",
+    "outShort": "Rupture",
+    "msrp": "PDSF",
+    "priceInPortal": "Prix offert dans le portail",
+    "close": "Fermer",
+    "category": "Catégorie",
+    "casePack": "Unités par caisse",
+    "casePackUnits_one": "{{count}} unité",
+    "casePackUnits_other": "{{count}} unités",
+    "caseWeight": "Poids de la caisse",
+    "unitDimensions": "Dimensions de l’unité",
+    "caseDimensions": "Dimensions de la caisse",
+    "effective": "En vigueur le 1er janvier 2026"
+  },
+  "retailerCta": {
+    "eyebrow": "Devenez partenaire",
+    "title": "Devenez détaillant Sliquid",
+    "body": "Offrez la marque d’intimité sans danger pour le corps la plus fiable du secteur. Sliquid propose un soutien marketing dédié, du matériel de marchandisage prêt à utiliser et une équipe déterminée à aider votre magasin à mieux vendre et à croître en toute confiance.",
+    "benefits": {
+      "marketing": "Soutien marketing dédié",
+      "merchandising": "Matériel de marchandisage en magasin",
+      "training": "Ressources de formation pour le personnel",
+      "minimums": "Minimums de commande flexibles",
+      "formulas": "Formules saines et sans danger pour le corps",
+      "trust": "Plus de 20 ans de confiance envers la marque"
+    },
+    "button": "Faire une demande pour devenir détaillant"
+  }
+}

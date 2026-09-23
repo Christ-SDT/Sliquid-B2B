@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "ariaLabel": "Hero banner",
+    "title": "Everything Sliquid retailers need in one place.",
+    "body": "Your hub for product education, staff training, downloadable assets, and partner resources to support your business every step of the way.",
+    "becomeRetailer": "Become a Retailer",
+    "partnerPortal": "Partner Portal"
+  },
+  "strategy": {
+    "heading": "A Smarter Way to Grow Together",
+    "intro": "A smarter way to grow together means more than just access to tools, it means having Sliquid’s marketing team as an extension of your own, ready to support, strategize, and help you drive results.",
+    "cards": {
+      "retailers": {
+        "title": "Retailers",
+        "description": "Streamline your workflow, elevate your in-store and online presence, and connect directly with our marketing team so you can move faster, sell smarter, and grow with confidence.",
+        "imageAlt": "Sliquid Organics Natural lubricant collection on a clean surface",
+        "linkLabel": "Browse our catalog"
+      },
+      "health-practitioners": {
+        "title": "Health Practitioners",
+        "description": "Support your practice with access to clinical resources, educational sheets, and patient-ready samples, designed to complement your care and help you better serve your patients.",
+        "imageAlt": "Sliquid Soothe intimate wellness product group with reflections",
+        "linkLabel": "Learn about our program"
+      },
+      "global-distributors": {
+        "title": "Global Distributors",
+        "description": "Equip your marketing and sales teams with ready-to-use resources to share with customers, driving stronger sell-through while strengthening collaboration with the Sliquid marketing team.",
+        "imageAlt": "RIDE Lube water-based lubricant product lineup",
+        "linkLabel": "Request more info"
+      }
+    }
+  },
+  "stats": {
+    "heading": "A truly integrated health & wellness ecosystem",
+    "body": "As part of the Sliquid family, you gain access to a growing network spanning retail and digital channels. Our physical and digital footprint works alongside our product innovation to help you deliver genuinely healthy, meaningful benefits to your customers.",
+    "items": {
+      "years": "years in the industry, making it one of the few true legacy brands in intimate wellness.",
+      "skus": "SKUs across multiple collections, covering lubricants, bath & body, and wellness categories.",
+      "customers": "Customers who trust Sliquid for body-safe wellness.",
+      "zero": "unnecessary ingredients philosophy, formulated with 0 glycerin, 0 parabens, and 0 sugar derivatives, which is a defining differentiator in the category."
+    }
+  },
+  "brands": {
+    "heading": "More brands. More reach. More opportunity.",
+    "body": "The Sliquid family doesn't stop there. With RIDE Lube's LGBTQ+ focused branding and the Ride Rocco signature collection, our portfolio gives partners access to a broader, more specialized range of wellness products.",
+    "cta": "Explore our sister brands",
+    "imageAlt": "Sliquid, RIDE Lube, and Ride Rocco product collection",
+    "labelSubtitle": "Performance lubricants & signature collections"
+  },
+  "ceo": {
+    "heading": "Message from the CEO",
+    "quote": "\"Welcome to Sliquid HQ! We’re so glad you’re here. This space was created with you in mind, our retail and medical partners, to give you easy access to information and resources that support your work. Everything here is designed to help you feel confident and informed as you share the Sliquid mission with your customers and patients.\"",
+    "role": "Co-Founder & CEO"
+  },
+  "cta": {
+    "heading": "Stay updated with the latest Sliquid news",
+    "thanks": "Thank you for subscribing!",
+    "emailLabel": "Email address",
+    "placeholder": "your@company.com",
+    "invalidEmail": "Please enter a valid email address.",
+    "subscribe": "Subscribe"
+  }
+}

@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { sanitizeText } from '@/utils/sanitize'
+import { useTranslation } from 'react-i18next'
 import { NAV_LINKS } from '@/utils/constants'
 
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('')
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { t } = useTranslation()
   const mobileToggleRef = useRef<HTMLButtonElement>(null)
 
   // Escape closes the mobile drawer and returns focus to the trigger that opened it,
@@ -44,7 +46,7 @@ export default function Header() {
           <Link
             to="/"
             className="flex items-center flex-shrink-0"
-            aria-label="Sliquid HQ home"
+            aria-label={t('header.homeLink')}
           >
             <img
               src="https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/dd9edfe4-5d10-40c8-9eb4-365fb5dbfd80.svg"
@@ -54,7 +56,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-5 lg:gap-8" aria-label="Main navigation">
+          <nav className="hidden md:flex items-center gap-5 lg:gap-8" aria-label={t('header.mainNav')}>
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.href}
@@ -67,7 +69,7 @@ export default function Header() {
                   }`
                 }
               >
-                {link.label}
+                {link.labelKey ? t(`nav.${link.labelKey}`) : link.label}
               </NavLink>
             ))}
           </nav>
@@ -84,10 +86,10 @@ export default function Header() {
                   type="search"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  placeholder="Search"
+                  placeholder={t('header.searchPlaceholder')}
                   maxLength={100}
                   autoComplete="off"
-                  aria-label="Search"
+                  aria-label={t('header.search')}
                   className="w-[200px] pl-10 pr-4 py-2 text-sm border border-gray-500 rounded-full
                              focus:outline-none focus:ring-2 focus:ring-sliquid-blue focus:border-transparent
                              bg-bg-off-white text-text-dark placeholder:text-text-light-gray"
@@ -113,7 +115,7 @@ export default function Header() {
               onClick={() => setMobileOpen((prev) => !prev)}
               className="md:hidden p-2 rounded-md text-text-gray hover:text-sliquid-blue
                          focus:outline-none focus:ring-2 focus:ring-sliquid-blue"
-              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-label={mobileOpen ? t('header.closeMenu') : t('header.openMenu')}
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav"
             >
@@ -137,7 +139,7 @@ export default function Header() {
           id="mobile-nav"
           hidden={!mobileOpen}
           className="md:hidden pb-4 pt-2 border-t border-gray-100"
-          aria-label="Mobile navigation"
+          aria-label={t('header.mobileNav')}
         >
           <ul className="space-y-1">
               {NAV_LINKS.map((link) => (
@@ -153,7 +155,7 @@ export default function Header() {
                       }`
                     }
                   >
-                    {link.label}
+                    {link.labelKey ? t(`nav.${link.labelKey}`) : link.label}
                   </NavLink>
                 </li>
               ))}
@@ -166,10 +168,10 @@ export default function Header() {
                   type="search"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  placeholder="Search"
+                  placeholder={t('header.searchPlaceholder')}
                   maxLength={100}
                   autoComplete="off"
-                  aria-label="Search"
+                  aria-label={t('header.search')}
                   className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-500 rounded-full
                              focus:outline-none focus:ring-2 focus:ring-sliquid-blue bg-bg-off-white"
                 />

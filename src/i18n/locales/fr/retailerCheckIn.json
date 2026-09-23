@@ -1,0 +1,83 @@
+{
+  "applyInstead": "Devenir détaillant",
+  "gate": {
+    "eyebrow": "Partenaires Sliquid",
+    "title": "Avant de commencer : votre magasin offre-t-il déjà Sliquid?",
+    "body": "Cette page s’adresse uniquement aux partenaires qui offrent déjà nos produits. Si ce n’est pas encore votre cas, nous serions ravis d’en discuter : nous vous dirigerons vers le bon formulaire.",
+    "yes": "Oui — nous sommes déjà détaillant Sliquid",
+    "no": "Pas encore — nous aimerions le devenir"
+  },
+  "declined": {
+    "title": "Commençons par votre inscription",
+    "body": "Cette page s’adresse aux magasins qui offrent déjà Sliquid. Pour devenir partenaire, il suffit de remplir un court formulaire; notre équipe des ventes répond habituellement d’ici 2 à 3 jours ouvrables.",
+    "back": "En fait, nous offrons Sliquid — revenir en arrière"
+  },
+  "thanks": {
+    "title": "Merci — c’est bien reçu.",
+    "body": "Merci d’avoir pris contact avec nous, et merci pour toutes ces années à offrir Sliquid sur vos tablettes. Votre personne-ressource fera un suivi sous peu.",
+    "reference": "Votre numéro de référence",
+    "done": "Terminé"
+  },
+  "hero": {
+    "eyebrow": "Pour nos partenaires actuels",
+    "title": "Merci d’avoir toujours été là.",
+    "body": "Chaque flacon sur vos tablettes est un choix que vous avez fait pour appuyer un bien-être intime sans danger pour le corps — et après vingt ans, c’est toujours l’essence de notre entreprise. Nous ne le prenons pas à la légère.",
+    "newLook": "Nous avons renouvelé l’image de Sliquid et notre façon de travailler avec vous. <bold>Alors, que pensez-vous de notre nouvelle image?</bold> Dites-le-nous ci-dessous, et faites-nous savoir ce dont vous avez besoin."
+  },
+  "brands": {
+    "heading": "Les marques sur vos tablettes",
+    "body": "Trois maisons, une seule norme. Toutes les formules des trois marques respectent les mêmes critères de sécurité : sans glycérine, sans parabènes, sans dérivés de sucre.",
+    "visit": "Visiter {{name}} →"
+  },
+  "form": {
+    "heading": "Donnez-nous de vos nouvelles",
+    "intro": "Seuls trois champs sont vraiment nécessaires — les autres nous aident simplement à vous servir plus rapidement.",
+    "company": "Nom du magasin / de l’entreprise",
+    "name": "Votre nom",
+    "email": "Courriel",
+    "phone": "Téléphone",
+    "pointOfContact": "Qui est votre personne-ressource chez Sliquid?",
+    "selectContact": "Sélectionnez une personne-ressource…",
+    "contactHelp": "Il n’y a pas de mauvaise réponse — si vous n’êtes pas certain, choisissez la dernière option et nous vous dirigerons.",
+    "contacts": {
+      "michelle": "Michelle Marcus — Vice-présidente des ventes",
+      "colin": "Colin Roy — Premier vice-président",
+      "erik": "Erik Vasquez — Vice-président du marketing",
+      "distributor": "Mon représentant chez le distributeur",
+      "notSure": "Je ne suis pas certain / Je n’en ai pas"
+    },
+    "brandsCarried": "Quelles marques offrez-vous?",
+    "interestsHeading": "Comment pouvons-nous vous aider dès maintenant?",
+    "interests": {
+      "reorder": "Commander de nouveau / passer une commande",
+      "launches": "Nouveaux produits et lancements",
+      "inStore": "Matériel de marketing en magasin",
+      "training": "Formation et certification du personnel",
+      "images": "Images et textes de produits à jour",
+      "storeLocator": "Inscription au localisateur de magasins",
+      "pricing": "Question sur la politique MAP ou les prix"
+    },
+    "feedbackHeading": "Que pensez-vous de notre nouvelle image?",
+    "feedback": {
+      "love": "J’adore",
+      "good": "C’est bien",
+      "notYet": "Je n’ai pas encore regardé",
+      "notes": "J’ai quelques commentaires"
+    },
+    "comments": "Autre chose à nous dire?",
+    "commentsPlaceholder": "Commentaires sur la nouvelle image, ce qui se vend, ce que vous aimeriez que nous fassions autrement…",
+    "submit": "Envoyer",
+    "submitting": "Envoi en cours…"
+  },
+  "errors": {
+    "companyRequired": "Le nom du magasin ou de l’entreprise est obligatoire.",
+    "nameRequired": "Votre nom est obligatoire.",
+    "emailInvalid": "Une adresse courriel valide est requise.",
+    "alreadyCheckedIn": "Vous nous avez déjà écrit récemment.",
+    "sendFailed": "Un problème est survenu lors de l’envoi de vos renseignements. Veuillez réessayer ou écrire directement à sales@sliquid.com."
+  },
+  "notRetailer": {
+    "title": "Vous êtes ici, mais n’offrez pas encore Sliquid?",
+    "body": "Quelqu’un vous a probablement transmis ce lien — et nous en sommes ravis. Notre demande pour les détaillants et distributeurs ne prend que quelques minutes."
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "header": {
+    "eyebrow": "Catálogo de productos",
+    "title": "Productos seguros para el cuerpo, <lineBreak/>formulados con transparencia",
+    "body": "Explore nuestra gama completa de productos de bienestar íntimo. Cada fórmula es libre de glicerina y de parabenos, y está elaborada para ser segura para el cuerpo. Los precios mayoristas y los pedidos para socios están disponibles en el <portalLink>portal de socios</portalLink>."
+  },
+  "filters": {
+    "brandGroup": "Filtrar por marca",
+    "all": "Todas",
+    "searchLabel": "Buscar productos",
+    "searchPlaceholder": "p. ej., Naturals, Satin…"
+  },
+  "results": {
+    "count_one": "{{count}} producto",
+    "count_other": "{{count}} productos",
+    "loadError": "No se pudo cargar el catálogo de productos. Inténtelo de nuevo más tarde.",
+    "empty": "No se encontraron productos",
+    "clearSearch": "Borrar búsqueda"
+  },
+  "product": {
+    "new": "Nuevo",
+    "inStock": "Disponible",
+    "outOfStock": "Agotado",
+    "outShort": "Agotado",
+    "msrp": "Precio sugerido",
+    "priceInPortal": "Precio disponible en el portal",
+    "close": "Cerrar",
+    "category": "Categoría",
+    "casePack": "Unidades por caja",
+    "casePackUnits_one": "{{count}} unidad",
+    "casePackUnits_other": "{{count}} unidades",
+    "caseWeight": "Peso de la caja",
+    "unitDimensions": "Dimensiones de la unidad",
+    "caseDimensions": "Dimensiones de la caja",
+    "effective": "Vigente a partir del 1 de enero de 2026"
+  },
+  "retailerCta": {
+    "eyebrow": "Asóciese con nosotros",
+    "title": "Conviértase en minorista de Sliquid",
+    "body": "Ofrezca la marca de intimidad segura para el cuerpo más confiable de la industria. Sliquid brinda apoyo de marketing dedicado, material de merchandising listo para usar y un equipo comprometido a ayudar a su tienda a vender mejor y crecer con confianza.",
+    "benefits": {
+      "marketing": "Apoyo de marketing dedicado",
+      "merchandising": "Material de merchandising para tienda",
+      "training": "Recursos de capacitación para el personal",
+      "minimums": "Pedidos mínimos flexibles",
+      "formulas": "Fórmulas limpias y seguras para el cuerpo",
+      "trust": "Más de 20 años de confianza en la marca"
+    },
+    "button": "Solicite ser minorista"
+  }
+}

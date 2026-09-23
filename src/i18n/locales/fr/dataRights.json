@@ -1,0 +1,54 @@
+{
+  "header": {
+    "eyebrow": "RGPD",
+    "title": "Vos droits relatifs à vos données",
+    "body": "En vertu du Règlement général sur la protection des données (RGPD), vous avez le droit d’accéder aux données personnelles que nous détenons à votre sujet et de demander leur suppression. Utilisez les formulaires ci-dessous pour exercer l’un ou l’autre de ces droits."
+  },
+  "holding": {
+    "heading": "Comment nous conservons vos données",
+    "mailchimp": "Sliquid utilise <bold>Mailchimp</bold> (exploité par The Rocket Science Group, LLC) comme plateforme de marketing par courriel. Lorsque vous vous inscrivez pour recevoir nos communications par l’entremise de notre site Web, d’un salon professionnel ou d’un autre canal, votre nom, votre adresse courriel et vos préférences associées sont conservés dans les systèmes de Mailchimp. Mailchimp traite ces données pour notre compte en vertu d’une entente de traitement des données conforme au RGPD.",
+    "database": "En plus de Mailchimp, nous pouvons conserver les données soumises (comme les demandes de détaillants, les formulaires de contact et les inscriptions à notre kiosque) dans notre propre base de données sécurisée, hébergée sur l’infrastructure de Railway, afin de traiter votre demande et de conserver une trace de votre consentement.",
+    "noSale": "Nous ne vendons pas vos données personnelles à des tiers. Pour tous les détails, consultez notre <cta>Politique de confidentialité</cta>."
+  },
+  "tabs": {
+    "groupLabel": "Type de demande",
+    "access": "Demander mes données",
+    "deletion": "Demander la suppression"
+  },
+  "access": {
+    "heading": "Demander l’accès à vos données",
+    "body": "En vertu de l’article 15 du RGPD, vous avez le droit d’obtenir la confirmation que nous traitons ou non vos données personnelles et d’en recevoir une copie. Nous répondrons dans un délai de <bold>30 jours</bold>. Votre demande sera également transmise à Mailchimp afin de récupérer les données qui y sont conservées pour votre compte."
+  },
+  "deletion": {
+    "heading": "Demander la suppression de vos données",
+    "body": "En vertu de l’article 17 du RGPD (« droit à l’oubli »), vous pouvez demander que nous effacions vos données personnelles. Nous traiterons votre demande dans un délai de <bold>30 jours</bold> et vous confirmerons une fois la suppression terminée.",
+    "whatGetsDeleted": "<bold>Ce qui est supprimé :</bold> Vos données seront retirées de notre audience Mailchimp et de notre base de données interne. Veuillez noter que nous pourrions être tenus de conserver certains dossiers en raison d’obligations légales ou contractuelles (p. ex., l’historique des commandes); le cas échéant, nous vous indiquerons ce qui ne peut pas être supprimé et pourquoi."
+  },
+  "form": {
+    "name": "Nom complet",
+    "email": "Adresse courriel",
+    "details": "Renseignements supplémentaires",
+    "optional": "(facultatif)",
+    "accessPlaceholder": "Décrivez les données auxquelles vous souhaitez accéder…",
+    "deletionPlaceholder": "Tout contexte supplémentaire concernant votre demande de suppression…",
+    "submitting": "Envoi en cours…",
+    "submitAccess": "Soumettre la demande d’accès",
+    "submitDeletion": "Soumettre la demande de suppression"
+  },
+  "errors": {
+    "nameRequired": "Le nom complet est obligatoire.",
+    "emailInvalid": "Une adresse courriel valide est requise.",
+    "alreadyReceived": "Nous avons déjà reçu cette demande.",
+    "generic": "Une erreur s’est produite. Veuillez réessayer."
+  },
+  "success": {
+    "title": "Demande reçue",
+    "access": "Nous avons bien reçu votre demande d’accès à vos données. Nous répondrons dans un délai de 30 jours, conformément à l’article 15 du RGPD.",
+    "deletion": "Nous avons bien reçu votre demande de suppression. Nous la traiterons dans un délai de 30 jours, conformément à l’article 17 du RGPD. Cela comprend la suppression de vos données de Mailchimp et de nos systèmes.",
+    "another": "Soumettre une autre demande"
+  },
+  "questions": {
+    "heading": "Des questions sur vos données?",
+    "body": "Si vous avez des questions sur la façon dont nous traitons vos données ou devez faire remonter une demande, écrivez-nous directement à <email>sales@sliquid.com</email>. Vous avez également le droit de déposer une plainte auprès de l’autorité de protection des données de votre région."
+  }
+}

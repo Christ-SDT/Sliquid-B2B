@@ -2,5 +2,101 @@
   "skipToContent": "Skip to main content",
   "language": {
     "label": "Language"
+  },
+  "brands": {
+    "sliquid": {
+      "tagline": "The original body-safe intimacy brand",
+      "description": "Sliquid has been pioneering clean intimate wellness since 2002. Every formula is glycerin-free, paraben-free, and crafted with body-safe ingredients, from the bestselling H2O water-based lubricant to our award-winning bath and body line. With 100+ SKUs spanning lubricants, cleansers, and massage oils, Sliquid is the trusted standard for retailers and healthcare practitioners worldwide.",
+      "imageAlt": "Sliquid H2O apart of the Naturals collection of body-safe lubricants"
+    },
+    "ride-lube": {
+      "tagline": "High performance products for men",
+      "description": "RIDE Lube is engineered for performance. The lineup includes water-based, silicone, hybrid, and specialty formulas, each designed for thickness, slipperiness, and endurance using ingredients suited for sensitive skin. Inclusive by design, RIDE Lube serves a broad audience including the LGBTQ+ community and features the T-Collection, developed specifically for transgender individuals. A high-velocity SKU for adult retailers seeking a loyal, performance-driven customer base.",
+      "imageAlt": "RIDE Lube water-based lubricant product group"
+    },
+    "ride-rocco": {
+      "tagline": "The gold standard of lube",
+      "description": "Developed in partnership with adult industry icon Rocco Steele, Ride Rocco is a premium lubricant collection built for shelf presence. Available in water-based, silicone, and the unique Seed hybrid formula, each product delivers the long-lasting endurance Rocco's audience expects, all manufactured to the same body-safe standards as RIDE Lube. The co-branded packaging drives impulse purchases and connects retailers with a dedicated, passionate fan base that follows Rocco across platforms.",
+      "imageAlt": "Ride Rocco signature water-based lubricant collection"
+    }
+  },
+  "nav": {
+    "ourBrands": "Our Brands",
+    "ingredients": "Ingredients",
+    "about": "About Us",
+    "announcements": "Announcements",
+    "mapPolicy": "MAP Policy",
+    "contact": "Contact",
+    "partnerPortal": "Partner Portal",
+    "productCatalog": "Product Catalog",
+    "healthPractitioners": "Health Practitioners"
+  },
+  "header": {
+    "homeLink": "Sliquid HQ home",
+    "mainNav": "Main navigation",
+    "mobileNav": "Mobile navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "search": "Search",
+    "searchPlaceholder": "Search"
+  },
+  "footer": {
+    "logoAlt": "Sliquid lotus",
+    "tagline": "Healthier happens together. Sliquid is dedicated to providing the cleanest, safest intimacy products to retailers and healthcare providers worldwide.",
+    "quickLinks": "Quick Links",
+    "otherSites": "Other Sites",
+    "contactHeading": "Contact",
+    "about": "About",
+    "careers": "Careers",
+    "contactUs": "Contact Us ›",
+    "copyright": "Copyright © {{year}} Sliquid, LLC. All rights reserved.",
+    "accessibility": "Accessibility",
+    "dataRights": "Your Data Rights",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use"
+  },
+  "titles": {
+    "home": "B2B Partner Portal",
+    "ourBrands": "Our Brands",
+    "ingredients": "Ingredients",
+    "about": "About Us",
+    "announcements": "Announcements",
+    "insights": "Insights",
+    "contact": "Contact",
+    "partnerLogin": "Partner Login",
+    "forgotPassword": "Forgot Password",
+    "resetPassword": "Reset Password",
+    "healthPractitioners": "Health Practitioners",
+    "becomeRetailer": "Become a Retailer",
+    "retailerCheckIn": "Retailer Check-In",
+    "catalog": "Product Catalog",
+    "mapPolicy": "MAP Policy",
+    "privacyPolicy": "Privacy Policy",
+    "accessibility": "Accessibility",
+    "dataRights": "Your Data Rights",
+    "terms": "Terms of Use",
+    "erospain": "Erospain 2026",
+    "register": "Create Account",
+    "announcement": "Announcement",
+    "notFound": "Page Not Found"
+  },
+  "notFound": {
+    "heading": "Page Not Found",
+    "body": "The page you are looking for does not exist or has been moved.",
+    "backHome": "Back to Home"
+  },
+  "cooldown": {
+    "heading": "Already received — thank you.",
+    "submission_one": "We've already received your submission — our team is on it. You can send another in about {{count}} minute.",
+    "submission_other": "We've already received your submission — our team is on it. You can send another in about {{count}} minutes.",
+    "message_one": "We've already received your message — our team is on it. You can send another in about {{count}} minute.",
+    "message_other": "We've already received your message — our team is on it. You can send another in about {{count}} minutes.",
+    "application_one": "We've already received your application — our team is on it. You can send another in about {{count}} minute.",
+    "application_other": "We've already received your application — our team is on it. You can send another in about {{count}} minutes.",
+    "request_one": "We've already received your request — our team is on it. You can send another in about {{count}} minute.",
+    "request_other": "We've already received your request — our team is on it. You can send another in about {{count}} minutes.",
+    "checkIn_one": "We've already received your check-in — our team is on it. You can send another in about {{count}} minute.",
+    "checkIn_other": "We've already received your check-in — our team is on it. You can send another in about {{count}} minutes.",
+    "urgent": "Need something urgently in the meantime? Email <email>sales@sliquid.com</email>."
   }
 }

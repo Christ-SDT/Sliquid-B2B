@@ -1,0 +1,62 @@
+{
+  "pressRelease": "Comunicado de prensa",
+  "readMore": "Leer más",
+  "newsroom": "Sala de prensa",
+  "announcements": {
+    "title": "Anuncios",
+    "intro": "Comunicados de prensa oficiales de Sliquid: lanzamientos de productos, premios, noticias de distribución e hitos de la empresa.",
+    "listHeading": "Comunicados de prensa",
+    "loadError": "No se pudieron cargar los anuncios. Inténtelo de nuevo más tarde.",
+    "emptyTitle": "Aún no hay anuncios",
+    "emptyBody": "Vuelva pronto o <contactLink>comuníquese</contactLink> con nuestro equipo de prensa."
+  },
+  "detail": {
+    "backToAll": "Todos los anuncios",
+    "viewOnSliquid": "Ver en sliquid.com",
+    "docTitleLoading": "Anuncio",
+    "docTitleNotFound": "Anuncio no encontrado",
+    "notFoundTitle": "Anuncio no encontrado",
+    "notFoundBody": "Es posible que este anuncio se haya eliminado o que el enlace sea incorrecto."
+  },
+  "insights": {
+    "eyebrow": "Centro de conocimiento",
+    "title": "Perspectivas y noticias del sector",
+    "intro": "Manténgase al día con los lanzamientos de productos de Sliquid, novedades de distribución, perspectivas de liderazgo y contenido educativo diseñado específicamente para nuestros socios B2B.",
+    "searchResults": "Resultados para: <query>\"{{query}}\"</query> — <clearLink>borrar búsqueda</clearLink>",
+    "filterLabel": "Filtrar artículos por categoría",
+    "allCategories": "Todos",
+    "noArticles": "No se encontraron artículos.",
+    "viewAll": "Ver todos los artículos",
+    "featured": "Destacado",
+    "readFullArticle": "Leer el artículo completo",
+    "latest": "Lo más reciente",
+    "resourcesEyebrow": "Recursos para socios",
+    "resourcesTitle": "Recursos y descargas B2B",
+    "resourcesIntro": "Herramientas prácticas para minoristas, profesionales de la salud y distribuidores. Solicite cualquiera de los siguientes a nuestro equipo B2B.",
+    "resources": {
+      "wholesale-catalog": {
+        "title": "Catálogo mayorista 2025",
+        "description": "Lista completa de SKU con niveles de precios mayoristas, cantidades mínimas de pedido y especificaciones de productos de Sliquid, RIDE Lube y Ride Rocco.",
+        "cta": "Solicitar catálogo"
+      },
+      "ingredient-sheet": {
+        "title": "Ficha de referencia de ingredientes",
+        "description": "Una referencia clínica de una página que cubre los ingredientes clave, los aditivos que evitamos, los rangos de pH y notas de compatibilidad, diseñada para profesionales de la salud.",
+        "cta": "Solicitar para su consultorio"
+      },
+      "merch-guide": {
+        "title": "Guía de merchandising para minoristas",
+        "description": "Recomendaciones de planograma, especificaciones de kits de exhibición, material de señalización y estrategias comprobadas de ubicación en anaquel para maximizar la venta de Sliquid en tienda.",
+        "cta": "Solicitar para su tienda"
+      },
+      "distributor-brief": {
+        "title": "Resumen de distribución global",
+        "description": "Mapas de cobertura por territorio, requisitos logísticos, apoyo con documentación regulatoria e información de contacto clave para consultas sobre alianzas de distribución.",
+        "cta": "Contactar a nuestro equipo de distribución"
+      }
+    },
+    "newsletterTitle": "No se pierda ninguna novedad",
+    "newsletterBody": "Reciba en su correo lanzamientos de productos, anuncios de distribución y recursos B2B.",
+    "newsletterButton": "Suscribirse a las novedades"
+  }
+}

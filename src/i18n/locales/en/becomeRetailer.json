@@ -1,0 +1,55 @@
+{
+  "hero": {
+    "eyebrow": "Partner With Sliquid",
+    "title": "Do you want to become a Sliquid Retailer or Distributor?",
+    "body": "Complete the form below and a member of the Sliquid sales team will contact you shortly."
+  },
+  "form": {
+    "heading": "Become a Retailer or Distributor",
+    "company": "Company",
+    "name": "Name",
+    "first": "First",
+    "last": "Last",
+    "address": "Address",
+    "street": "Street Address",
+    "addressLine2": "Address Line 2",
+    "city": "City",
+    "state": "State / Province / Region",
+    "zip": "Postal / Zip Code",
+    "country": "Country",
+    "countryOther": "Other",
+    "phone": "Phone Number",
+    "email": "Email",
+    "website": "Website",
+    "storeLocatorHeading": "Store Locator",
+    "storeLocator": "Would you like to join our Store Locator?",
+    "brandsHeading": "Brands You Are Interested In",
+    "comments": "Questions / Comments?",
+    "mapHeading": "You must review the policy",
+    "mapAgree": "I agree to the Sliquid MAP Policy below",
+    "mapLink": "Sliquid Minimum Advertised Price Policy",
+    "submit": "Submit",
+    "submitting": "Submitting…"
+  },
+  "errors": {
+    "companyRequired": "Company is required.",
+    "firstNameRequired": "First name is required.",
+    "lastNameRequired": "Last name is required.",
+    "streetRequired": "Street address is required.",
+    "cityRequired": "City is required.",
+    "stateRequired": "State / Province is required.",
+    "zipRequired": "Postal / Zip code is required.",
+    "phoneRequired": "Phone number is required.",
+    "emailInvalid": "A valid email address is required.",
+    "brandsRequired": "Please select at least one brand.",
+    "mapRequired": "You must agree to the Sliquid MAP Policy.",
+    "alreadyApplied": "You have already applied recently.",
+    "sendFailed": "Something went wrong sending your application. Please try again or email sales@sliquid.com directly."
+  },
+  "thanks": {
+    "title": "Thank You for Applying!",
+    "body": "We've received your application to become a Sliquid retailer or distributor. A member of our sales team will review your submission and contact you shortly.",
+    "questions": "If you have any immediate questions, feel free to reach us at <email>sales@sliquid.com</email>.",
+    "done": "Done"
+  }
+}

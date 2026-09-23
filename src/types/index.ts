@@ -1,5 +1,7 @@
 export interface NavLink {
   readonly label: string
+  /** Key under `common:nav`. Absent = a proper name shown as-is (e.g. RIDE Lube). */
+  readonly labelKey?: string
   readonly href: string
   readonly external?: boolean
 }
@@ -8,28 +10,24 @@ export interface TopBarLink extends NavLink {
   readonly highlighted?: boolean
 }
 
+/** Copy (title, description, imageAlt, linkLabel) lives in `home:strategy.cards.<id>`. */
 export interface StrategyCard {
   readonly id: string
-  readonly title: string
-  readonly description: string
   readonly imageUrl: string
-  readonly imageAlt: string
   readonly linkHref: string
-  readonly linkLabel: string
 }
 
 export interface StatItem {
+  /** Key under `home:stats.items`. */
+  readonly id: string
   readonly value: string
-  readonly label: string
 }
 
+/** Copy (tagline, description, imageAlt) lives in `common:brands.<id>`; `name` is a proper name, never translated. */
 export interface Brand {
   readonly id: string
   readonly name: string
-  readonly tagline: string
-  readonly description: string
   readonly imageUrl: string
-  readonly imageAlt: string
   readonly siteUrl: string
 }
 
@@ -45,12 +43,11 @@ export interface NewsArticle {
   readonly featured?: boolean
 }
 
+/** Title and imageAlt live in `about:team.executives.<id>`. */
 export interface Executive {
   readonly id: string
   readonly name: string
-  readonly title: string
   readonly imageUrl: string
-  readonly imageAlt: string
 }
 
 export interface ContactFormData {

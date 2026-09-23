@@ -1,0 +1,83 @@
+{
+  "applyInstead": "Solicite ser minorista",
+  "gate": {
+    "eyebrow": "Socios de Sliquid",
+    "title": "Antes de comenzar: ¿su tienda ya vende Sliquid?",
+    "body": "Esta página es solo para socios que ya tienen nuestros productos. Si todavía no los vende, nos encantaría hablar con usted: le indicaremos el formulario adecuado.",
+    "yes": "Sí, ya somos minoristas de Sliquid",
+    "no": "Todavía no, nos gustaría serlo"
+  },
+  "declined": {
+    "title": "Primero, completemos su registro",
+    "body": "Esta página es para tiendas que ya venden Sliquid. Convertirse en socio solo requiere un formulario breve; nuestro equipo de ventas suele responder en un plazo de 2 a 3 días hábiles.",
+    "back": "En realidad, sí vendemos Sliquid; quiero regresar"
+  },
+  "thanks": {
+    "title": "Gracias, ya lo recibimos.",
+    "body": "Gracias por ponerse en contacto y por todos los años que ha tenido Sliquid en sus anaqueles. Su persona de contacto le dará seguimiento en breve.",
+    "reference": "Su número de referencia",
+    "done": "Listo"
+  },
+  "hero": {
+    "eyebrow": "Para nuestros socios actuales",
+    "title": "Gracias por estar siempre ahí.",
+    "body": "Cada frasco en su anaquel es una decisión que usted tomó para respaldar el bienestar íntimo seguro para el cuerpo; y después de veinte años, ese sigue siendo nuestro negocio. No lo tomamos a la ligera.",
+    "newLook": "Renovamos la imagen de Sliquid y nuestra forma de trabajar con usted. <bold>Entonces, ¿qué le parece la nueva imagen?</bold> Cuéntenos a continuación y díganos qué necesita de nosotros."
+  },
+  "brands": {
+    "heading": "Las marcas detrás de su anaquel",
+    "body": "Tres casas, un mismo estándar. Todas las fórmulas de las tres marcas se elaboran con la misma especificación de seguridad corporal: sin glicerina, sin parabenos y sin derivados del azúcar.",
+    "visit": "Visitar {{name}} →"
+  },
+  "form": {
+    "heading": "Póngase en contacto con nosotros",
+    "intro": "Solo necesitamos tres campos; el resto nos ayuda a atenderle más rápido.",
+    "company": "Nombre de la tienda / empresa",
+    "name": "Su nombre",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "pointOfContact": "¿Quién es su persona de contacto en Sliquid?",
+    "selectContact": "Seleccione un contacto…",
+    "contactHelp": "No hay respuesta incorrecta: si no está seguro, elija la última opción y le asignaremos a la persona indicada.",
+    "contacts": {
+      "michelle": "Michelle Marcus — Vicepresidenta de Ventas",
+      "colin": "Colin Roy — Vicepresidente sénior",
+      "erik": "Erik Vasquez — Vicepresidente de Marketing",
+      "distributor": "Mi representante del distribuidor",
+      "notSure": "No estoy seguro / No tengo uno"
+    },
+    "brandsCarried": "¿Qué marcas vende?",
+    "interestsHeading": "¿Cómo podemos ayudarle ahora?",
+    "interests": {
+      "reorder": "Volver a pedir / hacer un pedido",
+      "launches": "Información sobre nuevos productos y lanzamientos",
+      "inStore": "Materiales de marketing para la tienda",
+      "training": "Capacitación y certificación del personal",
+      "images": "Imágenes y textos de producto actualizados",
+      "storeLocator": "Aparecer en el localizador de tiendas",
+      "pricing": "Pregunta sobre la política MAP o los precios"
+    },
+    "feedbackHeading": "¿Qué le parece nuestra nueva imagen?",
+    "feedback": {
+      "love": "Me encanta",
+      "good": "Se ve bien",
+      "notYet": "Todavía no la he visto",
+      "notes": "Tengo algunos comentarios"
+    },
+    "comments": "¿Hay algo más que quiera contarnos?",
+    "commentsPlaceholder": "Comentarios sobre la nueva imagen, qué se está vendiendo, qué le gustaría que hiciéramos diferente…",
+    "submit": "Enviar",
+    "submitting": "Enviando…"
+  },
+  "errors": {
+    "companyRequired": "El nombre de la tienda o empresa es obligatorio.",
+    "nameRequired": "Su nombre es obligatorio.",
+    "emailInvalid": "Se requiere un correo electrónico válido.",
+    "alreadyCheckedIn": "Ya se puso en contacto con nosotros recientemente.",
+    "sendFailed": "Ocurrió un problema al enviar su información. Por favor, inténtelo de nuevo o escriba directamente a sales@sliquid.com."
+  },
+  "notRetailer": {
+    "title": "¿Llegó aquí pero todavía no vende Sliquid?",
+    "body": "Seguramente alguien le reenvió este enlace, y nos alegra que lo haya hecho. Nuestra solicitud para minoristas y distribuidores toma solo un par de minutos."
+  }
+}

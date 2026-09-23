@@ -1,5 +1,6 @@
 import { useState, FormEvent, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Trans, useTranslation } from 'react-i18next'
 import { ChevronDown, CheckCircle, Eye, EyeOff } from 'lucide-react'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
@@ -7,6 +8,7 @@ const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-p
 interface Store { id: number; name: string }
 
 export default function RegisterPage() {
+  const { t } = useTranslation('auth')
   const navigate = useNavigate()
 
   const [name, setName] = useState('')
@@ -54,9 +56,9 @@ export default function RegisterPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
-    if (!company.trim()) { setError('Please enter or select your store or company'); return }
-    if (password.length < 8) { setError('Password must be at least 8 characters'); return }
-    if (password !== confirm) { setError('Passwords do not match'); return }
+    if (!company.trim()) { setError(t('register.errors.companyRequired')); return }
+    if (password.length < 8) { setError(t('register.errors.tooShort')); return }
+    if (password !== confirm) { setError(t('register.errors.mismatch')); return }
     setLoading(true)
     try {
       const res = await fetch(`${PORTAL_API}/api/auth/register`, {
@@ -66,11 +68,11 @@ export default function RegisterPage() {
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        throw new Error((data as { message?: string }).message ?? 'Registration failed')
+        throw new Error((data as { message?: string }).message ?? t('register.errors.failed'))
       }
       setSubmitted(true)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.')
+      setError(err instanceof Error ? err.message : t('register.errors.failedRetry'))
     } finally {
       setLoading(false)
     }
@@ -84,18 +86,23 @@ export default function RegisterPage() {
             <div className="w-16 h-16 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-5">
               <CheckCircle className="w-8 h-8 text-green-500" />
             </div>
-            <h2 className="text-text-dark text-2xl font-bold mb-2">Account submitted!</h2>
+            <h2 className="text-text-dark text-2xl font-bold mb-2">{t('register.submitted.title')}</h2>
             <p className="text-text-gray text-sm mb-2">
-              Your account is pending review. You'll receive full access once a Sliquid admin approves your registration.
+              {t('register.submitted.pending')}
             </p>
             <p className="text-text-gray text-sm mb-8">
-              A confirmation email has been sent to <span className="text-text-dark font-medium">{email}</span>.
+              <Trans
+                t={t}
+                i18nKey="register.submitted.emailSent"
+                values={{ email }}
+                components={{ email: <span className="text-text-dark font-medium" /> }}
+              />
             </p>
             <button
               onClick={() => navigate('/partner-login')}
               className="w-full bg-sliquid-blue hover:bg-sliquid-dark-blue text-white font-semibold py-3 rounded-lg text-sm transition-colors"
             >
-              Back to sign in
+              {t('register.submitted.backToSignIn')}
             </button>
           </div>
         </div>
@@ -117,9 +124,9 @@ export default function RegisterPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
               </svg>
             </div>
-            <h1 className="text-text-dark text-2xl font-bold">Create an account</h1>
+            <h1 className="text-text-dark text-2xl font-bold">{t('register.title')}</h1>
             <p className="text-text-gray text-sm mt-1 text-center">
-              Access digital assets, distributors, and product trainings for your account type.
+              {t('register.subtitle')}
             </p>
           </div>
 
@@ -134,7 +141,7 @@ export default function RegisterPage() {
             {/* Full Name */}
             <div>
               <label htmlFor="reg-name" className="block text-text-dark text-sm font-medium mb-1.5">
-                Full Name
+                {t('register.nameLabel')}
               </label>
               <input
                 id="reg-name"
@@ -151,12 +158,13 @@ export default function RegisterPage() {
 
             {/* Store / Company */}
             <div>
-              <label className="block text-text-dark text-sm font-medium mb-1.5">
-                Store / Company
+              <label htmlFor="reg-company" className="block text-text-dark text-sm font-medium mb-1.5">
+                {t('register.companyLabel')}
               </label>
               {stores.length > 0 ? (
                 <div ref={storeRef} className="relative">
                   <input
+                    id="reg-company"
                     type="text"
                     value={storeSearch}
                     onChange={e => {
@@ -165,7 +173,7 @@ export default function RegisterPage() {
                       setShowDropdown(true)
                     }}
                     onFocus={() => setShowDropdown(true)}
-                    placeholder="Enter or search for your store…"
+                    placeholder={t('register.companyPlaceholder')}
                     autoComplete="off"
                     className="w-full border border-gray-500 rounded-lg px-4 py-2.5 pr-9 text-text-dark text-sm
                                placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
@@ -190,10 +198,11 @@ export default function RegisterPage() {
                 </div>
               ) : (
                 <input
+                  id="reg-company"
                   type="text"
                   value={company}
                   onChange={e => setCompany(e.target.value)}
-                  placeholder="Enter or search for your store…"
+                  placeholder={t('register.companyPlaceholder')}
                   required
                   className="w-full border border-gray-500 rounded-lg px-4 py-2.5 text-text-dark text-sm
                              placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
@@ -205,9 +214,9 @@ export default function RegisterPage() {
             {/* Requested Role */}
             <div>
               <label className="block text-text-dark text-sm font-medium mb-1.5">
-                Your Role <span className="text-text-light-gray font-normal">(optional)</span>
+                {t('register.roleLabel')} <span className="text-text-light-gray font-normal">{t('register.optional')}</span>
               </label>
-              <p className="text-text-light-gray text-xs mb-2">Helps us approve your account faster.</p>
+              <p className="text-text-light-gray text-xs mb-2">{t('register.roleHelp')}</p>
               <div className="flex gap-5">
                 <label className="flex items-center gap-2 text-text-dark text-sm cursor-pointer">
                   <input
@@ -216,7 +225,7 @@ export default function RegisterPage() {
                     onChange={() => setRequestedRole(prev => prev === 'tier1' ? null : 'tier1')}
                     className="w-4 h-4 rounded border-gray-500 text-sliquid-blue focus:ring-sliquid-blue"
                   />
-                  Retail Store Employee
+                  {t('register.roleEmployee')}
                 </label>
                 <label className="flex items-center gap-2 text-text-dark text-sm cursor-pointer">
                   <input
@@ -225,7 +234,7 @@ export default function RegisterPage() {
                     onChange={() => setRequestedRole(prev => prev === 'tier2' ? null : 'tier2')}
                     className="w-4 h-4 rounded border-gray-500 text-sliquid-blue focus:ring-sliquid-blue"
                   />
-                  Retail Management
+                  {t('register.roleManagement')}
                 </label>
               </div>
             </div>
@@ -233,7 +242,7 @@ export default function RegisterPage() {
             {/* Email */}
             <div>
               <label htmlFor="reg-email" className="block text-text-dark text-sm font-medium mb-1.5">
-                Email address
+                {t('shared.emailLabel')}
               </label>
               <input
                 id="reg-email"
@@ -252,7 +261,7 @@ export default function RegisterPage() {
             {/* Password */}
             <div>
               <label htmlFor="reg-password" className="block text-text-dark text-sm font-medium mb-1.5">
-                Password
+                {t('register.passwordLabel')}
               </label>
               <div className="relative">
                 <input
@@ -260,7 +269,7 @@ export default function RegisterPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="Min. 8 characters"
+                  placeholder={t('register.passwordPlaceholder')}
                   required
                   autoComplete="new-password"
                   className="w-full border border-gray-500 rounded-lg px-4 py-2.5 pr-10 text-text-dark text-sm
@@ -270,6 +279,8 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? t('register.hidePassword') : t('register.showPassword')}
+                  aria-pressed={showPassword}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -280,14 +291,14 @@ export default function RegisterPage() {
             {/* Confirm Password */}
             <div>
               <label htmlFor="reg-confirm" className="block text-text-dark text-sm font-medium mb-1.5">
-                Confirm Password
+                {t('register.confirmLabel')}
               </label>
               <input
                 id="reg-confirm"
                 type={showPassword ? 'text' : 'password'}
                 value={confirm}
                 onChange={e => setConfirm(e.target.value)}
-                placeholder="Re-enter password"
+                placeholder={t('register.confirmPlaceholder')}
                 required
                 autoComplete="new-password"
                 className="w-full border border-gray-500 rounded-lg px-4 py-2.5 text-text-dark text-sm
@@ -303,15 +314,18 @@ export default function RegisterPage() {
                          disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg
                          text-sm transition-colors duration-150 mt-2"
             >
-              {loading ? 'Creating account…' : 'Create account'}
+              {loading ? t('register.submitting') : t('register.submit')}
             </button>
           </form>
 
           <p className="text-center text-text-gray text-sm mt-6">
-            Already have an account?{' '}
-            <Link to="/partner-login" className="text-sliquid-blue hover:text-sliquid-dark-blue font-medium transition-colors">
-              Sign in
-            </Link>
+            <Trans
+              t={t}
+              i18nKey="register.haveAccount"
+              components={{
+                cta: <Link to="/partner-login" className="text-sliquid-blue hover:text-sliquid-dark-blue font-medium transition-colors" />,
+              }}
+            />
           </p>
         </div>
 

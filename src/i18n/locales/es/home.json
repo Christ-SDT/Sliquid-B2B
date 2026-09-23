@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "ariaLabel": "Banner principal",
+    "title": "Todo lo que los minoristas de Sliquid necesitan, en un solo lugar.",
+    "body": "Su centro de formación sobre productos, capacitación del personal, recursos descargables y materiales para socios que apoyan su negocio en cada paso.",
+    "becomeRetailer": "Conviértase en minorista",
+    "partnerPortal": "Portal de socios"
+  },
+  "strategy": {
+    "heading": "Una forma más inteligente de crecer juntos",
+    "intro": "Crecer juntos de forma más inteligente significa mucho más que tener acceso a herramientas: significa contar con el equipo de marketing de Sliquid como una extensión del suyo, listo para apoyarle, planificar estrategias y ayudarle a obtener resultados.",
+    "cards": {
+      "retailers": {
+        "title": "Minoristas",
+        "description": "Optimice su flujo de trabajo, mejore su presencia en tienda y en línea, y conéctese directamente con nuestro equipo de marketing para avanzar más rápido, vender de forma más inteligente y crecer con confianza.",
+        "imageAlt": "Colección de lubricantes Sliquid Organics Natural sobre una superficie limpia",
+        "linkLabel": "Explore nuestro catálogo"
+      },
+      "health-practitioners": {
+        "title": "Profesionales de la salud",
+        "description": "Apoye su práctica con acceso a recursos clínicos, hojas informativas y muestras listas para pacientes, diseñadas para complementar su atención y ayudarle a servir mejor a sus pacientes.",
+        "imageAlt": "Grupo de productos de bienestar íntimo Sliquid Soothe con reflejos",
+        "linkLabel": "Conozca nuestro programa"
+      },
+      "global-distributors": {
+        "title": "Distribuidores internacionales",
+        "description": "Equipe a sus equipos de marketing y ventas con recursos listos para compartir con los clientes, impulsando mejores ventas y fortaleciendo la colaboración con el equipo de marketing de Sliquid.",
+        "imageAlt": "Línea de productos de lubricante a base de agua RIDE Lube",
+        "linkLabel": "Solicite más información"
+      }
+    }
+  },
+  "stats": {
+    "heading": "Un ecosistema de salud y bienestar verdaderamente integrado",
+    "body": "Como parte de la familia Sliquid, usted accede a una red en crecimiento que abarca canales minoristas y digitales. Nuestra presencia física y digital trabaja junto con nuestra innovación de productos para ayudarle a ofrecer beneficios genuinamente saludables y significativos a sus clientes.",
+    "items": {
+      "years": "años en la industria, lo que la convierte en una de las pocas marcas con verdadera trayectoria en bienestar íntimo.",
+      "skus": "SKU en varias colecciones, que abarcan lubricantes, baño y cuidado corporal, y bienestar.",
+      "customers": "clientes que confían en Sliquid para un bienestar seguro para el cuerpo.",
+      "zero": "ingredientes innecesarios: esa es nuestra filosofía, con fórmulas con 0 glicerina, 0 parabenos y 0 derivados del azúcar, un factor diferenciador clave en la categoría."
+    }
+  },
+  "brands": {
+    "heading": "Más marcas. Más alcance. Más oportunidades.",
+    "body": "La familia Sliquid no se detiene ahí. Con la imagen de RIDE Lube enfocada en la comunidad LGBTQ+ y la colección de la firma Ride Rocco, nuestro portafolio ofrece a los socios acceso a una gama de productos de bienestar más amplia y especializada.",
+    "cta": "Conozca nuestras marcas hermanas",
+    "imageAlt": "Colección de productos Sliquid, RIDE Lube y Ride Rocco",
+    "labelSubtitle": "Lubricantes de alto rendimiento y colecciones de firma"
+  },
+  "ceo": {
+    "heading": "Mensaje de la directora general",
+    "quote": "«¡Bienvenidos a Sliquid HQ! Nos alegra mucho que estén aquí. Este espacio fue creado pensando en ustedes, nuestros socios minoristas y médicos, para darles acceso fácil a información y recursos que apoyen su trabajo. Todo aquí está diseñado para que se sientan seguros e informados al compartir la misión de Sliquid con sus clientes y pacientes».",
+    "role": "Cofundadora y directora general"
+  },
+  "cta": {
+    "heading": "Manténgase al día con las últimas noticias de Sliquid",
+    "thanks": "¡Gracias por suscribirse!",
+    "emailLabel": "Correo electrónico",
+    "placeholder": "usted@empresa.com",
+    "invalidEmail": "Ingrese un correo electrónico válido.",
+    "subscribe": "Suscribirse"
+  }
+}

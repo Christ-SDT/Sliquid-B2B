@@ -1,0 +1,62 @@
+{
+  "pressRelease": "Press Release",
+  "readMore": "Read more",
+  "newsroom": "Newsroom",
+  "announcements": {
+    "title": "Announcements",
+    "intro": "Official Sliquid press releases — product launches, awards, distribution news, and company milestones.",
+    "listHeading": "Press releases",
+    "loadError": "Unable to load announcements. Please try again later.",
+    "emptyTitle": "No announcements yet",
+    "emptyBody": "Check back soon, or <contactLink>get in touch</contactLink> with our press team."
+  },
+  "detail": {
+    "backToAll": "All announcements",
+    "viewOnSliquid": "View on sliquid.com",
+    "docTitleLoading": "Announcement",
+    "docTitleNotFound": "Announcement Not Found",
+    "notFoundTitle": "Announcement not found",
+    "notFoundBody": "This announcement may have been removed, or the link may be incorrect."
+  },
+  "insights": {
+    "eyebrow": "Knowledge Hub",
+    "title": "Insights & Industry News",
+    "intro": "Stay current on Sliquid product launches, distribution updates, leadership perspectives, and educational content designed specifically for our B2B partners.",
+    "searchResults": "Showing results for: <query>\"{{query}}\"</query> — <clearLink>clear search</clearLink>",
+    "filterLabel": "Filter articles by category",
+    "allCategories": "All",
+    "noArticles": "No articles found.",
+    "viewAll": "View all articles",
+    "featured": "Featured",
+    "readFullArticle": "Read full article",
+    "latest": "Latest",
+    "resourcesEyebrow": "Partner Resources",
+    "resourcesTitle": "B2B resources & downloads",
+    "resourcesIntro": "Practical tools for retailers, practitioners, and distributors. Request any of the following from our B2B team.",
+    "resources": {
+      "wholesale-catalog": {
+        "title": "Wholesale Catalog 2025",
+        "description": "Full SKU list with wholesale pricing tiers, minimum order quantities, and product specs across Sliquid, RIDE Lube, and Ride Rocco.",
+        "cta": "Request catalog"
+      },
+      "ingredient-sheet": {
+        "title": "Ingredient Reference Sheet",
+        "description": "A one-page clinical reference covering key ingredients, avoided additives, pH ranges, and compatibility notes — designed for healthcare practitioners.",
+        "cta": "Request for your practice"
+      },
+      "merch-guide": {
+        "title": "Retail Merchandising Guide",
+        "description": "Planogram recommendations, display kit specs, signage assets, and proven shelf placement strategies to maximize Sliquid sell-through in-store.",
+        "cta": "Request for your store"
+      },
+      "distributor-brief": {
+        "title": "Global Distribution Brief",
+        "description": "Territory coverage maps, logistics requirements, regulatory documentation support, and key contact information for distribution partnership inquiries.",
+        "cta": "Contact our distribution team"
+      }
+    },
+    "newsletterTitle": "Never miss an update",
+    "newsletterBody": "Get new product launches, distribution announcements, and B2B resources delivered directly to your inbox.",
+    "newsletterButton": "Subscribe to updates"
+  }
+}

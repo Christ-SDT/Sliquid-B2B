@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom'
 import { TOP_BAR_LINKS } from '@/utils/constants'
 import type { TopBarLink } from '@/types'
+import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 function TopBarItem({ link }: { link: TopBarLink }) {
+  const { t } = useTranslation()
+  const label = link.labelKey ? t(`nav.${link.labelKey}`) : link.label
   const cls = `text-sm font-medium transition-colors duration-150 ${
     link.highlighted
       ? 'text-sliquid-blue-on-dark font-semibold'
@@ -18,14 +21,14 @@ function TopBarItem({ link }: { link: TopBarLink }) {
         target="_blank"
         className={cls}
       >
-        {link.label}
+        {label}
       </a>
     )
   }
 
   return (
     <Link to={link.href} className={cls}>
-      {link.label}
+      {label}
     </Link>
   )
 }

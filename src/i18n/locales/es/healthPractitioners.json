@@ -1,0 +1,151 @@
+{
+  "hero": {
+    "eyebrow": "Programa de Socios Médicos",
+    "title": "La marca de bienestar en la que confían los profesionales de la salud",
+    "body": "Sliquid brinda a los profesionales de la salud recursos de grado clínico, muestras gratuitas para pacientes y materiales educativos para ayudarle a hacer recomendaciones con confianza y generar una confianza duradera en sus pacientes en materia de bienestar íntimo.",
+    "cta": "Solicite su ingreso al programa"
+  },
+  "ingredients": {
+    "heading": "Ingredientes en los que puede confiar",
+    "body": "Cada ingrediente se elige por su compatibilidad clínica. Sin glicerina, sin parabenos, sin fragancias artificiales: solo fórmulas limpias, lo suficientemente seguras para recomendarlas a sus pacientes más sensibles.",
+    "fullBreakdown": "¿Desea ver el detalle completo de los ingredientes? <cta>Consulte nuestros estándares de formulación completos →</cta>",
+    "items": {
+      "purified-water": {
+        "name": "Agua purificada",
+        "tag": "Base",
+        "description": "La base de toda fórmula a base de agua. Purificada mediante nuestro sistema de filtración por ósmosis inversa de 9 etapas, que incluye un paso de desionización, funciona como un vehículo puro y libre de contaminantes para todos los ingredientes hidrosolubles."
+      },
+      "aloe-vera": {
+        "name": "Jugo orgánico de hoja de Aloe barbadensis",
+        "tag": "Base calmante",
+        "description": "Obtenido directamente de las hojas de aloe vera, este ingrediente naturalmente lubricante y reparador es antiinflamatorio y compatible con el pH del tejido mucoso sensible."
+      },
+      "vitamin-e": {
+        "name": "Tocoferoles naturales (vitamina E)",
+        "tag": "Antioxidante",
+        "description": "Acondiciona la piel y aporta protección antioxidante. Prolonga naturalmente la vida útil y protege el tejido sensible sin necesidad de conservantes sintéticos."
+      },
+      "citric-acid": {
+        "name": "Ácido cítrico",
+        "tag": "Regulador del pH",
+        "description": "Ajusta cada fórmula al rango de pH natural del cuerpo, de 3.8 a 4.5. Actúa como antiséptico natural y amortiguador del pH, algo fundamental para la salud del microbioma vaginal."
+      },
+      "potassium-sorbate": {
+        "name": "Sorbato de potasio y benzoato de sodio",
+        "tag": "Conservante",
+        "description": "Dos de los conservantes no tóxicos más suaves que existen. Prolongan la vida útil y evitan la contaminación sin los riesgos de alteración hormonal asociados a los parabenos."
+      },
+      "plant-cellulose": {
+        "name": "Celulosa vegetal",
+        "tag": "Espesante natural",
+        "description": "Derivada del algodón, completamente vegana y sin gluten. Ofrece el deslizamiento sedoso característico de Sliquid, sin polímeros sintéticos ni derivados petroquímicos."
+      }
+    }
+  },
+  "imageAlt": "Productos de bienestar íntimo Sliquid exhibidos para profesionales de la salud",
+  "program": {
+    "heading": "Detalles del programa",
+    "tabsLabel": "Detalles del programa",
+    "tabRequirements": "Requisitos",
+    "tabHow": "Cómo funciona",
+    "requirements": {
+      "professional": "Debe ser un profesional médico verificable o un educador universitario / facilitador de una organización con un cargo vigente en una institución establecida. Esto incluye a representantes estudiantiles de organizaciones universitarias que actúen en nombre de una institución educativa.",
+      "address": "Debe proporcionar una dirección postal verificable asociada específicamente con el centro médico o el campus universitario indicado en el formulario. No se aceptarán direcciones residenciales ni apartados postales. Sin excepciones.",
+      "international": "Las solicitudes fuera de los Estados Unidos deben cubrir los costos de envío y aranceles asociados con el envío de muestras gratuitas.",
+      "onePerPractice": "Solo se permite una solicitud por consultorio u organización. Las solicitudes duplicadas serán descalificadas."
+    },
+    "how": {
+      "approval": "Su clínica u organización DEBE cumplir con todos los requisitos indicados. Una vez verificada la información que proporcione, su consultorio u organización será aprobado para recibir un único envío gratuito de 100 muestras de un solo uso y materiales promocionales que ofrecen a sus pacientes un código de descuento para usar en nuestro sitio. La revisión puede tardar hasta 6 semanas. ENVÍE SOLO UNA SOLICITUD y espere a que nuestro personal se comunique con usted. Nos comunicaremos con usted tanto si su solicitud es aprobada como si es rechazada.",
+      "shipping": "El envío es gratuito dentro de los Estados Unidos, pero todos los socios internacionales deben pagarlo por adelantado. Sliquid determina las fórmulas que se envían, las cuales pueden cambiar en cualquier momento.",
+      "additional": "Tenga en cuenta que SOLO su envío inicial de 100 muestras es gratuito. Hay muestras adicionales disponibles con un precio especial de descuento para Socios Médicos. Solicite a su representante de Sliquid la estructura de precios y el formulario de pedido.",
+      "shippingNote": "*El costo del envío internacional varía según la ubicación y está sujeto a la tarifa de la empresa de transporte al momento del envío. Un representante de Sliquid informará esta tarifa a los socios internacionales."
+    }
+  },
+  "gate": {
+    "title": "Antes de presentar su solicitud",
+    "body": "Confirme que su consultorio cumple con todos los requisitos siguientes. Las solicitudes que no cumplan con estos criterios no serán procesadas.",
+    "accept": "Cumplo con todos los requisitos — Continuar",
+    "decline": "No cumplo con los requisitos",
+    "promptAria": "Revisar los requisitos e iniciar la solicitud",
+    "promptTitle": "Revise los requisitos antes de presentar su solicitud",
+    "promptBody": "Antes de completar la solicitud, confirme que su consultorio cumple con todos los requisitos del programa.",
+    "promptCta": "Ver requisitos e iniciar la solicitud",
+    "declined": "Gracias por revisar los requisitos. Si su consultorio no cumple actualmente con ellos, <cta>contáctenos</cta> si tiene alguna pregunta.",
+    "reviewAgain": "Revisar los requisitos nuevamente"
+  },
+  "thanks": {
+    "title": "¡Gracias por registrarse!",
+    "body": "Recibimos su solicitud para el Programa de Socios Médicos de Sliquid. Un miembro de nuestro equipo revisará su solicitud y se comunicará con usted; espere hasta <bold>6 semanas</bold> para recibir una respuesta.",
+    "decision": "Nos comunicaremos con usted tanto si su solicitud es aprobada como si es rechazada. Por favor, no envíe más de una solicitud.",
+    "done": "Listo"
+  },
+  "already": {
+    "title": "Ya envió su solicitud",
+    "body": "Recibimos su solicitud para el Programa de Socios Médicos y le responderemos lo antes posible. No es necesario enviar otra solicitud."
+  },
+  "submittedPanel": {
+    "title": "Solicitud enviada",
+    "body": "Recibimos su solicitud para el Programa de Socios Médicos de Sliquid y le responderemos lo antes posible. No es necesario enviar otra solicitud."
+  },
+  "form": {
+    "heading": "Solicitud del Programa de Socios Médicos",
+    "intro": "Complete el siguiente formulario para solicitar muestras gratuitas y aparecer en nuestro directorio de Socios Médicos.",
+    "practiceLegend": "Información de su consultorio",
+    "practiceType": "Tipo de consultorio",
+    "practiceTypes": {
+      "obgyn": "Ginecología y obstetricia",
+      "pelvicFloor": "Terapia de piso pélvico",
+      "sexualHealth": "Salud y bienestar sexual",
+      "gp": "Medicina general",
+      "other": "Otro (especifique a continuación)"
+    },
+    "specify": "Especifique",
+    "specifyPlaceholder": "Describa su tipo de consultorio",
+    "practiceName": "Nombre del consultorio",
+    "practiceAddress": "Dirección del consultorio",
+    "street": "Calle y número",
+    "addressLine2": "Línea de dirección 2 (consultorio, local, etc.)",
+    "city": "Ciudad",
+    "state": "Estado / Provincia / Región",
+    "zip": "Código postal",
+    "country": "País",
+    "practicePhone": "Número de teléfono del consultorio",
+    "practiceWebsite": "Sitio web del consultorio",
+    "contactLegend": "Su información de contacto",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "relationship": "Su relación con el consultorio",
+    "relationshipPlaceholder": "p. ej., gerente de consultorio, médico, representante estudiantil",
+    "contactPhone": "Número de teléfono",
+    "email": "Correo electrónico",
+    "preferredContact": "Método de contacto preferido",
+    "contactMethods": {
+      "Email": "Correo electrónico",
+      "Phone": "Teléfono",
+      "Either": "Cualquiera"
+    },
+    "directory": "¿Desea agregar su consultorio a la página de Socios Médicos de Sliquid?",
+    "yes": "Sí",
+    "no": "No",
+    "optIn": "Al solicitar muestras, acepto recibir actualizaciones por correo electrónico de Sliquid como parte del Programa de Socios Médicos.",
+    "privacy": "Su información se utiliza únicamente para procesar su solicitud y enviar sus muestras. Nunca se venderá, compartirá ni utilizará con ningún otro fin.",
+    "submit": "Enviar solicitud",
+    "submitting": "Enviando…"
+  },
+  "errors": {
+    "practiceTypeRequired": "Por favor, seleccione un tipo de consultorio.",
+    "practiceNameRequired": "El nombre del consultorio es obligatorio.",
+    "streetRequired": "La dirección es obligatoria.",
+    "cityRequired": "La ciudad es obligatoria.",
+    "stateRequired": "El estado o la provincia es obligatorio.",
+    "zipRequired": "El código postal es obligatorio.",
+    "practicePhoneRequired": "El teléfono del consultorio es obligatorio.",
+    "firstNameRequired": "El nombre es obligatorio.",
+    "lastNameRequired": "El apellido es obligatorio.",
+    "contactPhoneRequired": "El número de teléfono es obligatorio.",
+    "emailInvalid": "Se requiere un correo electrónico válido.",
+    "optInRequired": "Debe aceptar recibir los correos electrónicos del Programa de Socios Médicos.",
+    "serverUnexpected": "El servidor devolvió un error inesperado. Por favor, inténtelo de nuevo.",
+    "network": "No pudimos conectarnos con nuestro servidor. Revise su conexión e inténtelo de nuevo; su información aún no se ha enviado, por lo que puede volver a enviarla con seguridad, o bien escribir directamente a erik@sliquid.com."
+  }
+}

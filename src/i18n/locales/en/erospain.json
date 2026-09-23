@@ -1,0 +1,56 @@
+{
+  "header": {
+    "eyebrow": "Erospain 2026",
+    "title": "Partner Intake Form",
+    "intro": "Fill out the form below and we'll be in touch. You will receive a confirmation email to complete your sign-up."
+  },
+  "success": {
+    "title": "Thank You!",
+    "body": "Thanks for filling out our intake form. Please check your inbox for a confirmation email — you'll need to click the link to complete your sign-up.",
+    "spam": "If you don't see it, check your spam folder.",
+    "reset_one": "This form will reset in <count>{{count}}</count> second…",
+    "reset_other": "This form will reset in <count>{{count}}</count> seconds…"
+  },
+  "gdprNotice": "<bold>Important — Double Opt-In & GDPR:</bold> By submitting this form you are expressing interest in receiving communications from Sliquid. You will receive a separate confirmation email which you <bold>must click</bold> to complete your sign-up. You may unsubscribe at any time. We process your data in accordance with GDPR. We will never sell or share your information.",
+  "fields": {
+    "name": "Full Name",
+    "namePlaceholder": "Jane Doe",
+    "email": "Email Address",
+    "emailPlaceholder": "jane@yourbusiness.com",
+    "businessName": "Business Name",
+    "businessNamePlaceholder": "Your Company Ltd.",
+    "businessType": "Type of Business",
+    "businessTypePlaceholder": "Select type…",
+    "storeNames": "Store Name(s)",
+    "storeNamesPlaceholder": "e.g. Main Street Boutique, City Plaza",
+    "storeCount": "Number of Stores",
+    "storeCountPlaceholder": "e.g. 3",
+    "websiteUrl": "Website URL",
+    "websiteUrlPlaceholder": "https://yourstore.com",
+    "contactName": "Company Contact Name",
+    "contactNamePlaceholder": "Primary contact for your company",
+    "contactPhone": "Company Contact Number + Extension",
+    "contactPhonePlaceholder": "e.g. +34 91 234 5678 ext. 101",
+    "consent": "I consent to Sliquid storing and using my information to send me product updates and marketing communications. I understand I will receive a confirmation email to complete my sign-up, and I can unsubscribe at any time by clicking the unsubscribe link in any email I receive."
+  },
+  "businessTypes": {
+    "Retailer": "Retailer",
+    "Distribution": "Distribution",
+    "E-Commerce": "E-Commerce",
+    "Other": "Other"
+  },
+  "errors": {
+    "nameRequired": "Full name is required.",
+    "emailInvalid": "A valid email address is required.",
+    "businessNameRequired": "Business name is required.",
+    "businessTypeRequired": "Please select a business type.",
+    "storeNamesRequired": "Please enter your store name(s).",
+    "websiteUrlRequired": "Website URL is required for e-commerce businesses.",
+    "contactNameRequired": "Contact name is required.",
+    "consentRequired": "You must consent to continue.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "submit": "Submit",
+  "submitting": "Submitting…",
+  "copyright": "© {{year}} Sliquid, LLC · All rights reserved"
+}

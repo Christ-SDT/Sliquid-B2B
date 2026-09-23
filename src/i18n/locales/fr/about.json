@@ -1,0 +1,76 @@
+{
+  "hero": {
+    "eyebrow": "Notre histoire",
+    "title": "Ensemble, vers une vie plus saine.",
+    "body": "Depuis plus de vingt ans, Sliquid redéfinit ce que doivent être des produits intimes sains et sans danger pour le corps, tout en bâtissant une communauté mondiale de partenaires qui partagent cette vision."
+  },
+  "mission": {
+    "title": "Notre mission",
+    "p1": "La mission de Sliquid est de créer des produits de bien-être intime sains, sûrs et inclusifs qui valorisent chaque corps, en misant sur la transparence, l’innovation et un soin sans compromis. Nous nous engageons à développer des produits qui favorisent à la fois la sécurité et le plaisir, grâce à des ingrédients naturels de grande qualité soigneusement sélectionnés et à une approche très réfléchie de la formulation. En proposant des solutions simples et accessibles adaptées aux besoins de chacun, nous voulons éliminer les tabous et redéfinir le bien-être intime pour tous.",
+    "p2": "Nos partenaires B2B sont le prolongement de cette mission. En offrant Sliquid, vous proposez à votre clientèle des produits réellement meilleurs, formulés avec soin et sans raccourcis.",
+    "p3": "Cette confiance se mérite par une transparence totale sur les ingrédients, des tests rigoureux réalisés par des tiers et une équipe qui considère chaque partenariat comme une relation à long terme, et non comme une simple transaction."
+  },
+  "numbers": {
+    "title": "En chiffres",
+    "founded": "Année de fondation",
+    "skus": "UGS de produits",
+    "countries": "Pays",
+    "years": "Années d’expertise"
+  },
+  "foundation": {
+    "eyebrow": "Les fondements",
+    "title": "Une vision ancrée dans un but",
+    "p1": "Cynthia Wielgosz Elliott a cofondé Sliquid en 2002 avec une conviction claire et personnelle : le bien-être intime doit reposer sur le soin, l’accessibilité et une compréhension approfondie de la santé des femmes. À une époque où les raccourcis définissaient la catégorie, elle a contribué à tracer une autre voie en bâtissant une marque fondée sur des formulations saines, l’inclusion et un véritable engagement.",
+    "p2": "Championne du bien-être des femmes et défenseure de partenariats porteurs de sens, Cynthia a placé les partenaires détaillants, médicaux et de distribution de Sliquid au cœur de la croissance de la marque, reconnaissant que leur réussite est essentielle à celle de Sliquid. La mission reste inchangée. Les normes demeurent rigoureuses. Ce qui a évolué, c’est l’ampleur de la vision : une vision qui s’étend à l’échelle mondiale, renforce chaque canal, du commerce de gros au commerce électronique et au secteur médical, et prépare Sliquid à une nouvelle ère de croissance réfléchie et inclusive sous sa direction.",
+    "brands": "Marques dans le portefeuille",
+    "customers": "Clients qui font confiance à Sliquid"
+  },
+  "values": {
+    "eyebrow": "Ce qui nous anime",
+    "title": "Nos valeurs fondamentales",
+    "clean": {
+      "title": "Sains par conviction",
+      "description": "Sliquid n’a jamais utilisé de glycérine, de parabènes, ni de parfums ou d’arômes artificiels. Notre conviction fondatrice est simple : ce qu’on applique sur son corps compte autant que ce qu’on consomme. Cette norme est restée inchangée depuis plus de vingt ans."
+    },
+    "inclusive": {
+      "title": "Inclusifs par conception",
+      "description": "L’intimité est pour tous les corps. Nos formules sont élaborées pour tous les genres, toutes les orientations et toutes les chimies corporelles. Des lubrifiants sans glycérine au pH équilibré conçus pour la santé vaginale à la T-Collection formulée spécifiquement pour les personnes transgenres, l’inclusion n’est pas un positionnement marketing : c’est notre culture d’entreprise."
+    },
+    "transparent": {
+      "title": "Toujours transparents",
+      "description": "Chaque ingrédient de chaque formule est indiqué sur l’étiquette et sur notre site Web. Comme nous le disons toujours : « Si ce n’est pas sur l’étiquette, ce n’est pas dans la bouteille. » Nos partenaires peuvent répondre à toute question de leur clientèle sur le contenu de la bouteille, car nous rendons cette information facile à trouver."
+    },
+    "partnership": {
+      "title": "Des partenaires au sens propre",
+      "description": "Nous ne faisons pas qu’expédier des produits. Nous soutenons nos partenaires détaillants et professionnels avec des ressources de formation, du matériel de marchandisage et une équipe B2B sincèrement investie dans vos ventes. En offrant Sliquid, vous proposez quelque chose de mieux à votre clientèle, et nous veillons à ce que vous puissiez expliquer pourquoi."
+    }
+  },
+  "team": {
+    "eyebrow": "Direction",
+    "title": "Équipe de direction",
+    "intro": "Les personnes qui portent la mission de bien-être intime de Sliquid",
+    "executives": {
+      "cynthia-elliott": {
+        "title": "Cofondatrice et présidente-directrice générale",
+        "imageAlt": "Cynthia Elliott, cofondatrice et présidente-directrice générale de Sliquid"
+      },
+      "colin-roy": {
+        "title": "Vice-président principal",
+        "imageAlt": "Colin Roy, vice-président principal de Sliquid"
+      },
+      "michelle-marcus": {
+        "title": "Vice-présidente des ventes",
+        "imageAlt": "Michelle Marcus, vice-présidente des ventes chez Sliquid"
+      },
+      "erik-vasquez": {
+        "title": "Vice-président du marketing",
+        "imageAlt": "Erik Vasquez, vice-président du marketing chez Sliquid"
+      }
+    }
+  },
+  "cta": {
+    "title": "Prêt à devenir partenaire de Sliquid?",
+    "body": "Que vous soyez détaillant, professionnel de la santé ou distributeur international, notre équipe B2B est prête à bâtir un partenariat adapté à votre entreprise.",
+    "button": "Nous joindre"
+  }
+}

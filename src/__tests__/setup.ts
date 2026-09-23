@@ -18,3 +18,10 @@ if (typeof globalThis.localStorage === 'undefined' || globalThis.localStorage ==
     Object.defineProperty(target, 'localStorage', { value: memoryStorage, configurable: true, writable: true })
   }
 }
+
+// Initialise i18n for every test so components' t() calls resolve to real English
+// copy — existing tests assert on English labels. Dynamic import on purpose: a
+// static import would be hoisted above the localStorage shim, and the language
+// detector reads storage during init.
+const { default: i18n } = await import('@/i18n')
+await i18n.changeLanguage('en')

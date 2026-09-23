@@ -3,93 +3,66 @@ import type { TopBarLink, NavLink, StrategyCard, StatItem, Brand, NewsArticle, E
 export const TOP_BAR_LINKS: readonly TopBarLink[] = [
   { label: 'Sliquid Retail', href: 'https://sliquid.com', external: true },
   { label: 'RIDE Lube', href: 'https://ridelube.com/', external: true },
-  { label: 'Partner Portal', href: '/partner-login', highlighted: true },
+  { label: 'Partner Portal', labelKey: 'partnerPortal', href: '/partner-login', highlighted: true },
 ] as const
 
 export const NAV_LINKS: readonly NavLink[] = [
-  { label: 'Our Brands', href: '/our-brands' },
-  { label: 'Ingredients', href: '/ingredients' },
-  { label: 'About Us', href: '/about' },
-  { label: 'Announcements', href: '/announcements' },
-  { label: 'MAP Policy', href: '/map-policy' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Our Brands', labelKey: 'ourBrands', href: '/our-brands' },
+  { label: 'Ingredients', labelKey: 'ingredients', href: '/ingredients' },
+  { label: 'About Us', labelKey: 'about', href: '/about' },
+  { label: 'Announcements', labelKey: 'announcements', href: '/announcements' },
+  { label: 'MAP Policy', labelKey: 'mapPolicy', href: '/map-policy' },
+  { label: 'Contact', labelKey: 'contact', href: '/contact' },
 ] as const
 
 export const STRATEGY_CARDS: readonly StrategyCard[] = [
   {
     id: 'retailers',
-    title: 'Retailers',
-    description:
-      'Streamline your workflow, elevate your in-store and online presence, and connect directly with our marketing team so you can move faster, sell smarter, and grow with confidence.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/2a120f2f-d045-457e-8990-f809d3606151.jpg',
-    imageAlt: 'Sliquid Organics Natural lubricant collection on a clean surface',
     linkHref: '/catalog',
-    linkLabel: 'Browse our catalog',
   },
   {
     id: 'health-practitioners',
-    title: 'Health Practitioners',
-    description:
-      'Support your practice with access to clinical resources, educational sheets, and patient-ready samples, designed to complement your care and help you better serve your patients.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/aa1ba35b-f7e9-4a07-a0f3-20b918622165.jpeg',
-    imageAlt: 'Sliquid Soothe intimate wellness product group with reflections',
     linkHref: '/health-practitioners',
-    linkLabel: 'Learn about our program',
   },
   {
     id: 'global-distributors',
-    title: 'Global Distributors',
-    description:
-      'Equip your marketing and sales teams with ready-to-use resources to share with customers, driving stronger sell-through while strengthening collaboration with the Sliquid marketing team.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/9e502b65-1010-4628-bb3e-433525359746.jpeg',
-    imageAlt: 'RIDE Lube water-based lubricant product lineup',
     linkHref: '/contact?type=distributor',
-    linkLabel: 'Request more info',
   },
 ] as const
 
 export const STATS: readonly StatItem[] = [
-  { value: '20+', label: 'years in the industry, making it one of the few true legacy brands in intimate wellness.' },
-  { value: '100+', label: 'SKUs across multiple collections, covering lubricants, bath & body, and wellness categories.' },
-  { value: '1M+', label: 'Customers who trust Sliquid for body-safe wellness.' },
-  { value: '0', label: 'unnecessary ingredients philosophy, formulated with 0 glycerin, 0 parabens, and 0 sugar derivatives, which is a defining differentiator in the category.' },
+  { id: 'years', value: '20+' },
+  { id: 'skus', value: '100+' },
+  { id: 'customers', value: '1M+' },
+  { id: 'zero', value: '0' },
 ] as const
 
 export const BRANDS: readonly Brand[] = [
   {
     id: 'sliquid',
     name: 'Sliquid',
-    tagline: 'The original body-safe intimacy brand',
-    description:
-      'Sliquid has been pioneering clean intimate wellness since 2002. Every formula is glycerin-free, paraben-free, and crafted with body-safe ingredients, from the bestselling H2O water-based lubricant to our award-winning bath and body line. With 100+ SKUs spanning lubricants, cleansers, and massage oils, Sliquid is the trusted standard for retailers and healthcare practitioners worldwide.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/assets/f6e32f00-e762-42f9-939b-6688b92dc20a.jpg',
-    imageAlt: 'Sliquid H2O apart of the Naturals collection of body-safe lubricants',
     siteUrl: 'https://sliquid.com',
   },
   {
     id: 'ride-lube',
     name: 'RIDE LUBE',
-    tagline: 'High performance products for men',
-    description:
-      'RIDE Lube is engineered for performance. The lineup includes water-based, silicone, hybrid, and specialty formulas, each designed for thickness, slipperiness, and endurance using ingredients suited for sensitive skin. Inclusive by design, RIDE Lube serves a broad audience including the LGBTQ+ community and features the T-Collection, developed specifically for transgender individuals. A high-velocity SKU for adult retailers seeking a loyal, performance-driven customer base.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/41526e2b-c50c-4068-bff8-ae34dce1148f.jpeg',
-    imageAlt: 'RIDE Lube water-based lubricant product group',
     siteUrl: 'https://ridelube.com',
   },
   {
     id: 'ride-rocco',
     name: 'RIDE ROCCO',
-    tagline: 'The gold standard of lube',
-    description:
-      'Developed in partnership with adult industry icon Rocco Steele, Ride Rocco is a premium lubricant collection built for shelf presence. Available in water-based, silicone, and the unique Seed hybrid formula, each product delivers the long-lasting endurance Rocco\'s audience expects, all manufactured to the same body-safe standards as RIDE Lube. The co-branded packaging drives impulse purchases and connects retailers with a dedicated, passionate fan base that follows Rocco across platforms.',
     imageUrl:
       'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/portal-assets/media/b32c470a-09df-4ef6-af3b-a298284a109c.png',
-    imageAlt: 'Ride Rocco signature water-based lubricant collection',
     siteUrl: 'https://riderocco.com',
   },
 ] as const
@@ -174,30 +147,22 @@ export const EXECUTIVES: readonly Executive[] = [
   {
     id: 'cynthia-elliott',
     name: 'Cynthia Elliott',
-    title: 'Co-Founder & CEO',
     imageUrl: '/images/team/cynthia-elliott.png',
-    imageAlt: 'Cynthia Elliott, Co-Founder and CEO of Sliquid',
   },
   {
     id: 'colin-roy',
     name: 'Colin Roy',
-    title: 'Senior Vice President',
     imageUrl: '/images/team/colin-roy.png',
-    imageAlt: 'Colin Roy, Senior Vice President of Sliquid',
   },
   {
     id: 'michelle-marcus',
     name: 'Michelle Marcus',
-    title: 'Vice President of Sales',
     imageUrl: '/images/team/michelle-marcus.jpg',
-    imageAlt: 'Michelle Marcus, Vice President of Sales at Sliquid',
   },
   {
     id: 'erik-vasquez',
     name: 'Erik Vasquez',
-    title: 'Vice President of Marketing',
     imageUrl: '/images/team/erik-vasquez.png',
-    imageAlt: 'Erik Vasquez, Vice President of Marketing at Sliquid',
   },
 ] as const
 

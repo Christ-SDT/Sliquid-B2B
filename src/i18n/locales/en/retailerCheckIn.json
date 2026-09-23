@@ -1,0 +1,83 @@
+{
+  "applyInstead": "Apply to become a retailer",
+  "gate": {
+    "eyebrow": "Sliquid Partners",
+    "title": "Before we start — does your store already carry Sliquid?",
+    "body": "This page is just for partners who already stock us. If you're not carrying us yet, we'd still love to talk — we'll point you to the right form.",
+    "yes": "Yes — we're an existing Sliquid retailer",
+    "no": "Not yet — we'd like to become one"
+  },
+  "declined": {
+    "title": "Let's get you set up first",
+    "body": "This page is for stores already carrying Sliquid. Becoming a partner takes one short form — our sales team usually replies within 2–3 business days.",
+    "back": "Actually, we do carry Sliquid — take me back"
+  },
+  "thanks": {
+    "title": "Thank you — we've got it.",
+    "body": "Thanks for checking in, and for the years you've spent putting Sliquid on your shelves. Your point of contact will follow up shortly.",
+    "reference": "Your reference number",
+    "done": "Done"
+  },
+  "hero": {
+    "eyebrow": "For our current partners",
+    "title": "Thank you for always being there.",
+    "body": "Every bottle on your shelf is a decision you made to stand behind body-safe intimate wellness — and after twenty years, that's still the whole business. We don't take it lightly.",
+    "newLook": "We've refreshed how Sliquid looks and how we work with you. <bold>So — how do you like the new look?</bold> Tell us below, and let us know what you need from us next."
+  },
+  "brands": {
+    "heading": "The brands behind your shelf",
+    "body": "Three houses, one standard. Every formula across all three is made to the same body-safe spec — glycerin-free, paraben-free, no sugar derivatives.",
+    "visit": "Visit {{name}} →"
+  },
+  "form": {
+    "heading": "Check in with us",
+    "intro": "Three fields are all we truly need — the rest just helps us help you faster.",
+    "company": "Store / Company Name",
+    "name": "Your Name",
+    "email": "Email",
+    "phone": "Phone",
+    "pointOfContact": "Who is your point of contact at Sliquid?",
+    "selectContact": "Select a contact…",
+    "contactHelp": "No wrong answer — if you're not sure, pick the last option and we'll route you.",
+    "contacts": {
+      "michelle": "Michelle Marcus — VP of Sales",
+      "colin": "Colin Roy — Senior Vice President",
+      "erik": "Erik Vasquez — VP of Marketing",
+      "distributor": "My distributor rep",
+      "notSure": "Not sure / I don't have one"
+    },
+    "brandsCarried": "Which brands do you carry?",
+    "interestsHeading": "How can we help right now?",
+    "interests": {
+      "reorder": "Reorder / place an order",
+      "launches": "New product & launch info",
+      "inStore": "In-store marketing materials",
+      "training": "Staff training & certification",
+      "images": "Updated product images and copy",
+      "storeLocator": "Store Locator listing",
+      "pricing": "MAP or pricing question"
+    },
+    "feedbackHeading": "How do you like our new look?",
+    "feedback": {
+      "love": "Love it",
+      "good": "Looks good",
+      "notYet": "Haven't looked yet",
+      "notes": "Some notes for you"
+    },
+    "comments": "Anything else you'd like to tell us?",
+    "commentsPlaceholder": "Feedback on the new look, what's selling, what you wish we did differently…",
+    "submit": "Send check-in",
+    "submitting": "Sending…"
+  },
+  "errors": {
+    "companyRequired": "Store or company name is required.",
+    "nameRequired": "Your name is required.",
+    "emailInvalid": "A valid email address is required.",
+    "alreadyCheckedIn": "You have already checked in recently.",
+    "sendFailed": "Something went wrong sending your check-in. Please try again or email sales@sliquid.com directly."
+  },
+  "notRetailer": {
+    "title": "Landed here but don't carry Sliquid yet?",
+    "body": "Someone probably forwarded you this link — and we're glad they did. Our retailer and distributor application takes a couple of minutes."
+  }
+}

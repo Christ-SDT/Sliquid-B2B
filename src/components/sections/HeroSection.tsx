@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { IMG_HERO } from '@/utils/constants'
 
 export default function HeroSection() {
+  const { t } = useTranslation('home')
   return (
     <section
       className="relative h-hero w-full overflow-hidden bg-gray-900"
-      aria-label="Hero banner"
+      aria-label={t('hero.ariaLabel')}
     >
       <img
         src={IMG_HERO}
@@ -27,10 +29,10 @@ export default function HeroSection() {
           >
             <h1 className="text-text-dark text-[38px] md:text-[46px] font-semibold
                            leading-[1.1] tracking-[-1px] mb-6">
-              Everything Sliquid retailers need in one place.
+              {t('hero.title')}
             </h1>
             <p className="text-text-gray text-base md:text-lg mb-8 leading-relaxed">
-              Your hub for product education, staff training, downloadable assets, and partner resources to support your business every step of the way.
+              {t('hero.body')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
@@ -39,7 +41,7 @@ export default function HeroSection() {
                            hover:bg-sliquid-dark-blue text-white font-semibold px-7 py-3.5
                            rounded-lg text-[15px] transition-colors duration-150"
               >
-                Become a Retailer
+                {t('hero.becomeRetailer')}
               </Link>
               <Link
                 to="/partner-login#register"
@@ -47,7 +49,7 @@ export default function HeroSection() {
                            text-text-dark hover:border-sliquid-blue hover:text-sliquid-blue
                            font-semibold px-7 py-3.5 rounded-lg text-[15px] transition-colors duration-150"
               >
-                Partner Portal
+                {t('hero.partnerPortal')}
               </Link>
             </div>
           </div>

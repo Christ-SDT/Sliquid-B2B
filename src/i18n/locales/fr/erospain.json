@@ -1,0 +1,56 @@
+{
+  "header": {
+    "eyebrow": "Erospain 2026",
+    "title": "Formulaire d’inscription des partenaires",
+    "intro": "Remplissez le formulaire ci-dessous et nous communiquerons avec vous. Vous recevrez un courriel de confirmation pour finaliser votre inscription."
+  },
+  "success": {
+    "title": "Merci!",
+    "body": "Merci d’avoir rempli notre formulaire d’inscription. Consultez votre boîte de réception : vous recevrez un courriel de confirmation et devrez cliquer sur le lien pour finaliser votre inscription.",
+    "spam": "Si vous ne le voyez pas, vérifiez votre dossier de courrier indésirable.",
+    "reset_one": "Ce formulaire sera réinitialisé dans <count>{{count}}</count> seconde…",
+    "reset_other": "Ce formulaire sera réinitialisé dans <count>{{count}}</count> secondes…"
+  },
+  "gdprNotice": "<bold>Important — double confirmation et RGPD :</bold> En soumettant ce formulaire, vous exprimez votre intérêt à recevoir des communications de Sliquid. Vous recevrez un courriel de confirmation distinct sur lequel vous <bold>devez cliquer</bold> pour finaliser votre inscription. Vous pouvez vous désabonner en tout temps. Nous traitons vos données conformément au RGPD. Nous ne vendrons ni ne partagerons jamais vos renseignements.",
+  "fields": {
+    "name": "Nom complet",
+    "namePlaceholder": "Marie Tremblay",
+    "email": "Adresse courriel",
+    "emailPlaceholder": "marie@votreentreprise.com",
+    "businessName": "Nom de l’entreprise",
+    "businessNamePlaceholder": "Votre Entreprise inc.",
+    "businessType": "Type d’entreprise",
+    "businessTypePlaceholder": "Sélectionnez un type…",
+    "storeNames": "Nom(s) du ou des magasins",
+    "storeNamesPlaceholder": "p. ex. Boutique Centre-Ville, Place du Marché",
+    "storeCount": "Nombre de magasins",
+    "storeCountPlaceholder": "p. ex. 3",
+    "websiteUrl": "Adresse du site Web",
+    "websiteUrlPlaceholder": "https://votremagasin.com",
+    "contactName": "Nom de la personne-ressource de l’entreprise",
+    "contactNamePlaceholder": "Personne-ressource principale de votre entreprise",
+    "contactPhone": "Numéro de téléphone de l’entreprise + poste",
+    "contactPhonePlaceholder": "p. ex. +34 91 234 5678, poste 101",
+    "consent": "J’accepte que Sliquid conserve et utilise mes renseignements pour m’envoyer des nouvelles sur ses produits et des communications marketing. Je comprends que je recevrai un courriel de confirmation pour finaliser mon inscription et que je peux me désabonner en tout temps en cliquant sur le lien de désabonnement de tout courriel reçu."
+  },
+  "businessTypes": {
+    "Retailer": "Détaillant",
+    "Distribution": "Distribution",
+    "E-Commerce": "Commerce électronique",
+    "Other": "Autre"
+  },
+  "errors": {
+    "nameRequired": "Le nom complet est obligatoire.",
+    "emailInvalid": "Une adresse courriel valide est obligatoire.",
+    "businessNameRequired": "Le nom de l’entreprise est obligatoire.",
+    "businessTypeRequired": "Veuillez sélectionner un type d’entreprise.",
+    "storeNamesRequired": "Veuillez indiquer le nom de votre ou vos magasins.",
+    "websiteUrlRequired": "L’adresse du site Web est obligatoire pour les entreprises de commerce électronique.",
+    "contactNameRequired": "Le nom de la personne-ressource est obligatoire.",
+    "consentRequired": "Vous devez donner votre consentement pour continuer.",
+    "generic": "Une erreur s’est produite. Veuillez réessayer."
+  },
+  "submit": "Soumettre",
+  "submitting": "Envoi en cours…",
+  "copyright": "© {{year}} Sliquid, LLC · Tous droits réservés"
+}

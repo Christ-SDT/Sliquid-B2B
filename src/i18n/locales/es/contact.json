@@ -1,0 +1,84 @@
+{
+  "hero": {
+    "eyebrow": "Contáctenos",
+    "title": "Construyamos algo juntos",
+    "body": "Ya sea que esté abriendo una cuenta mayorista, explorando la distribución o buscando recomendaciones de grado clínico, nuestro equipo B2B está listo para ayudarle."
+  },
+  "partnerships": {
+    "heading": "Con quién trabajamos",
+    "retailer": {
+      "title": "Minorista",
+      "description": "Abra una cuenta mayorista para vender Sliquid, RIDE Lube y Ride Rocco en tienda o en línea. Acceda a materiales de comercialización, apoyo con planogramas y niveles competitivos de precios mayoristas."
+    },
+    "media": {
+      "title": "Marketing y medios",
+      "description": "Consultas de prensa, colaboraciones de marca, alianzas con influencers y solicitudes editoriales. Envíenos su kit de medios o su propuesta y nuestro equipo de marketing le dará seguimiento."
+    },
+    "distributor": {
+      "title": "Distribuidor",
+      "description": "Trabajamos con socios de distribución regionales y globales para ampliar el acceso en mercados donde no hay distribución directa. Cuéntenos sobre su territorio y sus capacidades logísticas."
+    },
+    "medical": {
+      "title": "Profesionales médicos",
+      "description": "Colaboramos con médicos, terapeutas de piso pélvico, ginecólogos obstetras, terapeutas sexuales y otros profesionales de la salud autorizados que recomiendan productos de bienestar íntimo a sus pacientes. Contáctenos para conocer nuestro Programa de Socios Médicos."
+    }
+  },
+  "steps": {
+    "heading": "Qué sucede después",
+    "review": {
+      "title": "Revisamos su consulta",
+      "detail": "Nuestro equipo B2B lee cada mensaje y asignará su consulta a la persona adecuada en ventas, distribución o alianzas clínicas."
+    },
+    "reply": {
+      "title": "Le respondemos en un plazo de 2 días hábiles",
+      "detail": "Nos comunicaremos por correo electrónico (o por teléfono si nos proporcionó un número) para hablar de sus necesidades y los próximos pasos."
+    },
+    "proposal": {
+      "title": "Le enviamos una propuesta personalizada",
+      "detail": "Según el tipo de consulta, recibirá una lista de precios mayoristas, un contrato de distribución o una descripción general del programa de socios clínicos."
+    },
+    "onboarding": {
+      "title": "Incorporación y soporte",
+      "detail": "Una vez confirmada la alianza, su contacto de cuenta dedicado le brindará capacitación sobre productos, kits de materiales y soporte continuo."
+    }
+  },
+  "info": {
+    "heading": "Información de contacto",
+    "location": "Dallas, TX (Sede central)",
+    "hours": "De lunes a viernes, de 9:30 a. m. a 6:00 p. m. (hora del Centro)",
+    "response": "Respuesta en un plazo de 2 días hábiles"
+  },
+  "form": {
+    "heading": "Envíenos un mensaje",
+    "name": "Nombre completo",
+    "company": "Empresa",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "optional": "(opcional)",
+    "inquiryType": "Tipo de consulta",
+    "message": "Mensaje",
+    "submit": "Enviar mensaje",
+    "submitting": "Enviando…",
+    "footnote": "Respondemos todas las consultas B2B en un plazo de 2 días hábiles.",
+    "options": {
+      "placeholder": "Seleccione el tipo de consulta…",
+      "retailer": "Cuenta de minorista",
+      "media": "Marketing y medios",
+      "distributor": "Alianza de distribución",
+      "medical": "Profesional médico",
+      "general": "Consulta general"
+    }
+  },
+  "errors": {
+    "nameRequired": "El nombre completo es obligatorio.",
+    "companyRequired": "El nombre de la empresa es obligatorio.",
+    "emailInvalid": "Se requiere un correo electrónico válido.",
+    "subjectRequired": "Por favor, seleccione un tipo de consulta.",
+    "messageTooShort": "El mensaje debe tener al menos 20 caracteres.",
+    "sendFailed": "No pudimos enviar su mensaje en este momento. Por favor, inténtelo de nuevo o escriba directamente a sales@sliquid.com."
+  },
+  "success": {
+    "title": "Mensaje enviado",
+    "body": "Nuestro equipo B2B le responderá en un plazo de 2 días hábiles."
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "hero": {
+    "eyebrow": "Medical Partners Program",
+    "title": "The Wellness Brand Healthcare Providers Trust",
+    "body": "Sliquid equips healthcare providers with clinical-grade resources, complimentary patient samples, and educational materials to help you make confident recommendations and build lasting patient trust in intimate wellness.",
+    "cta": "Apply to the Program"
+  },
+  "ingredients": {
+    "heading": "Ingredients You Can Trust",
+    "body": "Every ingredient is chosen for clinical compatibility. No glycerin, no parabens, no artificial fragrance, just clean formulas safe enough to recommend to your most sensitive patients.",
+    "fullBreakdown": "Want the full ingredient breakdown? <cta>View our complete formula standards →</cta>",
+    "items": {
+      "purified-water": {
+        "name": "Purified Water",
+        "tag": "Base",
+        "description": "The foundation of every water-based formula. Purified through our 9-stage reverse osmosis filtration system, which includes a deionization step, it serves as a pure, contaminant-free carrier for all water-soluble ingredients."
+      },
+      "aloe-vera": {
+        "name": "Organic Aloe Barbadensis Leaf Juice",
+        "tag": "Soothing Base",
+        "description": "Sourced directly from aloe vera leaves, this naturally lubricating and healing ingredient is anti-inflammatory and pH-friendly for sensitive mucosal tissue."
+      },
+      "vitamin-e": {
+        "name": "Natural Tocopherols (Vitamin E)",
+        "tag": "Antioxidant",
+        "description": "Conditions skin and delivers antioxidant support. Extends shelf life naturally while protecting sensitive tissue without the need for synthetic preservatives."
+      },
+      "citric-acid": {
+        "name": "Citric Acid",
+        "tag": "pH Balancer",
+        "description": "Calibrates each formula to match the body's natural pH range of 3.8 to 4.5. Acts as a natural antiseptic and pH buffer, critical for supporting vaginal microbiome health."
+      },
+      "potassium-sorbate": {
+        "name": "Potassium Sorbate & Sodium Benzoate",
+        "tag": "Preservative",
+        "description": "Two of the gentlest non-toxic preservatives available. They extend shelf life and prevent contamination without the hormonal disruption risks associated with parabens."
+      },
+      "plant-cellulose": {
+        "name": "Plant Cellulose",
+        "tag": "Natural Thickener",
+        "description": "Derived from cotton and completely vegan and gluten-free. Delivers the signature silky glide Sliquid is known for, without synthetic polymers or petrochemical derivatives."
+      }
+    }
+  },
+  "imageAlt": "Sliquid intimate wellness products displayed for healthcare practitioners",
+  "program": {
+    "heading": "Program Details",
+    "tabsLabel": "Program details",
+    "tabRequirements": "Requirements",
+    "tabHow": "How It Works",
+    "requirements": {
+      "professional": "Must be a verifiable medical professional or college educator / organization facilitator with a current position at an established operation. This includes student representatives of college organizations acting on behalf of a school.",
+      "address": "Must provide a verifiable mailing address specifically associated with the medical facility or college campus listed on the form. Residential and P.O. Box addresses will not be accepted. No exceptions.",
+      "international": "Requests outside the United States are required to cover shipping and duty costs associated with the complimentary sample shipment.",
+      "onePerPractice": "Only one request per practice or organization. Duplicate submissions will be disqualified."
+    },
+    "how": {
+      "approval": "Your clinic or organization MUST meet all listed requirements. Upon positive verification of the information you provide, your practice/organization will be approved for a one-time, complimentary shipment of 100 single-use samples and marketing materials offering your clients a discount code for use on our site. A review may take up to 6 weeks. ONLY SUBMIT ONE REQUEST and wait to be contacted by our staff. You will be contacted whether you are approved or denied.",
+      "shipping": "Shipping is complimentary within the United States but must be paid in advance by all international partners. The formulas chosen to be sent are dictated by Sliquid and are subject to change at any time.",
+      "additional": "Please note that ONLY your initial shipment of 100 samples is free. Additional samples are available at a special Medical Partners discount rate. Please ask your Sliquid representative for the pricing structure and order form.",
+      "shippingNote": "*The price of international shipping varies by location and is subject to the rate of the carrier at the time of shipping. This rate will be provided to international partners by a Sliquid representative."
+    }
+  },
+  "gate": {
+    "title": "Before You Apply",
+    "body": "Please confirm that your practice meets all of the following requirements. Submissions that do not meet these criteria will not be processed.",
+    "accept": "I Meet All Requirements — Continue",
+    "decline": "I Do Not Qualify",
+    "promptAria": "Review requirements and begin application",
+    "promptTitle": "Review Requirements Before Applying",
+    "promptBody": "Before filling out the application, please confirm your practice meets all program requirements.",
+    "promptCta": "View Requirements & Begin Application",
+    "declined": "Thank you for checking the requirements. If your practice does not currently qualify, please <cta>contact us</cta> with any questions.",
+    "reviewAgain": "Review requirements again"
+  },
+  "thanks": {
+    "title": "Thank You for Signing Up!",
+    "body": "We've received your application for the Sliquid Medical Partners Program. A member of our team will review your submission and reach out — please allow up to <bold>6 weeks</bold> for a response.",
+    "decision": "You will be contacted whether your application is approved or declined. Please do not submit more than one request.",
+    "done": "Done"
+  },
+  "already": {
+    "title": "You've Already Applied",
+    "body": "We've received your application for the Medical Partners Program and we will get to you as soon as possible. No need to submit another request."
+  },
+  "submittedPanel": {
+    "title": "Application Submitted",
+    "body": "We've received your application for the Sliquid Medical Partners Program and we will get to you as soon as possible. No need to submit another request."
+  },
+  "form": {
+    "heading": "Medical Partners Program Application",
+    "intro": "Complete the form below to request complimentary samples and be listed in our Medical Partners directory.",
+    "practiceLegend": "Your Practice Information",
+    "practiceType": "Practice Type",
+    "practiceTypes": {
+      "obgyn": "OB/GYN",
+      "pelvicFloor": "Pelvic Floor Therapy",
+      "sexualHealth": "Sexual Health & Wellness",
+      "gp": "General Practitioner",
+      "other": "Other (specify below)"
+    },
+    "specify": "Please Specify",
+    "specifyPlaceholder": "Describe your practice type",
+    "practiceName": "Practice Name",
+    "practiceAddress": "Practice Address",
+    "street": "Street Address",
+    "addressLine2": "Address Line 2 (Suite, Unit, etc.)",
+    "city": "City",
+    "state": "State / Province / Region",
+    "zip": "Postal / Zip Code",
+    "country": "Country",
+    "practicePhone": "Practice Phone Number",
+    "practiceWebsite": "Practice Website",
+    "contactLegend": "Your Contact Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "relationship": "Your Relationship to the Practice",
+    "relationshipPlaceholder": "e.g. Office Manager, Physician, Student Rep",
+    "contactPhone": "Phone Number",
+    "email": "Email",
+    "preferredContact": "Preferred Contact Method",
+    "contactMethods": {
+      "Email": "Email",
+      "Phone": "Phone",
+      "Either": "Either"
+    },
+    "directory": "Add your practice to the Sliquid Medical Partners page?",
+    "yes": "Yes",
+    "no": "No",
+    "optIn": "By requesting samples, I agree to receive email updates from Sliquid as part of the Medical Partners Program.",
+    "privacy": "Your information is used only to process your application and ship your samples. It will never be sold, shared, or used for any other purpose.",
+    "submit": "Submit Application",
+    "submitting": "Submitting…"
+  },
+  "errors": {
+    "practiceTypeRequired": "Please select a practice type.",
+    "practiceNameRequired": "Practice name is required.",
+    "streetRequired": "Street address is required.",
+    "cityRequired": "City is required.",
+    "stateRequired": "State / Province is required.",
+    "zipRequired": "Postal / Zip code is required.",
+    "practicePhoneRequired": "Practice phone is required.",
+    "firstNameRequired": "First name is required.",
+    "lastNameRequired": "Last name is required.",
+    "contactPhoneRequired": "Phone number is required.",
+    "emailInvalid": "A valid email address is required.",
+    "optInRequired": "You must agree to receive Medical Partners Program emails.",
+    "serverUnexpected": "The server returned an unexpected error. Please try again.",
+    "network": "We couldn't reach our server. Please check your connection and try again — your information has not been sent yet, so it's safe to resubmit, or you can email erik@sliquid.com directly."
+  }
+}

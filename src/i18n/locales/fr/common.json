@@ -2,5 +2,101 @@
   "skipToContent": "Passer au contenu principal",
   "language": {
     "label": "Langue"
+  },
+  "brands": {
+    "sliquid": {
+      "tagline": "La marque d’intimité sans danger pour le corps, depuis le début",
+      "description": "Sliquid est pionnière du bien-être intime sain depuis 2002. Chaque formule est sans glycérine et sans parabènes, et conçue avec des ingrédients sans danger pour le corps, du lubrifiant à base d’eau H2O, notre produit phare, à notre gamme primée de soins pour le bain et le corps. Avec plus de 100 UGS couvrant lubrifiants, nettoyants et huiles de massage, Sliquid est la référence de confiance des détaillants et des professionnels de la santé partout dans le monde.",
+      "imageAlt": "Sliquid H2O, de la collection Naturals de lubrifiants sans danger pour le corps"
+    },
+    "ride-lube": {
+      "tagline": "Des produits haute performance pour hommes",
+      "description": "RIDE Lube est conçu pour la performance. La gamme comprend des formules à base d’eau, de silicone, hybrides et spécialisées, chacune pensée pour l’épaisseur, la glisse et l’endurance, avec des ingrédients adaptés aux peaux sensibles. Inclusive par conception, RIDE Lube s’adresse à un large public, y compris la communauté LGBTQ+, et propose la T-Collection, développée spécifiquement pour les personnes transgenres. Une UGS à forte rotation pour les détaillants pour adultes qui recherchent une clientèle fidèle et axée sur la performance.",
+      "imageAlt": "Gamme de lubrifiants à base d’eau RIDE Lube"
+    },
+    "ride-rocco": {
+      "tagline": "La référence absolue en lubrifiant",
+      "description": "Développée en partenariat avec l’icône de l’industrie pour adultes Rocco Steele, Ride Rocco est une collection de lubrifiants haut de gamme conçue pour se démarquer en rayon. Offerte en formules à base d’eau, de silicone et dans l’hybride exclusive Seed, chaque produit procure l’endurance durable qu’attend le public de Rocco, et est fabriqué selon les mêmes normes de sécurité que RIDE Lube. L’emballage à double marque favorise les achats impulsifs et relie les détaillants à une communauté de fans fidèle et passionnée qui suit Rocco sur toutes les plateformes.",
+      "imageAlt": "Collection de lubrifiants à base d’eau signature Ride Rocco"
+    }
+  },
+  "nav": {
+    "ourBrands": "Nos marques",
+    "ingredients": "Ingrédients",
+    "about": "À propos",
+    "announcements": "Annonces",
+    "mapPolicy": "Politique PMA",
+    "contact": "Contact",
+    "partnerPortal": "Portail partenaires",
+    "productCatalog": "Catalogue de produits",
+    "healthPractitioners": "Professionnels de la santé"
+  },
+  "header": {
+    "homeLink": "Accueil Sliquid HQ",
+    "mainNav": "Navigation principale",
+    "mobileNav": "Navigation mobile",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "search": "Rechercher",
+    "searchPlaceholder": "Rechercher"
+  },
+  "footer": {
+    "logoAlt": "Lotus Sliquid",
+    "tagline": "Une vie plus saine, ensemble. Sliquid s’engage à offrir les produits intimes les plus sains et les plus sûrs aux détaillants et aux professionnels de la santé partout dans le monde.",
+    "quickLinks": "Liens rapides",
+    "otherSites": "Autres sites",
+    "contactHeading": "Contact",
+    "about": "À propos",
+    "careers": "Carrières",
+    "contactUs": "Nous joindre ›",
+    "copyright": "Copyright © {{year}} Sliquid, LLC. Tous droits réservés.",
+    "accessibility": "Accessibilité",
+    "dataRights": "Vos droits sur vos données",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d’utilisation"
+  },
+  "titles": {
+    "home": "Portail partenaires B2B",
+    "ourBrands": "Nos marques",
+    "ingredients": "Ingrédients",
+    "about": "À propos",
+    "announcements": "Annonces",
+    "insights": "Actualités",
+    "contact": "Contact",
+    "partnerLogin": "Connexion partenaires",
+    "forgotPassword": "Mot de passe oublié",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "healthPractitioners": "Professionnels de la santé",
+    "becomeRetailer": "Devenir détaillant",
+    "retailerCheckIn": "Suivi des détaillants",
+    "catalog": "Catalogue de produits",
+    "mapPolicy": "Politique PMA",
+    "privacyPolicy": "Politique de confidentialité",
+    "accessibility": "Accessibilité",
+    "dataRights": "Vos droits sur vos données",
+    "terms": "Conditions d’utilisation",
+    "erospain": "Erospain 2026",
+    "register": "Créer un compte",
+    "announcement": "Annonce",
+    "notFound": "Page introuvable"
+  },
+  "notFound": {
+    "heading": "Page introuvable",
+    "body": "La page que vous cherchez n’existe pas ou a été déplacée.",
+    "backHome": "Retour à l’accueil"
+  },
+  "cooldown": {
+    "heading": "Déjà reçu — merci.",
+    "submission_one": "Nous avons bien reçu votre envoi et notre équipe s’en occupe. Vous pourrez en envoyer un autre dans environ {{count}} minute.",
+    "submission_other": "Nous avons bien reçu votre envoi et notre équipe s’en occupe. Vous pourrez en envoyer un autre dans environ {{count}} minutes.",
+    "message_one": "Nous avons bien reçu votre message et notre équipe s’en occupe. Vous pourrez en envoyer un autre dans environ {{count}} minute.",
+    "message_other": "Nous avons bien reçu votre message et notre équipe s’en occupe. Vous pourrez en envoyer un autre dans environ {{count}} minutes.",
+    "application_one": "Nous avons bien reçu votre demande et notre équipe s’en occupe. Vous pourrez en envoyer une autre dans environ {{count}} minute.",
+    "application_other": "Nous avons bien reçu votre demande et notre équipe s’en occupe. Vous pourrez en envoyer une autre dans environ {{count}} minutes.",
+    "request_one": "Nous avons bien reçu votre requête et notre équipe s’en occupe. Vous pourrez en envoyer une autre dans environ {{count}} minute.",
+    "request_other": "Nous avons bien reçu votre requête et notre équipe s’en occupe. Vous pourrez en envoyer une autre dans environ {{count}} minutes.",
+    "checkIn_one": "Nous avons bien reçu votre suivi et notre équipe s’en occupe. Vous pourrez en envoyer un autre dans environ {{count}} minute.",
+    "checkIn_other": "Nous avons bien reçu votre suivi et notre équipe s’en occupe. Vous pourrez en envoyer un autre dans environ {{count}} minutes.",
+    "urgent": "Besoin de quelque chose d’urgent d’ici là? Écrivez à <email>sales@sliquid.com</email>."
   }
 }

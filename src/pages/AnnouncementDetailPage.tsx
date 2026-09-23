@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { API_BASE } from '@/utils/constants'
 import { formatDate, isoDate } from '@/utils/date'
 import type { Announcement } from '@/types'
@@ -7,6 +8,7 @@ import AnnouncementBody from '@/components/AnnouncementBody'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 function BackLink() {
+  const { t } = useTranslation('news')
   return (
     <Link
       to="/announcements"
@@ -16,12 +18,13 @@ function BackLink() {
       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
       </svg>
-      All announcements
+      {t('detail.backToAll')}
     </Link>
   )
 }
 
 export default function AnnouncementDetailPage() {
+  const { t } = useTranslation('news')
   const { slug } = useParams<{ slug: string }>()
   const [item, setItem] = useState<Announcement | null>(null)
   const [loading, setLoading] = useState(true)
@@ -44,7 +47,7 @@ export default function AnnouncementDetailPage() {
   // Overrides Layout's generic "Announcement" default once the real title
   // (or the not-found state) is known — see useDocumentTitle for why this
   // works even though Layout's own effect already ran first.
-  useDocumentTitle(loading ? 'Announcement' : notFound || !item ? 'Announcement Not Found' : item.title)
+  useDocumentTitle(loading ? t('detail.docTitleLoading') : notFound || !item ? t('detail.docTitleNotFound') : item.title)
 
   if (loading) {
     return (
@@ -63,13 +66,13 @@ export default function AnnouncementDetailPage() {
     return (
       <div className="max-w-[860px] mx-auto px-6 py-20 text-center">
         <p className="text-sliquid-blue text-sm font-semibold uppercase tracking-widest mb-2">
-          Newsroom
+          {t('newsroom')}
         </p>
         <h1 className="text-text-dark text-[30px] font-semibold tracking-[-0.5px] mb-4">
-          Announcement not found
+          {t('detail.notFoundTitle')}
         </h1>
         <p className="text-text-gray mb-8">
-          This announcement may have been removed, or the link may be incorrect.
+          {t('detail.notFoundBody')}
         </p>
         <BackLink />
       </div>
@@ -89,7 +92,7 @@ export default function AnnouncementDetailPage() {
       <header className="mb-10">
         <div className="flex items-center gap-3 mb-4">
           <span className="bg-bg-light-blue text-sliquid-blue text-xs font-semibold px-2.5 py-1 rounded-full">
-            Press Release
+            {t('pressRelease')}
           </span>
           <time dateTime={isoDate(item.published_at)} className="text-text-light-gray text-sm">
             {formatDate(item.published_at)}
@@ -108,7 +111,7 @@ export default function AnnouncementDetailPage() {
             className="inline-flex items-center gap-1.5 text-sliquid-blue font-semibold text-sm mt-5
                        hover:gap-3 transition-all duration-150"
           >
-            View on sliquid.com
+            {t('detail.viewOnSliquid')}
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>

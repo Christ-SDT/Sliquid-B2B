@@ -1,3 +1,5 @@
+import i18n from '@/i18n'
+
 /**
  * Date formatting for API-supplied timestamps.
  *
@@ -10,12 +12,21 @@ function parseServerDate(value: string): Date {
   return new Date(hasZone ? value : value.replace(' ', 'T') + 'Z')
 }
 
-/** "June 30, 2026" */
-export function formatDate(value?: string | null): string {
+// Intl locale per UI language. English stays en-US so existing output is unchanged;
+// French uses Canadian conventions to match our French audience.
+const INTL_LOCALE: Record<string, string> = { en: 'en-US', es: 'es', fr: 'fr-CA' }
+
+/**
+ * "June 30, 2026" / "30 de junio de 2026" / "30 juin 2026". Defaults to the
+ * current UI language; callers should be inside a component that uses
+ * useTranslation so the date re-renders on a language switch.
+ */
+export function formatDate(value?: string | null, locale?: string): string {
   if (!value) return ''
   const d = parseServerDate(value)
   if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  const lng = locale ?? i18n.resolvedLanguage ?? 'en'
+  return d.toLocaleDateString(INTL_LOCALE[lng] ?? lng, { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 /** ISO date for a `<time dateTime>` attribute. */

@@ -67,9 +67,3 @@ export function clearCooldown(formId: FormId): void {
     window.localStorage.removeItem(KEY_PREFIX + formId)
   } catch { /* see read() */ }
 }
-
-/** The banner copy, shared so every form says the same thing. */
-export function cooldownMessage(minutes: number, noun = 'submission'): string {
-  return `We've already received your ${noun} — our team is on it. ` +
-    `You can send another in about ${minutes} minute${minutes === 1 ? '' : 's'}.`
-}

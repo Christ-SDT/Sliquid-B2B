@@ -2,5 +2,101 @@
   "skipToContent": "Saltar al contenido principal",
   "language": {
     "label": "Idioma"
+  },
+  "brands": {
+    "sliquid": {
+      "tagline": "La marca original de intimidad segura para el cuerpo",
+      "description": "Sliquid ha sido pionera en el bienestar íntimo limpio desde 2002. Cada fórmula es libre de glicerina y de parabenos, y está elaborada con ingredientes seguros para el cuerpo, desde el lubricante a base de agua H2O, nuestro más vendido, hasta nuestra galardonada línea de baño y cuidado corporal. Con más de 100 SKU entre lubricantes, limpiadores y aceites de masaje, Sliquid es el estándar de confianza para minoristas y profesionales de la salud en todo el mundo.",
+      "imageAlt": "Sliquid H2O, parte de la colección Naturals de lubricantes seguros para el cuerpo"
+    },
+    "ride-lube": {
+      "tagline": "Productos de alto rendimiento para hombres",
+      "description": "RIDE Lube está diseñado para el rendimiento. La línea incluye fórmulas a base de agua, de silicona, híbridas y especializadas, cada una pensada para ofrecer espesor, deslizamiento y resistencia con ingredientes adecuados para la piel sensible. Inclusiva por diseño, RIDE Lube atiende a un público amplio, incluida la comunidad LGBTQ+, y ofrece la T-Collection, desarrollada específicamente para personas transgénero. Un SKU de alta rotación para minoristas para adultos que buscan una clientela leal y orientada al rendimiento.",
+      "imageAlt": "Grupo de productos de lubricante a base de agua RIDE Lube"
+    },
+    "ride-rocco": {
+      "tagline": "El estándar de oro en lubricantes",
+      "description": "Desarrollada en colaboración con el ícono de la industria para adultos Rocco Steele, Ride Rocco es una colección de lubricantes premium creada para destacar en el anaquel. Disponible en fórmulas a base de agua, de silicona y la exclusiva fórmula híbrida Seed, cada producto ofrece la resistencia duradera que espera el público de Rocco, fabricado con los mismos estándares de seguridad corporal que RIDE Lube. El empaque de marca compartida impulsa las compras por impulso y conecta a los minoristas con una base de fans dedicada y apasionada que sigue a Rocco en todas las plataformas.",
+      "imageAlt": "Colección de lubricantes a base de agua de la firma Ride Rocco"
+    }
+  },
+  "nav": {
+    "ourBrands": "Nuestras marcas",
+    "ingredients": "Ingredientes",
+    "about": "Nosotros",
+    "announcements": "Anuncios",
+    "mapPolicy": "Política MAP",
+    "contact": "Contacto",
+    "partnerPortal": "Portal de socios",
+    "productCatalog": "Catálogo de productos",
+    "healthPractitioners": "Profesionales de la salud"
+  },
+  "header": {
+    "homeLink": "Inicio de Sliquid HQ",
+    "mainNav": "Navegación principal",
+    "mobileNav": "Navegación móvil",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "search": "Buscar",
+    "searchPlaceholder": "Buscar"
+  },
+  "footer": {
+    "logoAlt": "Loto de Sliquid",
+    "tagline": "Una vida más sana se construye en conjunto. Sliquid se dedica a ofrecer los productos íntimos más limpios y seguros a minoristas y profesionales de la salud en todo el mundo.",
+    "quickLinks": "Enlaces rápidos",
+    "otherSites": "Otros sitios",
+    "contactHeading": "Contacto",
+    "about": "Nosotros",
+    "careers": "Empleo",
+    "contactUs": "Contáctenos ›",
+    "copyright": "Copyright © {{year}} Sliquid, LLC. Todos los derechos reservados.",
+    "accessibility": "Accesibilidad",
+    "dataRights": "Sus derechos sobre sus datos",
+    "privacy": "Política de privacidad",
+    "terms": "Términos de uso"
+  },
+  "titles": {
+    "home": "Portal de socios B2B",
+    "ourBrands": "Nuestras marcas",
+    "ingredients": "Ingredientes",
+    "about": "Nosotros",
+    "announcements": "Anuncios",
+    "insights": "Novedades",
+    "contact": "Contacto",
+    "partnerLogin": "Acceso de socios",
+    "forgotPassword": "Olvidé mi contraseña",
+    "resetPassword": "Restablecer contraseña",
+    "healthPractitioners": "Profesionales de la salud",
+    "becomeRetailer": "Conviértase en minorista",
+    "retailerCheckIn": "Registro de minoristas",
+    "catalog": "Catálogo de productos",
+    "mapPolicy": "Política MAP",
+    "privacyPolicy": "Política de privacidad",
+    "accessibility": "Accesibilidad",
+    "dataRights": "Sus derechos sobre sus datos",
+    "terms": "Términos de uso",
+    "erospain": "Erospain 2026",
+    "register": "Crear cuenta",
+    "announcement": "Anuncio",
+    "notFound": "Página no encontrada"
+  },
+  "notFound": {
+    "heading": "Página no encontrada",
+    "body": "La página que busca no existe o ha sido trasladada.",
+    "backHome": "Volver al inicio"
+  },
+  "cooldown": {
+    "heading": "Ya lo recibimos, gracias.",
+    "submission_one": "Ya recibimos su envío y nuestro equipo se está encargando. Podrá enviar otro en aproximadamente {{count}} minuto.",
+    "submission_other": "Ya recibimos su envío y nuestro equipo se está encargando. Podrá enviar otro en aproximadamente {{count}} minutos.",
+    "message_one": "Ya recibimos su mensaje y nuestro equipo se está encargando. Podrá enviar otro en aproximadamente {{count}} minuto.",
+    "message_other": "Ya recibimos su mensaje y nuestro equipo se está encargando. Podrá enviar otro en aproximadamente {{count}} minutos.",
+    "application_one": "Ya recibimos su solicitud y nuestro equipo se está encargando. Podrá enviar otra en aproximadamente {{count}} minuto.",
+    "application_other": "Ya recibimos su solicitud y nuestro equipo se está encargando. Podrá enviar otra en aproximadamente {{count}} minutos.",
+    "request_one": "Ya recibimos su petición y nuestro equipo se está encargando. Podrá enviar otra en aproximadamente {{count}} minuto.",
+    "request_other": "Ya recibimos su petición y nuestro equipo se está encargando. Podrá enviar otra en aproximadamente {{count}} minutos.",
+    "checkIn_one": "Ya recibimos su registro y nuestro equipo se está encargando. Podrá enviar otro en aproximadamente {{count}} minuto.",
+    "checkIn_other": "Ya recibimos su registro y nuestro equipo se está encargando. Podrá enviar otro en aproximadamente {{count}} minutos.",
+    "urgent": "¿Necesita algo con urgencia mientras tanto? Escriba a <email>sales@sliquid.com</email>."
   }
 }

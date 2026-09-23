@@ -1,0 +1,84 @@
+{
+  "hero": {
+    "eyebrow": "Nous joindre",
+    "title": "Construisons quelque chose ensemble",
+    "body": "Que vous souhaitiez ouvrir un compte de gros, explorer la distribution ou obtenir des recommandations de qualité clinique, notre équipe B2B est prête à vous aider."
+  },
+  "partnerships": {
+    "heading": "Avec qui nous travaillons",
+    "retailer": {
+      "title": "Détaillant",
+      "description": "Ouvrez un compte de gros pour offrir Sliquid, RIDE Lube et Ride Rocco en magasin ou en ligne. Accédez à du matériel de marchandisage, à du soutien pour les planogrammes et à des niveaux de prix de gros concurrentiels."
+    },
+    "media": {
+      "title": "Marketing et médias",
+      "description": "Demandes de presse, collaborations de marque, partenariats avec des influenceurs et demandes éditoriales. Envoyez-nous votre trousse média ou votre proposition et notre équipe marketing vous répondra."
+    },
+    "distributor": {
+      "title": "Distributeur",
+      "description": "Nous travaillons avec des partenaires de distribution régionaux et internationaux pour élargir l’accès dans les marchés où la distribution directe n’est pas offerte. Parlez-nous de votre territoire et de vos capacités logistiques."
+    },
+    "medical": {
+      "title": "Professionnels de la santé",
+      "description": "Nous collaborons avec des médecins, des physiothérapeutes en rééducation périnéale, des gynécologues-obstétriciens, des sexothérapeutes et d’autres professionnels de la santé autorisés qui recommandent des produits de bien-être intime à leurs patients. Communiquez avec nous pour découvrir notre Programme de partenaires médicaux."
+    }
+  },
+  "steps": {
+    "heading": "Prochaines étapes",
+    "review": {
+      "title": "Nous examinons votre demande",
+      "detail": "Notre équipe B2B lit chaque message et achemine votre demande vers la bonne personne en ventes, en distribution ou en partenariats cliniques."
+    },
+    "reply": {
+      "title": "Vous recevez une réponse d’ici 2 jours ouvrables",
+      "detail": "Nous communiquerons avec vous par courriel (ou par téléphone si vous avez fourni un numéro) pour discuter de vos besoins et des prochaines étapes."
+    },
+    "proposal": {
+      "title": "Nous vous envoyons une proposition sur mesure",
+      "detail": "Selon le type de demande, vous recevrez une grille de prix de gros, une entente de distribution ou un aperçu du programme de partenaires cliniques."
+    },
+    "onboarding": {
+      "title": "Intégration et soutien",
+      "detail": "Une fois le partenariat confirmé, votre personne-ressource attitrée vous offre de la formation sur les produits, des trousses de matériel et un soutien continu."
+    }
+  },
+  "info": {
+    "heading": "Coordonnées",
+    "location": "Dallas, TX (siège social)",
+    "hours": "Du lundi au vendredi, de 9 h 30 à 18 h (heure du Centre)",
+    "response": "Réponse d’ici 2 jours ouvrables"
+  },
+  "form": {
+    "heading": "Envoyez-nous un message",
+    "name": "Nom complet",
+    "company": "Entreprise",
+    "email": "Courriel",
+    "phone": "Téléphone",
+    "optional": "(facultatif)",
+    "inquiryType": "Type de demande",
+    "message": "Message",
+    "submit": "Envoyer le message",
+    "submitting": "Envoi en cours…",
+    "footnote": "Nous répondons à toutes les demandes B2B d’ici 2 jours ouvrables.",
+    "options": {
+      "placeholder": "Sélectionnez le type de demande…",
+      "retailer": "Compte de détaillant",
+      "media": "Marketing et médias",
+      "distributor": "Partenariat de distribution",
+      "medical": "Professionnel de la santé",
+      "general": "Demande générale"
+    }
+  },
+  "errors": {
+    "nameRequired": "Le nom complet est obligatoire.",
+    "companyRequired": "Le nom de l’entreprise est obligatoire.",
+    "emailInvalid": "Une adresse courriel valide est requise.",
+    "subjectRequired": "Veuillez sélectionner un type de demande.",
+    "messageTooShort": "Le message doit contenir au moins 20 caractères.",
+    "sendFailed": "Nous n’avons pas pu envoyer votre message pour le moment. Veuillez réessayer ou écrire directement à sales@sliquid.com."
+  },
+  "success": {
+    "title": "Message envoyé",
+    "body": "Notre équipe B2B vous répondra d’ici 2 jours ouvrables."
+  }
+}

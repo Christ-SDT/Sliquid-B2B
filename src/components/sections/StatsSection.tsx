@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import { STATS } from '@/utils/constants'
 
 export default function StatsSection() {
+  const { t } = useTranslation('home')
   return (
     <section className="py-24 bg-white" aria-labelledby="stats-heading">
       <div className="max-w-[1240px] mx-auto px-6">
@@ -11,22 +13,22 @@ export default function StatsSection() {
               id="stats-heading"
               className="text-text-dark text-[36px] font-semibold leading-[1.2] tracking-[-0.5px]"
             >
-              A truly integrated health &amp; wellness ecosystem
+              {t('stats.heading')}
             </h2>
             <p className="text-text-gray text-[17px] leading-relaxed">
-              As part of the Sliquid family, you gain access to a growing network spanning retail and digital channels. Our physical and digital footprint works alongside our product innovation to help you deliver genuinely healthy, meaningful benefits to your customers.
+              {t('stats.body')}
             </p>
           </div>
 
           {/* Right: stats */}
           <div className="flex flex-col gap-10">
             {STATS.map((stat) => (
-              <div key={stat.value}>
+              <div key={stat.id}>
                 <div className="text-[48px] font-bold text-sliquid-blue leading-none mb-2">
                   {stat.value}
                 </div>
                 <span className="text-base font-medium text-text-dark">
-                  {stat.label}
+                  {t(`stats.items.${stat.id}`)}
                 </span>
               </div>
             ))}

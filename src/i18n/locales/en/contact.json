@@ -1,0 +1,84 @@
+{
+  "hero": {
+    "eyebrow": "Get in Touch",
+    "title": "Let's build something together",
+    "body": "Whether you are opening a wholesale account, exploring distribution, or looking for clinical-grade recommendations, our B2B team is ready to help."
+  },
+  "partnerships": {
+    "heading": "Who we work with",
+    "retailer": {
+      "title": "Retailer",
+      "description": "Open a wholesale account to carry Sliquid, RIDE Lube, and Ride Rocco in-store or online. Access merchandising assets, planogram support, and competitive wholesale pricing tiers."
+    },
+    "media": {
+      "title": "Marketing & Media",
+      "description": "Press inquiries, brand collaborations, influencer partnerships, and editorial requests. Reach out with your media kit or proposal and our marketing team will follow up."
+    },
+    "distributor": {
+      "title": "Distributor",
+      "description": "We work with regional and global distribution partners to expand access in markets where direct fulfillment is not available. Tell us about your territory and logistics capabilities."
+    },
+    "medical": {
+      "title": "Medical Professionals",
+      "description": "We partner with physicians, pelvic floor therapists, OB-GYNs, sex therapists, and other licensed healthcare providers who recommend intimate wellness products to their patients. Reach out to learn about our Medical Partners Program."
+    }
+  },
+  "steps": {
+    "heading": "What happens next",
+    "review": {
+      "title": "We review your inquiry",
+      "detail": "Our B2B team reads every message and will match your inquiry to the right person in sales, distribution, or clinical partnerships."
+    },
+    "reply": {
+      "title": "You hear back within 2 business days",
+      "detail": "We will reach out by email (or phone if you provided a number) to discuss your needs and next steps."
+    },
+    "proposal": {
+      "title": "We send a tailored proposal",
+      "detail": "Depending on your inquiry type, you will receive a wholesale pricing sheet, distributor agreement, or clinical partner overview."
+    },
+    "onboarding": {
+      "title": "Onboarding & support",
+      "detail": "Once a partnership is confirmed, your dedicated account contact provides product training, asset kits, and ongoing support."
+    }
+  },
+  "info": {
+    "heading": "Contact information",
+    "location": "Dallas, TX (Headquarters)",
+    "hours": "Monday through Friday, 9:30am to 6pm CT",
+    "response": "Response within 2 business days"
+  },
+  "form": {
+    "heading": "Send us a message",
+    "name": "Full Name",
+    "company": "Company",
+    "email": "Email",
+    "phone": "Phone",
+    "optional": "(optional)",
+    "inquiryType": "Inquiry Type",
+    "message": "Message",
+    "submit": "Send Message",
+    "submitting": "Sending…",
+    "footnote": "We respond to all B2B inquiries within 2 business days.",
+    "options": {
+      "placeholder": "Select inquiry type…",
+      "retailer": "Retailer Account",
+      "media": "Marketing & Media",
+      "distributor": "Distribution Partnership",
+      "medical": "Medical Professional",
+      "general": "General Inquiry"
+    }
+  },
+  "errors": {
+    "nameRequired": "Full name is required.",
+    "companyRequired": "Company name is required.",
+    "emailInvalid": "A valid email address is required.",
+    "subjectRequired": "Please select an inquiry type.",
+    "messageTooShort": "Message must be at least 20 characters.",
+    "sendFailed": "We couldn't send your message just now. Please try again, or email sales@sliquid.com directly."
+  },
+  "success": {
+    "title": "Message Sent",
+    "body": "Our B2B team will respond within 2 business days."
+  }
+}

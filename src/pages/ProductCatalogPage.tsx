@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Trans, useTranslation } from 'react-i18next'
 
 const API_BASE =
   (import.meta.env.VITE_API_URL as string | undefined) ??
   'https://sliquid-b2b-production.up.railway.app'
 
 
+// 'All' is an internal filter value; its label is translated, brand names are not.
 const BRAND_TABS = ['All', 'Sliquid', 'RIDE', 'Ride Rocco']
 
 interface CatalogProduct {
@@ -82,6 +84,7 @@ function DetailField({ label, value }: { label: string; value: string | number |
 // ── Product Modal ──────────────────────────────────────────────────────────────
 
 function ProductModal({ product, onClose }: { product: CatalogProduct; onClose: () => void }) {
+  const { t } = useTranslation('catalog')
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -112,7 +115,7 @@ function ProductModal({ product, onClose }: { product: CatalogProduct; onClose: 
         <button
           onClick={onClose}
           className="absolute top-4 right-4 bg-stone-200/80 hover:bg-stone-300 rounded-xl p-1.5 transition-colors"
-          aria-label="Close"
+          aria-label={t('product.close')}
         >
           <XIcon className="w-4 h-4 text-stone-600" />
         </button>
@@ -125,7 +128,7 @@ function ProductModal({ product, onClose }: { product: CatalogProduct; onClose: 
             </span>
             <span className={`px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0
               ${product.in_stock ? 'bg-teal-50 text-teal-700' : 'bg-red-50 text-red-600'}`}>
-              {product.in_stock ? 'In Stock' : 'Out of Stock'}
+              {product.in_stock ? t('product.inStock') : t('product.outOfStock')}
             </span>
           </div>
 
@@ -141,21 +144,21 @@ function ProductModal({ product, onClose }: { product: CatalogProduct; onClose: 
           {/* MSRP highlight */}
           {product.unit_msrp != null && (
             <div className="bg-stone-50 rounded-2xl p-4 mb-5 text-center border border-stone-100">
-              <p className="text-gray-400 text-xs mb-1">MSRP</p>
+              <p className="text-gray-400 text-xs mb-1">{t('product.msrp')}</p>
               <p className="text-sliquid-blue font-bold text-3xl">${product.unit_msrp.toFixed(2)}</p>
             </div>
           )}
 
           {/* Catalog details */}
           <div className="bg-stone-50 rounded-2xl p-5 grid grid-cols-2 gap-x-6 gap-y-4 border border-stone-100">
-            <DetailField label="Category"         value={product.category} />
-            <DetailField label="Case Pack"        value={product.case_pack ? `${product.case_pack} units` : null} />
-            <DetailField label="Case Weight"      value={product.case_weight} />
-            <DetailField label="Unit Dimensions"  value={product.unit_dimensions} />
-            <DetailField label="Case Dimensions"  value={product.case_dimensions} />
+            <DetailField label={t('product.category')} value={product.category} />
+            <DetailField label={t('product.casePack')} value={product.case_pack ? t('product.casePackUnits', { count: product.case_pack }) : null} />
+            <DetailField label={t('product.caseWeight')} value={product.case_weight} />
+            <DetailField label={t('product.unitDimensions')} value={product.unit_dimensions} />
+            <DetailField label={t('product.caseDimensions')} value={product.case_dimensions} />
           </div>
 
-          <p className="text-gray-400 text-xs mt-4 text-right">Effective Jan 1, 2026</p>
+          <p className="text-gray-400 text-xs mt-4 text-right">{t('product.effective')}</p>
         </div>
       </div>
     </div>
@@ -165,6 +168,7 @@ function ProductModal({ product, onClose }: { product: CatalogProduct; onClose: 
 // ── Product Card ───────────────────────────────────────────────────────────────
 
 function ProductCard({ product, onClick }: { product: CatalogProduct; onClick: () => void }) {
+  const { t } = useTranslation('catalog')
   return (
     <button
       onClick={onClick}
@@ -187,7 +191,7 @@ function ProductCard({ product, onClick }: { product: CatalogProduct; onClick: (
         }
         {!!product.is_new && (
           <span className="absolute top-2 left-2 bg-sliquid-blue text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
-            New
+            {t('product.new')}
           </span>
         )}
       </div>
@@ -203,13 +207,13 @@ function ProductCard({ product, onClick }: { product: CatalogProduct; onClick: (
         <div className="flex items-center justify-between gap-2 mt-auto">
           <div>
             {product.unit_msrp != null
-              ? <span className="text-gray-900 font-bold text-base">${product.unit_msrp.toFixed(2)} <span className="text-gray-400 text-xs font-normal">MSRP</span></span>
-              : <span className="text-gray-400 text-xs">Price available in portal</span>
+              ? <span className="text-gray-900 font-bold text-base">${product.unit_msrp.toFixed(2)} <span className="text-gray-400 text-xs font-normal">{t('product.msrp')}</span></span>
+              : <span className="text-gray-400 text-xs">{t('product.priceInPortal')}</span>
             }
           </div>
           <span className={`text-[10px] font-semibold px-2 py-1 rounded-full flex-shrink-0
             ${product.in_stock ? 'bg-teal-50 text-teal-700' : 'bg-red-50 text-red-600'}`}>
-            {product.in_stock ? 'In Stock' : 'Out'}
+            {product.in_stock ? t('product.inStock') : t('product.outShort')}
           </span>
         </div>
       </div>
@@ -236,6 +240,7 @@ function SkeletonCard() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function ProductCatalogPage() {
+  const { t } = useTranslation('catalog')
   const [products, setProducts] = useState<CatalogProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -253,7 +258,7 @@ export default function ProductCatalogPage() {
         return r.json()
       })
       .then((data: CatalogProduct[]) => setProducts(data))
-      .catch(() => setError('Unable to load the product catalog. Please try again later.'))
+      .catch(() => setError('results.loadError'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -299,14 +304,16 @@ export default function ProductCatalogPage() {
       {/* ── Page Header ─────────────────────────────────────────────────────── */}
       <section className="bg-bg-off-white border-b border-gray-100 py-12 px-4 sm:px-6">
         <div className="max-w-[1240px] mx-auto">
-          <p className="text-sliquid-blue text-sm font-semibold uppercase tracking-widest mb-2">Product Catalog</p>
+          <p className="text-sliquid-blue text-sm font-semibold uppercase tracking-widest mb-2">{t('header.eyebrow')}</p>
           <h1 className="text-text-dark text-[38px] font-semibold tracking-[-0.5px] mb-3 leading-tight">
-            Body-Safe Products, <br className="hidden sm:block" />Transparently Formulated
+            <Trans t={t} i18nKey="header.title" components={{ lineBreak: <br className="hidden sm:block" /> }} />
           </h1>
           <p className="text-text-gray text-base leading-relaxed max-w-xl">
-            Browse our complete range of intimate wellness products. Every formula is glycerin-free, paraben-free, and crafted for body safety.
-            Wholesale pricing and partner ordering available through the{' '}
-            <a href="/partner-login" className="text-sliquid-blue hover:underline font-medium">partner portal</a>.
+            <Trans
+              t={t}
+              i18nKey="header.body"
+              components={{ portalLink: <a href="/partner-login" className="text-sliquid-blue hover:underline font-medium" /> }}
+            />
           </p>
         </div>
       </section>
@@ -315,7 +322,7 @@ export default function ProductCatalogPage() {
       <section className="sticky top-0 z-10 bg-white border-b border-gray-100 py-4 px-4 sm:px-6">
         <div className="max-w-[1240px] mx-auto flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
           {/* Brand tabs */}
-          <div className="flex gap-2 flex-wrap" role="group" aria-label="Filter by brand">
+          <div className="flex gap-2 flex-wrap" role="group" aria-label={t('filters.brandGroup')}>
             {BRAND_TABS.map(b => (
               <button
                 key={b}
@@ -328,7 +335,7 @@ export default function ProductCatalogPage() {
                     : 'bg-white text-text-gray border-gray-500 hover:border-gray-600 hover:text-text-dark'
                   }`}
               >
-                {b}
+                {b === 'All' ? t('filters.all') : b}
               </button>
             ))}
           </div>
@@ -336,7 +343,7 @@ export default function ProductCatalogPage() {
           {/* Search */}
           <div className="w-full sm:w-64">
             <label htmlFor="catalog-search" className="block text-xs font-medium text-text-gray mb-1">
-              Search products
+              {t('filters.searchLabel')}
             </label>
             <div className="relative">
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -345,7 +352,7 @@ export default function ProductCatalogPage() {
                 type="search"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="e.g. Naturals, Satin…"
+                placeholder={t('filters.searchPlaceholder')}
                 className="w-full border border-gray-500 rounded-full pl-9 pr-4 py-2 text-sm text-text-dark
                            placeholder:text-gray-400 focus:outline-none focus:border-sliquid-blue transition-colors"
               />
@@ -362,12 +369,12 @@ export default function ProductCatalogPage() {
               result-count changes after filtering settles (HQ 05). */}
           <p className="text-text-gray text-sm mb-5" role="status" aria-live="polite" aria-atomic="true">
             {!loading && !error && announcedCount !== null
-              ? `${announcedCount} product${announcedCount !== 1 ? 's' : ''}`
+              ? t('results.count', { count: announcedCount })
               : ''}
           </p>
           {error ? (
             <div className="text-center py-20">
-              <p className="text-text-gray">{error}</p>
+              <p className="text-text-gray">{t(error)}</p>
             </div>
           ) : loading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -376,13 +383,13 @@ export default function ProductCatalogPage() {
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-text-gray">
               <PackageIcon className="w-12 h-12 mb-4 text-gray-300" />
-              <p className="font-medium">No products found</p>
+              <p className="font-medium">{t('results.empty')}</p>
               {search && (
                 <button
                   onClick={() => setSearch('')}
                   className="mt-2 text-sliquid-blue text-sm hover:underline"
                 >
-                  Clear search
+                  {t('results.clearSearch')}
                 </button>
               )}
             </div>
@@ -400,31 +407,23 @@ export default function ProductCatalogPage() {
       <section className="py-20 px-4 sm:px-6 bg-bg-light-blue border-t border-gray-100">
         <div className="max-w-[860px] mx-auto text-center">
           <p className="text-sliquid-blue text-sm font-semibold uppercase tracking-widest mb-3">
-            Partner With Us
+            {t('retailerCta.eyebrow')}
           </p>
           <h2 className="text-text-dark text-[34px] font-semibold tracking-[-0.5px] leading-tight mb-5">
-            Become a Sliquid Retailer
+            {t('retailerCta.title')}
           </h2>
           <p className="text-text-gray text-base leading-relaxed max-w-2xl mx-auto mb-5">
-            Carry the industry's most trusted body-safe intimacy brand. Sliquid offers dedicated marketing support,
-            ready-to-use merchandising assets, and a team committed to helping your store sell smarter and grow with confidence.
+            {t('retailerCta.body')}
           </p>
 
           {/* Benefit pills */}
           <div className="flex flex-wrap justify-center gap-3 mb-10">
-            {[
-              'Dedicated marketing support',
-              'In-store merchandising assets',
-              'Staff training resources',
-              'Flexible order minimums',
-              'Clean, body-safe formulas',
-              '20+ years of brand trust',
-            ].map(b => (
+            {(['marketing', 'merchandising', 'training', 'minimums', 'formulas', 'trust'] as const).map(b => (
               <span
                 key={b}
                 className="px-4 py-1.5 bg-white border border-gray-200 rounded-full text-sm text-text-gray font-medium shadow-sm"
               >
-                {b}
+                {t(`retailerCta.benefits.${b}`)}
               </span>
             ))}
           </div>
@@ -435,7 +434,7 @@ export default function ProductCatalogPage() {
                        text-white font-semibold text-base px-8 py-3.5 rounded-xl
                        transition-colors duration-150 shadow-sm"
           >
-            Apply to Become a Retailer
+            {t('retailerCta.button')}
             <ArrowIcon className="w-4 h-4" />
           </Link>
         </div>

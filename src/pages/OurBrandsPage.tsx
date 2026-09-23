@@ -1,20 +1,21 @@
+import { useTranslation } from 'react-i18next'
 import { BRANDS } from '@/utils/constants'
 
 export default function OurBrandsPage() {
+  const { t } = useTranslation('ourBrands')
   return (
     <div>
       {/* Page hero */}
       <div className="bg-bg-light-blue py-16">
         <div className="max-w-[1240px] mx-auto px-6">
           <p className="text-sliquid-blue font-semibold text-sm uppercase tracking-wider mb-2">
-            Our Portfolio
+            {t('eyebrow')}
           </p>
           <h1 className="text-text-dark text-[42px] font-semibold tracking-[-0.5px] leading-tight max-w-xl">
-            The brands behind Sliquid HQ
+            {t('title')}
           </h1>
           <p className="text-text-gray text-lg mt-4 max-w-2xl leading-relaxed">
-            Three complementary brands. One commitment to premium,
-            body-safe intimacy products you can trust.
+            {t('intro')}
           </p>
         </div>
       </div>
@@ -31,7 +32,7 @@ export default function OurBrandsPage() {
             <div className={idx % 2 === 1 ? 'lg:[direction:ltr]' : ''}>
               <img
                 src={brand.imageUrl}
-                alt={brand.imageAlt}
+                alt={t(`common:brands.${brand.id}.imageAlt`)}
                 loading="lazy"
                 referrerPolicy="strict-origin-when-cross-origin"
                 className="w-full h-80 object-cover rounded-card"
@@ -43,11 +44,11 @@ export default function OurBrandsPage() {
                   {brand.name}
                 </h2>
                 <p className="text-sliquid-blue font-medium text-sm mt-1 uppercase tracking-wider">
-                  {brand.tagline}
+                  {t(`common:brands.${brand.id}.tagline`)}
                 </p>
               </div>
               <p className="text-text-gray text-base leading-relaxed">
-                {brand.description}
+                {t(`common:brands.${brand.id}.description`)}
               </p>
               <a
                 href={brand.siteUrl}
@@ -56,7 +57,7 @@ export default function OurBrandsPage() {
                 className="inline-flex items-center gap-2 bg-sliquid-blue hover:bg-sliquid-dark-blue
                            text-white font-semibold px-6 py-3 rounded-lg text-sm transition-colors duration-150"
               >
-                Visit {brand.name}
+                {t('visit', { name: brand.name })}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>

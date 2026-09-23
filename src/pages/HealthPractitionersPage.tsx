@@ -1,4 +1,6 @@
 import { useState, useId } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { sanitizeFormData } from '@/utils/sanitize'
 import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
 
@@ -14,74 +16,26 @@ class HPApiError extends Error {}
 const HP_IMAGE =
   'https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/ai-images/1/87ed7738-8b0b-425e-a09c-cb563cdd99c0.jpg'
 
+// Copy for each lives in the `healthPractitioners` namespace, keyed by id.
 const KEY_INGREDIENTS = [
-  {
-    id: 'purified-water',
-    name: 'Purified Water',
-    tag: 'Base',
-    description:
-      'The foundation of every water-based formula. Purified through our 9-stage reverse osmosis filtration system, which includes a deionization step, it serves as a pure, contaminant-free carrier for all water-soluble ingredients.',
-  },
-  {
-    id: 'aloe-vera',
-    name: 'Organic Aloe Barbadensis Leaf Juice',
-    tag: 'Soothing Base',
-    description:
-      'Sourced directly from aloe vera leaves, this naturally lubricating and healing ingredient is anti-inflammatory and pH-friendly for sensitive mucosal tissue.',
-  },
-  {
-    id: 'vitamin-e',
-    name: 'Natural Tocopherols (Vitamin E)',
-    tag: 'Antioxidant',
-    description:
-      'Conditions skin and delivers antioxidant support. Extends shelf life naturally while protecting sensitive tissue without the need for synthetic preservatives.',
-  },
-  {
-    id: 'citric-acid',
-    name: 'Citric Acid',
-    tag: 'pH Balancer',
-    description:
-      'Calibrates each formula to match the body\'s natural pH range of 3.8 to 4.5. Acts as a natural antiseptic and pH buffer, critical for supporting vaginal microbiome health.',
-  },
-  {
-    id: 'potassium-sorbate',
-    name: 'Potassium Sorbate & Sodium Benzoate',
-    tag: 'Preservative',
-    description:
-      'Two of the gentlest non-toxic preservatives available. They extend shelf life and prevent contamination without the hormonal disruption risks associated with parabens.',
-  },
-  {
-    id: 'plant-cellulose',
-    name: 'Plant Cellulose',
-    tag: 'Natural Thickener',
-    description:
-      'Derived from cotton and completely vegan and gluten-free. Delivers the signature silky glide Sliquid is known for, without synthetic polymers or petrochemical derivatives.',
-  },
-]
+  'purified-water', 'aloe-vera', 'vitamin-e', 'citric-acid', 'potassium-sorbate', 'plant-cellulose',
+] as const
 
-const REQUIREMENTS = [
-  'Must be a verifiable medical professional or college educator / organization facilitator with a current position at an established operation. This includes student representatives of college organizations acting on behalf of a school.',
-  'Must provide a verifiable mailing address specifically associated with the medical facility or college campus listed on the form. Residential and P.O. Box addresses will not be accepted. No exceptions.',
-  'Requests outside the United States are required to cover shipping and duty costs associated with the complimentary sample shipment.',
-  'Only one request per practice or organization. Duplicate submissions will be disqualified.',
-]
+const REQUIREMENTS = ['professional', 'address', 'international', 'onePerPractice'] as const
 
-const HOW_IT_WORKS =
-  'Your clinic or organization MUST meet all listed requirements. Upon positive verification of the information you provide, your practice/organization will be approved for a one-time, complimentary shipment of 100 single-use samples and marketing materials offering your clients a discount code for use on our site. A review may take up to 6 weeks. ONLY SUBMIT ONE REQUEST and wait to be contacted by our staff. You will be contacted whether you are approved or denied.'
+const HOW_IT_WORKS = ['approval', 'shipping', 'additional'] as const
 
-const HOW_IT_WORKS_2 =
-  'Shipping is complimentary within the United States but must be paid in advance by all international partners. The formulas chosen to be sent are dictated by Sliquid and are subject to change at any time.'
-
-const HOW_IT_WORKS_3 =
-  'Please note that ONLY your initial shipment of 100 samples is free. Additional samples are available at a special Medical Partners discount rate. Please ask your Sliquid representative for the pricing structure and order form.'
-
+// `value` is what gets SUBMITTED (sales reads it) and stays English; `key` picks
+// the translated label.
 const PRACTICE_TYPES = [
-  'OB/GYN',
-  'Pelvic Floor Therapy',
-  'Sexual Health & Wellness',
-  'General Practitioner',
-  'Other (specify below)',
-]
+  { value: 'OB/GYN', key: 'obgyn' },
+  { value: 'Pelvic Floor Therapy', key: 'pelvicFloor' },
+  { value: 'Sexual Health & Wellness', key: 'sexualHealth' },
+  { value: 'General Practitioner', key: 'gp' },
+  { value: 'Other (specify below)', key: 'other' },
+] as const
+
+const CONTACT_METHODS = ['Email', 'Phone', 'Either'] as const
 
 // ─── Form types ───────────────────────────────────────────────────────────────
 
@@ -144,21 +98,21 @@ const EMPTY: HPFormData = {
   optInEmail: false,
 }
 
-function validate(d: HPFormData): HPFormErrors {
+function validate(d: HPFormData, t: TFunction<'healthPractitioners'>): HPFormErrors {
   const err: HPFormErrors = {}
-  if (!d.practiceType) err.practiceType = 'Please select a practice type.'
-  if (!d.practiceName.trim()) err.practiceName = 'Practice name is required.'
-  if (!d.streetAddress.trim()) err.streetAddress = 'Street address is required.'
-  if (!d.city.trim()) err.city = 'City is required.'
-  if (!d.state.trim()) err.state = 'State / Province is required.'
-  if (!d.zip.trim()) err.zip = 'Postal / Zip code is required.'
-  if (!d.practicePhone.trim()) err.practicePhone = 'Practice phone is required.'
-  if (!d.firstName.trim()) err.firstName = 'First name is required.'
-  if (!d.lastName.trim()) err.lastName = 'Last name is required.'
-  if (!d.contactPhone.trim()) err.contactPhone = 'Phone number is required.'
+  if (!d.practiceType) err.practiceType = t('errors.practiceTypeRequired')
+  if (!d.practiceName.trim()) err.practiceName = t('errors.practiceNameRequired')
+  if (!d.streetAddress.trim()) err.streetAddress = t('errors.streetRequired')
+  if (!d.city.trim()) err.city = t('errors.cityRequired')
+  if (!d.state.trim()) err.state = t('errors.stateRequired')
+  if (!d.zip.trim()) err.zip = t('errors.zipRequired')
+  if (!d.practicePhone.trim()) err.practicePhone = t('errors.practicePhoneRequired')
+  if (!d.firstName.trim()) err.firstName = t('errors.firstNameRequired')
+  if (!d.lastName.trim()) err.lastName = t('errors.lastNameRequired')
+  if (!d.contactPhone.trim()) err.contactPhone = t('errors.contactPhoneRequired')
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRe.test(d.email)) err.email = 'A valid email address is required.'
-  if (!d.optInEmail) err.optInEmail = 'You must agree to receive Medical Partners Program emails.'
+  if (!emailRe.test(d.email)) err.email = t('errors.emailInvalid')
+  if (!d.optInEmail) err.optInEmail = t('errors.optInRequired')
   return err
 }
 
@@ -189,6 +143,7 @@ const inputCls = (hasError?: boolean) =>
 // ─── Requirements Gate Modal ──────────────────────────────────────────────────
 
 function RequirementsGate({ onAccept, onDecline }: { onAccept: () => void; onDecline: () => void }) {
+  const { t } = useTranslation('healthPractitioners')
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -199,18 +154,18 @@ function RequirementsGate({ onAccept, onDecline }: { onAccept: () => void; onDec
     >
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8">
         <h2 id="req-gate-title" className="text-text-dark text-xl font-bold mb-2">
-          Before You Apply
+          {t('gate.title')}
         </h2>
         <p className="text-text-gray text-sm mb-5 leading-relaxed">
-          Please confirm that your practice meets all of the following requirements. Submissions that do not meet these criteria will not be processed.
+          {t('gate.body')}
         </p>
         <ul className="space-y-3 mb-7">
           {REQUIREMENTS.map((req, i) => (
-            <li key={i} className="flex gap-3 text-sm text-text-gray leading-relaxed">
+            <li key={req} className="flex gap-3 text-sm text-text-gray leading-relaxed">
               <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-sliquid-blue/10 text-sliquid-blue flex items-center justify-center text-xs font-bold">
                 {i + 1}
               </span>
-              {req}
+              {t(`program.requirements.${req}`)}
             </li>
           ))}
         </ul>
@@ -219,13 +174,13 @@ function RequirementsGate({ onAccept, onDecline }: { onAccept: () => void; onDec
             onClick={onAccept}
             className="flex-1 bg-sliquid-blue hover:bg-sliquid-dark-blue text-white font-semibold text-sm py-3 px-6 rounded-lg transition-colors"
           >
-            I Meet All Requirements — Continue
+            {t('gate.accept')}
           </button>
           <button
             onClick={onDecline}
             className="flex-1 border border-gray-200 text-text-gray hover:text-text-dark hover:border-gray-300 font-medium text-sm py-3 px-6 rounded-lg transition-colors"
           >
-            I Do Not Qualify
+            {t('gate.decline')}
           </button>
         </div>
       </div>
@@ -236,6 +191,7 @@ function RequirementsGate({ onAccept, onDecline }: { onAccept: () => void; onDec
 // ─── Thank You Modal ──────────────────────────────────────────────────────────
 
 function ThankYouModal({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation('healthPractitioners')
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -251,19 +207,19 @@ function ThankYouModal({ onClose }: { onClose: () => void }) {
           </svg>
         </div>
         <h2 id="thankyou-title" className="text-text-dark text-2xl font-bold mb-3">
-          Thank You for Signing Up!
+          {t('thanks.title')}
         </h2>
         <p className="text-text-gray text-sm leading-relaxed mb-2">
-          We've received your application for the Sliquid Medical Partners Program. A member of our team will review your submission and reach out — please allow up to <strong>6 weeks</strong> for a response.
+          <Trans t={t} i18nKey="thanks.body" components={{ bold: <strong /> }} />
         </p>
         <p className="text-text-gray text-sm leading-relaxed mb-7">
-          You will be contacted whether your application is approved or declined. Please do not submit more than one request.
+          {t('thanks.decision')}
         </p>
         <button
           onClick={onClose}
           className="bg-sliquid-blue hover:bg-sliquid-dark-blue text-white font-semibold text-sm py-3 px-8 rounded-lg transition-colors"
         >
-          Done
+          {t('thanks.done')}
         </button>
       </div>
     </div>
@@ -273,6 +229,7 @@ function ThankYouModal({ onClose }: { onClose: () => void }) {
 // ─── Already Submitted Panel ───────────────────────────────────────────────────
 
 function AlreadySubmittedPanel() {
+  const { t } = useTranslation('healthPractitioners')
   return (
     <div className="bg-bg-off-white border border-gray-200 rounded-2xl p-8 text-center mb-8">
       <div className="w-12 h-12 bg-sliquid-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -280,9 +237,9 @@ function AlreadySubmittedPanel() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      <h3 className="text-text-dark font-semibold text-lg mb-2">You've Already Applied</h3>
+      <h3 className="text-text-dark font-semibold text-lg mb-2">{t('already.title')}</h3>
       <p className="text-text-gray text-sm max-w-md mx-auto leading-relaxed">
-        We've received your application for the Medical Partners Program and we will get to you as soon as possible. No need to submit another request.
+        {t('already.body')}
       </p>
     </div>
   )
@@ -294,6 +251,7 @@ function AlreadySubmittedPanel() {
 // the form back, or a person can (and did) submit a second, real application.
 
 function SubmittedPanel() {
+  const { t } = useTranslation('healthPractitioners')
   return (
     <div className="bg-bg-off-white border border-gray-200 rounded-2xl p-8 text-center mb-8">
       <div className="w-12 h-12 bg-sliquid-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -301,9 +259,9 @@ function SubmittedPanel() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      <h3 className="text-text-dark font-semibold text-lg mb-2">Application Submitted</h3>
+      <h3 className="text-text-dark font-semibold text-lg mb-2">{t('submittedPanel.title')}</h3>
       <p className="text-text-gray text-sm max-w-md mx-auto leading-relaxed">
-        We've received your application for the Sliquid Medical Partners Program and we will get to you as soon as possible. No need to submit another request.
+        {t('submittedPanel.body')}
       </p>
     </div>
   )
@@ -312,6 +270,7 @@ function SubmittedPanel() {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function HealthPractitionersPage() {
+  const { t } = useTranslation('healthPractitioners')
   const uid = useId()
   const [activeTab, setActiveTab] = useState<'requirements' | 'how'>('requirements')
   const [gateState, setGateState] = useState<'hidden' | 'open' | 'accepted' | 'declined'>('hidden')
@@ -337,7 +296,7 @@ export default function HealthPractitionersPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const errs = validate(form)
+    const errs = validate(form, t)
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setSubmitting(true); setSendError('')
     try {
@@ -370,7 +329,7 @@ export default function HealthPractitionersPage() {
           setAlreadySubmitted(true)
           return
         }
-        throw new HPApiError(data.message ?? 'The server returned an unexpected error. Please try again.')
+        throw new HPApiError(data.message ?? t('errors.serverUnexpected'))
       }
       cooldown.start()
       setSubmitted(true)
@@ -379,7 +338,7 @@ export default function HealthPractitionersPage() {
       setSendError(
         err instanceof HPApiError
           ? err.message
-          : "We couldn't reach our server. Please check your connection and try again — your information has not been sent yet, so it's safe to resubmit, or you can email erik@sliquid.com directly."
+          : t('errors.network')
       )
     } finally {
       setSubmitting(false)
@@ -406,19 +365,19 @@ export default function HealthPractitionersPage() {
       <section className="bg-bg-off-white py-14 md:py-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-sliquid-blue text-sm font-semibold uppercase tracking-widest mb-3">
-            Medical Partners Program
+            {t('hero.eyebrow')}
           </p>
           <h1 className="text-text-dark text-[34px] md:text-[46px] font-bold tracking-tight leading-tight mb-5">
-            The Wellness Brand Healthcare Providers Trust
+            {t('hero.title')}
           </h1>
           <p className="text-text-gray text-base md:text-lg leading-relaxed mb-8">
-            Sliquid equips healthcare providers with clinical-grade resources, complimentary patient samples, and educational materials to help you make confident recommendations and build lasting patient trust in intimate wellness.
+            {t('hero.body')}
           </p>
           <a
             href="#apply"
             className="inline-block bg-sliquid-blue hover:bg-sliquid-dark-blue text-white font-semibold text-sm py-3 px-7 rounded-lg transition-colors"
           >
-            Apply to the Program
+            {t('hero.cta')}
           </a>
         </div>
       </section>
@@ -428,31 +387,32 @@ export default function HealthPractitionersPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <h2 id="ingredients-heading" className="text-text-dark text-[28px] md:text-[32px] font-bold tracking-tight mb-4">
-              Ingredients You Can Trust
+              {t('ingredients.heading')}
             </h2>
             <p className="text-text-gray text-base leading-relaxed">
-              Every ingredient is chosen for clinical compatibility. No glycerin, no parabens, no artificial fragrance, just clean formulas safe enough to recommend to your most sensitive patients.
+              {t('ingredients.body')}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {KEY_INGREDIENTS.map(ing => (
+            {KEY_INGREDIENTS.map(id => (
               <div
-                key={ing.id}
+                key={id}
                 className="bg-bg-off-white rounded-xl p-6 border border-gray-100"
               >
                 <span className="inline-block bg-sliquid-blue/10 text-sliquid-blue text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full mb-3">
-                  {ing.tag}
+                  {t(`ingredients.items.${id}.tag`)}
                 </span>
-                <h3 className="text-text-dark text-[15px] font-semibold mb-2">{ing.name}</h3>
-                <p className="text-text-gray text-sm leading-relaxed">{ing.description}</p>
+                <h3 className="text-text-dark text-[15px] font-semibold mb-2">{t(`ingredients.items.${id}.name`)}</h3>
+                <p className="text-text-gray text-sm leading-relaxed">{t(`ingredients.items.${id}.description`)}</p>
               </div>
             ))}
           </div>
           <p className="mt-8 text-center text-text-gray text-sm">
-            Want the full ingredient breakdown?{' '}
-            <a href="/ingredients" className="text-sliquid-blue hover:underline font-medium">
-              View our complete formula standards →
-            </a>
+            <Trans
+              t={t}
+              i18nKey="ingredients.fullBreakdown"
+              components={{ cta: <a href="/ingredients" className="text-sliquid-blue hover:underline font-medium" /> }}
+            />
           </p>
         </div>
       </section>
@@ -461,7 +421,7 @@ export default function HealthPractitionersPage() {
       <div className="w-full h-[420px] md:h-[500px] overflow-hidden">
         <img
           src={HP_IMAGE}
-          alt="Sliquid intimate wellness products displayed for healthcare practitioners"
+          alt={t('imageAlt')}
           loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
           className="w-full h-full object-cover"
@@ -472,14 +432,16 @@ export default function HealthPractitionersPage() {
       <section className="py-14 md:py-20 bg-bg-off-white" aria-labelledby="program-heading">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <h2 id="program-heading" className="text-text-dark text-[28px] md:text-[32px] font-bold tracking-tight mb-6 text-center">
-            Program Details
+            {t('program.heading')}
           </h2>
 
           {/* Tab switcher */}
-          <div className="flex justify-center gap-2 mb-8">
+          <div className="flex justify-center gap-2 mb-8" role="group" aria-label={t('program.tabsLabel')}>
             {(['requirements', 'how'] as const).map(tab => (
               <button
                 key={tab}
+                type="button"
+                aria-pressed={activeTab === tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-colors
                   ${activeTab === tab
@@ -487,7 +449,7 @@ export default function HealthPractitionersPage() {
                     : 'bg-white text-text-gray border border-gray-500 hover:border-sliquid-blue hover:text-sliquid-blue'
                   }`}
               >
-                {tab === 'requirements' ? 'Requirements' : 'How It Works'}
+                {tab === 'requirements' ? t('program.tabRequirements') : t('program.tabHow')}
               </button>
             ))}
           </div>
@@ -495,11 +457,11 @@ export default function HealthPractitionersPage() {
           {activeTab === 'requirements' && (
             <div className="space-y-4">
               {REQUIREMENTS.map((req, i) => (
-                <div key={i} className="flex gap-4 bg-white rounded-xl p-5 border border-gray-100">
+                <div key={req} className="flex gap-4 bg-white rounded-xl p-5 border border-gray-100">
                   <span className="flex-shrink-0 w-7 h-7 rounded-full bg-sliquid-blue/10 text-sliquid-blue flex items-center justify-center text-xs font-bold">
                     {i + 1}
                   </span>
-                  <p className="text-text-gray text-sm leading-relaxed">{req}</p>
+                  <p className="text-text-gray text-sm leading-relaxed">{t(`program.requirements.${req}`)}</p>
                 </div>
               ))}
             </div>
@@ -507,13 +469,13 @@ export default function HealthPractitionersPage() {
 
           {activeTab === 'how' && (
             <div className="space-y-4">
-              {[HOW_IT_WORKS, HOW_IT_WORKS_2, HOW_IT_WORKS_3].map((block, i) => (
-                <p key={i} className="text-text-gray text-sm leading-relaxed bg-white rounded-xl p-5 border border-gray-100">
-                  {block}
+              {HOW_IT_WORKS.map(block => (
+                <p key={block} className="text-text-gray text-sm leading-relaxed bg-white rounded-xl p-5 border border-gray-100">
+                  {t(`program.how.${block}`)}
                 </p>
               ))}
               <p className="text-text-gray/70 text-xs italic pt-2">
-                *The price of international shipping varies by location and is subject to the rate of the carrier at the time of shipping. This rate will be provided to international partners by a Sliquid representative.
+                {t('program.how.shippingNote')}
               </p>
             </div>
           )}
@@ -525,10 +487,10 @@ export default function HealthPractitionersPage() {
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <div className="mb-10 text-center">
             <h2 id="form-heading" className="text-text-dark text-[28px] md:text-[32px] font-bold tracking-tight mb-3">
-              Medical Partners Program Application
+              {t('form.heading')}
             </h2>
             <p className="text-text-gray text-base">
-              Complete the form below to request complimentary samples and be listed in our Medical Partners directory.
+              {t('form.intro')}
             </p>
           </div>
 
@@ -548,19 +510,19 @@ export default function HealthPractitionersPage() {
               role="button"
               tabIndex={0}
               onKeyDown={e => e.key === 'Enter' && openGate()}
-              aria-label="Review requirements and begin application"
+              aria-label={t('gate.promptAria')}
             >
               <div className="w-12 h-12 bg-sliquid-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-6 h-6 text-sliquid-blue" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-text-dark font-semibold text-lg mb-2">Review Requirements Before Applying</h3>
+              <h3 className="text-text-dark font-semibold text-lg mb-2">{t('gate.promptTitle')}</h3>
               <p className="text-text-gray text-sm max-w-md mx-auto mb-5">
-                Before filling out the application, please confirm your practice meets all program requirements.
+                {t('gate.promptBody')}
               </p>
               <span className="inline-block bg-sliquid-blue hover:bg-sliquid-dark-blue text-white font-semibold text-sm py-3 px-7 rounded-lg transition-colors">
-                View Requirements &amp; Begin Application
+                {t('gate.promptCta')}
               </span>
             </div>
           )}
@@ -568,15 +530,17 @@ export default function HealthPractitionersPage() {
           {gateState === 'declined' && (
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
               <p className="text-amber-800 text-sm font-medium">
-                Thank you for checking the requirements. If your practice does not currently qualify, please{' '}
-                <a href="/contact" className="underline hover:text-amber-900">contact us</a>{' '}
-                with any questions.
+                <Trans
+                  t={t}
+                  i18nKey="gate.declined"
+                  components={{ cta: <a href="/contact" className="underline hover:text-amber-900" /> }}
+                />
               </p>
               <button
                 onClick={() => setGateState('hidden')}
                 className="mt-3 text-xs text-amber-700 underline hover:text-amber-900"
               >
-                Review requirements again
+                {t('gate.reviewAgain')}
               </button>
             </div>
           )}
@@ -593,40 +557,40 @@ export default function HealthPractitionersPage() {
               {/* Practice Information */}
               <fieldset className="space-y-6">
                 <legend className="text-text-dark text-lg font-bold pb-3 border-b border-gray-100 w-full">
-                  Your Practice Information
+                  {t('form.practiceLegend')}
                 </legend>
 
                 {/* Practice Type */}
                 <div>
                   <p className="text-sm font-semibold text-text-dark mb-2">
-                    Practice Type <span className="text-red-500">*</span>
+                    {t('form.practiceType')} <span className="text-red-500">*</span>
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {PRACTICE_TYPES.map(pt => (
-                      <label key={pt} className="flex items-center gap-2.5 cursor-pointer text-sm text-text-gray hover:text-text-dark">
+                      <label key={pt.value} className="flex items-center gap-2.5 cursor-pointer text-sm text-text-gray hover:text-text-dark">
                         <input
                           type="radio"
                           name="practiceType"
-                          value={pt}
-                          checked={form.practiceType === pt}
+                          value={pt.value}
+                          checked={form.practiceType === pt.value}
                           onChange={handleChange}
                           className="accent-sliquid-blue"
                         />
-                        {pt}
+                        {t(`form.practiceTypes.${pt.key}`)}
                       </label>
                     ))}
                   </div>
                   {errors.practiceType && <FieldError id={`${uid}-ptErr`} message={errors.practiceType} />}
                   {form.practiceType === 'Other (specify below)' && (
                     <div className="mt-3">
-                      <Label htmlFor={`${uid}-ptOther`}>Please Specify</Label>
+                      <Label htmlFor={`${uid}-ptOther`}>{t('form.specify')}</Label>
                       <input
                         id={`${uid}-ptOther`}
                         name="practiceTypeOther"
                         type="text"
                         value={form.practiceTypeOther}
                         onChange={handleChange}
-                        placeholder="Describe your practice type"
+                        placeholder={t('form.specifyPlaceholder')}
                         className={inputCls()}
                       />
                     </div>
@@ -635,7 +599,7 @@ export default function HealthPractitionersPage() {
 
                 {/* Practice Name */}
                 <div>
-                  <Label htmlFor={`${uid}-pname`} required>Practice Name</Label>
+                  <Label htmlFor={`${uid}-pname`} required>{t('form.practiceName')}</Label>
                   <input
                     id={`${uid}-pname`}
                     name="practiceName"
@@ -650,12 +614,12 @@ export default function HealthPractitionersPage() {
 
                 {/* Address */}
                 <div className="space-y-3">
-                  <Label htmlFor={`${uid}-street`} required>Practice Address</Label>
+                  <Label htmlFor={`${uid}-street`} required>{t('form.practiceAddress')}</Label>
                   <input
                     id={`${uid}-street`}
                     name="streetAddress"
                     type="text"
-                    placeholder="Street Address"
+                    placeholder={t('form.street')}
                     value={form.streetAddress}
                     onChange={handleChange}
                     aria-describedby={errors.streetAddress ? `${uid}-streetErr` : undefined}
@@ -665,7 +629,7 @@ export default function HealthPractitionersPage() {
                   <input
                     name="addressLine2"
                     type="text"
-                    placeholder="Address Line 2 (Suite, Unit, etc.)"
+                    placeholder={t('form.addressLine2')}
                     value={form.addressLine2}
                     onChange={handleChange}
                     className={inputCls()}
@@ -676,7 +640,7 @@ export default function HealthPractitionersPage() {
                         id={`${uid}-city`}
                         name="city"
                         type="text"
-                        placeholder="City"
+                        placeholder={t('form.city')}
                         value={form.city}
                         onChange={handleChange}
                         aria-describedby={errors.city ? `${uid}-cityErr` : undefined}
@@ -689,7 +653,7 @@ export default function HealthPractitionersPage() {
                         id={`${uid}-state`}
                         name="state"
                         type="text"
-                        placeholder="State / Province / Region"
+                        placeholder={t('form.state')}
                         value={form.state}
                         onChange={handleChange}
                         aria-describedby={errors.state ? `${uid}-stateErr` : undefined}
@@ -704,7 +668,7 @@ export default function HealthPractitionersPage() {
                         id={`${uid}-zip`}
                         name="zip"
                         type="text"
-                        placeholder="Postal / Zip Code"
+                        placeholder={t('form.zip')}
                         value={form.zip}
                         onChange={handleChange}
                         aria-describedby={errors.zip ? `${uid}-zipErr` : undefined}
@@ -715,7 +679,7 @@ export default function HealthPractitionersPage() {
                     <input
                       name="country"
                       type="text"
-                      placeholder="Country"
+                      placeholder={t('form.country')}
                       value={form.country}
                       onChange={handleChange}
                       className={inputCls()}
@@ -725,7 +689,7 @@ export default function HealthPractitionersPage() {
 
                 {/* Phone */}
                 <div>
-                  <Label htmlFor={`${uid}-pphone`} required>Practice Phone Number</Label>
+                  <Label htmlFor={`${uid}-pphone`} required>{t('form.practicePhone')}</Label>
                   <input
                     id={`${uid}-pphone`}
                     name="practicePhone"
@@ -741,7 +705,7 @@ export default function HealthPractitionersPage() {
 
                 {/* Website */}
                 <div>
-                  <Label htmlFor={`${uid}-psite`}>Practice Website</Label>
+                  <Label htmlFor={`${uid}-psite`}>{t('form.practiceWebsite')}</Label>
                   <input
                     id={`${uid}-psite`}
                     name="practiceWebsite"
@@ -757,13 +721,13 @@ export default function HealthPractitionersPage() {
               {/* Contact Information */}
               <fieldset className="space-y-6">
                 <legend className="text-text-dark text-lg font-bold pb-3 border-b border-gray-100 w-full">
-                  Your Contact Information
+                  {t('form.contactLegend')}
                 </legend>
 
                 {/* Name */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor={`${uid}-fname`} required>First Name</Label>
+                    <Label htmlFor={`${uid}-fname`} required>{t('form.firstName')}</Label>
                     <input
                       id={`${uid}-fname`}
                       name="firstName"
@@ -776,7 +740,7 @@ export default function HealthPractitionersPage() {
                     {errors.firstName && <FieldError id={`${uid}-fnameErr`} message={errors.firstName} />}
                   </div>
                   <div>
-                    <Label htmlFor={`${uid}-lname`} required>Last Name</Label>
+                    <Label htmlFor={`${uid}-lname`} required>{t('form.lastName')}</Label>
                     <input
                       id={`${uid}-lname`}
                       name="lastName"
@@ -792,12 +756,12 @@ export default function HealthPractitionersPage() {
 
                 {/* Relationship */}
                 <div>
-                  <Label htmlFor={`${uid}-rel`}>Your Relationship to the Practice</Label>
+                  <Label htmlFor={`${uid}-rel`}>{t('form.relationship')}</Label>
                   <input
                     id={`${uid}-rel`}
                     name="relationship"
                     type="text"
-                    placeholder="e.g. Office Manager, Physician, Student Rep"
+                    placeholder={t('form.relationshipPlaceholder')}
                     value={form.relationship}
                     onChange={handleChange}
                     className={inputCls()}
@@ -806,7 +770,7 @@ export default function HealthPractitionersPage() {
 
                 {/* Contact Phone */}
                 <div>
-                  <Label htmlFor={`${uid}-cphone`} required>Phone Number</Label>
+                  <Label htmlFor={`${uid}-cphone`} required>{t('form.contactPhone')}</Label>
                   <input
                     id={`${uid}-cphone`}
                     name="contactPhone"
@@ -822,7 +786,7 @@ export default function HealthPractitionersPage() {
 
                 {/* Email */}
                 <div>
-                  <Label htmlFor={`${uid}-email`} required>Email</Label>
+                  <Label htmlFor={`${uid}-email`} required>{t('form.email')}</Label>
                   <input
                     id={`${uid}-email`}
                     name="email"
@@ -838,7 +802,7 @@ export default function HealthPractitionersPage() {
 
                 {/* Preferred Contact */}
                 <div>
-                  <Label htmlFor={`${uid}-pref`}>Preferred Contact Method</Label>
+                  <Label htmlFor={`${uid}-pref`}>{t('form.preferredContact')}</Label>
                   <select
                     id={`${uid}-pref`}
                     name="preferredContact"
@@ -846,8 +810,8 @@ export default function HealthPractitionersPage() {
                     onChange={handleChange}
                     className={inputCls()}
                   >
-                    {['Email', 'Phone', 'Either'].map(v => (
-                      <option key={v} value={v}>{v}</option>
+                    {CONTACT_METHODS.map(v => (
+                      <option key={v} value={v}>{t(`form.contactMethods.${v}`)}</option>
                     ))}
                   </select>
                 </div>
@@ -855,7 +819,7 @@ export default function HealthPractitionersPage() {
                 {/* Directory */}
                 <div>
                   <p className="text-sm font-semibold text-text-dark mb-2">
-                    Add your practice to the Sliquid Medical Partners page?
+                    {t('form.directory')}
                   </p>
                   <div className="flex gap-6">
                     {['Yes', 'No'].map(v => (
@@ -868,7 +832,7 @@ export default function HealthPractitionersPage() {
                           onChange={handleChange}
                           className="accent-sliquid-blue"
                         />
-                        {v}
+                        {v === 'Yes' ? t('form.yes') : t('form.no')}
                       </label>
                     ))}
                   </div>
@@ -885,14 +849,14 @@ export default function HealthPractitionersPage() {
                       className="mt-0.5 accent-sliquid-blue"
                     />
                     <span className="text-sm text-text-gray leading-relaxed">
-                      By requesting samples, I agree to receive email updates from Sliquid as part of the Medical Partners Program. <span className="text-red-500">*</span>
+                      {t('form.optIn')} <span className="text-red-500">*</span>
                     </span>
                   </label>
                   {errors.optInEmail && <FieldError id={`${uid}-optErr`} message={errors.optInEmail} />}
                 </div>
 
                 <p className="text-xs text-text-light-gray leading-relaxed">
-                  Your information is used only to process your application and ship your samples. It will never be sold, shared, or used for any other purpose.
+                  {t('form.privacy')}
                 </p>
               </fieldset>
 
@@ -907,7 +871,7 @@ export default function HealthPractitionersPage() {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
                 )}
-                {submitting ? 'Submitting…' : 'Submit Application'}
+                {submitting ? t('form.submitting') : t('form.submit')}
               </button>
             </form>
           )}

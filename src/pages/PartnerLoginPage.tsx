@@ -1,5 +1,7 @@
 import { useState, FormEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { Trans, useTranslation } from 'react-i18next'
+import i18n from '@/i18n'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
 const PORTAL_URL = import.meta.env.VITE_PORTAL_URL ?? 'https://portal.sliquid.com'
@@ -12,12 +14,13 @@ export async function loginToPortal(email: string, password: string) {
   })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
-    throw new Error((data as { message?: string }).message ?? 'Invalid email or password.')
+    throw new Error((data as { message?: string }).message ?? i18n.t('auth:login.errors.invalidCredentials'))
   }
   return res.json() as Promise<{ token: string; user: { name: string } }>
 }
 
 export default function PartnerLoginPage() {
+  const { t } = useTranslation('auth')
   const location = useLocation()
   const passwordWasReset = (location.state as { passwordReset?: boolean } | null)?.passwordReset === true
 
@@ -36,7 +39,7 @@ export default function PartnerLoginPage() {
       // can store it in its own localStorage (cross-origin localStorage doesn't work).
       window.open(`${PORTAL_URL}/dashboard#token=${encodeURIComponent(token)}`, '_blank')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.')
+      setError(err instanceof Error ? err.message : t('login.errors.failed'))
     } finally {
       setLoading(false)
     }
@@ -56,14 +59,14 @@ export default function PartnerLoginPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h1 className="text-text-dark text-2xl font-bold">Partner Portal Login</h1>
-            <p className="text-text-gray text-sm mt-1 text-center">Sign in to access your Sliquid partner resources.</p>
+            <h1 className="text-text-dark text-2xl font-bold">{t('login.title')}</h1>
+            <p className="text-text-gray text-sm mt-1 text-center">{t('login.subtitle')}</p>
           </div>
 
           {/* Password reset success banner */}
           {passwordWasReset && (
             <div className="mb-6 px-4 py-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm text-center">
-              Password updated successfully. You can now sign in.
+              {t('login.passwordResetBanner')}
             </div>
           )}
 
@@ -71,7 +74,7 @@ export default function PartnerLoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <label htmlFor="email" className="block text-text-dark text-sm font-medium mb-1.5">
-                Email address
+                {t('shared.emailLabel')}
               </label>
               <input
                 id="email"
@@ -90,13 +93,13 @@ export default function PartnerLoginPage() {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label htmlFor="password" className="block text-text-dark text-sm font-medium">
-                  Password
+                  {t('login.passwordLabel')}
                 </label>
                 <Link
                   to="/forgot-password"
                   className="text-sliquid-blue hover:text-sliquid-dark-blue text-xs font-medium transition-colors"
                 >
-                  Forgot password?
+                  {t('login.forgotPassword')}
                 </Link>
               </div>
               <input
@@ -126,14 +129,14 @@ export default function PartnerLoginPage() {
                          disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg
                          text-sm transition-colors duration-150 mt-2"
             >
-              {loading ? 'Signing in…' : 'Sign In'}
+              {loading ? t('login.submitting') : t('login.submit')}
             </button>
           </form>
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-6" aria-hidden="true">
             <span className="h-px flex-1 bg-gray-200" />
-            <span className="text-text-light-gray text-xs font-medium uppercase tracking-wide">or</span>
+            <span className="text-text-light-gray text-xs font-medium uppercase tracking-wide">{t('login.or')}</span>
             <span className="h-px flex-1 bg-gray-200" />
           </div>
 
@@ -146,20 +149,20 @@ export default function PartnerLoginPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
             </svg>
-            Sliquid Employee Sign In
+            {t('login.employeeSignIn')}
           </a>
         </div>
 
         {/* Footer — no account */}
         <div className="mt-6 text-center">
           <p className="text-text-gray text-sm">
-            Don't have an account?{' '}
-            <Link
-              to="/register"
-              className="text-sliquid-blue hover:text-sliquid-dark-blue font-medium transition-colors"
-            >
-              Create one
-            </Link>
+            <Trans
+              t={t}
+              i18nKey="login.noAccount"
+              components={{
+                cta: <Link to="/register" className="text-sliquid-blue hover:text-sliquid-dark-blue font-medium transition-colors" />,
+              }}
+            />
           </p>
         </div>
 

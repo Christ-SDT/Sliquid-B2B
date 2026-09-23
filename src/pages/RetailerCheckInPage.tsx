@@ -1,27 +1,42 @@
 import { useState, useEffect, useId } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { sanitizeFormData } from '@/utils/sanitize'
 import { API_BASE, BRANDS, RETAILER_CONTACTS } from '@/utils/constants'
 import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
+// `value` is SUBMITTED as-is (sales reads it in the email) and stays English;
+// `key` picks the translated label under retailerCheckIn:form.*.
 /** What a partner might want from us — drives the "How can we help?" checkboxes. */
 const INTERESTS = [
-  'Reorder / place an order',
-  'New product & launch info',
-  'In-store marketing materials',
-  'Staff training & certification',
-  'Updated product images and copy',
-  'Store Locator listing',
-  'MAP or pricing question',
-]
+  { value: 'Reorder / place an order', key: 'reorder' },
+  { value: 'New product & launch info', key: 'launches' },
+  { value: 'In-store marketing materials', key: 'inStore' },
+  { value: 'Staff training & certification', key: 'training' },
+  { value: 'Updated product images and copy', key: 'images' },
+  { value: 'Store Locator listing', key: 'storeLocator' },
+  { value: 'MAP or pricing question', key: 'pricing' },
+] as const
 
 const FEEDBACK_OPTIONS = [
-  'Love it',
-  'Looks good',
-  "Haven't looked yet",
-  'Some notes for you',
-]
+  { value: 'Love it', key: 'love' },
+  { value: 'Looks good', key: 'good' },
+  { value: "Haven't looked yet", key: 'notYet' },
+  { value: 'Some notes for you', key: 'notes' },
+] as const
+
+// RETAILER_CONTACTS values (constants.ts) are submitted verbatim for lead
+// routing, so they stay English; this maps each to a translated label. A contact
+// added to the constant without an entry here just shows its English value.
+const CONTACT_LABEL_KEYS: Record<string, string> = {
+  'Michelle Marcus — VP of Sales': 'michelle',
+  'Colin Roy — Senior Vice President': 'colin',
+  'Erik Vasquez — VP of Marketing': 'erik',
+  'My distributor rep': 'distributor',
+  "Not sure / I don't have one": 'notSure',
+}
 
 const GATE_KEY = 'sliquid_retailer_checkin_confirmed'
 
@@ -62,12 +77,12 @@ const EMPTY: CheckInFormData = {
  * existing partner doing us a favour by answering — a wall of red asterisks is
  * the wrong greeting, and we already hold their address and MAP agreement.
  */
-function validate(d: CheckInFormData): CheckInFormErrors {
+function validate(d: CheckInFormData, t: TFunction<'retailerCheckIn'>): CheckInFormErrors {
   const err: CheckInFormErrors = {}
-  if (!d.company.trim()) err.company = 'Store or company name is required.'
-  if (!d.contactName.trim()) err.contactName = 'Your name is required.'
+  if (!d.company.trim()) err.company = t('errors.companyRequired')
+  if (!d.contactName.trim()) err.contactName = t('errors.nameRequired')
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRe.test(d.email)) err.email = 'A valid email address is required.'
+  if (!emailRe.test(d.email)) err.email = t('errors.emailInvalid')
   return err
 }
 
@@ -99,12 +114,13 @@ const inputCls = (hasError?: boolean) =>
  *  gate, in the page body and on the decline screen — a prospect who lands on a
  *  link a customer forwarded them should never have to hunt for the real form. */
 function ApplyInsteadLink({ className = '' }: { className?: string }) {
+  const { t } = useTranslation('retailerCheckIn')
   return (
     <a
       href="/become-a-retailer"
       className={`inline-flex items-center gap-2 rounded-lg border border-sliquid-blue px-6 py-3 text-sm font-semibold text-sliquid-blue transition-colors hover:bg-sliquid-blue hover:text-white ${className}`}
     >
-      Apply to become a retailer
+      {t('applyInstead')}
       <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
       </svg>
@@ -115,6 +131,7 @@ function ApplyInsteadLink({ className = '' }: { className?: string }) {
 // ─── Gate ─────────────────────────────────────────────────────────────────────
 
 function Gate({ onConfirm, onDecline }: { onConfirm: () => void; onDecline: () => void }) {
+  const { t } = useTranslation('retailerCheckIn')
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -125,14 +142,13 @@ function Gate({ onConfirm, onDecline }: { onConfirm: () => void; onDecline: () =
     >
       <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl md:p-10">
         <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-sliquid-blue">
-          Sliquid Partners
+          {t('gate.eyebrow')}
         </p>
         <h2 id="checkin-gate-title" className="mb-3 text-[26px] font-bold leading-tight tracking-tight text-text-dark">
-          Before we start — does your store already carry Sliquid?
+          {t('gate.title')}
         </h2>
         <p className="mb-8 text-sm leading-relaxed text-text-gray">
-          This page is just for partners who already stock us. If you're not carrying us yet, we'd
-          still love to talk — we'll point you to the right form.
+          {t('gate.body')}
         </p>
 
         <div className="flex flex-col gap-3">
@@ -141,14 +157,14 @@ function Gate({ onConfirm, onDecline }: { onConfirm: () => void; onDecline: () =
             onClick={onConfirm}
             className="rounded-lg bg-sliquid-blue px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-sliquid-dark-blue"
           >
-            Yes — we're an existing Sliquid retailer
+            {t('gate.yes')}
           </button>
           <button
             type="button"
             onClick={onDecline}
             className="rounded-lg border border-gray-200 px-6 py-3.5 text-sm font-semibold text-text-gray transition-colors hover:border-sliquid-blue hover:text-sliquid-blue"
           >
-            Not yet — we'd like to become one
+            {t('gate.no')}
           </button>
         </div>
       </div>
@@ -157,6 +173,7 @@ function Gate({ onConfirm, onDecline }: { onConfirm: () => void; onDecline: () =
 }
 
 function DeclineScreen({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation('retailerCheckIn')
   return (
     <section className="py-20 md:py-28">
       <div className="mx-auto max-w-xl px-4 text-center sm:px-6">
@@ -166,11 +183,10 @@ function DeclineScreen({ onBack }: { onBack: () => void }) {
           </svg>
         </div>
         <h1 className="mb-4 text-[30px] font-bold tracking-tight text-text-dark">
-          Let's get you set up first
+          {t('declined.title')}
         </h1>
         <p className="mb-8 text-base leading-relaxed text-text-gray">
-          This page is for stores already carrying Sliquid. Becoming a partner takes one short form —
-          our sales team usually replies within 2–3 business days.
+          {t('declined.body')}
         </p>
         <div className="flex flex-col items-center gap-4">
           <ApplyInsteadLink />
@@ -179,7 +195,7 @@ function DeclineScreen({ onBack }: { onBack: () => void }) {
             onClick={onBack}
             className="text-sm text-text-light-gray underline-offset-2 hover:text-sliquid-blue hover:underline"
           >
-            Actually, we do carry Sliquid — take me back
+            {t('declined.back')}
           </button>
         </div>
       </div>
@@ -190,6 +206,7 @@ function DeclineScreen({ onBack }: { onBack: () => void }) {
 // ─── Thank You ────────────────────────────────────────────────────────────────
 
 function ThankYou({ referenceNumber, onClose }: { referenceNumber: string; onClose: () => void }) {
+  const { t } = useTranslation('retailerCheckIn')
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -205,16 +222,15 @@ function ThankYou({ referenceNumber, onClose }: { referenceNumber: string; onClo
           </svg>
         </div>
         <h2 id="checkin-thankyou-title" className="mb-3 text-2xl font-bold text-text-dark">
-          Thank you — we've got it.
+          {t('thanks.title')}
         </h2>
         <p className="mb-5 text-sm leading-relaxed text-text-gray">
-          Thanks for checking in, and for the years you've spent putting Sliquid on your shelves.
-          Your point of contact will follow up shortly.
+          {t('thanks.body')}
         </p>
 
         <div className="mb-7 rounded-lg border border-gray-200 bg-bg-off-white px-4 py-3">
           <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-text-light-gray">
-            Your reference number
+            {t('thanks.reference')}
           </p>
           <p className="text-lg font-bold tracking-wide text-sliquid-blue">{referenceNumber}</p>
         </div>
@@ -223,7 +239,7 @@ function ThankYou({ referenceNumber, onClose }: { referenceNumber: string; onClo
           onClick={onClose}
           className="rounded-lg bg-sliquid-blue px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-sliquid-dark-blue"
         >
-          Done
+          {t('thanks.done')}
         </button>
       </div>
     </div>
@@ -233,6 +249,7 @@ function ThankYou({ referenceNumber, onClose }: { referenceNumber: string; onClo
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function RetailerCheckInPage() {
+  const { t } = useTranslation('retailerCheckIn')
   const uid = useId()
   // 'gate' → 'form' | 'declined'. sessionStorage so a refresh or a jump to the
   // form anchor doesn't re-ask someone who already answered.
@@ -281,7 +298,7 @@ export default function RetailerCheckInPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const errs = validate(form)
+    const errs = validate(form, t)
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setSubmitting(true)
     setSendError('')
@@ -308,7 +325,7 @@ export default function RetailerCheckInPage() {
       if (res.status === 429) {
         // The server knows the real remaining time — trust it over this browser.
         cooldown.lock(data.retryAfterMinutes ?? 60)
-        setSendError(data.message ?? 'You have already checked in recently.')
+        setSendError(data.message ?? t('errors.alreadyCheckedIn'))
         return
       }
       if (!res.ok) throw new Error(data.message ?? 'Request failed')
@@ -318,7 +335,7 @@ export default function RetailerCheckInPage() {
       setSendError(
         err instanceof Error && err.message !== 'Request failed'
           ? err.message
-          : 'Something went wrong sending your check-in. Please try again or email sales@sliquid.com directly.',
+          : t('errors.sendFailed'),
       )
     } finally {
       setSubmitting(false)
@@ -343,20 +360,16 @@ export default function RetailerCheckInPage() {
       <section className="bg-bg-off-white py-14 md:py-20">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-sliquid-blue">
-            For our current partners
+            {t('hero.eyebrow')}
           </p>
           <h1 className="mb-5 text-[34px] font-bold leading-tight tracking-tight text-text-dark md:text-[46px]">
-            Thank you for always being there.
+            {t('hero.title')}
           </h1>
           <p className="mb-4 text-base leading-relaxed text-text-gray md:text-lg">
-            Every bottle on your shelf is a decision you made to stand behind body-safe intimate
-            wellness — and after twenty years, that's still the whole business. We don't take it
-            lightly.
+            {t('hero.body')}
           </p>
           <p className="text-base leading-relaxed text-text-gray md:text-lg">
-            We've refreshed how Sliquid looks and how we work with you.{' '}
-            <span className="font-semibold text-text-dark">So — how do you like the new look?</span>{' '}
-            Tell us below, and let us know what you need from us next.
+            <Trans t={t} i18nKey="hero.newLook" components={{ bold: <span className="font-semibold text-text-dark" /> }} />
           </p>
         </div>
       </section>
@@ -366,11 +379,10 @@ export default function RetailerCheckInPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mb-10 text-center">
             <h2 id="checkin-brands-heading" className="mb-3 text-[26px] font-bold tracking-tight text-text-dark md:text-[32px]">
-              The brands behind your shelf
+              {t('brands.heading')}
             </h2>
             <p className="mx-auto max-w-2xl text-sm leading-relaxed text-text-gray md:text-base">
-              Three houses, one standard. Every formula across all three is made to the same
-              body-safe spec — glycerin-free, paraben-free, no sugar derivatives.
+              {t('brands.body')}
             </p>
           </div>
 
@@ -383,7 +395,7 @@ export default function RetailerCheckInPage() {
                 <div className="aspect-[16/10] w-full overflow-hidden bg-bg-off-white">
                   <img
                     src={brand.imageUrl}
-                    alt={brand.imageAlt}
+                    alt={t(`common:brands.${brand.id}.imageAlt`)}
                     loading="lazy"
                     className="h-full w-full object-cover"
                   />
@@ -391,10 +403,10 @@ export default function RetailerCheckInPage() {
                 <div className="flex flex-1 flex-col p-6">
                   <h3 className="mb-1 text-lg font-bold tracking-tight text-text-dark">{brand.name}</h3>
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-sliquid-blue">
-                    {brand.tagline}
+                    {t(`common:brands.${brand.id}.tagline`)}
                   </p>
                   <p className="mb-5 flex-1 text-sm leading-relaxed text-text-gray">
-                    {brand.description}
+                    {t(`common:brands.${brand.id}.description`)}
                   </p>
                   <a
                     href={brand.siteUrl}
@@ -402,7 +414,7 @@ export default function RetailerCheckInPage() {
                     rel="noopener noreferrer"
                     className="text-sm font-semibold text-sliquid-blue hover:underline"
                   >
-                    Visit {brand.name} →
+                    {t('brands.visit', { name: brand.name })}
                   </a>
                 </div>
               </article>
@@ -416,10 +428,10 @@ export default function RetailerCheckInPage() {
         <div className="mx-auto max-w-2xl px-4 sm:px-6">
           <div className="mb-8">
             <h2 id="checkin-form-heading" className="border-b border-gray-200 pb-4 text-[22px] font-bold tracking-tight text-text-dark">
-              Check in with us
+              {t('form.heading')}
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-text-gray">
-              Three fields are all we truly need — the rest just helps us help you faster.
+              {t('form.intro')}
             </p>
           </div>
 
@@ -435,7 +447,7 @@ export default function RetailerCheckInPage() {
 
             {/* Store / Company */}
             <div>
-              <Label htmlFor={`${uid}-company`} required>Store / Company Name</Label>
+              <Label htmlFor={`${uid}-company`} required>{t('form.company')}</Label>
               <input
                 id={`${uid}-company`}
                 name="company"
@@ -450,7 +462,7 @@ export default function RetailerCheckInPage() {
 
             {/* Name */}
             <div>
-              <Label htmlFor={`${uid}-name`} required>Your Name</Label>
+              <Label htmlFor={`${uid}-name`} required>{t('form.name')}</Label>
               <input
                 id={`${uid}-name`}
                 name="contactName"
@@ -466,7 +478,7 @@ export default function RetailerCheckInPage() {
             {/* Email + Phone */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor={`${uid}-email`} required>Email</Label>
+                <Label htmlFor={`${uid}-email`} required>{t('form.email')}</Label>
                 <input
                   id={`${uid}-email`}
                   name="email"
@@ -479,7 +491,7 @@ export default function RetailerCheckInPage() {
                 {errors.email && <FieldError id={`${uid}-emailErr`} message={errors.email} />}
               </div>
               <div>
-                <Label htmlFor={`${uid}-phone`}>Phone</Label>
+                <Label htmlFor={`${uid}-phone`}>{t('form.phone')}</Label>
                 <input
                   id={`${uid}-phone`}
                   name="phone"
@@ -494,7 +506,7 @@ export default function RetailerCheckInPage() {
 
             {/* Point of contact */}
             <div>
-              <Label htmlFor={`${uid}-poc`}>Who is your point of contact at Sliquid?</Label>
+              <Label htmlFor={`${uid}-poc`}>{t('form.pointOfContact')}</Label>
               <select
                 id={`${uid}-poc`}
                 name="pointOfContact"
@@ -502,19 +514,21 @@ export default function RetailerCheckInPage() {
                 onChange={handleChange}
                 className={inputCls()}
               >
-                <option value="">Select a contact…</option>
+                <option value="">{t('form.selectContact')}</option>
                 {RETAILER_CONTACTS.map(c => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {CONTACT_LABEL_KEYS[c] ? t(`form.contacts.${CONTACT_LABEL_KEYS[c]}`) : c}
+                  </option>
                 ))}
               </select>
               <p className="mt-1.5 text-xs text-text-light-gray">
-                No wrong answer — if you're not sure, pick the last option and we'll route you.
+                {t('form.contactHelp')}
               </p>
             </div>
 
             {/* Brands carried */}
             <div>
-              <p className="mb-2 text-sm font-semibold text-text-dark">Which brands do you carry?</p>
+              <p className="mb-2 text-sm font-semibold text-text-dark">{t('form.brandsCarried')}</p>
               <div className="grid gap-y-2 sm:grid-cols-2">
                 {BRANDS.map(brand => (
                   <label key={brand.id} className="flex cursor-pointer items-center gap-2.5 text-sm text-text-gray hover:text-text-dark">
@@ -533,18 +547,18 @@ export default function RetailerCheckInPage() {
 
             {/* Interests */}
             <div>
-              <p className="mb-2 text-sm font-semibold text-text-dark">How can we help right now?</p>
+              <p className="mb-2 text-sm font-semibold text-text-dark">{t('form.interestsHeading')}</p>
               <div className="grid gap-y-2 sm:grid-cols-2">
                 {INTERESTS.map(item => (
-                  <label key={item} className="flex cursor-pointer items-start gap-2.5 text-sm text-text-gray hover:text-text-dark">
+                  <label key={item.value} className="flex cursor-pointer items-start gap-2.5 text-sm text-text-gray hover:text-text-dark">
                     <input
                       type="checkbox"
-                      value={item}
-                      checked={form.interests.includes(item)}
-                      onChange={e => toggleInArray('interests', item, e.target.checked)}
+                      value={item.value}
+                      checked={form.interests.includes(item.value)}
+                      onChange={e => toggleInArray('interests', item.value, e.target.checked)}
                       className="mt-0.5 accent-sliquid-blue"
                     />
-                    {item}
+                    {t(`form.interests.${item.key}`)}
                   </label>
                 ))}
               </div>
@@ -552,19 +566,19 @@ export default function RetailerCheckInPage() {
 
             {/* New look feedback */}
             <div>
-              <p className="mb-2 text-sm font-semibold text-text-dark">How do you like our new look?</p>
+              <p className="mb-2 text-sm font-semibold text-text-dark">{t('form.feedbackHeading')}</p>
               <div className="grid gap-y-2 sm:grid-cols-2">
                 {FEEDBACK_OPTIONS.map(opt => (
-                  <label key={opt} className="flex cursor-pointer items-center gap-2.5 text-sm text-text-gray hover:text-text-dark">
+                  <label key={opt.value} className="flex cursor-pointer items-center gap-2.5 text-sm text-text-gray hover:text-text-dark">
                     <input
                       type="radio"
                       name="siteFeedback"
-                      value={opt}
-                      checked={form.siteFeedback === opt}
+                      value={opt.value}
+                      checked={form.siteFeedback === opt.value}
                       onChange={handleChange}
                       className="accent-sliquid-blue"
                     />
-                    {opt}
+                    {t(`form.feedback.${opt.key}`)}
                   </label>
                 ))}
               </div>
@@ -572,12 +586,12 @@ export default function RetailerCheckInPage() {
 
             {/* Comments */}
             <div>
-              <Label htmlFor={`${uid}-comments`}>Anything else you'd like to tell us?</Label>
+              <Label htmlFor={`${uid}-comments`}>{t('form.comments')}</Label>
               <textarea
                 id={`${uid}-comments`}
                 name="comments"
                 rows={5}
-                placeholder="Feedback on the new look, what's selling, what you wish we did differently…"
+                placeholder={t('form.commentsPlaceholder')}
                 value={form.comments}
                 onChange={handleChange}
                 className={`${inputCls()} resize-y`}
@@ -595,7 +609,7 @@ export default function RetailerCheckInPage() {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
               )}
-              {submitting ? 'Sending…' : 'Send check-in'}
+              {submitting ? t('form.submitting') : t('form.submit')}
             </button>
           </form>
           )}
@@ -606,11 +620,10 @@ export default function RetailerCheckInPage() {
       <section className="py-14 md:py-20">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <h2 className="mb-3 text-[22px] font-bold tracking-tight text-text-dark">
-            Landed here but don't carry Sliquid yet?
+            {t('notRetailer.title')}
           </h2>
           <p className="mb-7 text-sm leading-relaxed text-text-gray md:text-base">
-            Someone probably forwarded you this link — and we're glad they did. Our retailer and
-            distributor application takes a couple of minutes.
+            {t('notRetailer.body')}
           </p>
           <ApplyInsteadLink />
         </div>

@@ -1,9 +1,11 @@
 import { useState, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { Trans, useTranslation } from 'react-i18next'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation('auth')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -11,7 +13,7 @@ export default function ForgotPasswordPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!email.trim()) { setError('Please enter your email address.'); return }
+    if (!email.trim()) { setError(t('forgot.errors.emailRequired')); return }
     setError('')
     setLoading(true)
     try {
@@ -23,7 +25,7 @@ export default function ForgotPasswordPage() {
       // Always show success — server never reveals whether the email exists
       setSubmitted(true)
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError(t('shared.genericError'))
     } finally {
       setLoading(false)
     }
@@ -39,15 +41,20 @@ export default function ForgotPasswordPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
-            <h1 className="text-text-dark text-2xl font-bold mb-3">Check your email</h1>
+            <h1 className="text-text-dark text-2xl font-bold mb-3">{t('forgot.sent.title')}</h1>
             <p className="text-text-gray text-sm leading-relaxed mb-6">
-              If an account exists for <span className="font-medium text-text-dark">{email}</span>, you will receive a password reset link within a few minutes. Check your spam folder if you don't see it.
+              <Trans
+                t={t}
+                i18nKey="forgot.sent.body"
+                values={{ email }}
+                components={{ email: <span className="font-medium text-text-dark" /> }}
+              />
             </p>
             <Link
               to="/partner-login"
               className="text-sliquid-blue hover:text-sliquid-dark-blue text-sm font-medium transition-colors"
             >
-              ← Back to sign in
+              {t('shared.backToSignIn')}
             </Link>
           </div>
         </div>
@@ -67,16 +74,16 @@ export default function ForgotPasswordPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
             </div>
-            <h1 className="text-text-dark text-2xl font-bold">Forgot your password?</h1>
+            <h1 className="text-text-dark text-2xl font-bold">{t('forgot.title')}</h1>
             <p className="text-text-gray text-sm mt-1 text-center">
-              Enter your account email and we'll send you a reset link.
+              {t('forgot.subtitle')}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <label htmlFor="email" className="block text-text-dark text-sm font-medium mb-1.5">
-                Email address
+                {t('shared.emailLabel')}
               </label>
               <input
                 id="email"
@@ -105,7 +112,7 @@ export default function ForgotPasswordPage() {
                          disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg
                          text-sm transition-colors duration-150 mt-2"
             >
-              {loading ? 'Sending…' : 'Send Reset Link'}
+              {loading ? t('forgot.submitting') : t('forgot.submit')}
             </button>
           </form>
         </div>
@@ -115,7 +122,7 @@ export default function ForgotPasswordPage() {
             to="/partner-login"
             className="text-text-gray hover:text-sliquid-blue text-sm transition-colors"
           >
-            ← Back to sign in
+            {t('shared.backToSignIn')}
           </Link>
         </div>
 

@@ -1,0 +1,54 @@
+{
+  "header": {
+    "eyebrow": "RGPD",
+    "title": "Sus derechos sobre sus datos",
+    "body": "Conforme al Reglamento General de Protección de Datos (RGPD), usted tiene derecho a acceder a los datos personales que tenemos sobre usted y a solicitar su eliminación. Utilice los siguientes formularios para ejercer cualquiera de estos derechos."
+  },
+  "holding": {
+    "heading": "Cómo conservamos sus datos",
+    "mailchimp": "Sliquid utiliza <bold>Mailchimp</bold> (operado por The Rocket Science Group, LLC) como plataforma de marketing por correo electrónico. Cuando usted se suscribe para recibir comunicaciones nuestras a través de nuestro sitio web, una feria comercial u otro canal, su nombre, su correo electrónico y sus preferencias asociadas se almacenan en los sistemas de Mailchimp. Mailchimp trata estos datos en nuestro nombre conforme a un acuerdo de tratamiento de datos que cumple con el RGPD.",
+    "database": "Además de Mailchimp, podemos almacenar los datos que usted envía (como solicitudes de minoristas, formularios de contacto y registros en nuestro stand) en nuestra propia base de datos segura, alojada en la infraestructura de Railway, para atender su solicitud y conservar un registro de su consentimiento.",
+    "noSale": "No vendemos sus datos personales a terceros. Para conocer todos los detalles, consulte nuestra <cta>Política de privacidad</cta>."
+  },
+  "tabs": {
+    "groupLabel": "Tipo de solicitud",
+    "access": "Solicitar mis datos",
+    "deletion": "Solicitar la eliminación"
+  },
+  "access": {
+    "heading": "Solicitar acceso a sus datos",
+    "body": "Conforme al artículo 15 del RGPD, usted tiene derecho a obtener confirmación de si tratamos sus datos personales y a recibir una copia de ellos. Responderemos en un plazo de <bold>30 días</bold>. Su solicitud también se enviará a Mailchimp para recuperar los datos que se conserven allí en su nombre."
+  },
+  "deletion": {
+    "heading": "Solicitar la eliminación de sus datos",
+    "body": "Conforme al artículo 17 del RGPD («derecho al olvido»), usted puede solicitar que eliminemos sus datos personales. Procesaremos su solicitud en un plazo de <bold>30 días</bold> y le confirmaremos cuando haya finalizado.",
+    "whatGetsDeleted": "<bold>Qué se elimina:</bold> Sus datos se eliminarán de nuestra audiencia de Mailchimp y de nuestra base de datos interna. Tenga en cuenta que es posible que debamos conservar ciertos registros por obligaciones legales o contractuales (por ejemplo, el historial de pedidos); en ese caso, le informaremos qué no se puede eliminar y por qué."
+  },
+  "form": {
+    "name": "Nombre completo",
+    "email": "Correo electrónico",
+    "details": "Detalles adicionales",
+    "optional": "(opcional)",
+    "accessPlaceholder": "Describa a qué datos desea acceder…",
+    "deletionPlaceholder": "Cualquier contexto adicional para su solicitud de eliminación…",
+    "submitting": "Enviando…",
+    "submitAccess": "Enviar solicitud de datos",
+    "submitDeletion": "Enviar solicitud de eliminación"
+  },
+  "errors": {
+    "nameRequired": "El nombre completo es obligatorio.",
+    "emailInvalid": "Se requiere un correo electrónico válido.",
+    "alreadyReceived": "Ya recibimos esta solicitud.",
+    "generic": "Algo salió mal. Por favor, inténtelo de nuevo."
+  },
+  "success": {
+    "title": "Solicitud recibida",
+    "access": "Recibimos su solicitud de acceso a sus datos. Responderemos en un plazo de 30 días, de conformidad con el artículo 15 del RGPD.",
+    "deletion": "Recibimos su solicitud de eliminación. La procesaremos en un plazo de 30 días, de conformidad con el artículo 17 del RGPD. Esto incluye eliminar sus datos de Mailchimp y de nuestros sistemas.",
+    "another": "Enviar otra solicitud"
+  },
+  "questions": {
+    "heading": "¿Tiene preguntas sobre sus datos?",
+    "body": "Si tiene preguntas sobre cómo tratamos sus datos o necesita escalar una solicitud, escríbanos directamente a <email>sales@sliquid.com</email>. También tiene derecho a presentar una reclamación ante la autoridad de protección de datos de su país."
+  }
+}

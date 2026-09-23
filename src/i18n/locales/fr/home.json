@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "ariaLabel": "Bannière principale",
+    "title": "Tout ce dont les détaillants Sliquid ont besoin, au même endroit.",
+    "body": "Votre centre pour la formation sur les produits, la formation du personnel, les ressources téléchargeables et les outils partenaires qui soutiennent votre entreprise à chaque étape.",
+    "becomeRetailer": "Devenir détaillant",
+    "partnerPortal": "Portail partenaires"
+  },
+  "strategy": {
+    "heading": "Une façon plus intelligente de grandir ensemble",
+    "intro": "Grandir ensemble plus intelligemment, c’est bien plus qu’avoir accès à des outils : c’est compter sur l’équipe marketing de Sliquid comme sur une extension de la vôtre, prête à vous soutenir, à élaborer des stratégies et à vous aider à obtenir des résultats.",
+    "cards": {
+      "retailers": {
+        "title": "Détaillants",
+        "description": "Simplifiez votre travail, rehaussez votre présence en magasin et en ligne, et communiquez directement avec notre équipe marketing pour avancer plus vite, vendre plus intelligemment et croître en toute confiance.",
+        "imageAlt": "Collection de lubrifiants Sliquid Organics Natural sur une surface épurée",
+        "linkLabel": "Parcourir notre catalogue"
+      },
+      "health-practitioners": {
+        "title": "Professionnels de la santé",
+        "description": "Soutenez votre pratique grâce à des ressources cliniques, des fiches éducatives et des échantillons prêts pour vos patients, conçus pour compléter vos soins et vous aider à mieux les servir.",
+        "imageAlt": "Gamme de produits de bien-être intime Sliquid Soothe avec reflets",
+        "linkLabel": "Découvrir notre programme"
+      },
+      "global-distributors": {
+        "title": "Distributeurs internationaux",
+        "description": "Outillez vos équipes marketing et ventes de ressources prêtes à partager avec vos clients, pour de meilleures ventes et une collaboration renforcée avec l’équipe marketing de Sliquid.",
+        "imageAlt": "Gamme de lubrifiants à base d’eau RIDE Lube",
+        "linkLabel": "Demander plus d’information"
+      }
+    }
+  },
+  "stats": {
+    "heading": "Un écosystème santé et bien-être véritablement intégré",
+    "body": "En faisant partie de la famille Sliquid, vous accédez à un réseau en pleine croissance qui couvre les canaux de détail et numériques. Notre présence physique et numérique s’allie à l’innovation de nos produits pour vous aider à offrir à vos clients des bienfaits réellement sains et significatifs.",
+    "items": {
+      "years": "ans dans l’industrie, ce qui en fait l’une des rares marques véritablement établies du bien-être intime.",
+      "skus": "UGS réparties dans plusieurs collections : lubrifiants, bain et corps, et bien-être.",
+      "customers": "clients qui font confiance à Sliquid pour un bien-être sans danger pour le corps.",
+      "zero": "ingrédient superflu : des formules avec 0 glycérine, 0 parabène et 0 dérivé de sucre, un élément distinctif dans la catégorie."
+    }
+  },
+  "brands": {
+    "heading": "Plus de marques. Plus de portée. Plus d’occasions.",
+    "body": "La famille Sliquid ne s’arrête pas là. Avec l’image de RIDE Lube axée sur la communauté LGBTQ+ et la collection signature Ride Rocco, notre portefeuille donne aux partenaires accès à une gamme de produits de bien-être plus vaste et plus spécialisée.",
+    "cta": "Découvrir nos marques sœurs",
+    "imageAlt": "Collection de produits Sliquid, RIDE Lube et Ride Rocco",
+    "labelSubtitle": "Lubrifiants haute performance et collections signature"
+  },
+  "ceo": {
+    "heading": "Message de la présidente-directrice générale",
+    "quote": "« Bienvenue chez Sliquid HQ! Nous sommes ravis de vous accueillir. Cet espace a été créé pour vous, nos partenaires détaillants et médicaux, afin de vous donner un accès facile à l’information et aux ressources qui soutiennent votre travail. Tout ici est conçu pour vous aider à vous sentir en confiance et bien informés lorsque vous partagez la mission de Sliquid avec vos clients et vos patients. »",
+    "role": "Cofondatrice et présidente-directrice générale"
+  },
+  "cta": {
+    "heading": "Restez au courant des dernières nouvelles de Sliquid",
+    "thanks": "Merci de votre abonnement!",
+    "emailLabel": "Adresse courriel",
+    "placeholder": "vous@entreprise.com",
+    "invalidEmail": "Veuillez entrer une adresse courriel valide.",
+    "subscribe": "S’abonner"
+  }
+}

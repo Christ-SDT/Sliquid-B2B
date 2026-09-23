@@ -1,19 +1,21 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import type { ContactFormData, ContactFormErrors } from '@/types'
 import { sanitizeFormData } from '@/utils/sanitize'
 import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
-function validate(data: ContactFormData): ContactFormErrors {
+function validate(data: ContactFormData, t: TFunction<'contact'>): ContactFormErrors {
   const errors: ContactFormErrors = {}
-  if (!data.name.trim()) errors.name = 'Full name is required.'
-  if (!data.company.trim()) errors.company = 'Company name is required.'
+  if (!data.name.trim()) errors.name = t('errors.nameRequired')
+  if (!data.company.trim()) errors.company = t('errors.companyRequired')
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRe.test(data.email)) errors.email = 'A valid email address is required.'
-  if (!data.subject.trim()) errors.subject = 'Please select an inquiry type.'
+  if (!emailRe.test(data.email)) errors.email = t('errors.emailInvalid')
+  if (!data.subject.trim()) errors.subject = t('errors.subjectRequired')
   if (data.message.trim().length < 20)
-    errors.message = 'Message must be at least 20 characters.'
+    errors.message = t('errors.messageTooShort')
   return errors
 }
 
@@ -26,32 +28,16 @@ const EMPTY: ContactFormData = {
   message: '',
 }
 
-const PARTNERSHIP_TYPES = [
-  {
-    id: 'retailer',
-    title: 'Retailer',
-    description:
-      'Open a wholesale account to carry Sliquid, RIDE Lube, and Ride Rocco in-store or online. Access merchandising assets, planogram support, and competitive wholesale pricing tiers.',
-  },
-  {
-    id: 'media',
-    title: 'Marketing & Media',
-    description:
-      'Press inquiries, brand collaborations, influencer partnerships, and editorial requests. Reach out with your media kit or proposal and our marketing team will follow up.',
-  },
-  {
-    id: 'distributor',
-    title: 'Distributor',
-    description:
-      'We work with regional and global distribution partners to expand access in markets where direct fulfillment is not available. Tell us about your territory and logistics capabilities.',
-  },
-  {
-    id: 'medical',
-    title: 'Medical Professionals',
-    description:
-      'We partner with physicians, pelvic floor therapists, OB-GYNs, sex therapists, and other licensed healthcare providers who recommend intimate wellness products to their patients. Reach out to learn about our Medical Partners Program.',
-  },
-]
+// Copy lives in the `contact` namespace under partnerships.<id>.
+const PARTNERSHIP_TYPES = ['retailer', 'media', 'distributor', 'medical'] as const
+
+// Copy under steps.<id>; the number is presentational.
+const STEPS = [
+  { step: '01', id: 'review' },
+  { step: '02', id: 'reply' },
+  { step: '03', id: 'proposal' },
+  { step: '04', id: 'onboarding' },
+] as const
 
 function FieldError({ id, message }: { id: string; message: string }) {
   return (
@@ -62,6 +48,7 @@ function FieldError({ id, message }: { id: string; message: string }) {
 }
 
 export default function ContactPage() {
+  const { t } = useTranslation('contact')
   const [form, setForm] = useState<ContactFormData>(EMPTY)
   const [errors, setErrors] = useState<ContactFormErrors>({})
   const [submitting, setSubmitting] = useState(false)
@@ -87,7 +74,7 @@ export default function ContactPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const sanitized = sanitizeFormData(form)
-    const fieldErrors = validate(sanitized)
+    const fieldErrors = validate(sanitized, t)
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors)
       return
@@ -126,10 +113,7 @@ export default function ContactPage() {
       // arrive. It told the sender their message landed, and because the
       // submission never completed it also left the one-hour gate unarmed, so
       // the form was wide open when they came back. Both symptoms, one line.
-      setSendError(
-        "We couldn't send your message just now. Please try again, or email " +
-        'sales@sliquid.com directly.',
-      )
+      setSendError(t('errors.sendFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -154,9 +138,9 @@ export default function ContactPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-text-dark text-2xl font-bold">Message Sent</h2>
+          <h2 className="text-text-dark text-2xl font-bold">{t('success.title')}</h2>
           <p className="text-text-gray">
-            Our B2B team will respond within 2 business days.
+            {t('success.body')}
           </p>
         </div>
       </div>
@@ -169,15 +153,13 @@ export default function ContactPage() {
       <div className="bg-bg-light-blue py-16">
         <div className="max-w-[1240px] mx-auto px-6">
           <p className="text-sliquid-blue font-semibold text-sm uppercase tracking-wider mb-2">
-            Get in Touch
+            {t('hero.eyebrow')}
           </p>
           <h1 className="text-text-dark text-[42px] font-semibold tracking-[-0.5px] leading-tight">
-            Let's build something together
+            {t('hero.title')}
           </h1>
           <p className="text-text-gray text-lg mt-4 max-w-xl leading-relaxed">
-            Whether you are opening a wholesale account, exploring distribution,
-            or looking for clinical-grade recommendations, our B2B team is
-            ready to help.
+            {t('hero.body')}
           </p>
         </div>
       </div>
@@ -191,20 +173,20 @@ export default function ContactPage() {
             {/* Partnership types */}
             <div>
               <h2 className="text-text-dark text-[26px] font-semibold mb-8">
-                Who we work with
+                {t('partnerships.heading')}
               </h2>
               <div className="space-y-6">
-                {PARTNERSHIP_TYPES.map((type) => (
+                {PARTNERSHIP_TYPES.map((id) => (
                   <div
-                    key={type.id}
+                    key={id}
                     className="border border-gray-100 rounded-card p-7 bg-white hover:border-sliquid-blue
                                transition-colors duration-150"
                   >
                     <h3 className="text-text-dark text-lg font-semibold mb-2">
-                      {type.title}
+                      {t(`partnerships.${id}.title`)}
                     </h3>
                     <p className="text-text-gray text-sm leading-relaxed">
-                      {type.description}
+                      {t(`partnerships.${id}.description`)}
                     </p>
                   </div>
                 ))}
@@ -214,35 +196,10 @@ export default function ContactPage() {
             {/* What to expect */}
             <div>
               <h2 className="text-text-dark text-[26px] font-semibold mb-6">
-                What happens next
+                {t('steps.heading')}
               </h2>
               <ol className="space-y-5">
-                {[
-                  {
-                    step: '01',
-                    title: 'We review your inquiry',
-                    detail:
-                      'Our B2B team reads every message and will match your inquiry to the right person in sales, distribution, or clinical partnerships.',
-                  },
-                  {
-                    step: '02',
-                    title: 'You hear back within 2 business days',
-                    detail:
-                      'We will reach out by email (or phone if you provided a number) to discuss your needs and next steps.',
-                  },
-                  {
-                    step: '03',
-                    title: 'We send a tailored proposal',
-                    detail:
-                      'Depending on your inquiry type, you will receive a wholesale pricing sheet, distributor agreement, or clinical partner overview.',
-                  },
-                  {
-                    step: '04',
-                    title: 'Onboarding & support',
-                    detail:
-                      'Once a partnership is confirmed, your dedicated account contact provides product training, asset kits, and ongoing support.',
-                  },
-                ].map((item) => (
+                {STEPS.map((item) => (
                   <li key={item.step} className="flex gap-5 items-start">
                     <span
                       className="flex-shrink-0 w-10 h-10 rounded-full bg-bg-light-blue text-sliquid-blue
@@ -252,10 +209,10 @@ export default function ContactPage() {
                     </span>
                     <div>
                       <p className="text-text-dark font-semibold text-base">
-                        {item.title}
+                        {t(`steps.${item.id}.title`)}
                       </p>
                       <p className="text-text-gray text-sm leading-relaxed mt-1">
-                        {item.detail}
+                        {t(`steps.${item.id}.detail`)}
                       </p>
                     </div>
                   </li>
@@ -266,7 +223,7 @@ export default function ContactPage() {
             {/* Response info */}
             <div className="bg-bg-off-white rounded-card p-7 space-y-4">
               <h3 className="text-text-dark font-semibold text-base">
-                Contact information
+                {t('info.heading')}
               </h3>
               <div className="space-y-3 text-sm text-text-gray">
                 <div className="flex items-start gap-3">
@@ -274,19 +231,19 @@ export default function ContactPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span>Dallas, TX (Headquarters)</span>
+                  <span>{t('info.location')}</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <svg className="w-4 h-4 text-sliquid-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Monday through Friday, 9:30am to 6pm CT</span>
+                  <span>{t('info.hours')}</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <svg className="w-4 h-4 text-sliquid-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span>Response within 2 business days</span>
+                  <span>{t('info.response')}</span>
                 </div>
               </div>
             </div>
@@ -295,7 +252,7 @@ export default function ContactPage() {
           {/* Right: form */}
           <div className="bg-white border border-gray-100 rounded-card p-8 shadow-sm sticky top-24">
             <h2 className="text-text-dark text-xl font-semibold mb-6">
-              Send us a message
+              {t('form.heading')}
             </h2>
             {cooldown.blocked ? (
               <FormCooldownNotice minutes={cooldown.minutesLeft} noun="message" />
@@ -310,7 +267,7 @@ export default function ContactPage() {
                 {/* Name */}
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-text-dark mb-1.5">
-                    Full Name <span className="text-red-500" aria-hidden="true">*</span>
+                    {t('form.name')} <span className="text-red-500" aria-hidden="true">*</span>
                   </label>
                   <input
                     id="name"
@@ -330,7 +287,7 @@ export default function ContactPage() {
                 {/* Company */}
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium text-text-dark mb-1.5">
-                    Company <span className="text-red-500" aria-hidden="true">*</span>
+                    {t('form.company')} <span className="text-red-500" aria-hidden="true">*</span>
                   </label>
                   <input
                     id="company"
@@ -352,7 +309,7 @@ export default function ContactPage() {
                 {/* Email */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-text-dark mb-1.5">
-                    Email <span className="text-red-500" aria-hidden="true">*</span>
+                    {t('form.email')} <span className="text-red-500" aria-hidden="true">*</span>
                   </label>
                   <input
                     id="email"
@@ -372,8 +329,8 @@ export default function ContactPage() {
                 {/* Phone */}
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-text-dark mb-1.5">
-                    Phone{' '}
-                    <span className="text-text-light-gray font-normal text-xs">(optional)</span>
+                    {t('form.phone')}{' '}
+                    <span className="text-text-light-gray font-normal text-xs">{t('form.optional')}</span>
                   </label>
                   <input
                     id="phone"
@@ -391,7 +348,7 @@ export default function ContactPage() {
               {/* Subject */}
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-text-dark mb-1.5">
-                  Inquiry Type <span className="text-red-500" aria-hidden="true">*</span>
+                  {t('form.inquiryType')} <span className="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <select
                   id="subject"
@@ -402,12 +359,12 @@ export default function ContactPage() {
                   aria-describedby={errors.subject ? 'subject-error' : undefined}
                   className={inputCls('subject')}
                 >
-                  <option value="">Select inquiry type…</option>
-                  <option value="retailer">Retailer Account</option>
-                  <option value="media">Marketing & Media</option>
-                  <option value="distributor">Distribution Partnership</option>
-                  <option value="medical">Medical Professional</option>
-                  <option value="general">General Inquiry</option>
+                  <option value="">{t('form.options.placeholder')}</option>
+                  <option value="retailer">{t('form.options.retailer')}</option>
+                  <option value="media">{t('form.options.media')}</option>
+                  <option value="distributor">{t('form.options.distributor')}</option>
+                  <option value="medical">{t('form.options.medical')}</option>
+                  <option value="general">{t('form.options.general')}</option>
                 </select>
                 {errors.subject && <FieldError id="subject-error" message={errors.subject} />}
               </div>
@@ -415,7 +372,7 @@ export default function ContactPage() {
               {/* Message */}
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-text-dark mb-1.5">
-                  Message <span className="text-red-500" aria-hidden="true">*</span>
+                  {t('form.message')} <span className="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <textarea
                   id="message"
@@ -438,11 +395,11 @@ export default function ContactPage() {
                            text-white font-semibold py-3.5 rounded-lg text-sm transition-colors duration-150
                            focus:outline-none focus:ring-2 focus:ring-sliquid-blue focus:ring-offset-2"
               >
-                {submitting ? 'Sending…' : 'Send Message'}
+                {submitting ? t('form.submitting') : t('form.submit')}
               </button>
 
               <p className="text-text-light-gray text-xs text-center">
-                We respond to all B2B inquiries within 2 business days.
+                {t('form.footnote')}
               </p>
             </form>
             )}

@@ -1,0 +1,54 @@
+{
+  "header": {
+    "eyebrow": "GDPR",
+    "title": "Your Data Rights",
+    "body": "Under the General Data Protection Regulation (GDPR) you have the right to access the personal data we hold about you, and the right to request its deletion. Use the forms below to exercise either right."
+  },
+  "holding": {
+    "heading": "How We Hold Your Data",
+    "mailchimp": "Sliquid uses <bold>Mailchimp</bold> (operated by The Rocket Science Group, LLC) as our email marketing platform. When you sign up to receive communications from us through our website, a trade show, or another channel, your name, email address, and any associated preferences are stored in Mailchimp's systems. Mailchimp processes this data on our behalf under a data processing agreement compliant with GDPR.",
+    "database": "In addition to Mailchimp, we may store submission data (such as retailer applications, contact form entries, and booth intake forms) in our own secure database hosted on Railway infrastructure in order to fulfil your request and maintain a record of consent.",
+    "noSale": "We do not sell your personal data to any third party. For full details, see our <cta>Privacy Policy</cta>."
+  },
+  "tabs": {
+    "groupLabel": "Request type",
+    "access": "Request My Data",
+    "deletion": "Request Deletion"
+  },
+  "access": {
+    "heading": "Request Access to Your Data",
+    "body": "Under GDPR Article 15 you have the right to obtain confirmation of whether we process your personal data, and to receive a copy of it. We will respond within <bold>30 days</bold>. Your request will also be forwarded to Mailchimp to retrieve any data held there on your behalf."
+  },
+  "deletion": {
+    "heading": "Request Deletion of Your Data",
+    "body": "Under GDPR Article 17 (\"right to be forgotten\") you may request that we erase your personal data. We will process your request within <bold>30 days</bold> and confirm once complete.",
+    "whatGetsDeleted": "<bold>What gets deleted:</bold> Your data will be removed from our Mailchimp audience and from our internal database. Note that we may be required to retain certain records for legal or contractual obligations (e.g. order history), in which case we will inform you of what cannot be deleted and why."
+  },
+  "form": {
+    "name": "Full Name",
+    "email": "Email Address",
+    "details": "Additional Details",
+    "optional": "(optional)",
+    "accessPlaceholder": "Describe what data you would like to access…",
+    "deletionPlaceholder": "Any additional context for your deletion request…",
+    "submitting": "Submitting…",
+    "submitAccess": "Submit Data Request",
+    "submitDeletion": "Submit Deletion Request"
+  },
+  "errors": {
+    "nameRequired": "Full name is required.",
+    "emailInvalid": "A valid email address is required.",
+    "alreadyReceived": "We have already received this request.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "success": {
+    "title": "Request Received",
+    "access": "We have received your data access request. We will respond within 30 days in accordance with GDPR Article 15.",
+    "deletion": "We have received your deletion request. We will process it within 30 days in accordance with GDPR Article 17. This includes removing your data from Mailchimp and our systems.",
+    "another": "Submit another request"
+  },
+  "questions": {
+    "heading": "Questions About Your Data?",
+    "body": "If you have questions about how we process your data or need to escalate a request, contact us directly at <email>sales@sliquid.com</email>. You also have the right to lodge a complaint with your local data protection authority."
+  }
+}

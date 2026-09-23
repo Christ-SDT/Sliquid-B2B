@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { NAV_LINKS, TOP_BAR_LINKS } from '@/utils/constants'
 
 
 export default function Footer() {
   const year = new Date().getFullYear()
+  const { t } = useTranslation()
 
   return (
     <footer className="bg-footer text-gray-300">
@@ -14,7 +16,7 @@ export default function Footer() {
             <div className="flex items-center gap-2.5">
               <img
                 src="/images/cropped-lotus.png"
-                alt="Sliquid lotus"
+                alt={t('footer.logoAlt')}
                 width="28"
                 height="28"
                 className="w-7 h-7 object-contain"
@@ -25,16 +27,14 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-sm leading-relaxed max-w-sm text-gray-400">
-              Healthier happens together. Sliquid is dedicated to
-              providing the cleanest, safest intimacy products to retailers and
-              healthcare providers worldwide.
+              {t('footer.tagline')}
             </p>
           </div>
 
           {/* Col 2: Quick Links */}
           <div>
             <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-5">
-              Quick Links
+              {t('footer.quickLinks')}
             </h3>
             <ul className="space-y-3">
               {NAV_LINKS.map((link) => (
@@ -43,18 +43,18 @@ export default function Footer() {
                     to={link.href}
                     className="text-sm text-gray-400 hover:text-white transition-colors duration-150"
                   >
-                    {link.label}
+                    {link.labelKey ? t(`nav.${link.labelKey}`) : link.label}
                   </Link>
                 </li>
               ))}
               <li>
                 <Link to="/catalog" className="text-sm text-gray-400 hover:text-white transition-colors duration-150">
-                  Product Catalog
+                  {t('nav.productCatalog')}
                 </Link>
               </li>
               <li>
                 <Link to="/health-practitioners" className="text-sm text-gray-400 hover:text-white transition-colors duration-150">
-                  Health Practitioners
+                  {t('nav.healthPractitioners')}
                 </Link>
               </li>
             </ul>
@@ -63,7 +63,7 @@ export default function Footer() {
           {/* Col 3: Other Sites + Contact CTA */}
           <div>
             <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-5">
-              Other Sites
+              {t('footer.otherSites')}
             </h3>
             <ul className="space-y-3 mb-6">
               {TOP_BAR_LINKS.filter((l) => l.external === true).map((link) => (
@@ -74,23 +74,23 @@ export default function Footer() {
                     target="_blank"
                     className="text-sm text-gray-400 hover:text-white transition-colors duration-150"
                   >
-                    {link.label}
+                    {link.labelKey ? t(`nav.${link.labelKey}`) : link.label}
                   </a>
                 </li>
               ))}
             </ul>
             <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-5">
-              Contact
+              {t('footer.contactHeading')}
             </h3>
             <ul className="space-y-3 mb-5">
               <li>
                 <Link to="/about" className="text-sm text-gray-400 hover:text-white transition-colors duration-150">
-                  About
+                  {t('footer.about')}
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="text-sm text-gray-400 hover:text-white transition-colors duration-150">
-                  Careers
+                  {t('footer.careers')}
                 </Link>
               </li>
             </ul>
@@ -100,7 +100,7 @@ export default function Footer() {
                          text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors duration-150
                          text-center"
             >
-              Contact Us ›
+              {t('footer.contactUs')}
             </Link>
           </div>
         </div>
@@ -109,19 +109,19 @@ export default function Footer() {
         {/* text-gray-400 (was gray-500, 3.04:1 on this bg — below the 4.5:1 AA floor for normal text) */}
         <div className="border-t border-gray-700 pt-8 flex flex-col sm:flex-row justify-between
                         items-center gap-4 text-xs text-gray-400">
-          <p>Copyright © {year} Sliquid, LLC. All rights reserved.</p>
-          <div className="flex gap-5">
+          <p>{t('footer.copyright', { year })}</p>
+          <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             <Link to="/accessibility" className="hover:text-gray-300 transition-colors">
-              Accessibility
+              {t('footer.accessibility')}
             </Link>
             <Link to="/data-rights" className="hover:text-gray-300 transition-colors">
-              Your Data Rights
+              {t('footer.dataRights')}
             </Link>
             <Link to="/privacy-policy" className="hover:text-gray-300 transition-colors">
-              Privacy Policy
+              {t('footer.privacy')}
             </Link>
             <Link to="/terms" className="hover:text-gray-300 transition-colors">
-              Terms of Use
+              {t('footer.terms')}
             </Link>
           </div>
         </div>

@@ -13,7 +13,7 @@ export default function Layout() {
 
   // Route-level default; AnnouncementDetailPage and NotFoundPage override this
   // with a more specific title once they know what they're rendering.
-  useDocumentTitle(getDefaultTitle(pathname))
+  useDocumentTitle(t(`titles.${getDefaultTitle(pathname)}`))
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })

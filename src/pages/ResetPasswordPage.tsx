@@ -1,9 +1,11 @@
 import { useState, FormEvent } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation('auth')
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const token = searchParams.get('token') ?? ''
@@ -24,16 +26,16 @@ export default function ResetPasswordPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h1 className="text-text-dark text-2xl font-bold mb-3">Invalid reset link</h1>
+            <h1 className="text-text-dark text-2xl font-bold mb-3">{t('reset.invalid.title')}</h1>
             <p className="text-text-gray text-sm leading-relaxed mb-6">
-              This password reset link is missing or invalid. Please request a new one.
+              {t('reset.invalid.body')}
             </p>
             <Link
               to="/forgot-password"
               className="inline-block bg-sliquid-blue hover:bg-sliquid-dark-blue text-white font-semibold
                          py-2.5 px-6 rounded-lg text-sm transition-colors duration-150"
             >
-              Request a new link
+              {t('reset.invalid.cta')}
             </Link>
           </div>
         </div>
@@ -44,11 +46,11 @@ export default function ResetPasswordPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.')
+      setError(t('reset.errors.tooShort'))
       return
     }
     if (password !== confirm) {
-      setError('Passwords do not match.')
+      setError(t('reset.errors.mismatch'))
       return
     }
     setError('')
@@ -61,13 +63,13 @@ export default function ResetPasswordPage() {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setError((data as { message?: string }).message ?? 'Reset failed. Please try again.')
+        setError((data as { message?: string }).message ?? t('reset.errors.failed'))
         return
       }
       // Success — redirect to login with a flag so it can show a success banner
       navigate('/partner-login', { state: { passwordReset: true } })
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError(t('shared.genericError'))
     } finally {
       setLoading(false)
     }
@@ -85,16 +87,16 @@ export default function ResetPasswordPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h1 className="text-text-dark text-2xl font-bold">Set a new password</h1>
+            <h1 className="text-text-dark text-2xl font-bold">{t('reset.title')}</h1>
             <p className="text-text-gray text-sm mt-1 text-center">
-              Choose a strong password for your partner account.
+              {t('reset.subtitle')}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <label htmlFor="password" className="block text-text-dark text-sm font-medium mb-1.5">
-                New password
+                {t('reset.newPasswordLabel')}
               </label>
               <input
                 id="password"
@@ -103,7 +105,7 @@ export default function ResetPasswordPage() {
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="At least 8 characters"
+                placeholder={t('reset.newPasswordPlaceholder')}
                 className="w-full border border-gray-500 rounded-lg px-4 py-2.5 text-text-dark text-sm
                            placeholder:text-text-light-gray focus:outline-none focus:border-sliquid-blue
                            focus:ring-1 focus:ring-sliquid-blue transition-colors"
@@ -112,7 +114,7 @@ export default function ResetPasswordPage() {
 
             <div>
               <label htmlFor="confirm" className="block text-text-dark text-sm font-medium mb-1.5">
-                Confirm new password
+                {t('reset.confirmLabel')}
               </label>
               <input
                 id="confirm"
@@ -141,7 +143,7 @@ export default function ResetPasswordPage() {
                          disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg
                          text-sm transition-colors duration-150 mt-2"
             >
-              {loading ? 'Saving…' : 'Reset Password'}
+              {loading ? t('reset.submitting') : t('reset.submit')}
             </button>
           </form>
         </div>
@@ -151,7 +153,7 @@ export default function ResetPasswordPage() {
             to="/forgot-password"
             className="text-text-gray hover:text-sliquid-blue text-sm transition-colors"
           >
-            Request a new reset link
+            {t('reset.requestNewLink')}
           </Link>
         </div>
 

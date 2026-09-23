@@ -1788,10 +1788,31 @@ app (`src/i18n/` and `portal/client/src/i18n/`, near-identical copies — edit b
   if any es/fr file (in **either** app) is missing a key or has an empty value.
 - **Switcher:** native `<select>` in the marketing TopBar and portal TopBar; each option is
   labelled in its own language with a `lang` attribute.
-- Rollout plan: Phase 1 (this) is the foundation — only the skip link and switcher label are
-  translated so far. Next: marketing pages, portal UI, YouTube caption tracks
-  (`cc_lang_pref`), per-language email templates. Captivate SCORM quizzes can't be translated
-  from code (text is compiled into `project.js`); they need per-language re-exports.
+- **Namespaces (marketing site):** `common` (header, footer, nav, page titles, 404, cooldown
+  notice, shared `brands.<id>` copy), then one per page: `home`, `ourBrands`, `about`,
+  `ingredients`, `news` (Insights + Announcements), `catalog`, `erospain`, `contact`,
+  `becomeRetailer`, `healthPractitioners`, `retailerCheckIn`, `dataRights`, `auth`
+  (login/register/forgot/reset). English is bundled eagerly; other languages lazy-load per
+  namespace, so a test that switches language must use `findBy*`, not `getBy*`.
+- **Copy lives in the JSON, not `constants.ts`.** `BRANDS`, `STRATEGY_CARDS`, `STATS` and
+  `EXECUTIVES` keep only ids, URLs and proper names; their text is keyed by `id`.
+  `NAV_LINKS`/`TOP_BAR_LINKS` carry a `labelKey` (absent = proper name, e.g. RIDE Lube).
+- ⚠️ **Submitted values stay English.** Every select/radio/checkbox `value` and every field
+  sent to `/api/b2b/*` or EmailJS is unchanged — sales reads those emails. Only labels
+  translate. Verified in-browser: French UI still posts `subject: "retailer"`.
+- ⚠️ **`<Trans>` tag names must not be HTML void elements** (`link`, `br`, `img`, `input`…):
+  react-i18next treats them as self-closing and renders an EMPTY `<a>` with the text outside
+  it. Use names like `cta`, `email`, `bold`.
+- `FormCooldownNotice`'s `noun` prop is an **ID** (`message`, `application`, `request`,
+  `check-in`, `submission`) with a full sentence per noun in `common:cooldown` — never pass
+  translated text into it (splicing a noun breaks es/fr gender agreement).
+- `formatDate` (`src/utils/date.ts`) follows the UI language (en-US / es / fr-CA).
+- **Still English on purpose:** the legal pages (Privacy, Terms, MAP Policy, Accessibility) until
+  professionally translated; WordPress announcement content; API product data; server error
+  messages. The Data Rights page's es/fr cites GDPR articles and deadlines — needs legal review.
+- Rollout: Phase 1 foundation ✓, Phase 2 marketing site ✓. Next: portal UI, YouTube caption
+  tracks (`cc_lang_pref`), per-language email templates. Captivate SCORM quizzes can't be
+  translated from code (text is compiled into `project.js`); they need per-language re-exports.
 
 ⚠️ Node 26 (this machine's default) ships an experimental global `localStorage` that shadows
 jsdom's and is undefined in tests; `src/__tests__/setup.ts` installs an in-memory shim when that

@@ -1,4 +1,5 @@
 import { useState, useId } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { sanitizeFormData } from '@/utils/sanitize'
 import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
 
@@ -17,6 +18,7 @@ const inputCls = (hasError?: boolean) =>
    ${hasError ? 'border-red-500' : 'border-gray-500 focus:border-sliquid-blue'}`
 
 function RequestForm({ type, onSuccess }: { type: RequestType; onSuccess: () => void }) {
+  const { t } = useTranslation('dataRights')
   const uid = useId()
   const [form, setForm] = useState<FormData>(EMPTY)
   const [errors, setErrors] = useState<FormErrors>({})
@@ -32,9 +34,9 @@ function RequestForm({ type, onSuccess }: { type: RequestType; onSuccess: () => 
 
   function validate(): boolean {
     const err: FormErrors = {}
-    if (!form.name.trim()) err.name = 'Full name is required.'
+    if (!form.name.trim()) err.name = t('errors.nameRequired')
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRe.test(form.email)) err.email = 'A valid email address is required.'
+    if (!emailRe.test(form.email)) err.email = t('errors.emailInvalid')
     setErrors(err)
     return Object.keys(err).length === 0
   }
@@ -53,14 +55,14 @@ function RequestForm({ type, onSuccess }: { type: RequestType; onSuccess: () => 
       const data = await res.json().catch(() => ({})) as { message?: string; retryAfterMinutes?: number }
       if (res.status === 429) {
         cooldown.lock(data.retryAfterMinutes ?? 60)
-        setSendError(data.message ?? 'We have already received this request.')
+        setSendError(data.message ?? t('errors.alreadyReceived'))
         return
       }
-      if (!res.ok) throw new Error(data.message ?? 'Submission failed')
+      if (!res.ok) throw new Error(data.message ?? t('errors.generic'))
       cooldown.start()
       onSuccess()
     } catch (err: any) {
-      setSendError(err.message ?? 'Something went wrong. Please try again.')
+      setSendError(err.message ?? t('errors.generic'))
     } finally {
       setSubmitting(false)
     }
@@ -77,7 +79,7 @@ function RequestForm({ type, onSuccess }: { type: RequestType; onSuccess: () => 
       )}
       <div>
         <label htmlFor={`${uid}-name`} className="block text-sm font-semibold text-text-dark mb-1.5">
-          Full Name <span className="text-red-500">*</span>
+          {t('form.name')} <span className="text-red-500">*</span>
         </label>
         <input id={`${uid}-name`} name="name" type="text" value={form.name}
           onChange={handleChange} placeholder="Jane Doe"
@@ -86,7 +88,7 @@ function RequestForm({ type, onSuccess }: { type: RequestType; onSuccess: () => 
       </div>
       <div>
         <label htmlFor={`${uid}-email`} className="block text-sm font-semibold text-text-dark mb-1.5">
-          Email Address <span className="text-red-500">*</span>
+          {t('form.email')} <span className="text-red-500">*</span>
         </label>
         <input id={`${uid}-email`} name="email" type="email" value={form.email}
           onChange={handleChange} placeholder="you@example.com"
@@ -95,11 +97,11 @@ function RequestForm({ type, onSuccess }: { type: RequestType; onSuccess: () => 
       </div>
       <div>
         <label htmlFor={`${uid}-message`} className="block text-sm font-semibold text-text-dark mb-1.5">
-          Additional Details <span className="text-text-light-gray font-normal text-xs">(optional)</span>
+          {t('form.details')} <span className="text-text-light-gray font-normal text-xs">{t('form.optional')}</span>
         </label>
         <textarea id={`${uid}-message`} name="message" rows={3} value={form.message}
           onChange={handleChange}
-          placeholder={type === 'access' ? 'Describe what data you would like to access…' : 'Any additional context for your deletion request…'}
+          placeholder={type === 'access' ? t('form.accessPlaceholder') : t('form.deletionPlaceholder')}
           className={`${inputCls()} resize-none`} />
       </div>
       <button
@@ -114,13 +116,14 @@ function RequestForm({ type, onSuccess }: { type: RequestType; onSuccess: () => 
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
         )}
-        {submitting ? 'Submitting…' : type === 'access' ? 'Submit Data Request' : 'Submit Deletion Request'}
+        {submitting ? t('form.submitting') : type === 'access' ? t('form.submitAccess') : t('form.submitDeletion')}
       </button>
     </form>
   )
 }
 
 function SuccessPanel({ type, onReset }: { type: RequestType; onReset: () => void }) {
+  const { t } = useTranslation('dataRights')
   return (
     <div className="text-center py-8">
       <div className="w-14 h-14 bg-sliquid-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -128,21 +131,19 @@ function SuccessPanel({ type, onReset }: { type: RequestType; onReset: () => voi
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      <h3 className="text-text-dark text-xl font-bold mb-2">Request Received</h3>
+      <h3 className="text-text-dark text-xl font-bold mb-2">{t('success.title')}</h3>
       <p className="text-text-gray text-sm leading-relaxed max-w-sm mx-auto mb-5">
-        {type === 'access'
-          ? 'We have received your data access request. We will respond within 30 days in accordance with GDPR Article 15.'
-          : 'We have received your deletion request. We will process it within 30 days in accordance with GDPR Article 17. This includes removing your data from Mailchimp and our systems.'
-        }
+        {type === 'access' ? t('success.access') : t('success.deletion')}
       </p>
       <button onClick={onReset} className="text-sliquid-blue text-sm hover:underline font-medium">
-        Submit another request
+        {t('success.another')}
       </button>
     </div>
   )
 }
 
 export default function GDPRRequestPage() {
+  const { t } = useTranslation('dataRights')
   const [activeTab, setActiveTab] = useState<RequestType>('access')
   const [accessDone, setAccessDone] = useState(false)
   const [deletionDone, setDeletionDone] = useState(false)
@@ -153,13 +154,12 @@ export default function GDPRRequestPage() {
       {/* Header */}
       <section className="bg-bg-off-white border-b border-gray-100 py-12 px-4 sm:px-6">
         <div className="max-w-[860px] mx-auto">
-          <p className="text-sliquid-blue text-sm font-semibold uppercase tracking-widest mb-2">GDPR</p>
+          <p className="text-sliquid-blue text-sm font-semibold uppercase tracking-widest mb-2">{t('header.eyebrow')}</p>
           <h1 className="text-text-dark text-[38px] font-semibold tracking-[-0.5px] leading-tight mb-3">
-            Your Data Rights
+            {t('header.title')}
           </h1>
           <p className="text-text-gray text-base leading-relaxed max-w-2xl">
-            Under the General Data Protection Regulation (GDPR) you have the right to access the personal data we hold about you,
-            and the right to request its deletion. Use the forms below to exercise either right.
+            {t('header.body')}
           </p>
         </div>
       </section>
@@ -169,32 +169,30 @@ export default function GDPRRequestPage() {
 
           {/* How we hold your data */}
           <div className="bg-bg-off-white rounded-2xl p-8 border border-gray-100">
-            <h2 className="text-text-dark text-xl font-semibold mb-4">How We Hold Your Data</h2>
+            <h2 className="text-text-dark text-xl font-semibold mb-4">{t('holding.heading')}</h2>
             <div className="space-y-3 text-text-gray text-sm leading-relaxed">
               <p>
-                Sliquid uses <strong className="text-text-dark">Mailchimp</strong> (operated by The Rocket Science Group, LLC) as our email marketing platform.
-                When you sign up to receive communications from us through our website, a trade show, or another channel,
-                your name, email address, and any associated preferences are stored in Mailchimp's systems.
-                Mailchimp processes this data on our behalf under a data processing agreement compliant with GDPR.
+                <Trans t={t} i18nKey="holding.mailchimp" components={{ bold: <strong className="text-text-dark" /> }} />
               </p>
+              <p>{t('holding.database')}</p>
               <p>
-                In addition to Mailchimp, we may store submission data (such as retailer applications, contact form entries,
-                and booth intake forms) in our own secure database hosted on Railway infrastructure in order to fulfil your request
-                and maintain a record of consent.
-              </p>
-              <p>
-                We do not sell your personal data to any third party. For full details, see our{' '}
-                <a href="/privacy-policy" className="text-sliquid-blue hover:underline font-medium">Privacy Policy</a>.
+                <Trans
+                  t={t}
+                  i18nKey="holding.noSale"
+                  components={{ cta: <a href="/privacy-policy" className="text-sliquid-blue hover:underline font-medium" /> }}
+                />
               </p>
             </div>
           </div>
 
           {/* Tab switcher */}
           <div>
-            <div className="flex gap-3 mb-8">
+            <div className="flex gap-3 mb-8" role="group" aria-label={t('tabs.groupLabel')}>
               {(['access', 'deletion'] as const).map(tab => (
                 <button
                   key={tab}
+                  type="button"
+                  aria-pressed={activeTab === tab}
                   onClick={() => setActiveTab(tab)}
                   className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-colors
                     ${activeTab === tab
@@ -202,7 +200,7 @@ export default function GDPRRequestPage() {
                       : 'bg-bg-off-white text-text-gray border border-gray-500 hover:border-sliquid-blue hover:text-sliquid-blue'
                     }`}
                 >
-                  {tab === 'access' ? 'Request My Data' : 'Request Deletion'}
+                  {tab === 'access' ? t('tabs.access') : t('tabs.deletion')}
                 </button>
               ))}
             </div>
@@ -211,11 +209,9 @@ export default function GDPRRequestPage() {
             {activeTab === 'access' && (
               <div className="max-w-lg">
                 <div className="mb-6">
-                  <h2 className="text-text-dark text-2xl font-semibold mb-2">Request Access to Your Data</h2>
+                  <h2 className="text-text-dark text-2xl font-semibold mb-2">{t('access.heading')}</h2>
                   <p className="text-text-gray text-sm leading-relaxed">
-                    Under GDPR Article 15 you have the right to obtain confirmation of whether we process your personal data,
-                    and to receive a copy of it. We will respond within <strong>30 days</strong>. Your request will also be
-                    forwarded to Mailchimp to retrieve any data held there on your behalf.
+                    <Trans t={t} i18nKey="access.body" components={{ bold: <strong /> }} />
                   </p>
                 </div>
                 {accessDone
@@ -229,15 +225,12 @@ export default function GDPRRequestPage() {
             {activeTab === 'deletion' && (
               <div className="max-w-lg">
                 <div className="mb-6">
-                  <h2 className="text-text-dark text-2xl font-semibold mb-2">Request Deletion of Your Data</h2>
+                  <h2 className="text-text-dark text-2xl font-semibold mb-2">{t('deletion.heading')}</h2>
                   <p className="text-text-gray text-sm leading-relaxed mb-3">
-                    Under GDPR Article 17 ("right to be forgotten") you may request that we erase your personal data.
-                    We will process your request within <strong>30 days</strong> and confirm once complete.
+                    <Trans t={t} i18nKey="deletion.body" components={{ bold: <strong /> }} />
                   </p>
                   <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-amber-800 text-xs leading-relaxed">
-                    <strong>What gets deleted:</strong> Your data will be removed from our Mailchimp audience and from our
-                    internal database. Note that we may be required to retain certain records for legal or contractual obligations
-                    (e.g. order history), in which case we will inform you of what cannot be deleted and why.
+                    <Trans t={t} i18nKey="deletion.whatGetsDeleted" components={{ bold: <strong /> }} />
                   </div>
                 </div>
                 {deletionDone
@@ -250,11 +243,13 @@ export default function GDPRRequestPage() {
 
           {/* Contact */}
           <div className="border-t border-gray-100 pt-10 pb-4">
-            <h2 className="text-text-dark text-lg font-semibold mb-2">Questions About Your Data?</h2>
+            <h2 className="text-text-dark text-lg font-semibold mb-2">{t('questions.heading')}</h2>
             <p className="text-text-gray text-sm leading-relaxed">
-              If you have questions about how we process your data or need to escalate a request, contact us directly at{' '}
-              <a href="mailto:sales@sliquid.com" className="text-sliquid-blue hover:underline font-medium">sales@sliquid.com</a>.
-              You also have the right to lodge a complaint with your local data protection authority.
+              <Trans
+                t={t}
+                i18nKey="questions.body"
+                components={{ email: <a href="mailto:sales@sliquid.com" className="text-sliquid-blue hover:underline font-medium" /> }}
+              />
             </p>
           </div>
 

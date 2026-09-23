@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { readFileSync } from 'fs'
+import { readFileSync, readdirSync } from 'fs'
 import { resolve } from 'path'
 import i18n, { setLanguage, LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES } from '@/i18n'
 
@@ -39,28 +39,45 @@ describe('i18n setup', () => {
 })
 
 // Both apps keep their own copy of the locale files. Every language must carry
-// exactly the English key set, so a missing translation fails here rather than
-// silently falling back to English in production.
+// exactly the English key set for every namespace file, so a missing translation
+// fails here rather than silently falling back to English in production.
 function keyPaths(obj: Record<string, unknown>, prefix = ''): string[] {
   return Object.entries(obj).flatMap(([k, v]) =>
     v && typeof v === 'object' ? keyPaths(v as Record<string, unknown>, `${prefix}${k}.`) : [`${prefix}${k}`],
   ).sort()
 }
 
-describe.each([
+const LOCALE_DIRS = [
   ['marketing site', 'src/i18n/locales'],
   ['portal client', 'portal/client/src/i18n/locales'],
-])('%s locale files', (_app, dir) => {
-  const load = (lng: string) =>
-    JSON.parse(readFileSync(resolve(process.cwd(), dir, lng, 'common.json'), 'utf8')) as Record<string, unknown>
-  const englishKeys = keyPaths(load('en'))
+] as const
 
-  it.each(SUPPORTED_LANGUAGES.filter(l => l !== 'en'))('%s has exactly the English keys, none empty', (lng) => {
-    const translated = load(lng)
+const cases = LOCALE_DIRS.flatMap(([app, dir]) =>
+  readdirSync(resolve(process.cwd(), dir, 'en'))
+    .filter(f => f.endsWith('.json'))
+    .flatMap(file => SUPPORTED_LANGUAGES.filter(l => l !== 'en').map(lng => [app, dir, file, lng] as const)),
+)
+
+describe('locale files', () => {
+  const load = (dir: string, lng: string, file: string) =>
+    JSON.parse(readFileSync(resolve(process.cwd(), dir, lng, file), 'utf8')) as Record<string, unknown>
+
+  it.each(cases)('%s: %s/%s matches English for %s', (_app, dir, file, lng) => {
+    const englishKeys = keyPaths(load(dir, 'en', file))
+    const translated = load(dir, lng, file)
     expect(keyPaths(translated)).toEqual(englishKeys)
     for (const path of englishKeys) {
       const value = path.split('.').reduce<unknown>((o, k) => (o as Record<string, unknown>)[k], translated)
-      expect(typeof value === 'string' && value.trim().length > 0, `${lng}: "${path}" is empty`).toBe(true)
+      expect(typeof value === 'string' && value.trim().length > 0, `${lng}/${file}: "${path}" is empty`).toBe(true)
+    }
+  })
+
+  it('no language has a namespace file English lacks', () => {
+    for (const [, dir] of LOCALE_DIRS) {
+      const english = readdirSync(resolve(process.cwd(), dir, 'en')).sort()
+      for (const lng of SUPPORTED_LANGUAGES) {
+        expect(readdirSync(resolve(process.cwd(), dir, lng)).sort(), `${dir}/${lng}`).toEqual(english)
+      }
     }
   })
 })

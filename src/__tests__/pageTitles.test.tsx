@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
+import i18n from '@/i18n'
 import { ROUTE_TITLES, getDefaultTitle } from '@/utils/pageTitles'
 
 // Mirrors the static <Route path> list in App.tsx. Kept as a literal array
@@ -29,25 +30,31 @@ const STATIC_ROUTES = [
   '/register',
 ]
 
+const title = (route: string) => i18n.t(`titles.${ROUTE_TITLES[route]}`)
+
 describe('page titles (WCAG 2.4.2 Page Titled)', () => {
-  it('has a ROUTE_TITLES entry for every static route', () => {
+  afterEach(() => i18n.changeLanguage('en'))
+
+  it('has a ROUTE_TITLES entry with an English title for every static route', () => {
     for (const route of STATIC_ROUTES) {
       expect(ROUTE_TITLES[route], `missing ROUTE_TITLES entry for "${route}"`).toBeTruthy()
+      expect(i18n.exists(`titles.${ROUTE_TITLES[route]}`), `no common:titles.${ROUTE_TITLES[route]}`).toBe(true)
     }
   })
 
-  it('gives every static route a unique title', () => {
-    const titles = STATIC_ROUTES.map((route) => ROUTE_TITLES[route])
+  it.each(['en', 'es', 'fr'])('gives every static route a unique title in %s', async (lng) => {
+    await i18n.changeLanguage(lng)
+    const titles = STATIC_ROUTES.map(title)
     expect(new Set(titles).size).toBe(titles.length)
   })
 
   it('resolves dynamic announcement/insight routes to a placeholder, not the previous route title', () => {
-    expect(getDefaultTitle('/announcements/some-post')).toBe('Announcement')
-    expect(getDefaultTitle('/insights/some-post')).toBe('Announcement')
+    expect(getDefaultTitle('/announcements/some-post')).toBe('announcement')
+    expect(getDefaultTitle('/insights/some-post')).toBe('announcement')
   })
 
-  it('falls back to "Page Not Found" for unmatched paths', () => {
-    expect(getDefaultTitle('/this-route-does-not-exist')).toBe('Page Not Found')
+  it('falls back to the not-found title for unmatched paths', () => {
+    expect(getDefaultTitle('/this-route-does-not-exist')).toBe('notFound')
   })
 
   it('ignores a trailing slash', () => {

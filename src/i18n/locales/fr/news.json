@@ -1,0 +1,62 @@
+{
+  "pressRelease": "Communiqué de presse",
+  "readMore": "Lire la suite",
+  "newsroom": "Salle de presse",
+  "announcements": {
+    "title": "Annonces",
+    "intro": "Communiqués de presse officiels de Sliquid : lancements de produits, prix, nouvelles sur la distribution et jalons de l’entreprise.",
+    "listHeading": "Communiqués de presse",
+    "loadError": "Impossible de charger les annonces. Veuillez réessayer plus tard.",
+    "emptyTitle": "Aucune annonce pour le moment",
+    "emptyBody": "Revenez bientôt, ou <contactLink>communiquez</contactLink> avec notre équipe des relations de presse."
+  },
+  "detail": {
+    "backToAll": "Toutes les annonces",
+    "viewOnSliquid": "Voir sur sliquid.com",
+    "docTitleLoading": "Annonce",
+    "docTitleNotFound": "Annonce introuvable",
+    "notFoundTitle": "Annonce introuvable",
+    "notFoundBody": "Cette annonce a peut-être été retirée, ou le lien est peut-être incorrect."
+  },
+  "insights": {
+    "eyebrow": "Centre de connaissances",
+    "title": "Perspectives et actualités du secteur",
+    "intro": "Restez au fait des lancements de produits Sliquid, des nouvelles sur la distribution, des points de vue de la direction et du contenu éducatif conçu spécialement pour nos partenaires B2B.",
+    "searchResults": "Résultats pour : <query>« {{query}} »</query> — <clearLink>effacer la recherche</clearLink>",
+    "filterLabel": "Filtrer les articles par catégorie",
+    "allCategories": "Tous",
+    "noArticles": "Aucun article trouvé.",
+    "viewAll": "Voir tous les articles",
+    "featured": "En vedette",
+    "readFullArticle": "Lire l’article complet",
+    "latest": "Les plus récents",
+    "resourcesEyebrow": "Ressources pour les partenaires",
+    "resourcesTitle": "Ressources et téléchargements B2B",
+    "resourcesIntro": "Des outils pratiques pour les détaillants, les professionnels de la santé et les distributeurs. Demandez l’un ou l’autre des documents suivants à notre équipe B2B.",
+    "resources": {
+      "wholesale-catalog": {
+        "title": "Catalogue de gros 2025",
+        "description": "Liste complète des UGS avec paliers de prix de gros, quantités minimales de commande et caractéristiques des produits Sliquid, RIDE Lube et Ride Rocco.",
+        "cta": "Demander le catalogue"
+      },
+      "ingredient-sheet": {
+        "title": "Fiche de référence des ingrédients",
+        "description": "Une référence clinique d’une page qui présente les ingrédients clés, les additifs évités, les plages de pH et les notes de compatibilité, conçue pour les professionnels de la santé.",
+        "cta": "Demander pour votre clinique"
+      },
+      "merch-guide": {
+        "title": "Guide de marchandisage pour détaillants",
+        "description": "Recommandations de planogramme, caractéristiques des présentoirs, matériel de signalisation et stratégies éprouvées de placement en rayon pour maximiser les ventes de Sliquid en magasin.",
+        "cta": "Demander pour votre magasin"
+      },
+      "distributor-brief": {
+        "title": "Aperçu de la distribution mondiale",
+        "description": "Cartes de couverture des territoires, exigences logistiques, soutien pour la documentation réglementaire et coordonnées clés pour les demandes de partenariat de distribution.",
+        "cta": "Joindre notre équipe de distribution"
+      }
+    },
+    "newsletterTitle": "Ne manquez aucune nouvelle",
+    "newsletterBody": "Recevez directement dans votre boîte de réception les lancements de produits, les annonces de distribution et les ressources B2B.",
+    "newsletterButton": "S’abonner aux nouvelles"
+  }
+}

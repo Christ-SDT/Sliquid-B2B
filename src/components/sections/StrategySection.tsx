@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { STRATEGY_CARDS } from '@/utils/constants'
 
 function ArrowLink({ to, label }: { to: string; label: string }) {
@@ -24,6 +25,7 @@ function ArrowLink({ to, label }: { to: string; label: string }) {
 }
 
 export default function StrategySection() {
+  const { t } = useTranslation('home')
   return (
     <section className="py-20 container-section" aria-labelledby="strategy-heading">
       <div className="max-w-[1240px] mx-auto px-6">
@@ -33,10 +35,10 @@ export default function StrategySection() {
             id="strategy-heading"
             className="text-text-dark text-[36px] font-semibold tracking-[-0.5px] mb-4"
           >
-            A Smarter Way to Grow Together
+            {t('strategy.heading')}
           </h2>
           <p className="text-text-gray text-base leading-relaxed">
-            A smarter way to grow together means more than just access to tools, it means having Sliquid’s marketing team as an extension of your own, ready to support, strategize, and help you drive results.
+            {t('strategy.intro')}
           </p>
         </div>
 
@@ -48,19 +50,19 @@ export default function StrategySection() {
               <div className="h-[300px] rounded-img overflow-hidden mb-6">
                 <img
                   src={card.imageUrl}
-                  alt={card.imageAlt}
+                  alt={t(`strategy.cards.${card.id}.imageAlt`)}
                   loading="lazy"
                   referrerPolicy="strict-origin-when-cross-origin"
                   className="w-full h-full object-cover transition-transform duration-[400ms] hover:scale-[1.03]"
                 />
               </div>
               <h3 className="text-text-dark text-2xl font-semibold mb-3">
-                {card.title}
+                {t(`strategy.cards.${card.id}.title`)}
               </h3>
               <p className="text-text-gray text-base leading-relaxed mb-4">
-                {card.description}
+                {t(`strategy.cards.${card.id}.description`)}
               </p>
-              <ArrowLink to={card.linkHref} label={card.linkLabel} />
+              <ArrowLink to={card.linkHref} label={t(`strategy.cards.${card.id}.linkLabel`)} />
             </article>
           ))}
         </div>

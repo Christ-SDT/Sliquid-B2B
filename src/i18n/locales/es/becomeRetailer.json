@@ -1,0 +1,55 @@
+{
+  "hero": {
+    "eyebrow": "Asóciese con Sliquid",
+    "title": "¿Desea convertirse en minorista o distribuidor de Sliquid?",
+    "body": "Complete el siguiente formulario y un miembro del equipo de ventas de Sliquid se comunicará con usted en breve."
+  },
+  "form": {
+    "heading": "Conviértase en minorista o distribuidor",
+    "company": "Empresa",
+    "name": "Nombre",
+    "first": "Nombre",
+    "last": "Apellido",
+    "address": "Dirección",
+    "street": "Calle y número",
+    "addressLine2": "Línea de dirección 2",
+    "city": "Ciudad",
+    "state": "Estado / Provincia / Región",
+    "zip": "Código postal",
+    "country": "País",
+    "countryOther": "Otro",
+    "phone": "Número de teléfono",
+    "email": "Correo electrónico",
+    "website": "Sitio web",
+    "storeLocatorHeading": "Localizador de tiendas",
+    "storeLocator": "¿Le gustaría aparecer en nuestro localizador de tiendas?",
+    "brandsHeading": "Marcas que le interesan",
+    "comments": "¿Preguntas o comentarios?",
+    "mapHeading": "Debe revisar la política",
+    "mapAgree": "Acepto la Política MAP de Sliquid que aparece a continuación",
+    "mapLink": "Política de Precio Mínimo Anunciado de Sliquid",
+    "submit": "Enviar",
+    "submitting": "Enviando…"
+  },
+  "errors": {
+    "companyRequired": "La empresa es obligatoria.",
+    "firstNameRequired": "El nombre es obligatorio.",
+    "lastNameRequired": "El apellido es obligatorio.",
+    "streetRequired": "La dirección es obligatoria.",
+    "cityRequired": "La ciudad es obligatoria.",
+    "stateRequired": "El estado o la provincia es obligatorio.",
+    "zipRequired": "El código postal es obligatorio.",
+    "phoneRequired": "El número de teléfono es obligatorio.",
+    "emailInvalid": "Se requiere un correo electrónico válido.",
+    "brandsRequired": "Por favor, seleccione al menos una marca.",
+    "mapRequired": "Debe aceptar la Política MAP de Sliquid.",
+    "alreadyApplied": "Ya envió una solicitud recientemente.",
+    "sendFailed": "Ocurrió un problema al enviar su solicitud. Por favor, inténtelo de nuevo o escriba directamente a sales@sliquid.com."
+  },
+  "thanks": {
+    "title": "¡Gracias por su solicitud!",
+    "body": "Recibimos su solicitud para convertirse en minorista o distribuidor de Sliquid. Un miembro de nuestro equipo de ventas revisará su solicitud y se comunicará con usted en breve.",
+    "questions": "Si tiene alguna pregunta inmediata, puede escribirnos a <email>sales@sliquid.com</email>.",
+    "done": "Listo"
+  }
+}

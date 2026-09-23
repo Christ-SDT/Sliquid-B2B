@@ -1,4 +1,6 @@
 import { useState, useId } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { sanitizeFormData } from '@/utils/sanitize'
 import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
 
@@ -8,21 +10,32 @@ const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https:
 
 const BRANDS = ['Sliquid Naturals', 'Sliquid Organics', 'The Balance Collection', 'Ride Lube']
 
-const COUNTRIES = [
-  'United States',
-  'Canada',
-  'United Kingdom',
-  'Australia',
-  'Germany',
-  'France',
-  'Spain',
-  'Italy',
-  'Netherlands',
-  'Japan',
-  'Mexico',
-  'Brazil',
-  'Other',
+// The English name is what gets SUBMITTED (sales reads it in the email), so it
+// stays the option value; the visible label is the browser's own localized
+// country name via Intl.DisplayNames, keyed by ISO code.
+const COUNTRIES: readonly { value: string; code: string | null }[] = [
+  { value: 'United States', code: 'US' },
+  { value: 'Canada', code: 'CA' },
+  { value: 'United Kingdom', code: 'GB' },
+  { value: 'Australia', code: 'AU' },
+  { value: 'Germany', code: 'DE' },
+  { value: 'France', code: 'FR' },
+  { value: 'Spain', code: 'ES' },
+  { value: 'Italy', code: 'IT' },
+  { value: 'Netherlands', code: 'NL' },
+  { value: 'Japan', code: 'JP' },
+  { value: 'Mexico', code: 'MX' },
+  { value: 'Brazil', code: 'BR' },
+  { value: 'Other', code: null },
 ]
+
+function countryLabel(lng: string, code: string, fallback: string): string {
+  try {
+    return new Intl.DisplayNames([lng], { type: 'region' }).of(code) ?? fallback
+  } catch {
+    return fallback
+  }
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -78,20 +91,20 @@ const EMPTY: RetailerFormData = {
   agreedToMap: false,
 }
 
-function validate(d: RetailerFormData): RetailerFormErrors {
+function validate(d: RetailerFormData, t: TFunction<'becomeRetailer'>): RetailerFormErrors {
   const err: RetailerFormErrors = {}
-  if (!d.company.trim()) err.company = 'Company is required.'
-  if (!d.firstName.trim()) err.firstName = 'First name is required.'
-  if (!d.lastName.trim()) err.lastName = 'Last name is required.'
-  if (!d.streetAddress.trim()) err.streetAddress = 'Street address is required.'
-  if (!d.city.trim()) err.city = 'City is required.'
-  if (!d.state.trim()) err.state = 'State / Province is required.'
-  if (!d.zip.trim()) err.zip = 'Postal / Zip code is required.'
-  if (!d.phone.trim()) err.phone = 'Phone number is required.'
+  if (!d.company.trim()) err.company = t('errors.companyRequired')
+  if (!d.firstName.trim()) err.firstName = t('errors.firstNameRequired')
+  if (!d.lastName.trim()) err.lastName = t('errors.lastNameRequired')
+  if (!d.streetAddress.trim()) err.streetAddress = t('errors.streetRequired')
+  if (!d.city.trim()) err.city = t('errors.cityRequired')
+  if (!d.state.trim()) err.state = t('errors.stateRequired')
+  if (!d.zip.trim()) err.zip = t('errors.zipRequired')
+  if (!d.phone.trim()) err.phone = t('errors.phoneRequired')
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRe.test(d.email)) err.email = 'A valid email address is required.'
-  if (d.brands.length === 0) err.brands = 'Please select at least one brand.'
-  if (!d.agreedToMap) err.agreedToMap = 'You must agree to the Sliquid MAP Policy.'
+  if (!emailRe.test(d.email)) err.email = t('errors.emailInvalid')
+  if (d.brands.length === 0) err.brands = t('errors.brandsRequired')
+  if (!d.agreedToMap) err.agreedToMap = t('errors.mapRequired')
   return err
 }
 
@@ -122,6 +135,7 @@ const inputCls = (hasError?: boolean) =>
 // ─── Thank You Modal ──────────────────────────────────────────────────────────
 
 function ThankYouModal({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation('becomeRetailer')
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -137,23 +151,23 @@ function ThankYouModal({ onClose }: { onClose: () => void }) {
           </svg>
         </div>
         <h2 id="retailer-thankyou-title" className="text-text-dark text-2xl font-bold mb-3">
-          Thank You for Applying!
+          {t('thanks.title')}
         </h2>
         <p className="text-text-gray text-sm leading-relaxed mb-2">
-          We've received your application to become a Sliquid retailer or distributor. A member of our sales team will review your submission and contact you shortly.
+          {t('thanks.body')}
         </p>
         <p className="text-text-gray text-sm leading-relaxed mb-7">
-          If you have any immediate questions, feel free to reach us at{' '}
-          <a href="mailto:sales@sliquid.com" className="text-sliquid-blue hover:underline">
-            sales@sliquid.com
-          </a>
-          .
+          <Trans
+            t={t}
+            i18nKey="thanks.questions"
+            components={{ email: <a href="mailto:sales@sliquid.com" className="text-sliquid-blue hover:underline" /> }}
+          />
         </p>
         <button
           onClick={onClose}
           className="bg-sliquid-blue hover:bg-sliquid-dark-blue text-white font-semibold text-sm py-3 px-8 rounded-lg transition-colors"
         >
-          Done
+          {t('thanks.done')}
         </button>
       </div>
     </div>
@@ -163,6 +177,7 @@ function ThankYouModal({ onClose }: { onClose: () => void }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function BecomeARetailerPage() {
+  const { t, i18n } = useTranslation('becomeRetailer')
   const uid = useId()
   const [form, setForm] = useState<RetailerFormData>(EMPTY)
   const [errors, setErrors] = useState<RetailerFormErrors>({})
@@ -192,7 +207,7 @@ export default function BecomeARetailerPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const errs = validate(form)
+    const errs = validate(form, t)
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setSubmitting(true)
     setSendError('')
@@ -217,14 +232,14 @@ export default function BecomeARetailerPage() {
       const data = await res.json().catch(() => ({})) as { message?: string; retryAfterMinutes?: number }
       if (res.status === 429) {
         cooldown.lock(data.retryAfterMinutes ?? 60)
-        setSendError(data.message ?? 'You have already applied recently.')
+        setSendError(data.message ?? t('errors.alreadyApplied'))
         return
       }
       if (!res.ok) throw new Error(data.message ?? 'Request failed')
       cooldown.start()
       setSubmitted(true)
     } catch {
-      setSendError('Something went wrong sending your application. Please try again or email sales@sliquid.com directly.')
+      setSendError(t('errors.sendFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -238,13 +253,13 @@ export default function BecomeARetailerPage() {
       <section className="bg-bg-off-white py-14 md:py-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-sliquid-blue text-sm font-semibold uppercase tracking-widest mb-3">
-            Partner With Sliquid
+            {t('hero.eyebrow')}
           </p>
           <h1 className="text-text-dark text-[34px] md:text-[46px] font-bold tracking-tight leading-tight mb-5">
-            Do you want to become a Sliquid Retailer or Distributor?
+            {t('hero.title')}
           </h1>
           <p className="text-text-gray text-base md:text-lg leading-relaxed">
-            Complete the form below and a member of the Sliquid sales team will contact you shortly.
+            {t('hero.body')}
           </p>
         </div>
       </section>
@@ -254,7 +269,7 @@ export default function BecomeARetailerPage() {
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <div className="mb-8">
             <h2 id="retailer-form-heading" className="text-text-dark text-[22px] font-bold tracking-tight pb-4 border-b border-gray-200">
-              Become a Retailer or Distributor
+              {t('form.heading')}
             </h2>
           </div>
 
@@ -270,7 +285,7 @@ export default function BecomeARetailerPage() {
 
             {/* Company */}
             <div>
-              <Label htmlFor={`${uid}-company`} required>Company</Label>
+              <Label htmlFor={`${uid}-company`} required>{t('form.company')}</Label>
               <input
                 id={`${uid}-company`}
                 name="company"
@@ -285,20 +300,20 @@ export default function BecomeARetailerPage() {
 
             {/* Name */}
             <div>
-              <Label htmlFor={`${uid}-fname`} required>Name</Label>
+              <Label htmlFor={`${uid}-fname`} required>{t('form.name')}</Label>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <input
                     id={`${uid}-fname`}
                     name="firstName"
                     type="text"
-                    placeholder="First"
+                    placeholder={t('form.first')}
                     value={form.firstName}
                     onChange={handleChange}
                     aria-describedby={errors.firstName ? `${uid}-fnameErr` : undefined}
                     className={inputCls(!!errors.firstName)}
                   />
-                  <p className="mt-1 text-xs text-text-light-gray">First</p>
+                  <p className="mt-1 text-xs text-text-light-gray">{t('form.first')}</p>
                   {errors.firstName && <FieldError id={`${uid}-fnameErr`} message={errors.firstName} />}
                 </div>
                 <div>
@@ -306,13 +321,13 @@ export default function BecomeARetailerPage() {
                     id={`${uid}-lname`}
                     name="lastName"
                     type="text"
-                    placeholder="Last"
+                    placeholder={t('form.last')}
                     value={form.lastName}
                     onChange={handleChange}
                     aria-describedby={errors.lastName ? `${uid}-lnameErr` : undefined}
                     className={inputCls(!!errors.lastName)}
                   />
-                  <p className="mt-1 text-xs text-text-light-gray">Last</p>
+                  <p className="mt-1 text-xs text-text-light-gray">{t('form.last')}</p>
                   {errors.lastName && <FieldError id={`${uid}-lnameErr`} message={errors.lastName} />}
                 </div>
               </div>
@@ -320,7 +335,7 @@ export default function BecomeARetailerPage() {
 
             {/* Address */}
             <div className="space-y-3">
-              <p className="text-sm font-semibold text-text-dark">Address</p>
+              <p className="text-sm font-semibold text-text-dark">{t('form.address')}</p>
               <div>
                 <input
                   id={`${uid}-street`}
@@ -332,7 +347,7 @@ export default function BecomeARetailerPage() {
                   aria-describedby={errors.streetAddress ? `${uid}-streetErr` : undefined}
                   className={inputCls(!!errors.streetAddress)}
                 />
-                <p className="mt-1 text-xs text-text-light-gray">Street Address</p>
+                <p className="mt-1 text-xs text-text-light-gray">{t('form.street')}</p>
                 {errors.streetAddress && <FieldError id={`${uid}-streetErr`} message={errors.streetAddress} />}
               </div>
               <div>
@@ -344,7 +359,7 @@ export default function BecomeARetailerPage() {
                   onChange={handleChange}
                   className={inputCls()}
                 />
-                <p className="mt-1 text-xs text-text-light-gray">Address Line 2</p>
+                <p className="mt-1 text-xs text-text-light-gray">{t('form.addressLine2')}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -357,7 +372,7 @@ export default function BecomeARetailerPage() {
                     aria-describedby={errors.city ? `${uid}-cityErr` : undefined}
                     className={inputCls(!!errors.city)}
                   />
-                  <p className="mt-1 text-xs text-text-light-gray">City</p>
+                  <p className="mt-1 text-xs text-text-light-gray">{t('form.city')}</p>
                   {errors.city && <FieldError id={`${uid}-cityErr`} message={errors.city} />}
                 </div>
                 <div>
@@ -370,7 +385,7 @@ export default function BecomeARetailerPage() {
                     aria-describedby={errors.state ? `${uid}-stateErr` : undefined}
                     className={inputCls(!!errors.state)}
                   />
-                  <p className="mt-1 text-xs text-text-light-gray">State / Province / Region</p>
+                  <p className="mt-1 text-xs text-text-light-gray">{t('form.state')}</p>
                   {errors.state && <FieldError id={`${uid}-stateErr`} message={errors.state} />}
                 </div>
               </div>
@@ -385,7 +400,7 @@ export default function BecomeARetailerPage() {
                     aria-describedby={errors.zip ? `${uid}-zipErr` : undefined}
                     className={inputCls(!!errors.zip)}
                   />
-                  <p className="mt-1 text-xs text-text-light-gray">Postal / Zip Code</p>
+                  <p className="mt-1 text-xs text-text-light-gray">{t('form.zip')}</p>
                   {errors.zip && <FieldError id={`${uid}-zipErr`} message={errors.zip} />}
                 </div>
                 <div>
@@ -397,17 +412,19 @@ export default function BecomeARetailerPage() {
                     className={inputCls()}
                   >
                     {COUNTRIES.map(c => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c.value} value={c.value}>
+                        {c.code ? countryLabel(i18n.language, c.code, c.value) : t('form.countryOther')}
+                      </option>
                     ))}
                   </select>
-                  <p className="mt-1 text-xs text-text-light-gray">Country</p>
+                  <p className="mt-1 text-xs text-text-light-gray">{t('form.country')}</p>
                 </div>
               </div>
             </div>
 
             {/* Phone */}
             <div>
-              <Label htmlFor={`${uid}-phone`} required>Phone Number</Label>
+              <Label htmlFor={`${uid}-phone`} required>{t('form.phone')}</Label>
               <input
                 id={`${uid}-phone`}
                 name="phone"
@@ -423,7 +440,7 @@ export default function BecomeARetailerPage() {
 
             {/* Email */}
             <div>
-              <Label htmlFor={`${uid}-email`} required>Email</Label>
+              <Label htmlFor={`${uid}-email`} required>{t('form.email')}</Label>
               <input
                 id={`${uid}-email`}
                 name="email"
@@ -438,7 +455,7 @@ export default function BecomeARetailerPage() {
 
             {/* Website */}
             <div>
-              <Label htmlFor={`${uid}-website`}>Website</Label>
+              <Label htmlFor={`${uid}-website`}>{t('form.website')}</Label>
               <input
                 id={`${uid}-website`}
                 name="website"
@@ -452,7 +469,7 @@ export default function BecomeARetailerPage() {
 
             {/* Store Locator */}
             <div>
-              <p className="text-sm font-semibold text-text-dark mb-2">Store Locator</p>
+              <p className="text-sm font-semibold text-text-dark mb-2">{t('form.storeLocatorHeading')}</p>
               <label className="flex items-start gap-2.5 cursor-pointer">
                 <input
                   type="checkbox"
@@ -462,7 +479,7 @@ export default function BecomeARetailerPage() {
                   className="mt-0.5 accent-sliquid-blue"
                 />
                 <span className="text-sm text-text-gray leading-relaxed">
-                  Would you like to join our Store Locator?
+                  {t('form.storeLocator')}
                 </span>
               </label>
             </div>
@@ -470,7 +487,7 @@ export default function BecomeARetailerPage() {
             {/* Brands */}
             <div>
               <p className="text-sm font-semibold text-text-dark mb-2">
-                Brands You Are Interested In <span className="text-red-500">*</span>
+                {t('form.brandsHeading')} <span className="text-red-500">*</span>
               </p>
               <div className="grid grid-cols-2 gap-y-2 gap-x-4">
                 {BRANDS.map(brand => (
@@ -492,7 +509,7 @@ export default function BecomeARetailerPage() {
 
             {/* Comments */}
             <div>
-              <Label htmlFor={`${uid}-comments`}>Questions / Comments?</Label>
+              <Label htmlFor={`${uid}-comments`}>{t('form.comments')}</Label>
               <textarea
                 id={`${uid}-comments`}
                 name="comments"
@@ -506,7 +523,7 @@ export default function BecomeARetailerPage() {
             {/* MAP Policy */}
             <div className="space-y-3">
               <p className="text-sm font-semibold text-text-dark">
-                You must review the policy <span className="text-red-500">*</span>
+                {t('form.mapHeading')} <span className="text-red-500">*</span>
               </p>
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
@@ -517,7 +534,7 @@ export default function BecomeARetailerPage() {
                   className="mt-0.5 accent-sliquid-blue"
                 />
                 <span className="text-sm text-text-gray leading-relaxed">
-                  I agree to the Sliquid MAP Policy below
+                  {t('form.mapAgree')}
                 </span>
               </label>
               {errors.agreedToMap && <FieldError id={`${uid}-mapErr`} message={errors.agreedToMap} />}
@@ -525,7 +542,7 @@ export default function BecomeARetailerPage() {
                 href="/map-policy"
                 className="inline-block text-sm text-sliquid-blue hover:underline"
               >
-                Sliquid Minimum Advertised Price Policy
+                {t('form.mapLink')}
               </a>
             </div>
 
@@ -540,7 +557,7 @@ export default function BecomeARetailerPage() {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
               )}
-              {submitting ? 'Submitting…' : 'Submit'}
+              {submitting ? t('form.submitting') : t('form.submit')}
             </button>
           </form>
           )}

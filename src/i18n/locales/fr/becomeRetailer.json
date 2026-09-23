@@ -1,0 +1,55 @@
+{
+  "hero": {
+    "eyebrow": "Devenez partenaire de Sliquid",
+    "title": "Souhaitez-vous devenir détaillant ou distributeur Sliquid?",
+    "body": "Remplissez le formulaire ci-dessous et un membre de l’équipe des ventes de Sliquid communiquera avec vous sous peu."
+  },
+  "form": {
+    "heading": "Devenir détaillant ou distributeur",
+    "company": "Entreprise",
+    "name": "Nom",
+    "first": "Prénom",
+    "last": "Nom de famille",
+    "address": "Adresse",
+    "street": "Adresse municipale",
+    "addressLine2": "Adresse (ligne 2)",
+    "city": "Ville",
+    "state": "État / Province / Région",
+    "zip": "Code postal",
+    "country": "Pays",
+    "countryOther": "Autre",
+    "phone": "Numéro de téléphone",
+    "email": "Courriel",
+    "website": "Site Web",
+    "storeLocatorHeading": "Localisateur de magasins",
+    "storeLocator": "Souhaitez-vous figurer dans notre localisateur de magasins?",
+    "brandsHeading": "Marques qui vous intéressent",
+    "comments": "Questions ou commentaires?",
+    "mapHeading": "Vous devez prendre connaissance de la politique",
+    "mapAgree": "J’accepte la politique MAP de Sliquid ci-dessous",
+    "mapLink": "Politique de prix minimum annoncé de Sliquid",
+    "submit": "Soumettre",
+    "submitting": "Envoi en cours…"
+  },
+  "errors": {
+    "companyRequired": "L’entreprise est obligatoire.",
+    "firstNameRequired": "Le prénom est obligatoire.",
+    "lastNameRequired": "Le nom de famille est obligatoire.",
+    "streetRequired": "L’adresse municipale est obligatoire.",
+    "cityRequired": "La ville est obligatoire.",
+    "stateRequired": "L’État ou la province est obligatoire.",
+    "zipRequired": "Le code postal est obligatoire.",
+    "phoneRequired": "Le numéro de téléphone est obligatoire.",
+    "emailInvalid": "Une adresse courriel valide est requise.",
+    "brandsRequired": "Veuillez sélectionner au moins une marque.",
+    "mapRequired": "Vous devez accepter la politique MAP de Sliquid.",
+    "alreadyApplied": "Vous avez déjà soumis une demande récemment.",
+    "sendFailed": "Un problème est survenu lors de l’envoi de votre demande. Veuillez réessayer ou écrire directement à sales@sliquid.com."
+  },
+  "thanks": {
+    "title": "Merci de votre demande!",
+    "body": "Nous avons bien reçu votre demande pour devenir détaillant ou distributeur Sliquid. Un membre de notre équipe des ventes examinera votre demande et communiquera avec vous sous peu.",
+    "questions": "Pour toute question immédiate, n’hésitez pas à nous écrire à <email>sales@sliquid.com</email>.",
+    "done": "Terminé"
+  }
+}
