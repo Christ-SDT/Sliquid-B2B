@@ -4,6 +4,7 @@ import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { intlLocale } from '@/i18n'
+import { applyCaptionLanguage, captionPlayerVars } from '@/lib/youtubeCaptions'
 import {
   ArrowLeft,
   CheckCircle2,
@@ -36,6 +37,8 @@ type YTPlayer = {
   seekTo: (seconds: number, allowSeekAhead: boolean) => void
   pauseVideo: () => void
   destroy: () => void
+  getOption?: (module: string, option: string) => unknown
+  setOption?: (module: string, option: string, value: unknown) => void
 }
 
 declare global {
@@ -51,6 +54,7 @@ declare global {
           events?: {
             onReady?: (e: { target: YTPlayer }) => void
             onStateChange?: (e: { data: number }) => void
+            onApiChange?: (e: { target: YTPlayer }) => void
           }
         }
       ) => YTPlayer
@@ -95,7 +99,12 @@ type FinishState = {
 }
 
 export default function QuizPage() {
-  const { t } = useTranslation('quiz')
+  const { t, i18n } = useTranslation('quiz')
+  // Caption language follows the UI language (Phase 4). Read through a ref in the
+  // player callbacks so a language switch never re-creates the players.
+  const captionLang = i18n.resolvedLanguage ?? 'en'
+  const captionLangRef = useRef(captionLang)
+  captionLangRef.current = captionLang
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -196,8 +205,11 @@ export default function QuizPage() {
       if (!window.YT?.Player) return
       ytMainRef.current = new window.YT.Player('yt-main-player', {
         videoId: ytId,
-        playerVars: { autoplay: 1, rel: 0, modestbranding: 1 },
+        playerVars: { autoplay: 1, rel: 0, modestbranding: 1, ...captionPlayerVars(captionLangRef.current) },
         events: {
+          // Fires once the captions module loads (and again later) — only then
+          // can a caption track be chosen.
+          onApiChange: ({ target }) => applyCaptionLanguage(target, captionLangRef.current),
           onReady: ({ target }) => {
             if (videoPositionRef.current > 0) {
               target.seekTo(videoPositionRef.current, true)
@@ -218,6 +230,12 @@ export default function QuizPage() {
     }
   }, [phase, ytId, enterQuiz])
 
+  // ─── Switching language mid-video re-points the live players' captions ───────
+  useEffect(() => {
+    applyCaptionLanguage(ytMainRef.current, captionLang)
+    applyCaptionLanguage(ytModalRef.current, captionLang)
+  }, [captionLang])
+
   // ─── Mount modal YouTube player ─────────────────────────────────────────────
   useEffect(() => {
     if (!videoModalOpen || !ytId) return
@@ -228,8 +246,10 @@ export default function QuizPage() {
       if (!window.YT?.Player) return
       ytModalRef.current = new window.YT.Player('yt-modal-player', {
         videoId: ytId,
-        playerVars: { autoplay: 1, rel: 0, modestbranding: 1, start: startAt },
-        events: {},
+        playerVars: { autoplay: 1, rel: 0, modestbranding: 1, start: startAt, ...captionPlayerVars(captionLangRef.current) },
+        events: {
+          onApiChange: ({ target }) => applyCaptionLanguage(target, captionLangRef.current),
+        },
       })
     })
 

@@ -594,6 +594,12 @@ All endpoints require `requireAuth + requireRole('tier5', 'admin')`.
 - **Certificate auto-issuance:** after any passing result, server checks if all `trainings` rows have a corresponding passed `quiz_results` row for that user — if so and no cert exists, auto-generates one (see Certification System below)
 
 ### Registered Quizzes (in `trainings` DB table)
+
+⚠️ **This table is stale.** A fresh DB (migrations only) seeds **13** trainings — `shine` and
+`massage-oil` are missing below — and several `video_path` IDs differ from the ones listed.
+Two migration-seeded videos are **unavailable on YouTube** (checked Sept 2026): `h2o-vs-sassy`
+→ `oFE_6P0v7T4` and `ogel` → `_UNhAXv5R2g`. Production may differ (admins can edit
+`video_path`); check the live `trainings` rows before trusting either source.
 | Order | ID | Title | Video |
 |---|---|---|---|
 | 1 | `h2o-vs-sassy` | H2O vs Sassy | YouTube `https://youtu.be/Zqo167w7KXY` |
@@ -1828,8 +1834,23 @@ app (`src/i18n/` and `portal/client/src/i18n/`, near-identical copies — edit b
   Marketing item names/descriptions (DB), announcement content (WordPress), notification text
   (generated server-side), and the certificate PDF (a formal document — translating it is a
   design decision).
-- Rollout: Phase 1 foundation ✓, Phase 2 marketing site ✓, Phase 3 portal UI ✓. Next: YouTube
-  caption tracks (`cc_lang_pref`), per-language email templates + server-generated text. Captivate SCORM quizzes can't be
+- **Training-video captions (Phase 4)** — `portal/client/src/lib/youtubeCaptions.ts`, used by
+  both QuizPage players. Captions are forced on (`cc_load_policy: 1`) and follow the UI
+  language, including a mid-video switch. Verified against the live player by reading the
+  rendered caption text:
+  - ⚠️ **Never pass `cc_lang_pref` for a language the video lacks** — asking for es/fr on an
+    English-only video shows NO captions at all.
+  - es/fr come from YouTube's (undocumented) auto-translation: once `onApiChange` reports the
+    captions module, set the English track with a `translationLanguage` taken verbatim from
+    `getOption('captions', 'translationLanguages')` (a bare code renders "undefined" in the
+    player's tooltip). An uploaded track in the user's language, if one ever exists, wins.
+  - `tracklist` lists uploaded tracks only (auto-generated English never appears), and
+    `getOption('captions','track')` reads `{}` even while captions show — test by rendered
+    text, not by these getters.
+  - A video with no captions shows none; captions must be added in YouTube Studio (also a WCAG
+    1.2.2 Level A requirement).
+- Rollout: Phase 1 foundation ✓, Phase 2 marketing site ✓, Phase 3 portal UI ✓, Phase 4 video
+  captions ✓. Next: per-language email templates + server-generated text (notifications, errors). Captivate SCORM quizzes can't be
   translated from code (text is compiled into `project.js`); they need per-language re-exports.
 
 ⚠️ Node 26 (this machine's default) ships an experimental global `localStorage` that shadows
