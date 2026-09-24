@@ -2,5 +2,95 @@
   "skipToContent": "Passer au contenu principal",
   "language": {
     "label": "Langue"
+  },
+  "roles": {
+    "tier1": "Employé de magasin",
+    "tier2": "Direction de magasin",
+    "tier3": "Distributeur",
+    "tier4": "Prospect",
+    "tier5": "Administrateur",
+    "tier6": "Partenaire médical",
+    "tier7": "Médias",
+    "tier8": "Juridique (lecture seule)"
+  },
+  "time": {
+    "justNow": "à l’instant"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "announcements": "Annonces",
+    "assets": "Bibliothèque de ressources",
+    "distributors": "Distributeurs",
+    "trainings": "Formation numérique",
+    "creator": "Créateur IA",
+    "retailer": "Marketing en magasin",
+    "medicalMarketing": "Marketing médical",
+    "requests": "Demandes de partenaires",
+    "marketingRequests": "Demandes marketing",
+    "media": "Médiathèque",
+    "users": "Gestion des utilisateurs",
+    "gdprRequests": "Demandes RGPD",
+    "manageAnnouncements": "Gérer les annonces"
+  },
+  "sidebar": {
+    "logoAlt": "Lotus Sliquid",
+    "brand": "PORTAIL PARTENAIRES",
+    "closeMenu": "Fermer le menu",
+    "readOnly": "Accès en lecture seule : vous pouvez tout consulter ici, mais rien modifier.",
+    "signOut": "Se déconnecter"
+  },
+  "theme": {
+    "wellnessMode": "Mode bien-être",
+    "toggle": "Changer de thème"
+  },
+  "topbar": {
+    "openMenu": "Ouvrir le menu",
+    "notifications": "Notifications",
+    "newCount_one": "{{count}} nouvelle",
+    "newCount_other": "{{count}} nouvelles",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Aucune notification pour l’instant",
+    "account": "Menu du compte",
+    "adminTools": "Outils d’administration",
+    "admin": {
+      "products": "Produits",
+      "inventory": "Inventaire",
+      "invoices": "Factures",
+      "analytics": "Analytique",
+      "referenceGallery": "Galerie de référence",
+      "myStore": "Mon magasin",
+      "serverLogs": "Journaux du serveur"
+    }
+  },
+  "titles": {
+    "dashboard": "Tableau de bord",
+    "announcements": "Annonces",
+    "announcement": "Annonce",
+    "manageAnnouncements": "Gérer les annonces",
+    "products": "Produits",
+    "assets": "Bibliothèque de produits",
+    "inventory": "Inventaire",
+    "invoices": "Factures",
+    "stats": "Statistiques",
+    "distributors": "Distributeurs",
+    "retailer": "Matériel marketing",
+    "trainings": "Formations",
+    "quiz": "Questionnaire de formation",
+    "users": "Utilisateurs",
+    "requests": "Demandes de partenaires",
+    "marketingRequests": "Demandes marketing",
+    "storeUsers": "Mon magasin",
+    "creator": "Créateur",
+    "media": "Médias",
+    "referenceGallery": "Galerie de référence",
+    "logs": "Journaux",
+    "medicalMarketing": "Marketing médical",
+    "gdprRequests": "Demandes RGPD",
+    "login": "Connexion",
+    "employeeLogin": "Connexion des employés",
+    "register": "Créer un compte",
+    "forgotPassword": "Mot de passe oublié",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "verify": "Vérifier un certificat"
   }
 }

@@ -1810,8 +1810,26 @@ app (`src/i18n/` and `portal/client/src/i18n/`, near-identical copies — edit b
 - **Still English on purpose:** the legal pages (Privacy, Terms, MAP Policy, Accessibility) until
   professionally translated; WordPress announcement content; API product data; server error
   messages. The Data Rights page's es/fr cites GDPR articles and deadlines — needs legal review.
-- Rollout: Phase 1 foundation ✓, Phase 2 marketing site ✓. Next: portal UI, YouTube caption
-  tracks (`cc_lang_pref`), per-language email templates. Captivate SCORM quizzes can't be
+- **Portal (Phase 3):** namespaces `common` (sidebar, top bar, `roles.<tier>`, `titles.*`,
+  `time.justNow`), `auth`, `verify`, `news`, `distributors`, `myStore`, `dashboard`,
+  `trainings`, `quiz`, `certificate`, `combobox`, `assets`, `retailer`, `creator`. Every page a
+  partner can reach is translated; **admin-only pages and admin controls stay English**. Role
+  names render via `t('common:roles.<tier>')` — `TIER_LABEL` remains only for admin pages. The
+  LanguageSwitcher also sits on every logged-out page (login/register/reset/verify).
+- **Portal date/number helpers** in `lib/utils.ts` (`formatDate`, `formatDateTime`, `timeAgo`,
+  `timeUntil`, `formatCurrency`) follow the UI language via `intlLocale()` (en-US / es / fr-CA).
+  English relative times use Intl's *narrow* style, which reproduces the old "3h ago" exactly;
+  es/fr use *short*, because French narrow renders a bare "-3 h". Prices stay USD.
+- ⚠️ **All namespaces preload, and the first render waits for them.** `NAMESPACES` (every
+  English file) is passed as `ns`, and `main.tsx` renders after `i18nReady`. Loading per page on
+  demand made a first es/fr visit show English — and raw keys inside `<Trans>` — for a few
+  hundred ms until that page's chunk arrived. Don't revert to on-demand loading.
+- **Still English, because it is data, not UI:** training titles/descriptions, In-store
+  Marketing item names/descriptions (DB), announcement content (WordPress), notification text
+  (generated server-side), and the certificate PDF (a formal document — translating it is a
+  design decision).
+- Rollout: Phase 1 foundation ✓, Phase 2 marketing site ✓, Phase 3 portal UI ✓. Next: YouTube
+  caption tracks (`cc_lang_pref`), per-language email templates + server-generated text. Captivate SCORM quizzes can't be
   translated from code (text is compiled into `project.js`); they need per-language re-exports.
 
 ⚠️ Node 26 (this machine's default) ships an experimental global `localStorage` that shadows

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, FormEvent } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { AiImage } from '@/types'
@@ -7,22 +8,16 @@ import { cn } from '@/lib/utils'
 
 // ─── Lampy loading messages ───────────────────────────────────────────────────
 
-const LAMPY_LOADING_MSGS = [
-  'Working on image…',
-  'Creating a masterpiece…',
-  'Adding detail…',
-  'Fixing the bottle…',
-  'Perfecting the lighting…',
-  'Almost there…',
-]
-
+// Rotating messages live in creator:loading (an array).
 function LampyLoadingMessage() {
+  const { t } = useTranslation('creator')
+  const msgs = t('loading', { returnObjects: true }) as string[]
   const [idx, setIdx] = useState(0)
   useEffect(() => {
-    const t = setInterval(() => setIdx(i => (i + 1) % LAMPY_LOADING_MSGS.length), 2200)
-    return () => clearInterval(t)
+    const timer = setInterval(() => setIdx(i => i + 1), 2200)
+    return () => clearInterval(timer)
   }, [])
-  return <span className="text-on-canvas-muted text-sm">{LAMPY_LOADING_MSGS[idx]}</span>
+  return <span className="text-on-canvas-muted text-sm">{msgs[idx % msgs.length]}</span>
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -63,7 +58,8 @@ type ChatMsg =
   | { key: string; role: 'user'; text: string; refPreview?: string }
   | { key: string; role: 'lampy-loading' }
   | { key: string; role: 'lampy-image'; image: AiImage }
-  | { key: string; role: 'lampy-error'; text: string }
+  // text = server message, shown verbatim; absent = translated generic fallback
+  | { key: string; role: 'lampy-error'; text?: string }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -109,6 +105,7 @@ interface GalleryPickerModalProps {
 }
 
 function GalleryPickerModal({ images, loading, onClose, onInsert, maxPick = 1 }: GalleryPickerModalProps) {
+  const { t } = useTranslation('creator')
   const [search, setSearch] = useState('')
   const [pickedIds, setPickedIds] = useState<Set<number>>(new Set())
 
@@ -148,9 +145,9 @@ function GalleryPickerModal({ images, loading, onClose, onInsert, maxPick = 1 }:
         <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border flex-shrink-0">
           <div className="flex items-center gap-2">
             <Images className="w-4 h-4 text-portal-accent" />
-            <h2 className="text-on-canvas font-semibold text-sm">Reference Gallery</h2>
+            <h2 className="text-on-canvas font-semibold text-sm">{t('gallery.title')}</h2>
           </div>
-          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas transition-colors">
+          <button onClick={onClose} aria-label={t('gallery.close')} className="text-on-canvas-muted hover:text-on-canvas transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -163,7 +160,8 @@ function GalleryPickerModal({ images, loading, onClose, onInsert, maxPick = 1 }:
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search images…"
+              placeholder={t('gallery.searchPlaceholder')}
+              aria-label={t('gallery.searchPlaceholder')}
               className="w-full bg-surface-elevated border border-portal-border rounded-lg pl-9 pr-3 py-2 text-on-canvas text-sm placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
             />
           </div>
@@ -178,7 +176,7 @@ function GalleryPickerModal({ images, loading, onClose, onInsert, maxPick = 1 }:
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
               <Images className="w-8 h-8 text-on-canvas-muted/30 mx-auto mb-2" />
-              <p className="text-on-canvas-muted text-sm">{search ? 'No images match your search' : 'No reference images — upload some in Reference Gallery'}</p>
+              <p className="text-on-canvas-muted text-sm">{search ? t('gallery.noMatch') : t('gallery.empty')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
@@ -218,19 +216,19 @@ function GalleryPickerModal({ images, loading, onClose, onInsert, maxPick = 1 }:
         <div className="px-5 py-4 border-t border-portal-border flex items-center justify-between flex-shrink-0">
           <span className="text-on-canvas-muted text-xs">
             {pickedIds.size === 0
-              ? maxPick > 1 ? `Select up to ${maxPick}` : 'Select an image'
-              : `${pickedIds.size} image${pickedIds.size > 1 ? 's' : ''} selected`}
+              ? maxPick > 1 ? t('gallery.selectUpTo', { max: maxPick }) : t('gallery.selectOne')
+              : t('gallery.selected', { count: pickedIds.size })}
           </span>
           <div className="flex gap-2">
             <button onClick={onClose} className="px-4 py-2 text-sm text-on-canvas-subtle hover:text-on-canvas border border-portal-border rounded-lg transition-colors">
-              Cancel
+              {t('gallery.cancel')}
             </button>
             <button
               onClick={handleInsert}
               disabled={pickedIds.size === 0}
               className="px-4 py-2 text-sm font-medium bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              Insert Selected
+              {t('gallery.insert')}
             </button>
           </div>
         </div>
@@ -252,6 +250,7 @@ function LampyAvatar() {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CreatorPage() {
+  const { t } = useTranslation('creator')
   const { user } = useAuth()
   const isAdmin = user?.role === 'tier5'
   const MAX_REFS = isAdmin ? 5 : 1
@@ -408,7 +407,7 @@ export default function CreatorPage() {
     } catch (err: any) {
       setMessages(prev => prev.map(m =>
         m.key === lampyKey
-          ? { key: lampyKey, role: 'lampy-error', text: err.message ?? 'Failed to generate image' }
+          ? { key: lampyKey, role: 'lampy-error', text: err?.message || undefined }
           : m
       ))
     } finally {
@@ -417,12 +416,12 @@ export default function CreatorPage() {
   }
 
   async function handleDelete(imageId: number) {
-    if (!confirm('Delete this image? It will also be removed from the Asset Library.')) return
+    if (!confirm(t('errors.confirmDelete'))) return
     try {
       await api.delete(`/creator/${imageId}`)
       setMessages(prev => prev.filter(m => !(m.role === 'lampy-image' && m.image.id === imageId)))
     } catch (err: any) {
-      alert(err.message ?? 'Failed to delete image')
+      alert(err?.message || t('errors.deleteFailed'))
     }
   }
 
@@ -438,7 +437,7 @@ export default function CreatorPage() {
         </div>
         <div>
           <h1 className="text-on-canvas text-xl font-bold">Lampy</h1>
-          <p className="text-on-canvas-muted text-sm">Sliquid AI Image Creator</p>
+          <p className="text-on-canvas-muted text-sm">{t('header.subtitle')}</p>
         </div>
       </div>
 
@@ -455,7 +454,7 @@ export default function CreatorPage() {
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3
                           bg-portal-bg/90 border-2 border-dashed border-portal-accent rounded-2xl pointer-events-none">
             <ImagePlus className="w-10 h-10 text-portal-accent" />
-            <p className="text-portal-accent font-semibold text-sm">Drop image as reference</p>
+            <p className="text-portal-accent font-semibold text-sm">{t('chat.dropHint')}</p>
           </div>
         )}
 
@@ -465,11 +464,14 @@ export default function CreatorPage() {
             <LampyAvatar />
             <div className="bg-surface border border-portal-border rounded-2xl rounded-tl-none px-4 py-3 max-w-sm">
               <p className="text-on-canvas text-sm">
-                Hi! I'm <span className="font-semibold text-portal-accent">Lampy</span>, Sliquid's AI image creator.
-                To begin, click the photo icon in the bottom left corner and select the product you would like to feature in your image.
-                In your prompt, provide the size, aesthetic, and overall tone you are looking for in the image. Be as thorough as possible.
-                You can also <span className="text-portal-accent font-medium">attach a reference image</span> or drag one onto this window to guide the style.
-                Your creations are saved to the Asset Library.
+                <Trans
+                  t={t}
+                  i18nKey="chat.welcome"
+                  components={{
+                    accent: <span className="font-semibold text-portal-accent" />,
+                    attach: <span className="text-portal-accent font-medium" />,
+                  }}
+                />
               </p>
             </div>
           </div>
@@ -486,11 +488,11 @@ export default function CreatorPage() {
                     <div className="relative">
                       <img
                         src={msg.refPreview}
-                        alt="Reference"
+                        alt={t('chat.referenceAlt')}
                         className="w-32 h-32 rounded-xl object-cover border border-portal-accent/30"
                       />
                       <span className="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-md font-medium">
-                        reference
+                        {t('chat.referenceBadge')}
                       </span>
                     </div>
                   )}
@@ -521,7 +523,7 @@ export default function CreatorPage() {
                   <AlertCircle className="w-4 h-4 text-red-400" />
                 </div>
                 <div className="bg-surface border border-red-500/20 rounded-2xl rounded-tl-none px-4 py-3 max-w-sm">
-                  <p className="text-red-400 text-sm">{msg.text}</p>
+                  <p className="text-red-400 text-sm">{msg.text ?? t('errors.generateFailed')}</p>
                 </div>
               </div>
             )
@@ -545,7 +547,7 @@ export default function CreatorPage() {
                       className="flex items-center gap-1.5 text-portal-accent hover:text-portal-accent/80 text-sm font-medium transition-colors"
                     >
                       <Download className="w-4 h-4" />
-                      Download
+                      {t('chat.download')}
                     </button>
                     {img.user_id === user?.id && (
                       <button
@@ -553,7 +555,7 @@ export default function CreatorPage() {
                         className="flex items-center gap-1.5 text-on-canvas-muted hover:text-red-400 text-sm transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
-                        Delete
+                        {t('chat.delete')}
                       </button>
                     )}
                   </div>
@@ -578,12 +580,13 @@ export default function CreatorPage() {
               <div key={idx} className="relative flex-shrink-0">
                 <img
                   src={ref.preview}
-                  alt="Reference"
+                  alt={t('chat.referenceAlt')}
                   className="w-14 h-14 rounded-lg object-cover border border-portal-accent/40"
                 />
                 <button
                   type="button"
                   onClick={() => removeRefImage(idx)}
+                  aria-label={t('input.removeReference')}
                   className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-surface border border-portal-border
                              flex items-center justify-center text-on-canvas-muted hover:text-red-400 hover:border-red-400 transition-colors"
                 >
@@ -592,7 +595,7 @@ export default function CreatorPage() {
               </div>
             ))}
             <p className="text-on-canvas-muted text-xs">
-              {refImages.length === 1 ? 'Reference image attached' : `${refImages.length} reference images attached`} — Lampy will use {refImages.length === 1 ? 'this' : 'these'} as a visual guide
+              {refImages.length === 1 ? t('input.attachedOne') : t('input.attachedMany', { count: refImages.length })}
             </p>
           </div>
         )}
@@ -603,7 +606,8 @@ export default function CreatorPage() {
           <button
             type="button"
             onClick={() => { setGalleryOpen(true); if (!galleryLoaded) fetchGallery() }}
-            title="Choose a reference image from gallery"
+            title={t('input.attachTitle')}
+            aria-label={t('input.attachTitle')}
             className={`flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border transition-colors
               ${refImages.length > 0
                 ? 'border-portal-accent bg-portal-accent/10 text-portal-accent'
@@ -619,7 +623,8 @@ export default function CreatorPage() {
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
             disabled={submitting}
-            placeholder="Describe the product image you want Lampy to create…"
+            placeholder={t('input.promptPlaceholder')}
+            aria-label={t('input.promptLabel')}
             className="flex-1 bg-surface border border-portal-border rounded-xl px-4 py-3 text-on-canvas text-sm
                        placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent
                        disabled:opacity-50 transition-colors"
@@ -629,6 +634,7 @@ export default function CreatorPage() {
           <button
             type="submit"
             disabled={!prompt.trim() || submitting}
+            aria-label={t('input.send')}
             className="flex items-center gap-2 px-5 py-3 bg-portal-accent hover:bg-portal-accent/90
                        disabled:opacity-50 text-white rounded-xl text-sm font-medium transition-colors flex-shrink-0"
           >

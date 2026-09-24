@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Megaphone, Pin, ArrowRight, ExternalLink } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { api } from '@/api/client'
 import type { Announcement } from '@/types'
 import { formatDate } from '@/lib/utils'
 import { htmlToText } from '@/lib/htmlToText'
 
 
+const LOAD_FAILED = '__load_failed__'
+
 function AnnouncementCard({ a }: { a: Announcement }) {
+  const { t } = useTranslation('news')
   const excerpt = htmlToText(a.excerpt)
 
   return (
@@ -32,7 +36,7 @@ function AnnouncementCard({ a }: { a: Announcement }) {
           {a.pinned === 1 && (
             <span className="inline-flex items-center gap-1 text-portal-accent text-[11px] font-semibold
                              uppercase tracking-wider">
-              <Pin className="w-3 h-3" /> Pinned
+              <Pin className="w-3 h-3" /> {t('pinned')}
             </span>
           )}
           <span className="text-on-canvas-muted text-xs">{formatDate(a.published_at ?? '')}</span>
@@ -51,7 +55,7 @@ function AnnouncementCard({ a }: { a: Announcement }) {
 
         <span className="inline-flex items-center gap-1.5 text-portal-accent font-medium text-sm mt-4
                          group-hover:gap-3 transition-all">
-          Read announcement <ArrowRight className="w-4 h-4" />
+          {t('readMore')} <ArrowRight className="w-4 h-4" />
         </span>
       </div>
     </Link>
@@ -59,29 +63,31 @@ function AnnouncementCard({ a }: { a: Announcement }) {
 }
 
 export default function AnnouncementsPage() {
+  const { t } = useTranslation('news')
   const [items, setItems] = useState<Announcement[]>([])
   const [loading, setLoading] = useState(true)
+  // '' = no error; LOAD_FAILED = our generic message (translated at render); anything else is the server's text.
   const [error, setError] = useState('')
 
   useEffect(() => {
     api.get<Announcement[]>('/announcements')
       .then(setItems)
-      .catch(err => setError(err instanceof Error ? err.message : 'Failed to load announcements'))
+      .catch(err => setError(err instanceof Error && err.message ? err.message : LOAD_FAILED))
       .finally(() => setLoading(false))
   }, [])
 
   return (
     <div className="p-6 md:p-8 max-w-[1100px] mx-auto">
       <header className="mb-6">
-        <h1 className="text-on-canvas text-2xl font-semibold">Announcements</h1>
+        <h1 className="text-on-canvas text-2xl font-semibold">{t('title')}</h1>
         <p className="text-on-canvas-subtle text-sm mt-1">
-          Official Sliquid press releases and partner news.
+          {t('subtitle')}
         </p>
       </header>
 
       {error && (
         <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-          {error}
+          {error === LOAD_FAILED ? t('loadError') : error}
         </div>
       )}
 
@@ -94,8 +100,8 @@ export default function AnnouncementsPage() {
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <Megaphone className="w-12 h-12 mb-3 opacity-40" />
-          <p>No announcements yet</p>
-          <p className="text-sm mt-1">Check back soon for Sliquid news and press releases.</p>
+          <p>{t('emptyTitle')}</p>
+          <p className="text-sm mt-1">{t('emptyBody')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -106,7 +112,7 @@ export default function AnnouncementsPage() {
       {!loading && items.length > 0 && (
         <p className="text-on-canvas-muted text-xs mt-8 flex items-center gap-1.5">
           <ExternalLink className="w-3 h-3" />
-          Press releases are published at sliquid.com
+          {t('source')}
         </p>
       )}
     </div>

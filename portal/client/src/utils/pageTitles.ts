@@ -1,5 +1,5 @@
 /**
- * Route -> page-name map for the routes nested under <Shell> in App.tsx
+ * Route -> title-key map (keys under `common:titles`) for the routes nested under <Shell> in App.tsx
  * (leading slash omitted — these are relative <Route path> values). Backs
  * Shell.tsx's default document-title logic (WCAG 2.4.2 Page Titled).
  *
@@ -8,41 +8,40 @@
  * useDocumentTitle once it knows what it's showing.
  */
 export const ROUTE_TITLES: Record<string, string> = {
-  dashboard: 'Dashboard',
-  announcements: 'Announcements',
-  'admin/announcements': 'Manage Announcements',
-  products: 'Products',
-  assets: 'Product Library',
-  inventory: 'Inventory',
-  invoices: 'Invoices',
-  stats: 'Stats',
-  distributors: 'Distributors',
-  retailer: 'Marketing Assets',
-  trainings: 'Trainings',
-  users: 'Users',
-  requests: 'Partner Requests',
-  'marketing-requests': 'Marketing Requests',
-  'store-users': 'My Store',
-  creator: 'Creator',
-  media: 'Media',
-  'reference-gallery': 'Reference Gallery',
-  logs: 'Logs',
-  'medical-marketing': 'Medical Marketing',
-  'gdpr-requests': 'GDPR Requests',
+  dashboard: 'dashboard',
+  announcements: 'announcements',
+  'admin/announcements': 'manageAnnouncements',
+  products: 'products',
+  assets: 'assets',
+  inventory: 'inventory',
+  invoices: 'invoices',
+  stats: 'stats',
+  distributors: 'distributors',
+  retailer: 'retailer',
+  trainings: 'trainings',
+  users: 'users',
+  requests: 'requests',
+  'marketing-requests': 'marketingRequests',
+  'store-users': 'storeUsers',
+  creator: 'creator',
+  media: 'media',
+  'reference-gallery': 'referenceGallery',
+  logs: 'logs',
+  'medical-marketing': 'medicalMarketing',
+  'gdpr-requests': 'gdprRequests',
 }
 
 /**
- * Best-effort page name for a pathname under Shell (leading slash included,
- * as from useLocation().pathname). Static routes resolve exactly;
- * `announcements/:slug` and `quiz/:id` resolve to a generic placeholder that
- * the page itself can override once it knows the real title.
+ * Title key (under `common:titles`) for a pathname under Shell (leading slash
+ * included, as from useLocation().pathname). Static routes resolve exactly;
+ * `announcements/:slug` and `quiz/:id` resolve to a generic placeholder.
  */
 export function getDefaultTitle(pathname: string): string {
   const path = pathname.replace(/^\//, '').replace(/\/+$/, '')
 
   if (path in ROUTE_TITLES) return ROUTE_TITLES[path]
-  if (/^announcements\/[^/]+$/.test(path)) return 'Announcement'
-  if (/^quiz\/[^/]+$/.test(path)) return 'Training Quiz'
+  if (/^announcements\/[^/]+$/.test(path)) return 'announcement'
+  if (/^quiz\/[^/]+$/.test(path)) return 'quiz'
 
-  return 'Dashboard'
+  return 'dashboard'
 }

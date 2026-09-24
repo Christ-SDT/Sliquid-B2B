@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, Megaphone } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { api } from '@/api/client'
 import type { Announcement } from '@/types'
 import { formatDate } from '@/lib/utils'
 import AnnouncementBody from '@/components/AnnouncementBody'
 
 export default function AnnouncementDetailPage() {
+  const { t } = useTranslation('news')
   const { slug } = useParams<{ slug: string }>()
   const [item, setItem] = useState<Announcement | null>(null)
   const [loading, setLoading] = useState(true)
@@ -28,7 +30,7 @@ export default function AnnouncementDetailPage() {
       className="inline-flex items-center gap-1.5 text-on-canvas-subtle hover:text-portal-accent
                  text-sm transition-colors mb-6"
     >
-      <ArrowLeft className="w-4 h-4" /> Back to announcements
+      <ArrowLeft className="w-4 h-4" /> {t('detail.back')}
     </Link>
   )
 
@@ -48,9 +50,9 @@ export default function AnnouncementDetailPage() {
         {backLink}
         <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <Megaphone className="w-12 h-12 mb-3 opacity-40" />
-          <p className="text-on-canvas font-medium">Announcement not available</p>
+          <p className="text-on-canvas font-medium">{t('detail.notFoundTitle')}</p>
           <p className="text-sm mt-1">
-            It may have been unpublished, or the link may be incorrect.
+            {t('detail.notFoundBody')}
           </p>
         </div>
       </div>
@@ -83,7 +85,7 @@ export default function AnnouncementDetailPage() {
             className="inline-flex items-center gap-1.5 text-portal-accent text-sm font-medium mt-4
                        hover:opacity-80 transition-opacity"
           >
-            View on sliquid.com <ExternalLink className="w-3.5 h-3.5" />
+            {t('detail.viewOnSliquid')} <ExternalLink className="w-3.5 h-3.5" />
           </a>
         )}
       </header>

@@ -1,0 +1,63 @@
+{
+  "card": {
+    "select": "Select",
+    "selected": "✓ Selected",
+    "selectDesigns": "Select Designs",
+    "editItem": "Edit item",
+    "deleteItem": "Delete item",
+    "confirmDelete": "Delete",
+    "cancelDelete": "Cancel delete"
+  },
+  "success": {
+    "title": "Request Submitted!",
+    "body": "Thanks, <bold>{{name}}</bold>! Your marketing material request for <bold>{{company}}</bold> has been received. Our team will follow up shortly.",
+    "itemsRequested": "Items Requested",
+    "hostedBy": "Hosted by Team Sliquid"
+  },
+  "header": {
+    "title": "Request Physical Marketing Assets",
+    "intro": "Browse our in-store display items below. Select the ones you'd like for your physical location, then fill out your details and submit.",
+    "addItem": "Add Item"
+  },
+  "status": {
+    "approved": "Request Approved",
+    "declined": "Request Declined",
+    "pending": "Request Pending Review",
+    "declinedBody": "Your previous request was not fulfilled. You can submit a new one below.",
+    "approvedBody": "Your request for {{business}} is approved and being processed.",
+    "pendingBody": "Your request for {{business}} is being reviewed by the Sliquid team.",
+    "requested": "Requested:"
+  },
+  "catalog": {
+    "heading": "Available Items",
+    "hint": "Click <bold>Select</bold> on any item to add it to your request."
+  },
+  "training": {
+    "heading": "Training Request",
+    "addOption": "Add Option",
+    "intro": "Request a training session with a Sliquid brand representative. Choose the format that works best for your team.",
+    "availability": "Availability is not guaranteed, as our sales team's schedule is subject to change. We will reach out to confirm availability after your request is received."
+  },
+  "form": {
+    "heading": "Your Information",
+    "intro": "Tell us where to send the materials.",
+    "selected": "Selected ({{count}})",
+    "selectFirst": "Please select at least one item or training option above before submitting.",
+    "fullName": "Full Name *",
+    "namePlaceholder": "Jane Smith",
+    "company": "Company / Business Name *",
+    "companyPlaceholder": "Your store or company name",
+    "location": "Physical Location / Storefront Address *",
+    "locationPlaceholder": "123 Main St, City, State, ZIP",
+    "notes": "Additional Notes",
+    "optional": "(optional)",
+    "notesPlaceholder": "Anything else you'd like us to know about your request…",
+    "submitting": "Submitting…",
+    "submit": "Submit Request"
+  },
+  "errors": {
+    "selectAtLeastOne": "Please select at least one item or service above before submitting.",
+    "selectDesign": "Please select at least one design for \"{{name}}\".",
+    "submitFailed": "Submission failed. Please try again."
+  }
+}

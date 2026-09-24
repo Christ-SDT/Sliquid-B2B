@@ -1,0 +1,22 @@
+{
+  "title": "Mi tienda",
+  "subtitleCompany": "Miembros registrados en {{company}}",
+  "subtitle": "Miembros registrados en su tienda",
+  "loadError": "No se pudieron cargar los miembros de la tienda",
+  "totalMembers": "Total de miembros",
+  "quizzesPassed": "Cuestionarios aprobados",
+  "avgPassed": "Promedio de cuestionarios aprobados",
+  "searchPlaceholder": "Buscar por nombre o correo electrónico…",
+  "searchLabel": "Buscar miembros",
+  "noMatch": "Ningún miembro coincide con su búsqueda.",
+  "empty": "Aún no hay miembros registrados.",
+  "table": {
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "accountType": "Tipo de cuenta",
+    "quizzesPassed": "Cuestionarios aprobados",
+    "joined": "Registro"
+  },
+  "showing_one": "{{shown}} de {{count}} miembro",
+  "showing_other": "{{shown}} de {{count}} miembros"
+}

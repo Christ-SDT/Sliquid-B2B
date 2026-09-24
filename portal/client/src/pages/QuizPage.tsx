@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
+import { useTranslation } from 'react-i18next'
+import { intlLocale } from '@/i18n'
 import {
   ArrowLeft,
   CheckCircle2,
@@ -93,6 +95,7 @@ type FinishState = {
 }
 
 export default function QuizPage() {
+  const { t } = useTranslation('quiz')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -261,7 +264,7 @@ export default function QuizPage() {
           ? Math.round(((raw - min) / range) * 100)
           : Math.max(0, Math.min(100, raw))
       const passed = score >= quiz.passing_score
-      const completedAt = new Date().toLocaleDateString('en-US', {
+      const completedAt = new Date().toLocaleDateString(intlLocale(), {
         year: 'numeric', month: 'long', day: 'numeric',
       })
 
@@ -368,9 +371,9 @@ export default function QuizPage() {
   if (!quiz) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-on-canvas-subtle gap-3">
-        <p>Quiz not found.</p>
+        <p>{t('notFound')}</p>
         <button onClick={() => navigate('/trainings')} className="text-portal-accent text-sm hover:underline">
-          ← Back to Digital Training
+          {t('backToTraining')}
         </button>
       </div>
     )
@@ -389,7 +392,7 @@ export default function QuizPage() {
             className="flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Digital Training
+            {t('breadcrumb')}
           </button>
           <span className="text-on-canvas text-sm">/</span>
           <span className="text-on-canvas text-sm font-medium truncate">{quiz.title}</span>
@@ -398,7 +401,7 @@ export default function QuizPage() {
             className="ml-auto flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
           >
             <SkipForward className="w-4 h-4" />
-            Skip to Quiz
+            {t('video.skip')}
           </button>
         </div>
 
@@ -420,13 +423,13 @@ export default function QuizPage() {
 
         {/* Bottom CTA */}
         <div className="flex items-center justify-center gap-3 px-4 py-3 bg-surface border-t border-portal-border flex-shrink-0">
-          <span className="text-on-canvas-subtle text-sm">Watch the full video, or</span>
+          <span className="text-on-canvas-subtle text-sm">{t('video.watchOr')}</span>
           <button
             onClick={enterQuiz}
             className="flex items-center gap-1.5 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white text-sm font-medium rounded-lg transition-colors"
           >
             <Play className="w-3.5 h-3.5" />
-            Start Quiz
+            {t('video.start')}
           </button>
         </div>
       </div>
@@ -443,7 +446,7 @@ export default function QuizPage() {
           className="flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Digital Training
+          {t('breadcrumb')}
         </button>
         <span className="text-on-canvas text-sm">/</span>
         <span className="text-on-canvas text-sm font-medium truncate">{quiz.title}</span>
@@ -455,10 +458,10 @@ export default function QuizPage() {
               className="flex items-center gap-1.5 text-on-canvas-subtle hover:text-on-canvas text-sm transition-colors"
             >
               <Video className="w-4 h-4" />
-              Watch Video
+              {t('quiz.watchVideo')}
             </button>
           )}
-          <span className="text-on-canvas-muted text-xs">Pass: {quiz.passing_score}%</span>
+          <span className="text-on-canvas-muted text-xs">{t('quiz.passScore', { score: quiz.passing_score })}</span>
         </div>
       </div>
 
@@ -483,11 +486,11 @@ export default function QuizPage() {
           <div className="relative w-full max-w-4xl mx-4 bg-black rounded-xl overflow-hidden shadow-2xl border border-portal-border">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-2.5 bg-surface border-b border-portal-border">
-              <span className="text-on-canvas text-sm font-medium">{quiz.title} — Training Video</span>
+              <span className="text-on-canvas text-sm font-medium">{t('modal.title', { title: quiz.title })}</span>
               <button
                 onClick={closeVideoModal}
                 className="text-on-canvas-subtle hover:text-on-canvas transition-colors"
-                aria-label="Close video"
+                aria-label={t('modal.close')}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -526,7 +529,7 @@ export default function QuizPage() {
             <button
               onClick={() => setFinish(null)}
               className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-surface-elevated text-on-canvas-muted hover:text-on-canvas transition-colors"
-              aria-label="Close"
+              aria-label={t('finish.close')}
             >
               <X className="w-4 h-4" />
             </button>
@@ -536,12 +539,12 @@ export default function QuizPage() {
             }
 
             <h2 className="text-on-canvas text-xl font-bold mb-1">
-              {finish.passed ? 'Training Complete!' : 'Keep Practicing'}
+              {finish.passed ? t('finish.passedTitle') : t('finish.failedTitle')}
             </h2>
             <p className="text-on-canvas-subtle text-sm mb-5">
               {finish.passed
-                ? 'You passed this training. Great work!'
-                : `A score of ${quiz.passing_score}% is required to pass. Give it another try!`}
+                ? t('finish.passedBody')
+                : t('finish.failedBody', { score: quiz.passing_score })}
             </p>
 
             <div className="bg-portal-bg rounded-xl p-4 mb-5 text-left space-y-3">
@@ -554,7 +557,7 @@ export default function QuizPage() {
                 <span className="text-on-canvas-subtle text-sm">{finish.completedAt}</span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-portal-border">
-                <span className="text-on-canvas-muted text-xs uppercase tracking-wide">Score</span>
+                <span className="text-on-canvas-muted text-xs uppercase tracking-wide">{t('finish.score')}</span>
                 <span className={`text-3xl font-bold ${finish.passed ? 'text-emerald-400' : 'text-amber-400'}`}>
                   {finish.score}%
                 </span>
@@ -564,12 +567,12 @@ export default function QuizPage() {
             {!finish.submitted && (
               <div className="flex items-center justify-center gap-2 text-on-canvas-muted text-xs mb-4">
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Saving result…
+                {t('finish.saving')}
               </div>
             )}
             {finish.passed && finish.submitted && (
               <p className="text-emerald-400 text-xs mb-4">
-                A confirmation email has been sent to {user?.email}.
+                {t('finish.emailSent', { email: user?.email })}
               </p>
             )}
 
@@ -579,14 +582,14 @@ export default function QuizPage() {
                   onClick={() => { setFinish(null); navigate(`/quiz/${nextQuiz.quiz_id}`) }}
                   className="w-full py-2.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
                 >
-                  Go to Next Module
+                  {t('finish.next')}
                 </button>
               )}
               <button
                 onClick={() => navigate('/trainings')}
                 className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors ${finish.passed ? 'bg-surface-elevated hover:bg-portal-border text-on-canvas-subtle' : 'bg-portal-accent hover:bg-portal-accent/90 text-white'}`}
               >
-                {finish.passed ? 'Done' : 'Back to Trainings'}
+                {finish.passed ? t('finish.done') : t('finish.backToTrainings')}
               </button>
               {!finish.passed && (
                 <button
@@ -599,7 +602,7 @@ export default function QuizPage() {
                   }}
                   className="w-full py-2.5 bg-surface-elevated hover:bg-portal-border text-on-canvas-subtle rounded-lg text-sm font-medium transition-colors"
                 >
-                  Try Again
+                  {t('finish.tryAgain')}
                 </button>
               )}
               {quiz.video_path && (
@@ -608,7 +611,7 @@ export default function QuizPage() {
                   className="w-full py-2.5 bg-surface-elevated hover:bg-portal-border text-on-canvas-subtle rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Video className="w-3.5 h-3.5" />
-                  Rewatch Video
+                  {t('finish.rewatch')}
                 </button>
               )}
             </div>

@@ -1,0 +1,29 @@
+{
+  "header": {
+    "title": "Conviértase en experto certificado de Sliquid",
+    "body": "Obtenga su certificación oficial de Sliquid completando este curso de capacitación digital. En cada sección, vea el video, responda el cuestionario y apruebe con 80 % o más. Al completar todas las secciones, recibirá un certificado digital y le enviaremos un pin y una camiseta de experto certificado de Sliquid. Como bono por completar el curso, también recibirá un producto Sliquid de su elección. Su recorrido por el conocimiento de los productos Sliquid comienza aquí. ¡Mucha suerte!"
+  },
+  "card": {
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "passScore": "Aprobación: {{score}} %",
+    "passed": "Aprobado",
+    "bestScore": "Mejor puntuación: <score>{{score}} %</score>",
+    "retake": "Repetir capacitación",
+    "start": "Iniciar capacitación"
+  },
+  "complete": {
+    "title": "¡Ya es experto certificado de Sliquid!",
+    "body": "Completó todos los módulos: su certificado está listo para descargar.",
+    "viewCertificate": "Ver certificado"
+  },
+  "progress": {
+    "completed": "{{passed}} / {{total}} completados"
+  },
+  "certModal": {
+    "defaultTitle": "Experto certificado de Sliquid",
+    "yourCertificate": "Su certificado",
+    "claimRewards": "Reclame sus recompensas",
+    "close": "Cerrar"
+  }
+}

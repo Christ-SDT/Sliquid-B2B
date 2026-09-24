@@ -1,12 +1,18 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useState, FormEvent, useEffect, useRef } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Loader2, Eye, EyeOff, ChevronDown, CheckCircle } from 'lucide-react'
+import { Trans, useTranslation } from 'react-i18next'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 interface Store { id: number; name: string }
 
 export default function RegisterPage() {
+  const { t: tCommon } = useTranslation('common')
+  useDocumentTitle(tCommon('titles.register'))
   const { user, register } = useAuth()
+  const { t } = useTranslation('auth')
   const [name, setName] = useState('')
   const [company, setCompany] = useState('')
   const [storeSearch, setStoreSearch] = useState('')
@@ -56,27 +62,31 @@ export default function RegisterPage() {
     return (
       <div className="min-h-screen bg-portal-bg flex items-center justify-center p-4">
         <div className="w-full max-w-md">
+          <div className="flex justify-end mb-4">
+            <LanguageSwitcher />
+          </div>
           <div className="flex flex-col items-center mb-8">
-            <img src="/images/cropped-lotus.png" alt="Sliquid lotus" className="w-12 h-12 object-contain mb-4" />
+            <img src="/images/cropped-lotus.png" alt={t('brand.logoAlt')} className="w-12 h-12 object-contain mb-4" />
             <h1 className="text-on-canvas font-bold text-2xl tracking-wider">SLIQUID</h1>
-            <p className="text-on-canvas-muted text-xs font-medium tracking-widest mt-1">PARTNER PORTAL</p>
+            <p className="text-on-canvas-muted text-xs font-medium tracking-widest mt-1">{t('brand.partnerPortal')}</p>
           </div>
           <div className="bg-surface border border-portal-border rounded-2xl p-8 text-center">
             <div className="w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-7 h-7 text-emerald-400" />
             </div>
-            <h2 className="text-on-canvas text-xl font-semibold mb-2">Account submitted!</h2>
+            <h2 className="text-on-canvas text-xl font-semibold mb-2">{t('register.success.title')}</h2>
             <p className="text-on-canvas-muted text-sm mb-2">
-              Your account is pending review. You'll receive full access once a Sliquid admin approves your registration.
+              {t('register.success.pending')}
             </p>
             <p className="text-on-canvas-muted text-sm mb-6">
-              A confirmation email has been sent to <span className="text-on-canvas-subtle">{email}</span>.
+              <Trans t={t} i18nKey="register.success.emailSent" values={{ email }}
+                components={{ bold: <span className="text-on-canvas-subtle" /> }} />
             </p>
             <Link
               to="/login"
               className="inline-block w-full bg-portal-accent hover:bg-portal-accent/90 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm"
             >
-              Back to sign in
+              {t('shared.backToSignIn')}
             </Link>
           </div>
         </div>
@@ -87,15 +97,16 @@ export default function RegisterPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
-    if (!company) { setError('Please select your store or company'); return }
-    if (password.length < 8) { setError('Password must be at least 8 characters'); return }
-    if (password !== confirm) { setError('Passwords do not match'); return }
+    if (!company) { setError(t('register.errors.storeRequired')); return }
+    if (password.length < 8) { setError(t('register.errors.passwordShort')); return }
+    if (password !== confirm) { setError(t('register.errors.passwordMismatch')); return }
     setLoading(true)
     try {
       await register(name, email, company, password, requestedRole ?? undefined)
       setSubmitted(true)
     } catch (err: any) {
-      setError(err.message === 'Email already in use' ? 'Email already in use' : (err.message ?? 'Registration failed'))
+      // The server's message is English; map the one we can recognise.
+      setError(err.message === 'Email already in use' ? t('register.errors.emailInUse') : (err.message ?? t('register.errors.failed')))
     } finally {
       setLoading(false)
     }
@@ -104,21 +115,25 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-portal-bg flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <div className="flex justify-end mb-4">
+          <LanguageSwitcher />
+        </div>
+
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <img
             src="/images/cropped-lotus.png"
-            alt="Sliquid lotus"
+            alt={t('brand.logoAlt')}
             className="w-12 h-12 object-contain mb-4"
           />
           <h1 className="text-on-canvas font-bold text-2xl tracking-wider">SLIQUID</h1>
-          <p className="text-on-canvas-muted text-xs font-medium tracking-widest mt-1">PARTNER PORTAL</p>
+          <p className="text-on-canvas-muted text-xs font-medium tracking-widest mt-1">{t('brand.partnerPortal')}</p>
         </div>
 
         {/* Card */}
         <div className="bg-surface border border-portal-border rounded-2xl p-8">
-          <h2 className="text-on-canvas text-xl font-semibold mb-1">Create an account</h2>
-          <p className="text-on-canvas-muted text-sm mb-6">Access digital assets, distributors, and product trainings for your account type.</p>
+          <h2 className="text-on-canvas text-xl font-semibold mb-1">{t('register.title')}</h2>
+          <p className="text-on-canvas-muted text-sm mb-6">{t('register.subtitle')}</p>
 
           {error && (
             <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
@@ -128,12 +143,13 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Full Name</label>
+              <label htmlFor="register-name" className="block text-on-canvas-subtle text-sm font-medium mb-1.5">{t('register.fullName')}</label>
               <input
+                id="register-name"
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                placeholder="Jane Smith"
+                placeholder={t('register.namePlaceholder')}
                 required
                 className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
                            placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
@@ -141,11 +157,12 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Store / Company</label>
+              <label htmlFor="register-store" className="block text-on-canvas-subtle text-sm font-medium mb-1.5">{t('register.store')}</label>
               {stores.length > 0 ? (
                 <div ref={storeRef} className="relative">
                   <div className="relative">
                     <input
+                      id="register-store"
                       type="text"
                       value={storeSearch}
                       onChange={e => {
@@ -154,7 +171,7 @@ export default function RegisterPage() {
                         setShowDropdown(true)
                       }}
                       onFocus={() => setShowDropdown(true)}
-                      placeholder="Enter or search for your store…"
+                      placeholder={t('register.storeSearchPlaceholder')}
                       autoComplete="off"
                       required={!company}
                       className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 pr-9 text-on-canvas text-sm
@@ -175,7 +192,7 @@ export default function RegisterPage() {
                           </button>
                         </li>
                       )) : (
-                        <li className="px-4 py-2.5 text-on-canvas-muted text-sm">No stores match</li>
+                        <li className="px-4 py-2.5 text-on-canvas-muted text-sm">{t('register.noStoresMatch')}</li>
                       )}
                     </ul>
                   )}
@@ -184,10 +201,11 @@ export default function RegisterPage() {
                 </div>
               ) : (
                 <input
+                  id="register-store"
                   type="text"
                   value={company}
                   onChange={e => setCompany(e.target.value)}
-                  placeholder="Your store or company name"
+                  placeholder={t('register.storePlaceholder')}
                   required
                   className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
                              placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
@@ -197,9 +215,9 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
-                Your Role <span className="text-on-canvas-muted font-normal">(optional)</span>
+                {t('register.role')} <span className="text-on-canvas-muted font-normal">{t('register.optional')}</span>
               </label>
-              <p className="text-on-canvas-muted text-xs mb-2">Helps us approve your account faster.</p>
+              <p className="text-on-canvas-muted text-xs mb-2">{t('register.roleHint')}</p>
               <div className="flex gap-5">
                 <label className="flex items-center gap-2 text-on-canvas-subtle text-sm cursor-pointer">
                   <input
@@ -208,7 +226,7 @@ export default function RegisterPage() {
                     onChange={() => setRequestedRole(prev => prev === 'tier1' ? null : 'tier1')}
                     className="w-4 h-4 rounded border-portal-border bg-portal-bg text-portal-accent focus:ring-portal-accent"
                   />
-                  Retail Store Employee
+                  {t('common:roles.tier1')}
                 </label>
                 <label className="flex items-center gap-2 text-on-canvas-subtle text-sm cursor-pointer">
                   <input
@@ -217,18 +235,19 @@ export default function RegisterPage() {
                     onChange={() => setRequestedRole(prev => prev === 'tier2' ? null : 'tier2')}
                     className="w-4 h-4 rounded border-portal-border bg-portal-bg text-portal-accent focus:ring-portal-accent"
                   />
-                  Retail Management
+                  {t('common:roles.tier2')}
                 </label>
               </div>
             </div>
 
             <div>
-              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Email</label>
+              <label htmlFor="register-email" className="block text-on-canvas-subtle text-sm font-medium mb-1.5">{t('shared.email')}</label>
               <input
+                id="register-email"
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="you@company.com"
+                placeholder={t('shared.emailPlaceholder')}
                 required
                 className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
                            placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
@@ -236,13 +255,14 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Password</label>
+              <label htmlFor="register-password" className="block text-on-canvas-subtle text-sm font-medium mb-1.5">{t('shared.password')}</label>
               <div className="relative">
                 <input
+                  id="register-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="Min. 8 characters"
+                  placeholder={t('register.passwordPlaceholder')}
                   required
                   className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 pr-10 text-on-canvas text-sm
                              placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
@@ -250,6 +270,8 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? t('shared.hidePassword') : t('shared.showPassword')}
+                  aria-pressed={showPassword}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-on-canvas-muted hover:text-on-canvas-subtle"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -258,12 +280,13 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Confirm Password</label>
+              <label htmlFor="register-confirm" className="block text-on-canvas-subtle text-sm font-medium mb-1.5">{t('register.confirmPassword')}</label>
               <input
+                id="register-confirm"
                 type={showPassword ? 'text' : 'password'}
                 value={confirm}
                 onChange={e => setConfirm(e.target.value)}
-                placeholder="Re-enter password"
+                placeholder={t('register.confirmPlaceholder')}
                 required
                 className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
                            placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
@@ -277,15 +300,13 @@ export default function RegisterPage() {
                          py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 mt-2"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {loading ? 'Creating account…' : 'Create account'}
+              {loading ? t('register.submitting') : t('register.submit')}
             </button>
           </form>
 
           <p className="text-center text-on-canvas-muted text-xs mt-6">
-            Already have an account?{' '}
-            <Link to="/login" className="text-portal-accent hover:underline">
-              Sign in
-            </Link>
+            <Trans t={t} i18nKey="register.haveAccount"
+              components={{ cta: <Link to="/login" className="text-portal-accent hover:underline" /> }} />
           </p>
         </div>
       </div>

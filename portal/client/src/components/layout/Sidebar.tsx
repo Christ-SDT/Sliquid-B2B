@@ -2,8 +2,9 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { useNotifications } from '@/context/NotificationContext'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-import { TIER_LABEL, canViewAdmin, isReadOnlyAdmin } from '@/types'
+import { canViewAdmin, isReadOnlyAdmin } from '@/types'
 import {
   LayoutDashboard, BookOpen,
   MapPin, Megaphone, GraduationCap, LogOut, X, Users, Moon, Sun, Sparkles,
@@ -12,20 +13,20 @@ import {
 
 // restricted: tier1/2/3/6  |  tier23: tier2+tier3 only  |  prospectVisible: tier4  |  adminOnly: tier5 only  |  medicalOnly: admin only  |  hideTier3: hidden from tier3 (Distributor)
 const NAV = [
-  { to: '/dashboard',          icon: LayoutDashboard, label: 'Dashboard',              restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
-  { to: '/announcements',      icon: Newspaper,       label: 'Announcements',          restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: 'new_announcement' },
-  { to: '/assets',             icon: BookOpen,        label: 'Asset Library',          restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
-  { to: '/distributors',       icon: MapPin,          label: 'Distributors',           restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: true,  badgeType: undefined },
-  { to: '/trainings',          icon: GraduationCap,   label: 'Digital Training',       restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
-  { to: '/creator',            icon: Sparkles,        label: 'AI Creator',             restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
-  { to: '/retailer',           icon: Megaphone,       label: 'In-store Marketing',     restricted: false, tier23: true,  prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
-  { to: '/medical-marketing',  icon: Stethoscope,     label: 'Medical Marketing',      restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: true,  hideTier3: false, badgeType: undefined },
-  { to: '/requests',           icon: Users,           label: 'Partner Requests',       restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: 'new_registration' },
-  { to: '/marketing-requests', icon: Megaphone,       label: 'Marketing Requests',     restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: 'marketing_request' },
-  { to: '/media',              icon: ImageIcon,       label: 'Media Library',          restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
-  { to: '/users',              icon: Users,           label: 'User Management',        restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
-  { to: '/gdpr-requests',      icon: ShieldCheck,     label: 'GDPR Requests',          restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
-  { to: '/admin/announcements', icon: Megaphone,      label: 'Manage Announcements',   restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: 'announcement_review' },
+  { to: '/dashboard',          icon: LayoutDashboard, labelKey: 'dashboard', restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/announcements',      icon: Newspaper,       labelKey: 'announcements', restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: 'new_announcement' },
+  { to: '/assets',             icon: BookOpen,        labelKey: 'assets', restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/distributors',       icon: MapPin,          labelKey: 'distributors', restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: true,  badgeType: undefined },
+  { to: '/trainings',          icon: GraduationCap,   labelKey: 'trainings', restricted: true,  tier23: false, prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/creator',            icon: Sparkles,        labelKey: 'creator', restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/retailer',           icon: Megaphone,       labelKey: 'retailer', restricted: false, tier23: true,  prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/medical-marketing',  icon: Stethoscope,     labelKey: 'medicalMarketing', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: true,  hideTier3: false, badgeType: undefined },
+  { to: '/requests',           icon: Users,           labelKey: 'requests', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: 'new_registration' },
+  { to: '/marketing-requests', icon: Megaphone,       labelKey: 'marketingRequests', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: 'marketing_request' },
+  { to: '/media',              icon: ImageIcon,       labelKey: 'media', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/users',              icon: Users,           labelKey: 'users', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/gdpr-requests',      icon: ShieldCheck,     labelKey: 'gdprRequests', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
+  { to: '/admin/announcements', icon: Megaphone,      labelKey: 'manageAnnouncements', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: 'announcement_review' },
 ]
 
 interface Props {
@@ -36,6 +37,7 @@ export default function Sidebar({ onClose }: Props) {
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const { countUnreadByType } = useNotifications()
+  const { t } = useTranslation()
 
   const isRestricted = ['tier1', 'tier2', 'tier3', 'tier6', 'tier7'].includes(user?.role ?? '')
 
@@ -74,16 +76,16 @@ export default function Sidebar({ onClose }: Props) {
         <div className="flex items-center gap-3">
           <img
             src="/images/cropped-lotus.png"
-            alt="Sliquid lotus"
+            alt={t('sidebar.logoAlt')}
             className="w-8 h-8 object-contain"
           />
           <div>
             <p className="text-on-canvas font-bold text-sm leading-none tracking-wider">SLIQUID</p>
-            <p className="text-on-canvas-muted text-[10px] font-medium tracking-widest mt-0.5">PARTNER PORTAL</p>
+            <p className="text-on-canvas-muted text-[10px] font-medium tracking-widest mt-0.5">{t('sidebar.brand')}</p>
           </div>
         </div>
         {onClose && (
-          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas md:hidden">
+          <button onClick={onClose} aria-label={t('sidebar.closeMenu')} className="text-on-canvas-muted hover:text-on-canvas md:hidden">
             <X className="w-4 h-4" />
           </button>
         )}
@@ -92,7 +94,7 @@ export default function Sidebar({ onClose }: Props) {
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         <ul className="space-y-0.5">
-          {visibleNav.map(({ to, icon: Icon, label, badgeType }) => {
+          {visibleNav.map(({ to, icon: Icon, labelKey, badgeType }) => {
             const badgeCount = badgeType ? countUnreadByType(badgeType) : 0
             return (
               <li key={to}>
@@ -109,7 +111,7 @@ export default function Sidebar({ onClose }: Props) {
                   }
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span className="flex-1">{label}</span>
+                  <span className="flex-1">{t(`nav.${labelKey}`)}</span>
                   {badgeCount > 0 && (
                     <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-portal-accent text-white text-[10px] font-bold flex items-center justify-center leading-none">
                       {badgeCount > 99 ? '99+' : badgeCount}
@@ -129,7 +131,7 @@ export default function Sidebar({ onClose }: Props) {
                         bg-surface-elevated border border-portal-border">
           <Eye className="w-3.5 h-3.5 text-portal-accent flex-shrink-0 mt-0.5" />
           <p className="text-on-canvas-muted text-xs leading-snug">
-            Read-only access — you can view everything here, but not change it.
+            {t('sidebar.readOnly')}
           </p>
         </div>
       )}
@@ -138,11 +140,11 @@ export default function Sidebar({ onClose }: Props) {
       <div className="border-t border-portal-border px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-on-canvas-subtle">
           {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-          <span>Wellness Mode</span>
+          <span>{t('theme.wellnessMode')}</span>
         </div>
         <button
           onClick={toggleTheme}
-          aria-label="Toggle theme"
+          aria-label={t('theme.toggle')}
           className={cn(
             'relative w-10 h-5 rounded-full transition-colors duration-200 flex-shrink-0',
             theme === 'dark' ? 'bg-portal-accent' : 'bg-slate-300',
@@ -166,7 +168,7 @@ export default function Sidebar({ onClose }: Props) {
           </div>
           <div className="min-w-0">
             <p className="text-on-canvas text-sm font-medium truncate">{user?.name}</p>
-            <p className="text-on-canvas-muted text-xs truncate">{user?.role ? (TIER_LABEL[user.role] ?? user.role) : ''}</p>
+            <p className="text-on-canvas-muted text-xs truncate">{user?.role ? t(`roles.${user.role}`, { defaultValue: user.role }) : ''}</p>
           </div>
         </div>
         <button
@@ -175,7 +177,7 @@ export default function Sidebar({ onClose }: Props) {
                      hover:text-on-canvas hover:bg-surface-elevated text-sm transition-colors duration-150"
         >
           <LogOut className="w-4 h-4" />
-          Sign out
+          {t('sidebar.signOut')}
         </button>
       </div>
     </aside>

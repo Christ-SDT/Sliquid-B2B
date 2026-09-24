@@ -1,0 +1,33 @@
+{
+  "notFound": "Quiz not found.",
+  "backToTraining": "← Back to Digital Training",
+  "breadcrumb": "Digital Training",
+  "video": {
+    "skip": "Skip to Quiz",
+    "watchOr": "Watch the full video, or",
+    "start": "Start Quiz"
+  },
+  "quiz": {
+    "watchVideo": "Watch Video",
+    "passScore": "Pass: {{score}}%"
+  },
+  "modal": {
+    "title": "{{title}} — Training Video",
+    "close": "Close video"
+  },
+  "finish": {
+    "close": "Close",
+    "passedTitle": "Training Complete!",
+    "failedTitle": "Keep Practicing",
+    "passedBody": "You passed this training. Great work!",
+    "failedBody": "A score of {{score}}% is required to pass. Give it another try!",
+    "score": "Score",
+    "saving": "Saving result…",
+    "emailSent": "A confirmation email has been sent to {{email}}.",
+    "next": "Go to Next Module",
+    "done": "Done",
+    "backToTrainings": "Back to Trainings",
+    "tryAgain": "Try Again",
+    "rewatch": "Rewatch Video"
+  }
+}

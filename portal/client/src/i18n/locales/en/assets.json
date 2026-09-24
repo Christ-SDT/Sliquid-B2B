@@ -1,0 +1,96 @@
+{
+  "actions": {
+    "back": "Back",
+    "close": "Close",
+    "view": "View",
+    "download": "Download",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Confirm Delete",
+    "cancel": "Cancel",
+    "cancelDelete": "Cancel delete"
+  },
+  "sections": {
+    "logos": "Logos",
+    "banners": "Banners",
+    "socialMedia": "Social Media",
+    "documents": "Documents",
+    "emailTemplates": "Email Templates",
+    "campaignMaterials": "Campaign Materials",
+    "videos": "Videos",
+    "generatedImages": "Generated Images",
+    "other": "Other"
+  },
+  "types": {
+    "logo": "Logo",
+    "banner": "Banner",
+    "social": "Social",
+    "document": "Document",
+    "socialMedia": "Social Media",
+    "email": "Email",
+    "print": "Print",
+    "multi": "Multi",
+    "video": "Video",
+    "aiGenerated": "AI Generated"
+  },
+  "brands": {
+    "userGenerated": "User Generated Content"
+  },
+  "detail": {
+    "createdBy": "Created by {{name}}",
+    "closeViewer": "Close viewer",
+    "previewUnavailable": "Preview not available for this file type.",
+    "openInNewTab": "Open in new tab"
+  },
+  "explorer": {
+    "allItems": "All Items",
+    "files_one": "({{count}} file)",
+    "files_other": "({{count}} files)",
+    "empty": "No files in this section"
+  },
+  "brand": {
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "browse": "Browse by category",
+    "viewAll": "View all {{brand}} ({{count}})",
+    "all": "All ({{count}})",
+    "showingOf": "Showing 8 of {{total}} files",
+    "files_one": "{{count}} file",
+    "files_other": "{{count}} files",
+    "showAllBrand": "Show all {{brand}}",
+    "showAllSection": "Show all {{section}}",
+    "featured": "Featured",
+    "feature": "Feature this item",
+    "unfeature": "Remove from featured"
+  },
+  "shots": {
+    "title": "Product Shots",
+    "subtitle": "High-res product photography for all brands",
+    "viewAll": "View all Product Shots ({{count}})",
+    "badge": "Product Shot",
+    "images_one": "({{count}} image)",
+    "images_other": "({{count}} images)",
+    "select": "Select",
+    "searchPlaceholder": "Search product shots…",
+    "deselectAll": "Deselect all",
+    "selectAll": "Select all ({{count}})",
+    "selectedCount": "{{count}} selected",
+    "preparing": "Preparing…",
+    "downloadZip": "Download as ZIP ({{count}})",
+    "downloadN": "Download ({{count}})",
+    "clear": "Clear",
+    "noMatch": "No images match your search",
+    "empty": "No product shots yet",
+    "rename": "Rename",
+    "closeViewer": "Close viewer"
+  },
+  "page": {
+    "title": "Asset Library",
+    "searchPlaceholder": "Search library…",
+    "addItem": "Add Item",
+    "noMatch": "No items match your search",
+    "empty": "No items in the library yet",
+    "addFirst": "Add the first item",
+    "deleteFailed": "Failed to delete item"
+  }
+}

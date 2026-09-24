@@ -1,0 +1,22 @@
+{
+  "title": "Mon magasin",
+  "subtitleCompany": "Membres inscrits sous {{company}}",
+  "subtitle": "Membres inscrits à votre magasin",
+  "loadError": "Impossible de charger les membres du magasin",
+  "totalMembers": "Nombre de membres",
+  "quizzesPassed": "Questionnaires réussis",
+  "avgPassed": "Moy. de questionnaires réussis",
+  "searchPlaceholder": "Rechercher par nom ou courriel…",
+  "searchLabel": "Rechercher des membres",
+  "noMatch": "Aucun membre ne correspond à votre recherche.",
+  "empty": "Aucun membre inscrit pour l’instant.",
+  "table": {
+    "name": "Nom",
+    "email": "Courriel",
+    "accountType": "Type de compte",
+    "quizzesPassed": "Questionnaires réussis",
+    "joined": "Inscription"
+  },
+  "showing_one": "{{shown}} sur {{count}} membre",
+  "showing_other": "{{shown}} sur {{count}} membres"
+}

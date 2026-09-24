@@ -2,5 +2,95 @@
   "skipToContent": "Saltar al contenido principal",
   "language": {
     "label": "Idioma"
+  },
+  "roles": {
+    "tier1": "Empleado de tienda minorista",
+    "tier2": "Gerencia minorista",
+    "tier3": "Distribuidor",
+    "tier4": "Prospecto",
+    "tier5": "Administrador",
+    "tier6": "Socio médico",
+    "tier7": "Medios",
+    "tier8": "Legal (solo lectura)"
+  },
+  "time": {
+    "justNow": "justo ahora"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "announcements": "Anuncios",
+    "assets": "Biblioteca de recursos",
+    "distributors": "Distribuidores",
+    "trainings": "Capacitación digital",
+    "creator": "Creador con IA",
+    "retailer": "Marketing en tienda",
+    "medicalMarketing": "Marketing médico",
+    "requests": "Solicitudes de socios",
+    "marketingRequests": "Solicitudes de marketing",
+    "media": "Biblioteca de medios",
+    "users": "Gestión de usuarios",
+    "gdprRequests": "Solicitudes RGPD",
+    "manageAnnouncements": "Gestionar anuncios"
+  },
+  "sidebar": {
+    "logoAlt": "Loto de Sliquid",
+    "brand": "PORTAL DE SOCIOS",
+    "closeMenu": "Cerrar menú",
+    "readOnly": "Acceso de solo lectura: puede ver todo aquí, pero no modificarlo.",
+    "signOut": "Cerrar sesión"
+  },
+  "theme": {
+    "wellnessMode": "Modo bienestar",
+    "toggle": "Cambiar tema"
+  },
+  "topbar": {
+    "openMenu": "Abrir menú",
+    "notifications": "Notificaciones",
+    "newCount_one": "{{count}} nueva",
+    "newCount_other": "{{count}} nuevas",
+    "markAllRead": "Marcar todo como leído",
+    "empty": "Aún no hay notificaciones",
+    "account": "Menú de la cuenta",
+    "adminTools": "Herramientas de administración",
+    "admin": {
+      "products": "Productos",
+      "inventory": "Inventario",
+      "invoices": "Facturas",
+      "analytics": "Analítica",
+      "referenceGallery": "Galería de referencia",
+      "myStore": "Mi tienda",
+      "serverLogs": "Registros del servidor"
+    }
+  },
+  "titles": {
+    "dashboard": "Panel",
+    "announcements": "Anuncios",
+    "announcement": "Anuncio",
+    "manageAnnouncements": "Gestionar anuncios",
+    "products": "Productos",
+    "assets": "Biblioteca de productos",
+    "inventory": "Inventario",
+    "invoices": "Facturas",
+    "stats": "Estadísticas",
+    "distributors": "Distribuidores",
+    "retailer": "Materiales de marketing",
+    "trainings": "Capacitaciones",
+    "quiz": "Cuestionario de capacitación",
+    "users": "Usuarios",
+    "requests": "Solicitudes de socios",
+    "marketingRequests": "Solicitudes de marketing",
+    "storeUsers": "Mi tienda",
+    "creator": "Creador",
+    "media": "Medios",
+    "referenceGallery": "Galería de referencia",
+    "logs": "Registros",
+    "medicalMarketing": "Marketing médico",
+    "gdprRequests": "Solicitudes RGPD",
+    "login": "Iniciar sesión",
+    "employeeLogin": "Acceso de empleados",
+    "register": "Crear cuenta",
+    "forgotPassword": "Olvidé mi contraseña",
+    "resetPassword": "Restablecer contraseña",
+    "verify": "Verificar certificado"
   }
 }

@@ -2,5 +2,95 @@
   "skipToContent": "Skip to main content",
   "language": {
     "label": "Language"
+  },
+  "roles": {
+    "tier1": "Retail Store Employee",
+    "tier2": "Retail Management",
+    "tier3": "Distributor",
+    "tier4": "Prospect",
+    "tier5": "Admin",
+    "tier6": "Medical Partner",
+    "tier7": "Media",
+    "tier8": "Legal (Read-Only)"
+  },
+  "time": {
+    "justNow": "just now"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "announcements": "Announcements",
+    "assets": "Asset Library",
+    "distributors": "Distributors",
+    "trainings": "Digital Training",
+    "creator": "AI Creator",
+    "retailer": "In-store Marketing",
+    "medicalMarketing": "Medical Marketing",
+    "requests": "Partner Requests",
+    "marketingRequests": "Marketing Requests",
+    "media": "Media Library",
+    "users": "User Management",
+    "gdprRequests": "GDPR Requests",
+    "manageAnnouncements": "Manage Announcements"
+  },
+  "sidebar": {
+    "logoAlt": "Sliquid lotus",
+    "brand": "PARTNER PORTAL",
+    "closeMenu": "Close menu",
+    "readOnly": "Read-only access — you can view everything here, but not change it.",
+    "signOut": "Sign out"
+  },
+  "theme": {
+    "wellnessMode": "Wellness Mode",
+    "toggle": "Toggle theme"
+  },
+  "topbar": {
+    "openMenu": "Open menu",
+    "notifications": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "No notifications yet",
+    "account": "Account menu",
+    "adminTools": "Admin Tools",
+    "admin": {
+      "products": "Products",
+      "inventory": "Inventory",
+      "invoices": "Invoices",
+      "analytics": "Analytics",
+      "referenceGallery": "Reference Gallery",
+      "myStore": "My Store",
+      "serverLogs": "Server Logs"
+    },
+    "newCount_one": "{{count}} new",
+    "newCount_other": "{{count}} new"
+  },
+  "titles": {
+    "dashboard": "Dashboard",
+    "announcements": "Announcements",
+    "announcement": "Announcement",
+    "manageAnnouncements": "Manage Announcements",
+    "products": "Products",
+    "assets": "Product Library",
+    "inventory": "Inventory",
+    "invoices": "Invoices",
+    "stats": "Stats",
+    "distributors": "Distributors",
+    "retailer": "Marketing Assets",
+    "trainings": "Trainings",
+    "quiz": "Training Quiz",
+    "users": "Users",
+    "requests": "Partner Requests",
+    "marketingRequests": "Marketing Requests",
+    "storeUsers": "My Store",
+    "creator": "Creator",
+    "media": "Media",
+    "referenceGallery": "Reference Gallery",
+    "logs": "Logs",
+    "medicalMarketing": "Medical Marketing",
+    "gdprRequests": "GDPR Requests",
+    "login": "Sign In",
+    "employeeLogin": "Employee Sign In",
+    "register": "Create Account",
+    "forgotPassword": "Forgot Password",
+    "resetPassword": "Reset Password",
+    "verify": "Verify Certificate"
   }
 }

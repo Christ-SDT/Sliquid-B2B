@@ -1,0 +1,29 @@
+{
+  "header": {
+    "title": "Become a Sliquid Certified Expert",
+    "body": "Earn your official Sliquid Certification by completing this digital training course. For each section, watch the video, take the quiz, and pass at 80% or higher. Once all sections are complete, you will receive a digital certificate and be sent a Sliquid Certified Expert pin and t-shirt. As a bonus for completing the course, you will also receive a Sliquid product of your choice. Your Sliquid product knowledge journey begins here. Good luck!"
+  },
+  "card": {
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "passScore": "Pass: {{score}}%",
+    "passed": "Passed",
+    "bestScore": "Best score: <score>{{score}}%</score>",
+    "retake": "Retake Training",
+    "start": "Start Training"
+  },
+  "complete": {
+    "title": "You're a Sliquid Certified Expert!",
+    "body": "All modules complete — your certificate is ready to download.",
+    "viewCertificate": "View Certificate"
+  },
+  "progress": {
+    "completed": "{{passed}} / {{total}} completed"
+  },
+  "certModal": {
+    "defaultTitle": "Sliquid Certified Expert",
+    "yourCertificate": "Your Certificate",
+    "claimRewards": "Claim Your Rewards",
+    "close": "Close"
+  }
+}

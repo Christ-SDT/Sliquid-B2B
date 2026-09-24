@@ -1,0 +1,12 @@
+{
+  "title": "Distributors",
+  "subtitle": "Find authorized Sliquid distribution partners in your area.",
+  "searchPlaceholder": "Search by name, city, state, or region…",
+  "searchLabel": "Search distributors",
+  "regionFilter": "Filter by region",
+  "allRegions": "All Regions",
+  "count_one": "{{count}} distributor found",
+  "count_other": "{{count}} distributors found",
+  "empty": "No distributors found",
+  "contact": "Contact: <name>{{name}}</name>"
+}

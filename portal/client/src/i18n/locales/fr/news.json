@@ -1,0 +1,16 @@
+{
+  "title": "Annonces",
+  "subtitle": "Communiqués de presse officiels de Sliquid et nouvelles pour les partenaires.",
+  "loadError": "Impossible de charger les annonces",
+  "pinned": "Épinglée",
+  "readMore": "Lire l’annonce",
+  "emptyTitle": "Aucune annonce pour l’instant",
+  "emptyBody": "Revenez bientôt pour les nouvelles et communiqués de presse de Sliquid.",
+  "source": "Les communiqués de presse sont publiés sur sliquid.com",
+  "detail": {
+    "back": "Retour aux annonces",
+    "notFoundTitle": "Annonce non disponible",
+    "notFoundBody": "Elle a peut-être été retirée, ou le lien est incorrect.",
+    "viewOnSliquid": "Voir sur sliquid.com"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "greeting": {
+    "morning": "Good morning, {{name}}",
+    "afternoon": "Good afternoon, {{name}}",
+    "evening": "Good evening, {{name}}"
+  },
+  "viewAll": "View All",
+  "assets": {
+    "title": "Digital Assets",
+    "empty": "No assets available"
+  },
+  "distributors": {
+    "title": "Distributors",
+    "empty": "No distributors available"
+  },
+  "trainings": {
+    "title": "Trainings",
+    "completed": "{{passed}} / {{total}} completed",
+    "minutesShort_one": "{{count}}m",
+    "minutesShort_other": "{{count}}m",
+    "passed": "Passed",
+    "retake": "Retake",
+    "start": "Start"
+  },
+  "pending": {
+    "badge": "Pending Approval",
+    "body": "Your account has been submitted and is awaiting admin review. You'll gain full access once approved.",
+    "didYouKnow": "Did you know?",
+    "facts": {
+      "since2002": "Sliquid has been formulating body-safe, pH-balanced intimacy products since 2002.",
+      "freeFrom": "Every product is free from parabens, glycerin, DEA, and gluten.",
+      "lineup": "The lineup spans 40+ SKUs across Naturals, Organics, RIDE, Silver, and Swirl collections.",
+      "countries": "Sliquid is available in over 40 countries worldwide."
+    },
+    "sellQuestion": "Want to sell Sliquid in your store?",
+    "register": "Register as a Sliquid Insider Retailer"
+  },
+  "upgrade": {
+    "title": "You have {{tier}} access",
+    "body": "Want to unlock more of the portal? Contact your Sliquid sales representative about upgrading."
+  }
+}

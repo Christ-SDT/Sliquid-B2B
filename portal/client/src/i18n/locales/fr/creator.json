@@ -1,0 +1,49 @@
+{
+  "loading": [
+    "Création de l’image en cours…",
+    "Création d’un chef-d’œuvre…",
+    "Ajout de détails…",
+    "Retouche de la bouteille…",
+    "Perfectionnement de l’éclairage…",
+    "Presque terminé…"
+  ],
+  "gallery": {
+    "title": "Galerie de référence",
+    "close": "Fermer",
+    "searchPlaceholder": "Rechercher des images…",
+    "noMatch": "Aucune image ne correspond à votre recherche",
+    "empty": "Aucune image de référence — téléversez-en dans la Galerie de référence",
+    "selectUpTo": "Sélectionnez jusqu’à {{max}}",
+    "selectOne": "Sélectionnez une image",
+    "selected_one": "{{count}} image sélectionnée",
+    "selected_other": "{{count}} images sélectionnées",
+    "cancel": "Annuler",
+    "insert": "Insérer la sélection"
+  },
+  "header": {
+    "subtitle": "Créateur d’images IA de Sliquid"
+  },
+  "chat": {
+    "dropHint": "Déposez l’image comme référence",
+    "welcome": "Bonjour! Je suis <accent>Lampy</accent>, le créateur d’images IA de Sliquid. Pour commencer, cliquez sur l’icône de photo dans le coin inférieur gauche et sélectionnez le produit que vous souhaitez mettre en vedette dans votre image. Dans votre requête, précisez le format, l’esthétique et le ton général que vous recherchez. Soyez le plus précis possible. Vous pouvez aussi <attach>joindre une image de référence</attach> ou en glisser une dans cette fenêtre pour orienter le style. Vos créations sont enregistrées dans la Bibliothèque de ressources.",
+    "referenceAlt": "Référence",
+    "referenceBadge": "référence",
+    "download": "Télécharger",
+    "delete": "Supprimer"
+  },
+  "input": {
+    "attachedOne": "Image de référence jointe — Lampy s’en servira comme guide visuel",
+    "attachedMany_one": "{{count}} image de référence jointe — Lampy s’en servira comme guide visuel",
+    "attachedMany_other": "{{count}} images de référence jointes — Lampy s’en servira comme guide visuel",
+    "removeReference": "Retirer l’image de référence",
+    "attachTitle": "Choisir une image de référence dans la galerie",
+    "promptPlaceholder": "Décrivez l’image de produit que vous voulez que Lampy crée…",
+    "promptLabel": "Décrivez votre image",
+    "send": "Générer l’image"
+  },
+  "errors": {
+    "generateFailed": "Impossible de générer l’image",
+    "deleteFailed": "Impossible de supprimer l’image",
+    "confirmDelete": "Supprimer cette image? Elle sera aussi retirée de la Bibliothèque de ressources."
+  }
+}

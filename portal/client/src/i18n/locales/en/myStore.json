@@ -1,0 +1,22 @@
+{
+  "title": "My Store",
+  "subtitleCompany": "Members registered under {{company}}",
+  "subtitle": "Members registered at your store",
+  "loadError": "Failed to load store members",
+  "totalMembers": "Total Members",
+  "quizzesPassed": "Quizzes Passed",
+  "avgPassed": "Avg. Quizzes Passed",
+  "searchPlaceholder": "Search by name or email…",
+  "searchLabel": "Search members",
+  "noMatch": "No members match your search.",
+  "empty": "No members registered yet.",
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "accountType": "Account Type",
+    "quizzesPassed": "Quizzes Passed",
+    "joined": "Joined"
+  },
+  "showing_one": "{{shown}} of {{count}} member",
+  "showing_other": "{{shown}} of {{count}} members"
+}

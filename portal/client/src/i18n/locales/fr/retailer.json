@@ -1,0 +1,63 @@
+{
+  "card": {
+    "select": "Sélectionner",
+    "selected": "✓ Sélectionné",
+    "selectDesigns": "Choisissez les modèles",
+    "editItem": "Modifier l’article",
+    "deleteItem": "Supprimer l’article",
+    "confirmDelete": "Supprimer",
+    "cancelDelete": "Annuler la suppression"
+  },
+  "success": {
+    "title": "Demande envoyée!",
+    "body": "Merci, <bold>{{name}}</bold>! Nous avons bien reçu votre demande de matériel marketing pour <bold>{{company}}</bold>. Notre équipe communiquera avec vous sous peu.",
+    "itemsRequested": "Articles demandés",
+    "hostedBy": "Animée par l’équipe Sliquid"
+  },
+  "header": {
+    "title": "Demander du matériel marketing physique",
+    "intro": "Parcourez ci-dessous nos articles de présentation en magasin. Sélectionnez ceux que vous souhaitez pour votre point de vente, puis remplissez vos coordonnées et envoyez la demande.",
+    "addItem": "Ajouter un article"
+  },
+  "status": {
+    "approved": "Demande approuvée",
+    "declined": "Demande refusée",
+    "pending": "Demande en cours d’examen",
+    "declinedBody": "Votre demande précédente n’a pas été traitée. Vous pouvez en soumettre une nouvelle ci-dessous.",
+    "approvedBody": "Votre demande pour {{business}} est approuvée et en cours de traitement.",
+    "pendingBody": "Votre demande pour {{business}} est en cours d’examen par l’équipe Sliquid.",
+    "requested": "Demandé :"
+  },
+  "catalog": {
+    "heading": "Articles offerts",
+    "hint": "Cliquez sur <bold>Sélectionner</bold> sur un article pour l’ajouter à votre demande."
+  },
+  "training": {
+    "heading": "Demande de formation",
+    "addOption": "Ajouter une option",
+    "intro": "Demandez une séance de formation avec un représentant de la marque Sliquid. Choisissez le format qui convient le mieux à votre équipe.",
+    "availability": "La disponibilité n’est pas garantie, car l’horaire de notre équipe des ventes peut changer. Nous communiquerons avec vous pour confirmer la disponibilité après réception de votre demande."
+  },
+  "form": {
+    "heading": "Vos coordonnées",
+    "intro": "Indiquez-nous où envoyer le matériel.",
+    "selected": "Sélection ({{count}})",
+    "selectFirst": "Veuillez sélectionner au moins un article ou une option de formation avant d’envoyer.",
+    "fullName": "Nom complet *",
+    "namePlaceholder": "Marie Tremblay",
+    "company": "Entreprise / nom commercial *",
+    "companyPlaceholder": "Le nom de votre magasin ou entreprise",
+    "location": "Emplacement physique / adresse du magasin *",
+    "locationPlaceholder": "123, rue Principale, ville, province, code postal",
+    "notes": "Remarques supplémentaires",
+    "optional": "(facultatif)",
+    "notesPlaceholder": "Toute autre information que vous souhaitez nous transmettre au sujet de votre demande…",
+    "submitting": "Envoi en cours…",
+    "submit": "Envoyer la demande"
+  },
+  "errors": {
+    "selectAtLeastOne": "Veuillez sélectionner au moins un article ou service avant d’envoyer.",
+    "selectDesign": "Veuillez sélectionner au moins un modèle pour « {{name}} ».",
+    "submitFailed": "L’envoi a échoué. Veuillez réessayer."
+  }
+}

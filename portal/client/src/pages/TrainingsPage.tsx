@@ -8,6 +8,11 @@ import RewardOptionsModal from '@/components/RewardOptionsModal'
 import CertificateGenerator from '@/components/CertificateGenerator'
 import CertRewardForm from '@/components/CertRewardForm'
 import ReadOnlyNotice from '@/components/ReadOnlyNotice'
+import { Trans, useTranslation } from 'react-i18next'
+
+// Partner-facing copy is translated (`trainings` namespace). The admin-only
+// Add/Edit modals, card edit/delete controls, kebab menu and test strip stay
+// English by design.
 
 type CertData = {
   firstName: string
@@ -229,6 +234,7 @@ function QuizCard({
   onEdit: () => void
   onDelete: () => void
 }) {
+  const { t } = useTranslation('trainings')
   const navigate = useNavigate()
   const hasPassed = bestResult?.passed === 1
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -245,17 +251,17 @@ function QuizCard({
           <div className="flex items-center gap-3 mt-1.5">
             <span className="flex items-center gap-1 text-on-canvas-muted text-xs">
               <Clock className="w-3 h-3" />
-              {training.estimated_minutes} min
+              {t('card.minutes', { count: training.estimated_minutes })}
             </span>
             <span className="text-on-canvas text-xs">·</span>
-            <span className="text-on-canvas-muted text-xs">Pass: {training.passing_score}%</span>
+            <span className="text-on-canvas-muted text-xs">{t('card.passScore', { score: training.passing_score })}</span>
           </div>
         </div>
         {hasPassed && (
           <div className="flex-shrink-0">
             <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-600 border border-blue-500 rounded-full text-white text-xs font-medium">
               <CheckCircle2 className="w-3 h-3" />
-              Passed
+              {t('card.passed')}
             </span>
           </div>
         )}
@@ -269,7 +275,12 @@ function QuizCard({
           <div className="mt-4 flex items-center gap-2 py-2.5 px-3 bg-portal-bg rounded-lg">
             <Award className="w-4 h-4 text-portal-accent flex-shrink-0" />
             <span className="text-on-canvas-subtle text-xs">
-              Best score: <span className={`font-semibold ${hasPassed ? 'text-emerald-400' : 'text-amber-400'}`}>{bestResult.score}%</span>
+              <Trans
+                t={t}
+                i18nKey="card.bestScore"
+                values={{ score: bestResult.score }}
+                components={{ score: <span className={`font-semibold ${hasPassed ? 'text-emerald-400' : 'text-amber-400'}`} /> }}
+              />
             </span>
           </div>
         )}
@@ -279,7 +290,7 @@ function QuizCard({
           className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 bg-portal-accent hover:bg-portal-accent/90
                      text-white rounded-lg text-sm font-medium transition-colors"
         >
-          {bestResult ? 'Retake Training' : 'Start Training'}
+          {bestResult ? t('card.retake') : t('card.start')}
           <ChevronRight className="w-4 h-4" />
         </button>
 
@@ -320,6 +331,7 @@ function QuizCard({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function TrainingsPage() {
+  const { t } = useTranslation('trainings')
   const { user } = useAuth()
   const canEdit = isAdmin(user?.role ?? '')
   const [trainings, setTrainings] = useState<Training[]>([])
@@ -412,9 +424,9 @@ export default function TrainingsPage() {
       {/* Page header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-on-canvas text-2xl font-bold">Become a Sliquid Certified Expert</h1>
+          <h1 className="text-on-canvas text-2xl font-bold">{t('header.title')}</h1>
           <p className="text-on-canvas-subtle text-sm mt-1 max-w-2xl">
-            Earn your official Sliquid Certification by completing this digital training course. For each section, watch the video, take the quiz, and pass at 80% or higher. Once all sections are complete, you will receive a digital certificate and be sent a Sliquid Certified Expert pin and t-shirt. As a bonus for completing the course, you will also receive a Sliquid product of your choice. Your Sliquid product knowledge journey begins here. Good luck!
+            {t('header.body')}
           </p>
         </div>
         {canEdit && (
@@ -484,10 +496,10 @@ export default function TrainingsPage() {
             <Award className="w-6 h-6 text-portal-accent flex-shrink-0" />
             <div>
               <p className="text-on-canvas font-semibold text-sm">
-                You're a Sliquid Certified Expert!
+                {t('complete.title')}
               </p>
               <p className="text-on-canvas-muted text-xs mt-0.5">
-                All modules complete — your certificate is ready to download.
+                {t('complete.body')}
               </p>
             </div>
           </div>
@@ -495,7 +507,7 @@ export default function TrainingsPage() {
             onClick={openCertModal}
             className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
           >
-            <Award className="w-4 h-4" /> View Certificate
+            <Award className="w-4 h-4" /> {t('complete.viewCertificate')}
           </button>
         </div>
       )}
@@ -507,7 +519,7 @@ export default function TrainingsPage() {
             <Award className="w-5 h-5 text-portal-accent" />
           </div>
           <div>
-            <p className="text-on-canvas text-sm font-medium">{passedCount} / {trainings.length} completed</p>
+            <p className="text-on-canvas text-sm font-medium">{t('progress.completed', { passed: passedCount, total: trainings.length })}</p>
             <div className="flex items-center gap-2 mt-1">
               <div className="w-32 h-1.5 bg-surface-elevated rounded-full overflow-hidden">
                 <div
@@ -568,12 +580,12 @@ export default function TrainingsPage() {
             <div className="flex items-center justify-between px-5 py-4 border-b border-portal-border">
               <h2 className="text-on-canvas font-semibold">
                 {certDataLoading || !certData
-                  ? 'Sliquid Certified Expert'
+                  ? t('certModal.defaultTitle')
                   : certData.rewardSubmitted
-                    ? 'Your Certificate'
-                    : 'Claim Your Rewards'}
+                    ? t('certModal.yourCertificate')
+                    : t('certModal.claimRewards')}
               </h2>
-              <button onClick={() => setShowCertModal(false)} className="text-on-canvas-muted hover:text-on-canvas">
+              <button onClick={() => setShowCertModal(false)} aria-label={t('certModal.close')} className="text-on-canvas-muted hover:text-on-canvas">
                 <X className="w-4 h-4" />
               </button>
             </div>

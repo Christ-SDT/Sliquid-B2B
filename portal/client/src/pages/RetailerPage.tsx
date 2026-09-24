@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, FormEvent } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { isAdmin } from '@/types'
@@ -518,6 +519,7 @@ interface ItemCardProps {
 }
 
 function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit, onDelete }: ItemCardProps) {
+  const { t } = useTranslation('retailer')
   const isSelected = !!selected
   const Icon = ICON_MAP[item.icon_name] ?? Package
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -546,6 +548,7 @@ function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit
           <div className="absolute top-2 left-2 flex gap-1.5">
             <button
               onClick={e => { e.stopPropagation(); onEdit() }}
+              aria-label={t('card.editItem')}
               className="w-7 h-7 rounded-lg bg-surface/80 backdrop-blur-sm border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors"
             >
               <Pencil className="w-3 h-3" />
@@ -556,10 +559,11 @@ function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit
                   onClick={e => { e.stopPropagation(); setConfirmDelete(false); onDelete() }}
                   className="px-2 h-7 rounded-lg bg-red-500/80 backdrop-blur-sm text-white text-xs font-medium"
                 >
-                  Delete
+                  {t('card.confirmDelete')}
                 </button>
                 <button
                   onClick={e => { e.stopPropagation(); setConfirmDelete(false) }}
+                  aria-label={t('card.cancelDelete')}
                   className="w-7 h-7 rounded-lg bg-surface/80 backdrop-blur-sm border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors"
                 >
                   <X className="w-3 h-3" />
@@ -568,6 +572,7 @@ function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit
             ) : (
               <button
                 onClick={e => { e.stopPropagation(); setConfirmDelete(true) }}
+                aria-label={t('card.deleteItem')}
                 className="w-7 h-7 rounded-lg bg-surface/80 backdrop-blur-sm border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-red-400 transition-colors"
               >
                 <Trash2 className="w-3 h-3" />
@@ -592,7 +597,7 @@ function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit
                 : 'bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500'
               }`}
           >
-            {isSelected ? '✓ Selected' : 'Select'}
+            {isSelected ? t('card.selected') : t('card.select')}
           </button>
         </div>
 
@@ -616,7 +621,7 @@ function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit
         {isSelected && item.variants.length > 0 && (
           <div className="mt-4 pt-4 border-t border-portal-border">
             <p className="text-on-canvas text-xs font-semibold mb-2 uppercase tracking-wider">
-              Select Designs <span className="text-red-400">*</span>
+              {t('card.selectDesigns')} <span className="text-red-400">*</span>
             </p>
             <div className="flex flex-wrap gap-2">
               {item.variants.map(v => {
@@ -647,7 +652,12 @@ function ItemCard({ item, selected, onToggle, onToggleVariant, adminMode, onEdit
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
+// Stored as a translation key (or a raw server message) rather than text, so an
+// error already on screen follows a language switch.
+type PageError = { key: string; params?: Record<string, string> } | { raw: string } | null
+
 export default function RetailerPage() {
+  const { t } = useTranslation('retailer')
   const { user } = useAuth()
   const adminMode = isAdmin(user?.role ?? '')
 
@@ -671,7 +681,7 @@ export default function RetailerPage() {
   const [notes, setNotes] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<PageError>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [editTarget, setEditTarget] = useState<MarketingItem | null>(null)
   const [showAddTrainingModal, setShowAddTrainingModal] = useState(false)
@@ -720,10 +730,10 @@ export default function RetailerPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    setError('')
+    setError(null)
 
     if (selectedItems.length === 0 && !trainingType) {
-      setError('Please select at least one item or service above before submitting.')
+      setError({ key: 'errors.selectAtLeastOne' })
       return
     }
     // Validate: any selected item with variants must have at least one variant chosen
@@ -731,7 +741,7 @@ export default function RetailerPage() {
     for (const mi of itemsWithVariants) {
       const sel = selectedItems.find(s => s.id === mi.id)
       if (sel && sel.variants.length === 0) {
-        setError(`Please select at least one design for "${mi.name}".`)
+        setError({ key: 'errors.selectDesign', params: { name: mi.name } })
         return
       }
     }
@@ -747,7 +757,7 @@ export default function RetailerPage() {
       })
       setSubmitted(true)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Submission failed. Please try again.')
+      setError(err instanceof Error && err.message ? { raw: err.message } : { key: 'errors.submitFailed' })
     } finally {
       setLoading(false)
     }
@@ -781,14 +791,17 @@ export default function RetailerPage() {
         <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-8 h-8 text-emerald-400" />
         </div>
-        <h2 className="text-on-canvas text-2xl font-bold mb-3">Request Submitted!</h2>
+        <h2 className="text-on-canvas text-2xl font-bold mb-3">{t('success.title')}</h2>
         <p className="text-on-canvas-subtle mb-6">
-          Thanks, <strong className="text-on-canvas">{name}</strong>! Your marketing material
-          request for <strong className="text-on-canvas">{company}</strong> has been received.
-          Our team will follow up shortly.
+          <Trans
+            t={t}
+            i18nKey="success.body"
+            values={{ name, company }}
+            components={{ bold: <strong className="text-on-canvas" /> }}
+          />
         </p>
         <div className="bg-surface border border-portal-border rounded-xl p-5 text-left">
-          <p className="text-on-canvas-muted text-xs font-semibold uppercase tracking-wider mb-3">Items Requested</p>
+          <p className="text-on-canvas-muted text-xs font-semibold uppercase tracking-wider mb-3">{t('success.itemsRequested')}</p>
           {selectedItems.map(sel => (
             <div key={sel.id} className="flex items-start gap-3 py-2 border-b border-portal-border/50 last:border-0">
               <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
@@ -805,7 +818,7 @@ export default function RetailerPage() {
               <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-on-canvas text-sm font-medium">{trainingType}</p>
-                <p className="text-on-canvas-muted text-xs mt-0.5">Hosted by Team Sliquid</p>
+                <p className="text-on-canvas-muted text-xs mt-0.5">{t('success.hostedBy')}</p>
               </div>
             </div>
           )}
@@ -823,10 +836,10 @@ export default function RetailerPage() {
         <div>
           <div className="flex items-center gap-3 mb-1">
             <Package className="w-5 h-5 text-portal-accent" />
-            <h1 className="text-on-canvas text-2xl font-bold">Request Physical Marketing Assets</h1>
+            <h1 className="text-on-canvas text-2xl font-bold">{t('header.title')}</h1>
           </div>
           <p className="text-on-canvas-muted text-sm">
-            Browse our in-store display items below. Select the ones you'd like for your physical location, then fill out your details and submit.
+            {t('header.intro')}
           </p>
         </div>
         {adminMode && (
@@ -835,7 +848,7 @@ export default function RetailerPage() {
             className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Add Item
+            {t('header.addItem')}
           </button>
         )}
       </div>
@@ -858,18 +871,18 @@ export default function RetailerPage() {
           <div>
             <p className={`font-medium
               ${priorRequest.status === 'approved' ? 'text-emerald-400' : priorRequest.status === 'declined' ? 'text-red-400' : 'text-on-canvas'}`}>
-              {priorRequest.status === 'approved' ? 'Request Approved'
-                : priorRequest.status === 'declined' ? 'Request Declined'
-                : 'Request Pending Review'}
+              {priorRequest.status === 'approved' ? t('status.approved')
+                : priorRequest.status === 'declined' ? t('status.declined')
+                : t('status.pending')}
             </p>
             <p className="text-on-canvas-muted mt-0.5">
               {priorRequest.status === 'declined'
-                ? 'Your previous request was not fulfilled. You can submit a new one below.'
-                : `Your request for ${priorRequest.business_name} is ${priorRequest.status === 'approved' ? 'approved and being processed.' : 'being reviewed by the Sliquid team.'}`
+                ? t('status.declinedBody')
+                : t(priorRequest.status === 'approved' ? 'status.approvedBody' : 'status.pendingBody', { business: priorRequest.business_name })
               }
             </p>
             <p className="text-on-canvas-muted/60 text-xs mt-1">
-              Requested: <span className="text-on-canvas-muted">{priorRequest.requested_items}</span>
+              {t('status.requested')} <span className="text-on-canvas-muted">{priorRequest.requested_items}</span>
             </p>
           </div>
         </div>
@@ -877,8 +890,10 @@ export default function RetailerPage() {
 
       {/* Catalog */}
       <div>
-        <h2 className="text-on-canvas font-semibold text-base mb-1">Available Items</h2>
-        <p className="text-on-canvas-muted text-sm mb-4">Click <span className="font-medium text-on-canvas-subtle">Select</span> on any item to add it to your request.</p>
+        <h2 className="text-on-canvas font-semibold text-base mb-1">{t('catalog.heading')}</h2>
+        <p className="text-on-canvas-muted text-sm mb-4">
+          <Trans t={t} i18nKey="catalog.hint" components={{ bold: <span className="font-medium text-on-canvas-subtle" /> }} />
+        </p>
 
         {itemsLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -905,18 +920,18 @@ export default function RetailerPage() {
       {/* Training */}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-on-canvas font-semibold text-base">Training Request</h2>
+          <h2 className="text-on-canvas font-semibold text-base">{t('training.heading')}</h2>
           {adminMode && (
             <button
               onClick={() => setShowAddTrainingModal(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-xs font-medium transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              Add Option
+              {t('training.addOption')}
             </button>
           )}
         </div>
-        <p className="text-on-canvas-muted text-sm mb-4">Request a training session with a Sliquid brand representative. Choose the format that works best for your team.</p>
+        <p className="text-on-canvas-muted text-sm mb-4">{t('training.intro')}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {trainingOptions.map(opt => {
             const active = trainingType === opt.label
@@ -942,18 +957,18 @@ export default function RetailerPage() {
                       <div className="flex items-center gap-1.5 flex-shrink-0">
                         {adminMode && !isPendingDelete && (
                           <>
-                            <button onClick={() => setEditTrainingTarget(opt)} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors">
+                            <button onClick={() => setEditTrainingTarget(opt)} aria-label={t('card.editItem')} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors">
                               <Pencil className="w-3 h-3" />
                             </button>
-                            <button onClick={() => setConfirmDeleteTrainingId(opt.id)} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-red-400 transition-colors">
+                            <button onClick={() => setConfirmDeleteTrainingId(opt.id)} aria-label={t('card.deleteItem')} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-red-400 transition-colors">
                               <Trash2 className="w-3 h-3" />
                             </button>
                           </>
                         )}
                         {adminMode && isPendingDelete && (
                           <>
-                            <button onClick={() => handleDeleteTrainingOption(opt.id)} className="px-2 h-6 rounded-md bg-red-500/80 text-white text-xs font-medium">Delete</button>
-                            <button onClick={() => setConfirmDeleteTrainingId(null)} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors"><X className="w-3 h-3" /></button>
+                            <button onClick={() => handleDeleteTrainingOption(opt.id)} className="px-2 h-6 rounded-md bg-red-500/80 text-white text-xs font-medium">{t('card.confirmDelete')}</button>
+                            <button onClick={() => setConfirmDeleteTrainingId(null)} aria-label={t('card.cancelDelete')} className="w-6 h-6 rounded-md bg-surface-elevated border border-portal-border flex items-center justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors"><X className="w-3 h-3" /></button>
                           </>
                         )}
                         {!isPendingDelete && (
@@ -966,7 +981,7 @@ export default function RetailerPage() {
                                 : 'bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500'
                               }`}
                           >
-                            {active ? '✓ Selected' : 'Select'}
+                            {active ? t('card.selected') : t('card.select')}
                           </button>
                         )}
                       </div>
@@ -987,7 +1002,7 @@ export default function RetailerPage() {
                 <div className="flex items-start gap-2 px-5 py-3 bg-portal-bg border-t border-portal-border/60">
                   <AlertCircle className="w-3.5 h-3.5 text-on-canvas-muted/60 flex-shrink-0 mt-0.5" />
                   <p className="text-on-canvas-muted/60 text-xs leading-relaxed">
-                    Availability is not guaranteed, as our sales team's schedule is subject to change. We will reach out to confirm availability after your request is received.
+                    {t('training.availability')}
                   </p>
                 </div>
               </div>
@@ -998,14 +1013,14 @@ export default function RetailerPage() {
 
       {/* Request Form */}
       <div className="bg-surface border border-portal-border rounded-xl p-6">
-        <h2 className="text-on-canvas font-semibold text-lg mb-1">Your Information</h2>
-        <p className="text-on-canvas-muted text-sm mb-5">Tell us where to send the materials.</p>
+        <h2 className="text-on-canvas font-semibold text-lg mb-1">{t('form.heading')}</h2>
+        <p className="text-on-canvas-muted text-sm mb-5">{t('form.intro')}</p>
 
         {/* Selected items summary */}
         {(selectedItems.length > 0 || trainingType) ? (
           <div className="mb-5 p-4 bg-portal-accent/5 border border-portal-accent/20 rounded-lg">
             <p className="text-on-canvas text-xs font-semibold uppercase tracking-wider mb-2">
-              Selected ({selectedItems.length + (trainingType ? 1 : 0)})
+              {t('form.selected', { count: selectedItems.length + (trainingType ? 1 : 0) })}
             </p>
             <div className="flex flex-wrap gap-2">
               {selectedItems.map(sel => (
@@ -1026,18 +1041,18 @@ export default function RetailerPage() {
         ) : (
           <div className="mb-5 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center gap-3">
             <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-            <p className="text-amber-700 dark:text-amber-300 text-sm">Please select at least one item or training option above before submitting.</p>
+            <p className="text-amber-700 dark:text-amber-300 text-sm">{t('form.selectFirst')}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-on-canvas text-sm font-medium mb-1.5">Full Name *</label>
+            <label className="block text-on-canvas text-sm font-medium mb-1.5">{t('form.fullName')}</label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="Jane Smith"
+              placeholder={t('form.namePlaceholder')}
               required
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
                          placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
@@ -1045,12 +1060,12 @@ export default function RetailerPage() {
           </div>
 
           <div>
-            <label className="block text-on-canvas text-sm font-medium mb-1.5">Company / Business Name *</label>
+            <label className="block text-on-canvas text-sm font-medium mb-1.5">{t('form.company')}</label>
             <input
               type="text"
               value={company}
               onChange={e => setCompany(e.target.value)}
-              placeholder="Your store or company name"
+              placeholder={t('form.companyPlaceholder')}
               required
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
                          placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
@@ -1058,11 +1073,11 @@ export default function RetailerPage() {
           </div>
 
           <div>
-            <label className="block text-on-canvas text-sm font-medium mb-1.5">Physical Location / Storefront Address *</label>
+            <label className="block text-on-canvas text-sm font-medium mb-1.5">{t('form.location')}</label>
             <textarea
               value={location}
               onChange={e => setLocation(e.target.value)}
-              placeholder="123 Main St, City, State, ZIP"
+              placeholder={t('form.locationPlaceholder')}
               required
               rows={2}
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
@@ -1072,12 +1087,12 @@ export default function RetailerPage() {
 
           <div>
             <label className="block text-on-canvas text-sm font-medium mb-1.5">
-              Additional Notes <span className="text-on-canvas-subtle font-normal">(optional)</span>
+              {t('form.notes')} <span className="text-on-canvas-subtle font-normal">{t('form.optional')}</span>
             </label>
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              placeholder="Anything else you'd like us to know about your request…"
+              placeholder={t('form.notesPlaceholder')}
               rows={2}
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
                          placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors resize-none"
@@ -1085,7 +1100,9 @@ export default function RetailerPage() {
           </div>
 
           {error && (
-            <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">{error}</div>
+            <div role="alert" className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+              {'raw' in error ? error.raw : t(error.key, error.params)}
+            </div>
           )}
 
           <button
@@ -1095,7 +1112,7 @@ export default function RetailerPage() {
                        disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-colors text-sm mt-2"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {loading ? 'Submitting…' : 'Submit Request'}
+            {loading ? t('form.submitting') : t('form.submit')}
           </button>
         </form>
       </div>

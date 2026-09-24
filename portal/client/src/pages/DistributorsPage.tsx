@@ -4,6 +4,10 @@ import { Distributor, isAdmin, isReadOnlyAdmin } from '@/types'
 import { useAuth } from '@/context/AuthContext'
 import { Search, MapPin, Phone, Mail, Globe, AlertTriangle, Plus, Pencil, Trash2, X, Loader2 } from 'lucide-react'
 import ReadOnlyNotice from '@/components/ReadOnlyNotice'
+import { Trans, useTranslation } from 'react-i18next'
+
+// The add/edit/delete controls below are admin-only and intentionally stay
+// English; everything a partner sees is translated via the `distributors` namespace.
 
 const DEFAULT_REGION_SUGGESTIONS = ['US', 'Canada', 'UK', 'Mexico', 'US, Canada', 'Australia', 'Europe']
 
@@ -238,6 +242,7 @@ function DistributorFormModal({ initial, onClose, onSaved, existingRegions = [] 
 
 export default function DistributorsPage() {
   const { user } = useAuth()
+  const { t } = useTranslation('distributors')
   const canEdit = isAdmin(user?.role ?? '')
 
   const [distributors, setDistributors] = useState<Distributor[]>([])
@@ -303,8 +308,8 @@ export default function DistributorsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-on-canvas text-2xl font-bold">Distributors</h1>
-          <p className="text-on-canvas-muted text-sm mt-1">Find authorized Sliquid distribution partners in your area.</p>
+          <h1 className="text-on-canvas text-2xl font-bold">{t('title')}</h1>
+          <p className="text-on-canvas-muted text-sm mt-1">{t('subtitle')}</p>
         </div>
         {canEdit && (
           <button
@@ -326,15 +331,18 @@ export default function DistributorsPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name, city, state, or region…"
+            placeholder={t('searchPlaceholder')}
+            aria-label={t('searchLabel')}
             className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
                        placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
           />
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap" role="group" aria-label={t('regionFilter')}>
           {filterRegions.map(r => (
             <button
               key={r}
+              type="button"
+              aria-pressed={region === r}
               onClick={() => setRegion(r)}
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
                 ${region === r
@@ -342,13 +350,14 @@ export default function DistributorsPage() {
                   : 'bg-surface border border-portal-border text-on-canvas-subtle hover:text-on-canvas'
                 }`}
             >
-              {r === 'All' ? 'All Regions' : r}
+              {/* Region values come from the DB and are also the filter value — shown as-is. */}
+              {r === 'All' ? t('allRegions') : r}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="text-on-canvas-muted text-sm">{distributors.length} distributor{distributors.length !== 1 ? 's' : ''} found</div>
+      <div className="text-on-canvas-muted text-sm">{t('count', { count: distributors.length })}</div>
 
       {/* Grid */}
       {loading ? (
@@ -360,7 +369,7 @@ export default function DistributorsPage() {
       ) : distributors.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <MapPin className="w-12 h-12 mb-3 opacity-40" />
-          <p>No distributors found</p>
+          <p>{t('empty')}</p>
           {canEdit && (
             <button
               onClick={() => setShowAdd(true)}
@@ -450,7 +459,8 @@ export default function DistributorsPage() {
                 {/* Contact */}
                 {d.contact_name && (
                   <p className="text-on-canvas-subtle text-xs mb-3">
-                    Contact: <span className="text-on-canvas">{d.contact_name}</span>
+                    <Trans t={t} i18nKey="contact" values={{ name: d.contact_name }}
+                      components={{ name: <span className="text-on-canvas" /> }} />
                   </p>
                 )}
 

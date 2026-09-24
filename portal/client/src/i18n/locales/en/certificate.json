@@ -1,0 +1,34 @@
+{
+  "reward": {
+    "congrats": "Congratulations, {{name}}!",
+    "intro": "You've earned a <bold>free Sliquid product</bold> and <bold>t-shirt</bold> for completing the Sliquid Certified Expert Course. Fill in the details below and we'll ship them to your store.",
+    "name": "Your Name",
+    "product": "Free Product of Your Choice",
+    "productPlaceholder": "Type to search, or scroll the list…",
+    "productEmpty": "No products match",
+    "productHelp": "One Sliquid product of your choice, on us.",
+    "shirtSize": "T-Shirt Size",
+    "shirtSizePlaceholder": "Select a size…",
+    "address": "Store Location for Delivery",
+    "addressHelp": "Rewards ship to your store or business address — please don't use a home address.",
+    "street": "Store street address",
+    "suite": "Suite, unit, floor (optional)",
+    "city": "City",
+    "state": "State",
+    "zip": "ZIP",
+    "privacy": "Your information is used <bold>only to ship your rewards to your store location</bold> and will never be sold, shared, or used for any other purpose.",
+    "submit": "Submit & View My Certificate",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
+  "panel": {
+    "loading": "Fetching your certificate…",
+    "loadFailed": "Failed to load certificate",
+    "recipient": "Recipient",
+    "completed": "Completed",
+    "certNumber": "Certificate #",
+    "status": "Status",
+    "verified": "✓ Verified",
+    "building": "Building PDF…",
+    "download": "⬇  Download Certificate PDF"
+  }
+}

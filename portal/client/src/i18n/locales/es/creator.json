@@ -1,0 +1,49 @@
+{
+  "loading": [
+    "Trabajando en la imagen…",
+    "Creando una obra maestra…",
+    "Agregando detalles…",
+    "Ajustando la botella…",
+    "Perfeccionando la iluminación…",
+    "Ya casi…"
+  ],
+  "gallery": {
+    "title": "Galería de referencia",
+    "close": "Cerrar",
+    "searchPlaceholder": "Buscar imágenes…",
+    "noMatch": "Ninguna imagen coincide con su búsqueda",
+    "empty": "No hay imágenes de referencia: suba algunas en la Galería de referencia",
+    "selectUpTo": "Seleccione hasta {{max}}",
+    "selectOne": "Seleccione una imagen",
+    "selected_one": "{{count}} imagen seleccionada",
+    "selected_other": "{{count}} imágenes seleccionadas",
+    "cancel": "Cancelar",
+    "insert": "Insertar selección"
+  },
+  "header": {
+    "subtitle": "Creador de imágenes con IA de Sliquid"
+  },
+  "chat": {
+    "dropHint": "Suelte la imagen como referencia",
+    "welcome": "¡Hola! Soy <accent>Lampy</accent>, el creador de imágenes con IA de Sliquid. Para comenzar, haga clic en el ícono de foto en la esquina inferior izquierda y seleccione el producto que desea destacar en su imagen. En su indicación, describa el tamaño, la estética y el tono general que busca para la imagen. Sea lo más detallado posible. También puede <attach>adjuntar una imagen de referencia</attach> o arrastrar una a esta ventana para orientar el estilo. Sus creaciones se guardan en la Biblioteca de recursos.",
+    "referenceAlt": "Referencia",
+    "referenceBadge": "referencia",
+    "download": "Descargar",
+    "delete": "Eliminar"
+  },
+  "input": {
+    "attachedOne": "Imagen de referencia adjunta: Lampy la usará como guía visual",
+    "attachedMany_one": "{{count}} imagen de referencia adjunta: Lampy las usará como guía visual",
+    "attachedMany_other": "{{count}} imágenes de referencia adjuntas: Lampy las usará como guía visual",
+    "removeReference": "Quitar imagen de referencia",
+    "attachTitle": "Elegir una imagen de referencia de la galería",
+    "promptPlaceholder": "Describa la imagen de producto que desea que cree Lampy…",
+    "promptLabel": "Describa su imagen",
+    "send": "Generar imagen"
+  },
+  "errors": {
+    "generateFailed": "No se pudo generar la imagen",
+    "deleteFailed": "No se pudo eliminar la imagen",
+    "confirmDelete": "¿Eliminar esta imagen? También se quitará de la Biblioteca de recursos."
+  }
+}

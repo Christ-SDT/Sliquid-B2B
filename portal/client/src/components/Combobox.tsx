@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   /** Full option list. Filtering happens client-side against these. */
@@ -34,9 +35,10 @@ export default function Combobox({
   strict = false,
   required = false,
   disabled = false,
-  emptyLabel = 'No matches',
+  emptyLabel,
   id,
 }: Props) {
+  const { t } = useTranslation('combobox')
   const [search, setSearch] = useState(value)
   const [open, setOpen] = useState(false)
   const [highlight, setHighlight] = useState(0)
@@ -167,7 +169,7 @@ export default function Combobox({
               </li>
             )
           }) : (
-            <li className="px-3 py-2 text-on-canvas-muted text-sm">{emptyLabel}</li>
+            <li className="px-3 py-2 text-on-canvas-muted text-sm">{emptyLabel ?? t('noMatches')}</li>
           )}
         </ul>
       )}

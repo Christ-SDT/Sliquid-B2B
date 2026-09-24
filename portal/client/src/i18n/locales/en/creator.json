@@ -1,0 +1,49 @@
+{
+  "loading": [
+    "Working on image…",
+    "Creating a masterpiece…",
+    "Adding detail…",
+    "Fixing the bottle…",
+    "Perfecting the lighting…",
+    "Almost there…"
+  ],
+  "gallery": {
+    "title": "Reference Gallery",
+    "close": "Close",
+    "searchPlaceholder": "Search images…",
+    "noMatch": "No images match your search",
+    "empty": "No reference images — upload some in Reference Gallery",
+    "selectUpTo": "Select up to {{max}}",
+    "selectOne": "Select an image",
+    "selected_one": "{{count}} image selected",
+    "selected_other": "{{count}} images selected",
+    "cancel": "Cancel",
+    "insert": "Insert Selected"
+  },
+  "header": {
+    "subtitle": "Sliquid AI Image Creator"
+  },
+  "chat": {
+    "dropHint": "Drop image as reference",
+    "welcome": "Hi! I'm <accent>Lampy</accent>, Sliquid's AI image creator. To begin, click the photo icon in the bottom left corner and select the product you would like to feature in your image. In your prompt, provide the size, aesthetic, and overall tone you are looking for in the image. Be as thorough as possible. You can also <attach>attach a reference image</attach> or drag one onto this window to guide the style. Your creations are saved to the Asset Library.",
+    "referenceAlt": "Reference",
+    "referenceBadge": "reference",
+    "download": "Download",
+    "delete": "Delete"
+  },
+  "input": {
+    "attachedOne": "Reference image attached — Lampy will use this as a visual guide",
+    "attachedMany_one": "{{count}} reference image attached — Lampy will use these as a visual guide",
+    "attachedMany_other": "{{count}} reference images attached — Lampy will use these as a visual guide",
+    "removeReference": "Remove reference image",
+    "attachTitle": "Choose a reference image from gallery",
+    "promptPlaceholder": "Describe the product image you want Lampy to create…",
+    "promptLabel": "Describe your image",
+    "send": "Generate image"
+  },
+  "errors": {
+    "generateFailed": "Failed to generate image",
+    "deleteFailed": "Failed to delete image",
+    "confirmDelete": "Delete this image? It will also be removed from the Asset Library."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "header": {
+    "title": "Devenez expert certifié Sliquid",
+    "body": "Obtenez votre certification officielle Sliquid en suivant ce cours de formation numérique. Pour chaque section, regardez la vidéo, répondez au questionnaire et obtenez 80 % ou plus. Une fois toutes les sections terminées, vous recevrez un certificat numérique ainsi qu’une épinglette et un t-shirt d’expert certifié Sliquid. En prime, vous recevrez aussi un produit Sliquid de votre choix. Votre parcours de connaissance des produits Sliquid commence ici. Bonne chance!"
+  },
+  "card": {
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "passScore": "Réussite : {{score}} %",
+    "passed": "Réussi",
+    "bestScore": "Meilleur résultat : <score>{{score}} %</score>",
+    "retake": "Reprendre la formation",
+    "start": "Commencer la formation"
+  },
+  "complete": {
+    "title": "Vous êtes un expert certifié Sliquid!",
+    "body": "Tous les modules sont terminés — votre certificat est prêt à télécharger.",
+    "viewCertificate": "Voir le certificat"
+  },
+  "progress": {
+    "completed": "{{passed}} / {{total}} terminés"
+  },
+  "certModal": {
+    "defaultTitle": "Expert certifié Sliquid",
+    "yourCertificate": "Votre certificat",
+    "claimRewards": "Réclamez vos récompenses",
+    "close": "Fermer"
+  }
+}

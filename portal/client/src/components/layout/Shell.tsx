@@ -49,7 +49,7 @@ export default function Shell() {
   // Must run before the `loading`/`!user` early returns below so hook order
   // stays stable across renders; harmless while loading since nothing reads
   // the title yet.
-  useDocumentTitle(getDefaultTitle(location.pathname))
+  useDocumentTitle(t(`titles.${getDefaultTitle(location.pathname)}`))
 
   useEffect(() => {
     if (!user) return

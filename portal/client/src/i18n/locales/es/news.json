@@ -1,0 +1,16 @@
+{
+  "title": "Anuncios",
+  "subtitle": "Comunicados de prensa oficiales de Sliquid y noticias para socios.",
+  "loadError": "No se pudieron cargar los anuncios",
+  "pinned": "Fijado",
+  "readMore": "Leer el anuncio",
+  "emptyTitle": "Aún no hay anuncios",
+  "emptyBody": "Vuelva pronto para ver noticias y comunicados de prensa de Sliquid.",
+  "source": "Los comunicados de prensa se publican en sliquid.com",
+  "detail": {
+    "back": "Volver a los anuncios",
+    "notFoundTitle": "Anuncio no disponible",
+    "notFoundBody": "Es posible que se haya retirado o que el enlace sea incorrecto.",
+    "viewOnSliquid": "Ver en sliquid.com"
+  }
+}

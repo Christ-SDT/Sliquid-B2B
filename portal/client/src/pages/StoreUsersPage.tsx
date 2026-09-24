@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { Users, Search, CheckCircle } from 'lucide-react'
-import { TIER_LABEL } from '@/types'
+import { useTranslation } from 'react-i18next'
+import { formatDate } from '@/lib/utils'
+import { intlLocale } from '@/i18n'
 
 interface StoreMember {
   id: number
@@ -15,8 +17,13 @@ interface StoreMember {
   quizzes_passed: number
 }
 
+// Sentinel for our own generic load error, so it's translated at render time
+// (and follows a language switch) while a server message is shown verbatim.
+const LOAD_FAILED = '__load_failed__'
+
 export default function StoreUsersPage() {
   const { user } = useAuth()
+  const { t } = useTranslation('myStore')
   const [members, setMembers] = useState<StoreMember[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -25,7 +32,7 @@ export default function StoreUsersPage() {
   useEffect(() => {
     api.get<StoreMember[]>('/store/members')
       .then(setMembers)
-      .catch(err => setError(err.message ?? 'Failed to load store members'))
+      .catch(err => setError(err.message || LOAD_FAILED))
       .finally(() => setLoading(false))
   }, [])
 
@@ -40,12 +47,12 @@ export default function StoreUsersPage() {
       <div>
         <h1 className="text-on-canvas text-2xl font-bold flex items-center gap-3">
           <Users className="w-6 h-6 text-portal-accent" />
-          My Store
+          {t('title')}
         </h1>
         <p className="text-on-canvas-muted text-sm mt-1">
           {user?.company
-            ? `Members registered under ${user.company}`
-            : 'Members registered at your store'}
+            ? t('subtitleCompany', { company: user.company })
+            : t('subtitle')}
         </p>
       </div>
 
@@ -53,20 +60,21 @@ export default function StoreUsersPage() {
       {!loading && !error && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div className="bg-surface border border-portal-border rounded-xl px-5 py-4">
-            <p className="text-on-canvas-muted text-xs mb-1">Total Members</p>
+            <p className="text-on-canvas-muted text-xs mb-1">{t('totalMembers')}</p>
             <p className="text-on-canvas text-2xl font-bold">{members.length}</p>
           </div>
           <div className="bg-surface border border-portal-border rounded-xl px-5 py-4">
-            <p className="text-on-canvas-muted text-xs mb-1">Quizzes Passed</p>
+            <p className="text-on-canvas-muted text-xs mb-1">{t('quizzesPassed')}</p>
             <p className="text-emerald-400 text-2xl font-bold">
               {members.reduce((sum, m) => sum + m.quizzes_passed, 0)}
             </p>
           </div>
           <div className="bg-surface border border-portal-border rounded-xl px-5 py-4 col-span-2 sm:col-span-1">
-            <p className="text-on-canvas-muted text-xs mb-1">Avg. Quizzes Passed</p>
+            <p className="text-on-canvas-muted text-xs mb-1">{t('avgPassed')}</p>
             <p className="text-on-canvas text-2xl font-bold">
               {members.length > 0
-                ? (members.reduce((sum, m) => sum + m.quizzes_passed, 0) / members.length).toFixed(1)
+                ? new Intl.NumberFormat(intlLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+                    .format(members.reduce((sum, m) => sum + m.quizzes_passed, 0) / members.length)
                 : '—'}
             </p>
           </div>
@@ -80,7 +88,8 @@ export default function StoreUsersPage() {
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Search by name or email…"
+          placeholder={t('searchPlaceholder')}
+          aria-label={t('searchLabel')}
           className="w-full bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
                      placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
         />
@@ -93,28 +102,26 @@ export default function StoreUsersPage() {
             <div className="w-6 h-6 border-2 border-portal-accent border-t-transparent rounded-full animate-spin" />
           </div>
         ) : error ? (
-          <div className="p-8 text-center text-red-400 text-sm">{error}</div>
+          <div className="p-8 text-center text-red-400 text-sm">{error === LOAD_FAILED ? t('loadError') : error}</div>
         ) : filtered.length === 0 ? (
           <div className="p-8 text-center text-on-canvas-muted text-sm">
-            {search ? 'No members match your search.' : 'No members registered yet.'}
+            {search ? t('noMatch') : t('empty')}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-portal-border">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider hidden sm:table-cell">Email</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider hidden md:table-cell">Account Type</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-on-canvas-muted uppercase tracking-wider">Quizzes Passed</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider hidden lg:table-cell">Joined</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider">{t('table.name')}</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider hidden sm:table-cell">{t('table.email')}</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider hidden md:table-cell">{t('table.accountType')}</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-on-canvas-muted uppercase tracking-wider">{t('table.quizzesPassed')}</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-on-canvas-muted uppercase tracking-wider hidden lg:table-cell">{t('table.joined')}</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(member => {
-                  const joined = member.created_at
-                    ? new Date(member.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                    : '—'
+                  const joined = member.created_at ? formatDate(member.created_at) : '—'
                   return (
                     <tr key={member.id} className="border-b border-portal-border/50 hover:bg-surface-elevated transition-colors">
                       <td className="px-4 py-3">
@@ -128,7 +135,7 @@ export default function StoreUsersPage() {
                       </td>
                       <td className="px-4 py-3 text-on-canvas-subtle text-sm hidden sm:table-cell">{member.email}</td>
                       <td className="px-4 py-3 text-on-canvas-subtle text-sm hidden md:table-cell">
-                        {TIER_LABEL[member.role] ?? member.role}
+                        {t(`common:roles.${member.role}`, { defaultValue: member.role })}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-1.5">
@@ -153,7 +160,7 @@ export default function StoreUsersPage() {
         )}
       </div>
 
-      <p className="text-on-canvas-muted text-xs">{filtered.length} of {members.length} member{members.length !== 1 ? 's' : ''}</p>
+      <p className="text-on-canvas-muted text-xs">{t('showing', { shown: filtered.length, count: members.length })}</p>
     </div>
   )
 }

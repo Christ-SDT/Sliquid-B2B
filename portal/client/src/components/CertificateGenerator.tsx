@@ -11,6 +11,7 @@ import {
 } from '@react-pdf/renderer'
 import { api } from '@/api/client'
 import { CertificatePDFV2 } from './CertificateGeneratorV2'
+import { useTranslation } from 'react-i18next'
 
 // ─── Active design — change 'classic' to 'modern' to switch the default ───────
 // This can also be toggled via the UI button below.
@@ -386,6 +387,8 @@ function CertificatePDF({ firstName, lastName, completionDate, certNumber, verif
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function CertificateGenerator() {
+  // On-screen panel only — the PDF itself stays English (formal document, verified at /verify).
+  const { t } = useTranslation('certificate')
   const [userData, setUserData] = useState<CertData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -398,7 +401,7 @@ export default function CertificateGenerator() {
       const data = await api.get<CertData>('/certificates/mine')
       setUserData(data)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load certificate')
+      setError(err instanceof Error ? err.message : t('panel.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -413,7 +416,7 @@ export default function CertificateGenerator() {
   return (
     <div className="p-5">
       {loading && (
-        <p className="text-on-canvas-muted text-sm text-center py-4">Fetching your certificate…</p>
+        <p className="text-on-canvas-muted text-sm text-center py-4">{t('panel.loading')}</p>
       )}
 
       {error && (
@@ -427,10 +430,10 @@ export default function CertificateGenerator() {
           {/* Summary rows */}
           <div className="space-y-0">
             {([
-              ['Recipient', `${userData.firstName} ${userData.lastName}`],
-              ['Completed', userData.completionDate],
-              ['Certificate #', userData.certificateNumber],
-              ['Status', '✓ Verified'],
+              [t('panel.recipient'), `${userData.firstName} ${userData.lastName}`],
+              [t('panel.completed'), userData.completionDate],
+              [t('panel.certNumber'), userData.certificateNumber],
+              [t('panel.status'), t('panel.verified')],
             ] as [string, string][]).map(([label, value]) => (
               <div key={label} className="flex justify-between py-2.5 border-b border-portal-border text-sm">
                 <span className="text-on-canvas-muted">{label}</span>
@@ -466,7 +469,7 @@ export default function CertificateGenerator() {
                 className="w-full flex items-center justify-center gap-2 py-2.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
                 disabled={pdfLoading}
               >
-                {pdfLoading ? 'Building PDF…' : '⬇  Download Certificate PDF'}
+                {pdfLoading ? t('panel.building') : t('panel.download')}
               </button>
             )}
           </PDFDownloadLink>

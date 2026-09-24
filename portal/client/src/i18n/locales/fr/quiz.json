@@ -1,0 +1,33 @@
+{
+  "notFound": "Questionnaire introuvable.",
+  "backToTraining": "← Retour à la formation numérique",
+  "breadcrumb": "Formation numérique",
+  "video": {
+    "skip": "Passer au questionnaire",
+    "watchOr": "Regardez la vidéo au complet, ou",
+    "start": "Commencer le questionnaire"
+  },
+  "quiz": {
+    "watchVideo": "Regarder la vidéo",
+    "passScore": "Réussite : {{score}} %"
+  },
+  "modal": {
+    "title": "{{title}} — Vidéo de formation",
+    "close": "Fermer la vidéo"
+  },
+  "finish": {
+    "close": "Fermer",
+    "passedTitle": "Formation terminée!",
+    "failedTitle": "Continuez à pratiquer",
+    "passedBody": "Vous avez réussi cette formation. Excellent travail!",
+    "failedBody": "Un résultat de {{score}} % est requis pour réussir. Réessayez!",
+    "score": "Résultat",
+    "saving": "Enregistrement du résultat…",
+    "emailSent": "Un courriel de confirmation a été envoyé à {{email}}.",
+    "next": "Passer au module suivant",
+    "done": "Terminé",
+    "backToTrainings": "Retour aux formations",
+    "tryAgain": "Réessayer",
+    "rewatch": "Revoir la vidéo"
+  }
+}

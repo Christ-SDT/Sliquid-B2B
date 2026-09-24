@@ -1,0 +1,16 @@
+{
+  "title": "Announcements",
+  "subtitle": "Official Sliquid press releases and partner news.",
+  "loadError": "Failed to load announcements",
+  "pinned": "Pinned",
+  "readMore": "Read announcement",
+  "emptyTitle": "No announcements yet",
+  "emptyBody": "Check back soon for Sliquid news and press releases.",
+  "source": "Press releases are published at sliquid.com",
+  "detail": {
+    "back": "Back to announcements",
+    "notFoundTitle": "Announcement not available",
+    "notFoundBody": "It may have been unpublished, or the link may be incorrect.",
+    "viewOnSliquid": "View on sliquid.com"
+  }
+}

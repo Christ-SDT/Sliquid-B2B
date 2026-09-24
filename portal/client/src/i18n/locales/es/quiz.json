@@ -1,0 +1,33 @@
+{
+  "notFound": "No se encontró el cuestionario.",
+  "backToTraining": "← Volver a Capacitación digital",
+  "breadcrumb": "Capacitación digital",
+  "video": {
+    "skip": "Ir al cuestionario",
+    "watchOr": "Vea el video completo, o",
+    "start": "Iniciar cuestionario"
+  },
+  "quiz": {
+    "watchVideo": "Ver video",
+    "passScore": "Aprobación: {{score}} %"
+  },
+  "modal": {
+    "title": "{{title}} — Video de capacitación",
+    "close": "Cerrar video"
+  },
+  "finish": {
+    "close": "Cerrar",
+    "passedTitle": "¡Capacitación completada!",
+    "failedTitle": "Siga practicando",
+    "passedBody": "Aprobó esta capacitación. ¡Excelente trabajo!",
+    "failedBody": "Se requiere una puntuación de {{score}} % para aprobar. ¡Inténtelo de nuevo!",
+    "score": "Puntuación",
+    "saving": "Guardando resultado…",
+    "emailSent": "Se envió un correo de confirmación a {{email}}.",
+    "next": "Ir al siguiente módulo",
+    "done": "Listo",
+    "backToTrainings": "Volver a las capacitaciones",
+    "tryAgain": "Intentar de nuevo",
+    "rewatch": "Volver a ver el video"
+  }
+}

@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
-import { TIER_LABEL } from '@/types'
+import { useTranslation } from 'react-i18next'
+import { intlLocale } from '@/i18n'
 import type { Asset, Distributor } from '@/types'
+// Partner widgets, greeting, pending card and upgrade banner are translated
+// (`dashboard` namespace). The admin full-stats view below stays English by design.
 import {
   Package, FolderOpen, Receipt, Archive,
   TrendingUp, AlertTriangle, ChevronRight, DollarSign,
@@ -59,6 +62,7 @@ const QUICK_LINKS = [
 // --- Tier 1 mini widgets ---
 
 function MiniAssetsWidget() {
+  const { t } = useTranslation('dashboard')
   const [assets, setAssets] = useState<Asset[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -77,10 +81,10 @@ function MiniAssetsWidget() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <FolderOpen className="w-4 h-4 text-portal-accent" />
-          <h3 className="text-on-canvas font-semibold text-sm">Digital Assets</h3>
+          <h3 className="text-on-canvas font-semibold text-sm">{t('assets.title')}</h3>
         </div>
         <Link to="/assets" className="text-portal-accent text-xs hover:underline flex items-center gap-1">
-          View All <ChevronRight className="w-3 h-3" />
+          {t('viewAll')} <ChevronRight className="w-3 h-3" />
         </Link>
       </div>
       {loading ? (
@@ -90,7 +94,7 @@ function MiniAssetsWidget() {
           ))}
         </div>
       ) : assets.length === 0 ? (
-        <p className="text-on-canvas-muted text-sm text-center py-4">No assets available</p>
+        <p className="text-on-canvas-muted text-sm text-center py-4">{t('assets.empty')}</p>
       ) : (
         <div className="grid grid-cols-2 gap-2">
           {assets.map(asset => (
@@ -115,6 +119,7 @@ function MiniAssetsWidget() {
 }
 
 function MiniDistributorsWidget() {
+  const { t } = useTranslation('dashboard')
   const [distributors, setDistributors] = useState<Distributor[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -130,10 +135,10 @@ function MiniDistributorsWidget() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-portal-accent" />
-          <h3 className="text-on-canvas font-semibold text-sm">Distributors</h3>
+          <h3 className="text-on-canvas font-semibold text-sm">{t('distributors.title')}</h3>
         </div>
         <Link to="/distributors" className="text-portal-accent text-xs hover:underline flex items-center gap-1">
-          View All <ChevronRight className="w-3 h-3" />
+          {t('viewAll')} <ChevronRight className="w-3 h-3" />
         </Link>
       </div>
       {loading ? (
@@ -143,7 +148,7 @@ function MiniDistributorsWidget() {
           ))}
         </div>
       ) : distributors.length === 0 ? (
-        <p className="text-on-canvas-muted text-sm text-center py-4">No distributors available</p>
+        <p className="text-on-canvas-muted text-sm text-center py-4">{t('distributors.empty')}</p>
       ) : (
         <div className="space-y-2">
           {distributors.map(dist => (
@@ -174,6 +179,7 @@ type Training = {
 }
 
 function MiniTrainingsWidget() {
+  const { t } = useTranslation('dashboard')
   const navigate = useNavigate()
   const [trainings, setTrainings] = useState<Training[]>([])
   const [results, setResults] = useState<QuizResult[]>([])
@@ -203,10 +209,10 @@ function MiniTrainingsWidget() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <GraduationCap className="w-4 h-4 text-portal-accent" />
-          <h3 className="text-on-canvas font-semibold text-sm">Trainings</h3>
+          <h3 className="text-on-canvas font-semibold text-sm">{t('trainings.title')}</h3>
         </div>
         <Link to="/trainings" className="text-portal-accent text-xs hover:underline flex items-center gap-1">
-          View All <ChevronRight className="w-3 h-3" />
+          {t('viewAll')} <ChevronRight className="w-3 h-3" />
         </Link>
       </div>
 
@@ -215,7 +221,7 @@ function MiniTrainingsWidget() {
         <div className="flex items-center gap-3 mb-4">
           <Award className="w-4 h-4 text-portal-accent flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-on-canvas text-xs font-medium mb-1">{passedCount} / {total} completed</p>
+            <p className="text-on-canvas text-xs font-medium mb-1">{t('trainings.completed', { passed: passedCount, total })}</p>
             <div className="w-full h-1.5 bg-surface-elevated rounded-full overflow-hidden">
               <div
                 className="h-full bg-portal-accent rounded-full transition-all"
@@ -244,11 +250,11 @@ function MiniTrainingsWidget() {
                   <p className="text-on-canvas text-xs font-medium leading-snug truncate">{training.title}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="flex items-center gap-0.5 text-on-canvas-muted text-[10px]">
-                      <Clock className="w-2.5 h-2.5" />{training.estimated_minutes}m
+                      <Clock className="w-2.5 h-2.5" />{t('trainings.minutesShort', { count: training.estimated_minutes })}
                     </span>
                     {hasPassed && (
                       <span className="flex items-center gap-0.5 text-emerald-400 text-[10px]">
-                        <CheckCircle2 className="w-2.5 h-2.5" />Passed
+                        <CheckCircle2 className="w-2.5 h-2.5" />{t('trainings.passed')}
                       </span>
                     )}
                     {best && !hasPassed && (
@@ -261,7 +267,7 @@ function MiniTrainingsWidget() {
                 onClick={() => navigate(`/quiz/${training.quiz_id}`)}
                 className="w-full text-xs py-1.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-md font-medium transition-colors"
               >
-                {best ? 'Retake' : 'Start'}
+                {best ? t('trainings.retake') : t('trainings.start')}
               </button>
             </div>
           )
@@ -274,35 +280,35 @@ function MiniTrainingsWidget() {
 // --- Pending Approval card ---
 
 function PendingApprovalCard() {
+  const { t } = useTranslation('dashboard')
   return (
     <div className="bg-surface border border-portal-border rounded-2xl p-6 mb-6">
       <div className="flex items-center gap-3 mb-4">
         <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-sm font-medium">
           <Clock className="w-3.5 h-3.5" />
-          Pending Approval
+          {t('pending.badge')}
         </span>
       </div>
       <p className="text-on-canvas text-sm mb-4">
-        Your account has been submitted and is awaiting admin review. You'll gain full access once approved.
+        {t('pending.body')}
       </p>
 
       <div className="bg-portal-bg rounded-xl p-4 space-y-2 text-sm text-on-canvas-subtle mb-4">
-        <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-2">Did you know?</p>
-        <p>• Sliquid has been formulating body-safe, pH-balanced intimacy products since 2002.</p>
-        <p>• Every product is free from parabens, glycerin, DEA, and gluten.</p>
-        <p>• The lineup spans 40+ SKUs across Naturals, Organics, RIDE, Silver, and Swirl collections.</p>
-        <p>• Sliquid is available in over 40 countries worldwide.</p>
+        <p className="text-on-canvas-muted text-xs font-medium uppercase tracking-wider mb-2">{t('pending.didYouKnow')}</p>
+        {(['since2002', 'freeFrom', 'lineup', 'countries'] as const).map(fact => (
+          <p key={fact}>• {t(`pending.facts.${fact}`)}</p>
+        ))}
       </div>
 
       <div className="border-t border-portal-border pt-4">
-        <p className="text-on-canvas-muted text-sm mb-3">Want to sell Sliquid in your store?</p>
+        <p className="text-on-canvas-muted text-sm mb-3">{t('pending.sellQuestion')}</p>
         <a
           href="https://sliquid.com/retailers/become-a-sliquid-retailer/"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-portal-accent text-portal-accent hover:bg-portal-accent/10 text-sm font-medium transition-colors"
         >
-          Register as a Sliquid Insider Retailer
+          {t('pending.register')}
           <ExternalLink className="w-3.5 h-3.5" />
         </a>
       </div>
@@ -313,14 +319,15 @@ function PendingApprovalCard() {
 // --- Upgrade banner ---
 
 function UpgradeBanner({ role }: { role: string }) {
-  const tierLabel = TIER_LABEL[role] ?? role
+  const { t } = useTranslation('dashboard')
+  const tierLabel = t(`common:roles.${role}`, { defaultValue: role })
   return (
     <div className="flex items-center gap-4 px-5 py-4 bg-portal-accent/10 border border-portal-accent/30 rounded-xl">
       <Star className="w-5 h-5 text-portal-accent flex-shrink-0" />
       <div>
-        <p className="text-on-canvas text-sm font-medium">You have {tierLabel} access</p>
+        <p className="text-on-canvas text-sm font-medium">{t('upgrade.title', { tier: tierLabel })}</p>
         <p className="text-on-canvas-subtle text-xs mt-0.5">
-          Want to unlock more of the portal? Contact your Sliquid sales representative about upgrading.
+          {t('upgrade.body')}
         </p>
       </div>
     </div>
@@ -330,6 +337,7 @@ function UpgradeBanner({ role }: { role: string }) {
 // --- Main page ---
 
 export default function DashboardPage() {
+  const { t } = useTranslation('dashboard')
   const { user } = useAuth()
   const [overview, setOverview] = useState<Overview | null>(null)
   const [loading, setLoading] = useState(true)
@@ -349,9 +357,10 @@ export default function DashboardPage() {
 
   const greeting = () => {
     const h = new Date().getHours()
-    if (h < 12) return 'Good morning'
-    if (h < 18) return 'Good afternoon'
-    return 'Good evening'
+    const name = user?.name?.split(' ')[0] ?? ''
+    if (h < 12) return t('greeting.morning', { name })
+    if (h < 18) return t('greeting.afternoon', { name })
+    return t('greeting.evening', { name })
   }
 
   return (
@@ -359,10 +368,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div>
         <h1 className="text-on-canvas text-2xl font-bold">
-          {greeting()}, {user?.name?.split(' ')[0]} 👋
+          {greeting()} 👋
         </h1>
         <p className="text-on-canvas-muted text-sm mt-1">
-          {user?.company ? `${user.company} — ` : ''}{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          {user?.company ? `${user.company} — ` : ''}{new Date().toLocaleDateString(intlLocale(), { weekday: 'long', month: 'long', day: 'numeric' })}
         </p>
       </div>
 

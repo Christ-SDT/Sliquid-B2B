@@ -1,0 +1,34 @@
+{
+  "reward": {
+    "congrats": "Félicitations, {{name}}!",
+    "intro": "Vous avez gagné un <bold>produit Sliquid gratuit</bold> et un <bold>t-shirt</bold> pour avoir terminé le cours d’expert certifié Sliquid. Remplissez les renseignements ci-dessous et nous les expédierons à votre magasin.",
+    "name": "Votre nom",
+    "product": "Produit gratuit de votre choix",
+    "productPlaceholder": "Tapez pour chercher ou faites défiler la liste…",
+    "productEmpty": "Aucun produit ne correspond",
+    "productHelp": "Un produit Sliquid de votre choix, offert par nous.",
+    "shirtSize": "Taille de t-shirt",
+    "shirtSizePlaceholder": "Choisissez une taille…",
+    "address": "Adresse du magasin pour la livraison",
+    "addressHelp": "Les récompenses sont expédiées à l’adresse de votre magasin ou de votre entreprise — veuillez ne pas utiliser une adresse résidentielle.",
+    "street": "Adresse du magasin",
+    "suite": "Bureau, unité, étage (facultatif)",
+    "city": "Ville",
+    "state": "Province/État",
+    "zip": "Code postal",
+    "privacy": "Vos renseignements servent <bold>uniquement à expédier vos récompenses à l’adresse de votre magasin</bold> et ne seront jamais vendus, partagés ni utilisés à d’autres fins.",
+    "submit": "Soumettre et voir mon certificat",
+    "errorGeneric": "Un problème est survenu. Veuillez réessayer."
+  },
+  "panel": {
+    "loading": "Récupération de votre certificat…",
+    "loadFailed": "Impossible de charger le certificat",
+    "recipient": "Destinataire",
+    "completed": "Terminé le",
+    "certNumber": "No de certificat",
+    "status": "Statut",
+    "verified": "✓ Vérifié",
+    "building": "Création du PDF…",
+    "download": "⬇  Télécharger le certificat PDF"
+  }
+}

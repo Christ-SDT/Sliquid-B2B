@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef, FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { isAdmin, isReadOnlyAdmin } from '@/types'
@@ -71,6 +73,29 @@ const SECTION_MAP: Record<string, string> = {
   Multi:          'Campaign Materials',
   Video:          'Videos',
   'AI Generated': 'Generated Images',
+}
+
+// SECTION_MAP values and item.type are grouping/matching keys and stay English;
+// these map them to display labels in the `assets` namespace. Anything unmapped
+// (a custom type an admin typed in) is shown as-is.
+const SECTION_KEYS: Record<string, string> = {
+  Logos: 'logos', Banners: 'banners', 'Social Media': 'socialMedia', Documents: 'documents',
+  'Email Templates': 'emailTemplates', 'Campaign Materials': 'campaignMaterials', Videos: 'videos',
+  'Generated Images': 'generatedImages', Other: 'other',
+}
+const TYPE_KEYS: Record<string, string> = {
+  Logo: 'logo', Banner: 'banner', Social: 'social', Document: 'document', 'Social Media': 'socialMedia',
+  Email: 'email', Print: 'print', Multi: 'multi', Video: 'video', 'AI Generated': 'aiGenerated',
+}
+function sectionLabel(t: TFunction<'assets'>, section: string): string {
+  return SECTION_KEYS[section] ? t(`sections.${SECTION_KEYS[section]}`) : section
+}
+function typeLabel(t: TFunction<'assets'>, type: string): string {
+  return TYPE_KEYS[type] ? t(`types.${TYPE_KEYS[type]}`) : type
+}
+/** Brand names stay as-is; only the non-brand "User Generated Content" bucket translates. */
+function brandLabel(t: TFunction<'assets'>, brand: string): string {
+  return brand === 'User Generated Content' ? t('brands.userGenerated') : displayBrand(brand)
 }
 
 // ─── Unified library item ─────────────────────────────────────────────────────
@@ -1079,6 +1104,7 @@ interface FileDetailModalProps {
 }
 
 function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetailModalProps) {
+  const { t } = useTranslation('assets')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [viewerOpen, setViewerOpen] = useState(false)
   const Icon = TYPE_ICONS[item.type] ?? FolderOpen
@@ -1100,9 +1126,9 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
             className="flex items-center gap-2 text-on-canvas-muted hover:text-on-canvas transition-colors text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            {t('actions.back')}
           </button>
-          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas">
+          <button onClick={onClose} aria-label={t('actions.close')} className="text-on-canvas-muted hover:text-on-canvas">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -1120,10 +1146,10 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-semibold text-portal-accent uppercase tracking-wider">
-                {displayBrand(item.brand)}
+                {brandLabel(t, item.brand)}
               </span>
               <span className="text-on-canvas-muted text-xs">·</span>
-              <span className="text-on-canvas-muted text-xs">{item.type}</span>
+              <span className="text-on-canvas-muted text-xs">{typeLabel(t, item.type)}</span>
             </div>
             <h3 className="text-on-canvas text-lg font-semibold leading-tight">{item.displayName}</h3>
             {'description' in item && item.description && (
@@ -1133,7 +1159,7 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
               <p className="text-on-canvas-muted text-sm mt-1 italic">"{(item as any).prompt}"</p>
             )}
             {item._source === 'ai' && (item as any).created_by && (
-              <p className="text-on-canvas-muted text-xs mt-1">Created by {(item as any).created_by}</p>
+              <p className="text-on-canvas-muted text-xs mt-1">{t('detail.createdBy', { name: (item as any).created_by })}</p>
             )}
             {(item.file_size || item.dimensions) && (
               <div className="flex items-center gap-2 mt-2">
@@ -1152,7 +1178,7 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
                          hover:bg-portal-border text-on-canvas rounded-lg text-sm font-medium transition-colors"
             >
               <Eye className="w-4 h-4" />
-              View
+              {t('actions.view')}
             </button>
             <button
               onClick={() => triggerDownload(item.file_url, item.displayName)}
@@ -1160,7 +1186,7 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
                          text-white rounded-lg text-sm font-medium transition-colors"
             >
               <Download className="w-4 h-4" />
-              Download
+              {t('actions.download')}
             </button>
           </div>
 
@@ -1174,7 +1200,7 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
                              hover:bg-portal-border text-on-canvas rounded-lg text-sm font-medium transition-colors"
                 >
                   <Pencil className="w-4 h-4" />
-                  Edit
+                  {t('actions.edit')}
                 </button>
               )}
               {onDelete && (
@@ -1184,13 +1210,13 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
                       onClick={onDelete}
                       className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
                     >
-                      Confirm Delete
+                      {t('actions.confirmDelete')}
                     </button>
                     <button
                       onClick={() => setConfirmDelete(false)}
                       className="flex-1 py-2.5 bg-surface-elevated border border-portal-border text-on-canvas-subtle rounded-lg text-sm transition-colors"
                     >
-                      Cancel
+                      {t('actions.cancel')}
                     </button>
                   </div>
                 ) : (
@@ -1200,7 +1226,7 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
                                text-red-400 rounded-lg text-sm font-medium transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
-                    Delete
+                    {t('actions.delete')}
                   </button>
                 )
               )}
@@ -1220,7 +1246,7 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
         <button
           onClick={() => setViewerOpen(false)}
           className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-          aria-label="Close viewer"
+          aria-label={t('detail.closeViewer')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -1249,7 +1275,7 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
           )}
           {!isImage && !isVideo && !isPdf && (
             <div className="text-center text-white">
-              <p className="mb-4 text-on-canvas-muted">Preview not available for this file type.</p>
+              <p className="mb-4 text-on-canvas-muted">{t('detail.previewUnavailable')}</p>
               <a
                 href={item.file_url}
                 target="_blank"
@@ -1257,7 +1283,7 @@ function FileDetailModal({ item, onBack, onClose, onEdit, onDelete }: FileDetail
                 className="flex items-center gap-2 px-4 py-2 bg-portal-accent rounded-lg text-white text-sm font-medium"
               >
                 <ExternalLink className="w-4 h-4" />
-                Open in new tab
+                {t('detail.openInNewTab')}
               </a>
             </div>
           )}
@@ -1282,9 +1308,10 @@ interface FileExplorerModalProps {
 }
 
 function FileExplorerModal({ brand, section, items, onClose, onSelect, onEdit, onDelete, canDeleteItem }: FileExplorerModalProps) {
+  const { t } = useTranslation('assets')
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const isAll = section === '__all__'
-  const sectionLabel = isAll ? 'All Items' : section
+  const heading = isAll ? t('explorer.allItems') : sectionLabel(t, section)
 
   function itemKey(item: LibraryItem) { return `${item._source}-${item.id}` }
 
@@ -1297,13 +1324,13 @@ function FileExplorerModal({ brand, section, items, onClose, onSelect, onEdit, o
           <div className="flex items-center gap-3">
             <Folder className="w-5 h-5 text-portal-accent" />
             <h2 className="text-on-canvas font-semibold">
-              {displayBrand(brand)} — {sectionLabel}
+              {brandLabel(t, brand)} — {heading}
             </h2>
             <span className="text-on-canvas-muted text-sm">
-              ({items.length} {items.length === 1 ? 'file' : 'files'})
+              {t('explorer.files', { count: items.length })}
             </span>
           </div>
-          <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas">
+          <button onClick={onClose} aria-label={t('actions.close')} className="text-on-canvas-muted hover:text-on-canvas">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -1313,7 +1340,7 @@ function FileExplorerModal({ brand, section, items, onClose, onSelect, onEdit, o
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-on-canvas-muted">
               <FolderOpen className="w-10 h-10 mb-2 opacity-30" />
-              <p className="text-sm">No files in this section</p>
+              <p className="text-sm">{t('explorer.empty')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
@@ -1322,7 +1349,7 @@ function FileExplorerModal({ brand, section, items, onClose, onSelect, onEdit, o
                 const key = itemKey(item)
                 const pendingDelete = confirmDeleteId === key
                 // In "All Items" view, show the section name as a subtitle
-                const sectionName = isAll ? (SECTION_MAP[item.type] ?? item.type) : null
+                const sectionName = isAll ? sectionLabel(t, SECTION_MAP[item.type] ?? item.type) : null
 
                 return (
                   <div
@@ -1350,7 +1377,8 @@ function FileExplorerModal({ brand, section, items, onClose, onSelect, onEdit, o
                             <button
                               onClick={() => onEdit(item)}
                               className="p-1.5 bg-black/70 hover:bg-portal-accent rounded text-white transition-colors"
-                              title="Edit"
+                              title={t('actions.edit')}
+                              aria-label={t('actions.edit')}
                             >
                               <Pencil className="w-3 h-3" />
                             </button>
@@ -1362,10 +1390,11 @@ function FileExplorerModal({ brand, section, items, onClose, onSelect, onEdit, o
                                   onClick={() => { onDelete(item); setConfirmDeleteId(null) }}
                                   className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-[10px] text-white font-medium transition-colors"
                                 >
-                                  Delete
+                                  {t('actions.delete')}
                                 </button>
                                 <button
                                   onClick={() => setConfirmDeleteId(null)}
+                                  aria-label={t('actions.cancelDelete')}
                                   className="px-2 py-1 bg-black/70 hover:bg-black/90 rounded text-[10px] text-white font-medium transition-colors"
                                 >
                                   ✕
@@ -1375,7 +1404,8 @@ function FileExplorerModal({ brand, section, items, onClose, onSelect, onEdit, o
                               <button
                                 onClick={() => setConfirmDeleteId(key)}
                                 className="p-1.5 bg-black/70 hover:bg-red-500 rounded text-white transition-colors"
-                                title="Delete"
+                                title={t('actions.delete')}
+                                aria-label={t('actions.delete')}
                               >
                                 <Trash2 className="w-3 h-3" />
                               </button>
@@ -1418,6 +1448,7 @@ interface BrandSectionProps {
 }
 
 function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSelectItem, isAdmin, onToggleFeatured }: BrandSectionProps) {
+  const { t } = useTranslation('assets')
   const sections = Array.from(sectionMap.entries())
   const [activeSection, setActiveSection] = useState('__all__')
 
@@ -1438,6 +1469,7 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
       {/* Brand header */}
       <button
         onClick={onToggle}
+        aria-expanded={expanded}
         className="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-elevated transition-colors"
       >
         <div className="flex items-center gap-3">
@@ -1445,9 +1477,9 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
             ? <ChevronDown className="w-5 h-5 text-on-canvas-muted flex-shrink-0" />
             : <ChevronRight className="w-5 h-5 text-on-canvas-muted flex-shrink-0" />
           }
-          <h2 className="text-on-canvas font-semibold text-lg">{displayBrand(brand)}</h2>
+          <h2 className="text-on-canvas font-semibold text-lg">{brandLabel(t, brand)}</h2>
           <span className="text-on-canvas-muted text-sm">
-            {totalItems} {totalItems === 1 ? 'item' : 'items'}
+            {t('brand.items', { count: totalItems })}
           </span>
         </div>
       </button>
@@ -1456,7 +1488,7 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
         <div className="border-t border-portal-border">
           {/* View All [Brand] button */}
           <div className="flex items-center justify-between px-6 pt-4 pb-2">
-            <p className="text-on-canvas-subtle text-sm font-medium">Browse by category</p>
+            <p className="text-on-canvas-subtle text-sm font-medium">{t('brand.browse')}</p>
             <button
               onClick={() => onShowAll('__all__')}
               className="flex items-center gap-2 px-4 py-1.5 bg-surface-elevated border border-portal-border
@@ -1464,7 +1496,7 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
                          rounded-lg text-sm font-medium transition-colors"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
-              View all {displayBrand(brand)} ({totalItems})
+              {t('brand.viewAll', { brand: brandLabel(t, brand), count: totalItems })}
             </button>
           </div>
 
@@ -1473,25 +1505,27 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
             <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => setActiveSection('__all__')}
+                aria-pressed={activeSection === '__all__'}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
                   ${activeSection === '__all__'
                     ? 'bg-portal-accent text-white'
                     : 'bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500'
                   }`}
               >
-                All ({totalItems})
+                {t('brand.all', { count: totalItems })}
               </button>
               {sections.map(([sectionName, sectionItems]) => (
                 <button
                   key={sectionName}
                   onClick={() => setActiveSection(sectionName)}
+                  aria-pressed={activeSection === sectionName}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
                     ${activeSection === sectionName
                       ? 'bg-portal-accent text-white'
                       : 'bg-surface-elevated border border-portal-border text-on-canvas-subtle hover:text-on-canvas hover:border-slate-500'
                     }`}
                 >
-                  {sectionName} ({sectionItems.length})
+                  {sectionLabel(t, sectionName)} ({sectionItems.length})
                 </button>
               ))}
             </div>
@@ -1528,7 +1562,8 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
                     {(isAdmin || isFeatured) && (
                       <button
                         onClick={e => { e.stopPropagation(); if (isAdmin) onToggleFeatured(item) }}
-                        title={isAdmin ? (isFeatured ? 'Remove from featured' : 'Feature this item') : 'Featured'}
+                        title={isAdmin ? (isFeatured ? t('brand.unfeature') : t('brand.feature')) : t('brand.featured')}
+                        aria-label={isAdmin ? (isFeatured ? t('brand.unfeature') : t('brand.feature')) : t('brand.featured')}
                         className={`absolute top-1.5 left-1.5 p-1 rounded-full transition-all
                           ${isFeatured
                             ? 'opacity-100 bg-black/40'
@@ -1559,8 +1594,8 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
             <div className="flex items-center justify-between">
               <p className="text-on-canvas-muted text-sm">
                 {activeSectionItems.length > 8
-                  ? `Showing 8 of ${activeSectionItems.length} files`
-                  : `${activeSectionItems.length} ${activeSectionItems.length === 1 ? 'file' : 'files'}`
+                  ? t('brand.showingOf', { total: activeSectionItems.length })
+                  : t('brand.files', { count: activeSectionItems.length })
                 }
               </p>
               <button
@@ -1569,7 +1604,9 @@ function BrandSection({ brand, sectionMap, expanded, onToggle, onShowAll, onSele
                            text-portal-accent rounded-lg text-sm font-medium transition-colors"
               >
                 <FolderOpen className="w-4 h-4" />
-                {activeSection === '__all__' ? `Show all ${displayBrand(brand)}` : `Show all ${activeSection}`}
+                {activeSection === '__all__'
+                  ? t('brand.showAllBrand', { brand: brandLabel(t, brand) })
+                  : t('brand.showAllSection', { section: sectionLabel(t, activeSection) })}
               </button>
             </div>
           </div>
@@ -1603,6 +1640,7 @@ function ProductShotDetailModal({
   onEdit: () => void
   onDelete: () => void
 }) {
+  const { t } = useTranslation('assets')
   const [viewerOpen, setViewerOpen] = useState(false)
 
   function download() {
@@ -1634,9 +1672,9 @@ function ProductShotDetailModal({
               className="flex items-center gap-2 text-on-canvas-muted hover:text-on-canvas transition-colors text-sm"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back
+              {t('actions.back')}
             </button>
-            <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas">
+            <button onClick={onClose} aria-label={t('actions.close')} className="text-on-canvas-muted hover:text-on-canvas">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -1654,9 +1692,9 @@ function ProductShotDetailModal({
           <div className="p-6 space-y-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-semibold text-portal-accent uppercase tracking-wider">Product Shots</span>
+                <span className="text-xs font-semibold text-portal-accent uppercase tracking-wider">{t('shots.title')}</span>
                 <span className="text-on-canvas-muted text-xs">·</span>
-                <span className="text-on-canvas-muted text-xs">Product Shot</span>
+                <span className="text-on-canvas-muted text-xs">{t('shots.badge')}</span>
               </div>
               <h3 className="text-on-canvas text-lg font-semibold leading-tight">{shot.label}</h3>
               <div className="flex items-center gap-2 mt-2">
@@ -1672,7 +1710,7 @@ function ProductShotDetailModal({
                            hover:bg-portal-border text-on-canvas rounded-lg text-sm font-medium transition-colors"
               >
                 <Eye className="w-4 h-4" />
-                View
+                {t('actions.view')}
               </button>
               <button
                 onClick={download}
@@ -1680,7 +1718,7 @@ function ProductShotDetailModal({
                            text-white rounded-lg text-sm font-medium transition-colors"
               >
                 <Download className="w-4 h-4" />
-                Download
+                {t('actions.download')}
               </button>
             </div>
 
@@ -1693,7 +1731,7 @@ function ProductShotDetailModal({
                              hover:bg-portal-border text-on-canvas rounded-lg text-sm font-medium transition-colors"
                 >
                   <Pencil className="w-4 h-4" />
-                  Edit
+                  {t('actions.edit')}
                 </button>
                 <button
                   onClick={onDelete}
@@ -1701,7 +1739,7 @@ function ProductShotDetailModal({
                              hover:bg-red-500/20 text-red-400 rounded-lg text-sm font-medium transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
-                  Delete
+                  {t('actions.delete')}
                 </button>
               </div>
             )}
@@ -1717,6 +1755,7 @@ function ProductShotDetailModal({
         >
           <button
             onClick={() => setViewerOpen(false)}
+            aria-label={t('shots.closeViewer')}
             className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
           >
             <X className="w-6 h-6" />
@@ -1743,6 +1782,7 @@ function ProductShotsModal({
   onDelete: (s: ProductShot) => void
   onSelect: (s: ProductShot) => void
 }) {
+  const { t } = useTranslation('assets')
   const [search, setSearch] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
   const [selected, setSelected] = useState<Set<number>>(new Set())
@@ -1830,21 +1870,22 @@ function ProductShotsModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-portal-border flex-shrink-0">
           <div className="flex items-center gap-3">
             <Image className="w-5 h-5 text-portal-accent" />
-            <h2 className="text-on-canvas font-semibold">Product Shots</h2>
+            <h2 className="text-on-canvas font-semibold">{t('shots.title')}</h2>
             <span className="text-on-canvas-muted text-sm">
-              ({filtered.length} {filtered.length === 1 ? 'image' : 'images'})
+              {t('shots.images', { count: filtered.length })}
             </span>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSelectMode(m => !m)}
+              aria-pressed={selectMode}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors
                 ${selectMode
                   ? 'bg-portal-accent border-portal-accent text-white'
                   : 'bg-surface-elevated border-portal-border text-on-canvas-subtle hover:border-portal-accent/40 hover:text-on-canvas'
                 }`}
             >
-              Select
+              {t('shots.select')}
             </button>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-canvas-muted" />
@@ -1852,13 +1893,14 @@ function ProductShotsModal({
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Search product shots…"
+                placeholder={t('shots.searchPlaceholder')}
+                aria-label={t('shots.searchPlaceholder')}
                 className="bg-surface-elevated border border-portal-border rounded-lg pl-8 pr-3 py-1.5 text-on-canvas text-sm
                            placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors w-52"
                 autoFocus
               />
             </div>
-            <button onClick={onClose} className="text-on-canvas-muted hover:text-on-canvas">
+            <button onClick={onClose} aria-label={t('actions.close')} className="text-on-canvas-muted hover:text-on-canvas">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -1875,12 +1917,12 @@ function ProductShotsModal({
                 ${allFilteredSelected ? 'bg-portal-accent border-portal-accent' : 'border-portal-border'}`}>
                 {allFilteredSelected && <span className="text-white text-[10px] font-bold">✓</span>}
               </div>
-              {allFilteredSelected ? 'Deselect all' : `Select all (${filtered.length})`}
+              {allFilteredSelected ? t('shots.deselectAll') : t('shots.selectAll', { count: filtered.length })}
             </button>
 
             {selectedCount > 0 && (
               <div className="flex items-center gap-3">
-                <span className="text-on-canvas-muted text-xs">{selectedCount} selected</span>
+                <span className="text-on-canvas-muted text-xs">{t('shots.selectedCount', { count: selectedCount })}</span>
                 <button
                   onClick={handleDownload}
                   disabled={downloading}
@@ -1892,17 +1934,17 @@ function ProductShotsModal({
                     : <Download className="w-3.5 h-3.5" />
                   }
                   {downloading
-                    ? 'Preparing…'
+                    ? t('shots.preparing')
                     : selectedCount > 5
-                      ? `Download as ZIP (${selectedCount})`
-                      : `Download (${selectedCount})`
+                      ? t('shots.downloadZip', { count: selectedCount })
+                      : t('shots.downloadN', { count: selectedCount })
                   }
                 </button>
                 <button
                   onClick={() => setSelected(new Set())}
                   className="text-xs text-on-canvas-muted hover:text-on-canvas transition-colors"
                 >
-                  Clear
+                  {t('shots.clear')}
                 </button>
               </div>
             )}
@@ -1914,7 +1956,7 @@ function ProductShotsModal({
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-on-canvas-muted">
               <Image className="w-10 h-10 mb-2 opacity-30" />
-              <p className="text-sm">{search ? 'No images match your search' : 'No product shots yet'}</p>
+              <p className="text-sm">{search ? t('shots.noMatch') : t('shots.empty')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
@@ -1963,7 +2005,8 @@ function ProductShotsModal({
                             <button
                               onClick={() => onEdit(shot)}
                               className="p-1.5 bg-black/70 hover:bg-portal-accent rounded text-white transition-colors"
-                              title="Rename"
+                              title={t('shots.rename')}
+                              aria-label={t('shots.rename')}
                             >
                               <Pencil className="w-3 h-3" />
                             </button>
@@ -1974,10 +2017,11 @@ function ProductShotsModal({
                                 onClick={() => { onDelete(shot); setConfirmDeleteId(null) }}
                                 className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-[10px] text-white font-medium transition-colors"
                               >
-                                Delete
+                                {t('actions.delete')}
                               </button>
                               <button
                                 onClick={() => setConfirmDeleteId(null)}
+                                aria-label={t('actions.cancelDelete')}
                                 className="px-2 py-1 bg-black/70 hover:bg-black/90 rounded text-[10px] text-white font-medium transition-colors"
                               >
                                 ✕
@@ -1987,7 +2031,8 @@ function ProductShotsModal({
                             <button
                               onClick={() => setConfirmDeleteId(shot.id)}
                               className="p-1.5 bg-black/70 hover:bg-red-500 rounded text-white transition-colors"
-                              title="Delete"
+                              title={t('actions.delete')}
+                              aria-label={t('actions.delete')}
                             >
                               <Trash2 className="w-3 h-3" />
                             </button>
@@ -2011,6 +2056,7 @@ function ProductShotsModal({
 }
 
 function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
+  const { t } = useTranslation('assets')
   const [shots, setShots] = useState<ProductShot[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(false)
@@ -2141,6 +2187,7 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
         {/* Header */}
         <button
           onClick={() => setExpanded(e => !e)}
+          aria-expanded={expanded}
           className="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-elevated transition-colors"
         >
           <div className="flex items-center gap-3">
@@ -2149,12 +2196,12 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
             </div>
             <div className="text-left">
               <div className="flex items-center gap-2">
-                <span className="text-on-canvas font-semibold text-sm">Product Shots</span>
+                <span className="text-on-canvas font-semibold text-sm">{t('shots.title')}</span>
                 <span className="px-2 py-0.5 bg-portal-accent/10 text-portal-accent text-xs font-medium rounded-full">
                   {shots.length}
                 </span>
               </div>
-              <p className="text-on-canvas-muted text-xs mt-0.5">High-res product photography for all brands</p>
+              <p className="text-on-canvas-muted text-xs mt-0.5">{t('shots.subtitle')}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -2166,7 +2213,7 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
                            text-xs font-medium transition-colors"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
-                View all Product Shots ({shots.length})
+                {t('shots.viewAll', { count: shots.length })}
               </button>
             )}
             {isAdmin && (
@@ -2432,6 +2479,7 @@ function ProductShotsSection({ isAdmin }: { isAdmin: boolean }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AssetsPage() {
+  const { t } = useTranslation('assets')
   const { user } = useAuth()
   const canEdit = isAdmin(user?.role ?? '')
   const [allItems, setAllItems] = useState<LibraryItem[]>([])
@@ -2517,7 +2565,7 @@ export default function AssetsPage() {
       setAllItems(prev => prev.filter(i => !(i._source === item._source && i.id === item.id)))
       setDetailItem(prev => prev && prev._source === item._source && prev.id === item.id ? null : prev)
     } catch (err: any) {
-      alert(err.message ?? 'Failed to delete item')
+      alert(err?.message || t('page.deleteFailed'))
     }
   }
 
@@ -2561,7 +2609,7 @@ export default function AssetsPage() {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <BookOpen className="w-6 h-6 text-portal-accent" />
-          <h1 className="text-on-canvas text-2xl font-bold">Asset Library</h1>
+          <h1 className="text-on-canvas text-2xl font-bold">{t('page.title')}</h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -2570,7 +2618,8 @@ export default function AssetsPage() {
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search library…"
+              placeholder={t('page.searchPlaceholder')}
+              aria-label={t('page.searchPlaceholder')}
               className="bg-surface border border-portal-border rounded-lg pl-9 pr-4 py-2.5 text-on-canvas text-sm
                          placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors w-52"
             />
@@ -2582,7 +2631,7 @@ export default function AssetsPage() {
                          text-white rounded-lg text-sm font-medium transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Add Item
+              {t('page.addItem')}
             </button>
           )}
         </div>
@@ -2601,7 +2650,7 @@ export default function AssetsPage() {
       ) : sortedBrandKeys.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-on-canvas-muted">
           <FolderOpen className="w-12 h-12 mb-3 opacity-40" />
-          <p>{search ? 'No items match your search' : 'No items in the library yet'}</p>
+          <p>{search ? t('page.noMatch') : t('page.empty')}</p>
           {canEdit && !search && (
             <button
               onClick={() => setShowAddModal(true)}
@@ -2609,7 +2658,7 @@ export default function AssetsPage() {
                          text-portal-accent rounded-lg text-sm font-medium transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Add the first item
+              {t('page.addFirst')}
             </button>
           )}
         </div>

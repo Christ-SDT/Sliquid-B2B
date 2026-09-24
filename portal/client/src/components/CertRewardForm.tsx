@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/api/client'
 import { Gift, Lock, Loader2 } from 'lucide-react'
+import { Trans, useTranslation } from 'react-i18next'
 import Combobox from './Combobox'
 
 /** Shown only until GET /certificates/reward-options responds. */
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export default function CertRewardForm({ userName, onComplete }: Props) {
+  const { t } = useTranslation('certificate')
   const [productOptions, setProductOptions] = useState<RewardProduct[]>([])
   const [shirtSizes, setShirtSizes] = useState<string[]>(FALLBACK_SHIRT_SIZES)
   const [product, setProduct] = useState('')
@@ -51,7 +53,7 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
       await api.post('/certificates/reward', { product, shirtSize, address1, address2, city, state, zip })
       onComplete()
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setError(err instanceof Error ? err.message : t('reward.errorGeneric'))
     } finally {
       setLoading(false)
     }
@@ -63,11 +65,13 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
       <div className="flex items-start gap-3 mb-5 p-4 bg-portal-accent/10 border border-portal-accent/30 rounded-xl">
         <Gift className="w-5 h-5 text-portal-accent flex-shrink-0 mt-0.5" />
         <div>
-          <p className="text-on-canvas font-semibold text-sm">Congratulations, {userName}!</p>
+          <p className="text-on-canvas font-semibold text-sm">{t('reward.congrats', { name: userName })}</p>
           <p className="text-on-canvas-muted text-xs mt-0.5 leading-relaxed">
-            You've earned a <span className="text-on-canvas font-medium">free Sliquid product</span> and{' '}
-            <span className="text-on-canvas font-medium">t-shirt</span> for completing the Sliquid Certified Expert Course.
-            Fill in the details below and we'll ship them to your store.
+            <Trans
+              t={t}
+              i18nKey="reward.intro"
+              components={{ bold: <span className="text-on-canvas font-medium" /> }}
+            />
           </p>
         </div>
       </div>
@@ -75,7 +79,7 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Name — read-only */}
         <div>
-          <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">Your Name</label>
+          <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">{t('reward.name')}</label>
           <input
             value={userName}
             readOnly
@@ -86,7 +90,7 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
         {/* Free product */}
         <div>
           <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
-            Free Product of Your Choice <span className="text-portal-accent">*</span>
+            {t('reward.product')} <span className="text-portal-accent">*</span>
           </label>
           <Combobox
             id="reward-product"
@@ -94,18 +98,18 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
             value={product}
             onChange={setProduct}
             describe={label => productOptions.find(p => p.label === label)?.brand}
-            placeholder="Type to search, or scroll the list…"
-            emptyLabel="No products match"
+            placeholder={t('reward.productPlaceholder')}
+            emptyLabel={t('reward.productEmpty')}
             strict
             required
           />
-          <p className="text-on-canvas-muted text-xs mt-1">One Sliquid product of your choice, on us.</p>
+          <p className="text-on-canvas-muted text-xs mt-1">{t('reward.productHelp')}</p>
         </div>
 
         {/* Shirt size */}
         <div>
           <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
-            T-Shirt Size <span className="text-portal-accent">*</span>
+            {t('reward.shirtSize')} <span className="text-portal-accent">*</span>
           </label>
           <select
             value={shirtSize}
@@ -113,7 +117,7 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
             required
             className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent"
           >
-            <option value="">Select a size…</option>
+            <option value="">{t('reward.shirtSizePlaceholder')}</option>
             {shirtSizes.map(s => (
               <option key={s} value={s}>{s}</option>
             ))}
@@ -123,23 +127,23 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
         {/* Address */}
         <div>
           <label className="block text-on-canvas-subtle text-sm font-medium mb-1.5">
-            Store Location for Delivery <span className="text-portal-accent">*</span>
+            {t('reward.address')} <span className="text-portal-accent">*</span>
           </label>
           <p className="text-on-canvas-muted text-xs mb-2 leading-relaxed">
-            Rewards ship to your store or business address — please don't use a home address.
+            {t('reward.addressHelp')}
           </p>
           <div className="space-y-2">
             <input
               value={address1}
               onChange={e => setAddress1(e.target.value)}
               required
-              placeholder="Store street address"
+              placeholder={t('reward.street')}
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent"
             />
             <input
               value={address2}
               onChange={e => setAddress2(e.target.value)}
-              placeholder="Suite, unit, floor (optional)"
+              placeholder={t('reward.suite')}
               className="w-full bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent"
             />
             <div className="grid grid-cols-5 gap-2">
@@ -147,14 +151,14 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
                 value={city}
                 onChange={e => setCity(e.target.value)}
                 required
-                placeholder="City"
+                placeholder={t('reward.city')}
                 className="col-span-3 bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent"
               />
               <input
                 value={state}
                 onChange={e => setState(e.target.value.toUpperCase())}
                 required
-                placeholder="State"
+                placeholder={t('reward.state')}
                 maxLength={2}
                 className="col-span-1 bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent uppercase"
               />
@@ -162,7 +166,7 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
                 value={zip}
                 onChange={e => setZip(e.target.value)}
                 required
-                placeholder="ZIP"
+                placeholder={t('reward.zip')}
                 className="col-span-1 bg-portal-bg border border-portal-border rounded-lg px-3 py-2 text-on-canvas text-sm focus:outline-none focus:border-portal-accent"
               />
             </div>
@@ -173,8 +177,11 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
         <div className="flex items-start gap-2.5 p-3 bg-surface-elevated rounded-lg border border-portal-border">
           <Lock className="w-3.5 h-3.5 text-on-canvas-muted flex-shrink-0 mt-0.5" />
           <p className="text-on-canvas-muted text-xs leading-relaxed">
-            Your information is used <span className="text-on-canvas font-medium">only to ship your rewards to your store location</span> and
-            will never be sold, shared, or used for any other purpose.
+            <Trans
+              t={t}
+              i18nKey="reward.privacy"
+              components={{ bold: <span className="text-on-canvas font-medium" /> }}
+            />
           </p>
         </div>
 
@@ -188,7 +195,7 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
           className="w-full flex items-center justify-center gap-2 py-2.5 bg-portal-accent hover:bg-portal-accent/90 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
         >
           {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-          Submit & View My Certificate
+          {t('reward.submit')}
         </button>
       </form>
     </div>

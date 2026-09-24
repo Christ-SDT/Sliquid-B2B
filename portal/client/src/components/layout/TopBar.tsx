@@ -5,24 +5,12 @@ import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { useNotifications } from '@/context/NotificationContext'
 import { isAdmin } from '@/types'
-import { cn } from '@/lib/utils'
+import { cn, timeAgo } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 interface Props {
   onMenuClick: () => void
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60_000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  const days = Math.floor(hrs / 24)
-  return `${days}d ago`
 }
 
 const NOTIF_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -55,6 +43,7 @@ export default function TopBar({ onMenuClick }: Props) {
   const { theme, toggleTheme } = useTheme()
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const [notifOpen, setNotifOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -85,7 +74,7 @@ export default function TopBar({ onMenuClick }: Props) {
       <button
         onClick={onMenuClick}
         className="md:hidden text-on-canvas-subtle hover:text-on-canvas transition-colors"
-        aria-label="Open menu"
+        aria-label={t('topbar.openMenu')}
       >
         <Menu className="w-5 h-5" />
       </button>
@@ -102,7 +91,7 @@ export default function TopBar({ onMenuClick }: Props) {
             onClick={() => { setNotifOpen(o => !o); setProfileOpen(false) }}
             className="relative w-8 h-8 rounded-lg hover:bg-surface-elevated flex items-center
                        justify-center text-on-canvas-subtle hover:text-on-canvas transition-colors"
-            aria-label="Notifications"
+            aria-label={t('topbar.notifications')}
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
@@ -119,9 +108,9 @@ export default function TopBar({ onMenuClick }: Props) {
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-portal-border">
                 <span className="text-on-canvas text-sm font-semibold">
-                  Notifications {unreadCount > 0 && (
+                  {t('topbar.notifications')} {unreadCount > 0 && (
                     <span className="ml-1.5 px-1.5 py-0.5 bg-portal-accent/15 text-portal-accent rounded-full text-[10px] font-bold">
-                      {unreadCount} new
+                      {t('topbar.newCount', { count: unreadCount })}
                     </span>
                   )}
                 </span>
@@ -131,7 +120,7 @@ export default function TopBar({ onMenuClick }: Props) {
                     className="flex items-center gap-1 text-xs text-on-canvas-muted hover:text-portal-accent transition-colors"
                   >
                     <Check className="w-3 h-3" />
-                    Mark all read
+                    {t('topbar.markAllRead')}
                   </button>
                 )}
               </div>
@@ -141,7 +130,7 @@ export default function TopBar({ onMenuClick }: Props) {
                 {notifications.length === 0 ? (
                   <div className="py-10 text-center">
                     <Bell className="w-8 h-8 text-on-canvas-muted/30 mx-auto mb-2" />
-                    <p className="text-on-canvas-muted text-sm">No notifications yet</p>
+                    <p className="text-on-canvas-muted text-sm">{t('topbar.empty')}</p>
                   </div>
                 ) : (
                   notifications.map(n => {
@@ -185,6 +174,8 @@ export default function TopBar({ onMenuClick }: Props) {
         <div className="relative" ref={profileRef}>
           <button
             onClick={() => { setProfileOpen(o => !o); setNotifOpen(false) }}
+            aria-label={t('topbar.account')}
+            aria-expanded={profileOpen}
             className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-surface-elevated transition-colors"
           >
             <div className="w-8 h-8 rounded-full bg-portal-accent/20 border border-portal-accent/30
@@ -193,7 +184,7 @@ export default function TopBar({ onMenuClick }: Props) {
             </div>
             <div className="hidden sm:block text-left">
               <p className="text-on-canvas text-sm font-medium leading-none">{user?.name}</p>
-              <p className="text-on-canvas-muted text-xs mt-0.5 capitalize">{user?.company ?? user?.role}</p>
+              <p className="text-on-canvas-muted text-xs mt-0.5 capitalize">{user?.company ?? (user?.role ? t(`roles.${user.role}`, { defaultValue: user.role }) : '')}</p>
             </div>
           </button>
 
@@ -204,24 +195,24 @@ export default function TopBar({ onMenuClick }: Props) {
               {adminUser && (
                 <>
                   <div className="px-3 pb-1 pt-1">
-                    <p className="text-on-canvas-muted/60 text-[10px] font-semibold uppercase tracking-wider">Admin Tools</p>
+                    <p className="text-on-canvas-muted/60 text-[10px] font-semibold uppercase tracking-wider">{t('topbar.adminTools')}</p>
                   </div>
                   {[
-                    { to: '/products',           icon: Package,  label: 'Products'          },
-                    { to: '/inventory',          icon: Archive,  label: 'Inventory'         },
-                    { to: '/invoices',           icon: Receipt,  label: 'Invoices'          },
-                    { to: '/stats',              icon: BarChart3, label: 'Analytics'        },
-                    { to: '/reference-gallery',  icon: Images,    label: 'Reference Gallery' },
-                    { to: '/store-users',        icon: Users2,    label: 'My Store'          },
-                    { to: '/logs',               icon: Activity,  label: 'Server Logs'       },
-                  ].map(({ to, icon: Icon, label }) => (
+                    { to: '/products',           icon: Package,   labelKey: 'products'         },
+                    { to: '/inventory',          icon: Archive,   labelKey: 'inventory'        },
+                    { to: '/invoices',           icon: Receipt,   labelKey: 'invoices'         },
+                    { to: '/stats',              icon: BarChart3, labelKey: 'analytics'        },
+                    { to: '/reference-gallery',  icon: Images,    labelKey: 'referenceGallery' },
+                    { to: '/store-users',        icon: Users2,    labelKey: 'myStore'          },
+                    { to: '/logs',               icon: Activity,  labelKey: 'serverLogs'       },
+                  ].map(({ to, icon: Icon, labelKey }) => (
                     <button
                       key={to}
                       onClick={() => { setProfileOpen(false); navigate(to) }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-on-canvas-subtle hover:text-on-canvas hover:bg-surface-elevated transition-colors"
                     >
                       <Icon className="w-4 h-4 flex-shrink-0" />
-                      {label}
+                      {t(`topbar.admin.${labelKey}`)}
                     </button>
                   ))}
                   <div className="border-t border-portal-border mx-3 my-1.5" />
@@ -231,11 +222,11 @@ export default function TopBar({ onMenuClick }: Props) {
               <div className="px-3 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-on-canvas-subtle">
                   {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-                  <span>Wellness Mode</span>
+                  <span>{t('theme.wellnessMode')}</span>
                 </div>
                 <button
                   onClick={toggleTheme}
-                  aria-label="Toggle theme"
+                  aria-label={t('theme.toggle')}
                   className={cn(
                     'relative w-10 h-5 rounded-full transition-colors duration-200 flex-shrink-0',
                     theme === 'dark' ? 'bg-portal-accent' : 'bg-slate-300',

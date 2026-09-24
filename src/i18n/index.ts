@@ -59,7 +59,19 @@ const lazyLocales = import.meta.glob<{ default: Record<string, unknown> }>([
   '!./locales/en/*.json',
 ])
 
-i18n
+// Every namespace, preloaded for whichever language is active (at init and on
+// each changeLanguage). Loading per page on demand made a first visit in es/fr
+// render English — and raw keys inside <Trans> — for a few hundred ms until
+// that page's chunk arrived. The files are small; loading them together removes
+// the flash.
+export const NAMESPACES = Object.keys(englishResources)
+
+/**
+ * Resolves once the active language's namespaces are loaded. main.tsx waits on
+ * it before the first render, so an es/fr visitor never sees English first.
+ * Instant for English (bundled).
+ */
+export const i18nReady: Promise<unknown> = i18n
   .use(resourcesToBackend((lng: string, ns: string) => {
     const load = lazyLocales[`./locales/${lng}/${ns}.json`]
     return load ? load() : Promise.reject(new Error(`[i18n] no ${lng}/${ns} translations`))
@@ -73,7 +85,7 @@ i18n
     nonExplicitSupportedLngs: true, // browser 'fr-CA' / 'es-MX' -> 'fr' / 'es'
     load: 'languageOnly',
     fallbackLng: 'en',
-    ns: ['common'],
+    ns: NAMESPACES,
     defaultNS: 'common',
     detection: {
       order: ['localStorage', 'navigator'],

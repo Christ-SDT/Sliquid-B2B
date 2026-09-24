@@ -1,0 +1,96 @@
+{
+  "actions": {
+    "back": "Atrás",
+    "close": "Cerrar",
+    "view": "Ver",
+    "download": "Descargar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirmDelete": "Confirmar eliminación",
+    "cancel": "Cancelar",
+    "cancelDelete": "Cancelar eliminación"
+  },
+  "sections": {
+    "logos": "Logotipos",
+    "banners": "Banners",
+    "socialMedia": "Redes sociales",
+    "documents": "Documentos",
+    "emailTemplates": "Plantillas de correo",
+    "campaignMaterials": "Materiales de campaña",
+    "videos": "Videos",
+    "generatedImages": "Imágenes generadas",
+    "other": "Otros"
+  },
+  "types": {
+    "logo": "Logotipo",
+    "banner": "Banner",
+    "social": "Redes sociales",
+    "document": "Documento",
+    "socialMedia": "Redes sociales",
+    "email": "Correo",
+    "print": "Impreso",
+    "multi": "Múltiple",
+    "video": "Video",
+    "aiGenerated": "Generado con IA"
+  },
+  "brands": {
+    "userGenerated": "Contenido generado por usuarios"
+  },
+  "detail": {
+    "createdBy": "Creado por {{name}}",
+    "closeViewer": "Cerrar visor",
+    "previewUnavailable": "La vista previa no está disponible para este tipo de archivo.",
+    "openInNewTab": "Abrir en una pestaña nueva"
+  },
+  "explorer": {
+    "allItems": "Todos los elementos",
+    "files_one": "({{count}} archivo)",
+    "files_other": "({{count}} archivos)",
+    "empty": "No hay archivos en esta sección"
+  },
+  "brand": {
+    "items_one": "{{count}} elemento",
+    "items_other": "{{count}} elementos",
+    "browse": "Explorar por categoría",
+    "viewAll": "Ver todo {{brand}} ({{count}})",
+    "all": "Todos ({{count}})",
+    "showingOf": "Mostrando 8 de {{total}} archivos",
+    "files_one": "{{count}} archivo",
+    "files_other": "{{count}} archivos",
+    "showAllBrand": "Mostrar todo {{brand}}",
+    "showAllSection": "Mostrar todo: {{section}}",
+    "featured": "Destacado",
+    "feature": "Destacar este elemento",
+    "unfeature": "Quitar de destacados"
+  },
+  "shots": {
+    "title": "Fotos de producto",
+    "subtitle": "Fotografía de producto en alta resolución de todas las marcas",
+    "viewAll": "Ver todas las fotos de producto ({{count}})",
+    "badge": "Foto de producto",
+    "images_one": "({{count}} imagen)",
+    "images_other": "({{count}} imágenes)",
+    "select": "Seleccionar",
+    "searchPlaceholder": "Buscar fotos de producto…",
+    "deselectAll": "Quitar toda la selección",
+    "selectAll": "Seleccionar todo ({{count}})",
+    "selectedCount": "{{count}} seleccionadas",
+    "preparing": "Preparando…",
+    "downloadZip": "Descargar como ZIP ({{count}})",
+    "downloadN": "Descargar ({{count}})",
+    "clear": "Borrar",
+    "noMatch": "Ninguna imagen coincide con su búsqueda",
+    "empty": "Aún no hay fotos de producto",
+    "rename": "Cambiar nombre",
+    "closeViewer": "Cerrar visor"
+  },
+  "page": {
+    "title": "Biblioteca de recursos",
+    "searchPlaceholder": "Buscar en la biblioteca…",
+    "addItem": "Agregar elemento",
+    "noMatch": "Ningún elemento coincide con su búsqueda",
+    "empty": "Aún no hay elementos en la biblioteca",
+    "addFirst": "Agregar el primer elemento",
+    "deleteFailed": "No se pudo eliminar el elemento"
+  }
+}
