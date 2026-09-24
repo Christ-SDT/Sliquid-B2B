@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{lang}}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Application Update – Sliquid B2B Portal</title>
+  <title>{{t_subject}}</title>
 </head>
 <!--
   Template ID : portal_declined
+
+  Translated copy: {{lang}} + {{t_*}} variables, filled per language by
+  portal/server/src/emailCopy.ts. Subject field in EmailJS: {{t_subject}}
   Variables   : {{user_name}}, {{support_email}}, {{to_email}}
   Recipient   : the user whose account was declined
 -->
@@ -21,7 +24,7 @@
             <td style="background-color:#fefaf4;border-radius:8px 8px 0 0;border-bottom:1px solid #ddc9ae;padding:24px 40px;text-align:center;">
               <img src="https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/reference-images/58439771-8fd8-454f-81eb-e2e5123dede5.png" alt="Sliquid" style="max-width:180px;height:auto;display:block;margin:0 auto;" />
               <p style="margin:10px 0 0;font-size:22px;font-weight:700;color:#0A84C0;letter-spacing:2px;">SLIQUID</p>
-              <p style="margin:4px 0 0;font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:#a08060;">B2B Partner Portal</p>
+              <p style="margin:4px 0 0;font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:#a08060;">{{t_tagline}}</p>
             </td>
           </tr>
 
@@ -29,9 +32,9 @@
           <tr>
             <td style="background-color:#fefaf4;border-left:1px solid #ddc9ae;border-right:1px solid #ddc9ae;padding:40px 40px 32px;">
 
-              <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#2c1a0a;">An update on your application</h1>
+              <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#2c1a0a;">{{t_heading}}</h1>
               <p style="margin:0 0 24px;font-size:15px;color:#6b4c30;line-height:1.6;">
-                Hi {{user_name}}, thank you for your interest in the Sliquid B2B Partner Portal. After reviewing your application, we're unable to approve portal access at this time.
+                {{t_intro}}
               </p>
 
               <!-- Info box -->
@@ -39,7 +42,7 @@
                 <tr>
                   <td style="padding:16px 20px;">
                     <p style="margin:0;font-size:13px;color:#9a3412;line-height:1.6;">
-                      If you believe this is an error or would like to discuss your application, please reach out to our support team — we're happy to help.
+                      {{t_body}}
                     </p>
                   </td>
                 </tr>
@@ -54,7 +57,7 @@
               <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="background-color:#0A84C0;border-radius:6px;">
-                    <a href="mailto:{{support_email}}" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">Contact Support</a>
+                    <a href="mailto:{{support_email}}" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">{{t_cta}}</a>
                   </td>
                 </tr>
               </table>
@@ -66,8 +69,8 @@
           <tr>
             <td style="background-color:#f0e5d4;border:1px solid #ddc9ae;border-top:none;border-radius:0 0 8px 8px;padding:20px 40px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#a08060;">
-                This email was sent by the Sliquid B2B Partner Portal.<br />
-                Questions? Contact <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>
+                {{t_footer_sent}}<br />
+                {{t_footer_questions}} <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>
               </p>
             </td>
           </tr>

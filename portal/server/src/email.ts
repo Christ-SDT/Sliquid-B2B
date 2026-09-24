@@ -1,5 +1,7 @@
 import emailjs from '@emailjs/nodejs'
 import { db } from './database.js'
+import { resolveLanguage, type Language } from './languages.js'
+import { emailVars, ROLE_LABELS, DEFAULTS } from './emailCopy.js'
 
 const PORTAL_URL = process.env.PORTAL_URL ?? 'https://portal.sliquid.com'
 const SUPPORT_EMAIL = 'support@sliquid.com'
@@ -23,6 +25,12 @@ setTimeout(() => {
   }
 }, 0)
 
+// Partner-facing senders take an optional `language` and ADD `lang` + `t_*`
+// variables (translated copy, see emailCopy.ts) on top of the variables each
+// template already receives. Nothing existing is removed or renamed, so a
+// template that has not yet been re-pasted in EmailJS keeps rendering in
+// English exactly as before. Admin-facing templates are untouched.
+
 // Returns true if the email was actually sent, false if skipped (not configured)
 export async function sendEmail(templateId: string, params: Record<string, string>): Promise<boolean> {
   const { configured, publicKey, privateKey, serviceId } = getConfig()
@@ -44,14 +52,15 @@ export async function sendQuizPassEmail(opts: {
   toEmail: string
   quizTitle: string
   score: number
+  language?: Language
 }): Promise<void> {
   const { toName, toEmail, quizTitle, score } = opts
+  const vars = { user_name: toName, quiz_title: quizTitle, score: String(score) }
   const sent = await sendEmail('portal_quiz_pass', {
-    user_name: toName,
-    quiz_title: quizTitle,
-    score: String(score),
+    ...vars,
     portal_url: PORTAL_URL,
     to_email: toEmail,
+    ...emailVars('portal_quiz_pass', resolveLanguage(opts.language), vars),
   })
   if (sent) console.log(`[email] Quiz pass email sent to ${toEmail} (${quizTitle}, ${score}%)`)
 }
@@ -62,7 +71,11 @@ export async function sendCertificateEmail(opts: {
   toName: string
   toEmail: string
   certNumber: string
+  /** English date — kept for templates not yet re-pasted. */
   completionDate: string
+  /** Same date formatted in `language`; falls back to completionDate. */
+  localizedCompletionDate?: string
+  language?: Language
 }): Promise<void> {
   const { toName, toEmail, certNumber, completionDate } = opts
   const sent = await sendEmail('portal_cert_issued', {
@@ -71,6 +84,8 @@ export async function sendCertificateEmail(opts: {
     completion_date: completionDate,
     verify_url: `${PORTAL_URL}/verify`,
     to_email: toEmail,
+    t_completion_date: opts.localizedCompletionDate ?? completionDate,
+    ...emailVars('portal_cert_issued', resolveLanguage(opts.language), { user_name: toName }),
   })
   if (sent) console.log(`[email] Certificate email sent to ${toEmail} (${certNumber})`)
 }
@@ -81,6 +96,7 @@ export async function sendRegistrationConfirm(opts: {
   name: string
   email: string
   company: string
+  language?: Language
 }): Promise<void> {
   const { name, email, company } = opts
   // User confirmation (template 4)
@@ -88,6 +104,7 @@ export async function sendRegistrationConfirm(opts: {
     user_name: name,
     user_email: email,
     to_email: email,
+    ...emailVars('portal_register_confirm', resolveLanguage(opts.language), { user_name: name }),
   })
   // Admin notification (template 5)
   await sendEmail('portal_register_admin', {
@@ -113,13 +130,17 @@ export async function sendApprovalEmail(opts: {
   name: string
   email: string
   role: string
+  language?: Language
 }): Promise<void> {
   const { name, email, role } = opts
+  const lang = resolveLanguage(opts.language)
   const sent = await sendEmail('portal_approved', {
     user_name: name,
     role_label: TIER_LABEL[role] ?? role,
     portal_url: PORTAL_URL,
     to_email: email,
+    t_role_label: ROLE_LABELS[lang][role] ?? TIER_LABEL[role] ?? role,
+    ...emailVars('portal_approved', lang, { user_name: name }),
   })
   if (sent) console.log(`[email] Approval email sent to ${email} (${role})`)
 }
@@ -127,12 +148,14 @@ export async function sendApprovalEmail(opts: {
 export async function sendDeclineEmail(opts: {
   name: string
   email: string
+  language?: Language
 }): Promise<void> {
   const { name, email } = opts
   const sent = await sendEmail('portal_declined', {
     user_name: name,
     support_email: SUPPORT_EMAIL,
     to_email: email,
+    ...emailVars('portal_declined', resolveLanguage(opts.language), { user_name: name }),
   })
   if (sent) console.log(`[email] Decline email sent to ${email}`)
 }
@@ -167,6 +190,7 @@ export async function sendRewardConfirmEmail(opts: {
   product: string
   shirtSize: string
   address: string
+  language?: Language
 }): Promise<void> {
   const { toName, toEmail, product, shirtSize, address } = opts
   const sent = await sendEmail('portal_reward_confirm', {
@@ -175,6 +199,7 @@ export async function sendRewardConfirmEmail(opts: {
     shirt_size: shirtSize,
     address,
     to_email: toEmail,
+    ...emailVars('portal_reward_confirm', resolveLanguage(opts.language), { user_name: toName }),
   })
   if (sent) console.log(`[email] Reward confirmation email sent to ${toEmail}`)
 }
@@ -187,6 +212,7 @@ export async function sendMarketingRequestEmails(opts: {
   company: string
   requestedItems: string
   notes: string
+  language?: Language
 }): Promise<void> {
   const { name, email, company, requestedItems, notes } = opts
   // User confirmation (template 11)
@@ -194,6 +220,7 @@ export async function sendMarketingRequestEmails(opts: {
     user_name: name,
     requested_items: requestedItems,
     to_email: email,
+    ...emailVars('portal_marketing_user', resolveLanguage(opts.language), { user_name: name }),
   })
   // Admin notification (template 12)
   await sendEmail('portal_marketing_admin', {
@@ -214,6 +241,7 @@ export async function sendMedicalMarketingRequestEmails(opts: {
   company: string
   requestedItems: string
   notes: string
+  language?: Language
 }): Promise<void> {
   const { name, email, company, requestedItems, notes } = opts
   // User confirmation
@@ -221,6 +249,7 @@ export async function sendMedicalMarketingRequestEmails(opts: {
     user_name: name,
     requested_items: requestedItems,
     to_email: email,
+    ...emailVars('portal_medical_user', resolveLanguage(opts.language), { user_name: name }),
   })
   // Admin notification
   await sendEmail('portal_medical_admin', {
@@ -242,6 +271,7 @@ export async function sendContactFormEmails(opts: {
   phone: string
   subject: string
   message: string
+  language?: Language
 }): Promise<void> {
   const { fromName, fromEmail, company, phone, subject, message } = opts
   const isPartnershipInquiry = subject === 'retailer' || subject === 'distributor'
@@ -254,6 +284,7 @@ export async function sendContactFormEmails(opts: {
 
   const sent = await sendEmail('b2b_contact_reply', {
     to_name: fromName, reply_to: fromEmail, to_email: fromEmail,
+    ...emailVars('b2b_contact_reply', resolveLanguage(opts.language), { to_name: fromName }),
   })
   if (sent) console.log(`[email] Contact form emails sent for ${fromEmail}`)
 }
@@ -270,6 +301,7 @@ export async function sendRetailerApplicationEmails(opts: {
   brands: string
   storeLocator: string
   comments: string
+  language?: Language
 }): Promise<void> {
   const { company, contactName, address, phone, email, website, brands, storeLocator, comments } = opts
   await sendEmail('b2b_retailer_admin', {
@@ -277,6 +309,7 @@ export async function sendRetailerApplicationEmails(opts: {
   })
   const sent = await sendEmail('b2b_retailer_confirm', {
     company, contact_name: contactName, brands, to_email: email,
+    ...emailVars('b2b_retailer_confirm', resolveLanguage(opts.language), { contact_name: contactName }),
   })
   if (sent) console.log(`[email] Retailer application emails sent for ${email}`)
 }
@@ -298,7 +331,9 @@ export async function sendRetailerCheckInEmails(opts: {
   interests: string
   siteFeedback: string
   comments: string
+  language?: Language
 }): Promise<void> {
+  const lang = resolveLanguage(opts.language)
   await sendEmail('b2b_retailer_checkin_admin', {
     reference_number:  opts.referenceNumber,
     company:           opts.company,
@@ -318,6 +353,11 @@ export async function sendRetailerCheckInEmails(opts: {
     point_of_contact: opts.pointOfContact || 'a member of our sales team',
     interests:        opts.interests || 'None selected',
     to_email:         opts.email,
+    t_point_of_contact: opts.pointOfContact || DEFAULTS[lang].pointOfContact,
+    t_interests:        opts.interests || DEFAULTS[lang].interests,
+    ...emailVars('b2b_retailer_checkin_confirm', lang, {
+      contact_name: opts.contactName, reference_number: opts.referenceNumber,
+    }),
   })
   if (sent) console.log(`[email] Retailer check-in emails sent for ${opts.email} (${opts.referenceNumber})`)
 }
@@ -362,12 +402,14 @@ export async function sendPasswordResetEmail(opts: {
   toName: string
   toEmail: string
   resetUrl: string
+  language?: Language
 }): Promise<void> {
   const { toName, toEmail, resetUrl } = opts
   const sent = await sendEmail('portal_password_reset', {
     user_name: toName,
     reset_url: resetUrl,
     to_email: toEmail,
+    ...emailVars('portal_password_reset', resolveLanguage(opts.language), { user_name: toName }),
   })
   if (sent) console.log(`[email] Password reset email sent to ${toEmail}`)
 }
@@ -385,9 +427,9 @@ export async function sendBroadcastEmail(opts: {
 
   const users = db
     .prepare(
-      `SELECT name, email FROM users WHERE role NOT IN ('tier5', 'admin') AND status = 'active'`,
+      `SELECT name, email, preferred_language FROM users WHERE role NOT IN ('tier5', 'admin') AND status = 'active'`,
     )
-    .all() as { name: string; email: string }[]
+    .all() as { name: string; email: string; preferred_language: string | null }[]
 
   for (const u of users) {
     await sendEmail('portal_asset_broadcast', {
@@ -396,6 +438,10 @@ export async function sendBroadcastEmail(opts: {
       brand: opts.brand,
       portal_url: PORTAL_URL,
       to_email: u.email,
+      // Each recipient in their own saved language.
+      ...emailVars('portal_asset_broadcast', resolveLanguage(u.preferred_language), {
+        user_name: u.name, asset_name: opts.assetName,
+      }),
     }).catch((err) => console.error(`[email] Broadcast failed for ${u.email}:`, err))
   }
 

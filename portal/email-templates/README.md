@@ -13,6 +13,49 @@ HTML email templates for the portal's EmailJS integration. All templates use the
 
 ---
 
+## Translated emails (English / Spanish / French)
+
+Partner-facing emails are sent in the recipient's language. The copy lives in
+**`portal/server/src/emailCopy.ts`**, not in EmailJS — each template below receives
+`{{lang}}` plus `{{t_*}}` variables holding the text in that language, and the HTML
+here renders those instead of hardcoded English.
+
+| Template ID | Language comes from |
+|---|---|
+| `portal_quiz_pass`, `portal_cert_issued`, `portal_approved`, `portal_declined`, `portal_reward_confirm`, `portal_marketing_user`, `portal_medical_user` | the user's saved `users.preferred_language` |
+| `portal_asset_broadcast` | each recipient's own saved language |
+| `portal_register_confirm` | the language the user registered in (also saved as their preference) |
+| `portal_password_reset` | the page's language; else the saved preference |
+| `b2b_contact_reply`, `b2b_retailer_confirm`, `b2b_retailer_checkin_confirm` | the `language` sent with the public form |
+
+Unknown or missing → English. **Admin-facing templates stay English and are unchanged**
+(`*_admin`, `portal_register_admin`, `b2b_hp_application`, `b2b_partnership_notify`).
+
+### ⚠️ Rollout — re-paste these 13 templates
+
+The server change is **backward compatible**: it still sends every variable each template
+used before and only *adds* `lang` + `t_*`, so a template that has not been updated keeps
+sending English exactly as today. Order:
+
+1. **Deploy the server** (harmless on its own).
+2. In EmailJS, for **each** of the 13 templates below: paste the new HTML from this folder,
+   and set the template's **Subject** to exactly `{{t_subject}}`.
+   `portal_quiz_pass` · `portal_cert_issued` · `portal_register_confirm` · `portal_approved` ·
+   `portal_declined` · `portal_reward_confirm` · `portal_marketing_user` · `portal_medical_user` ·
+   `portal_password_reset` · `portal_asset_broadcast` · `b2b_contact_reply` ·
+   `b2b_retailer_confirm` · `b2b_retailer_checkin_confirm`
+3. Send yourself one test in each language (switch the portal language, or pass `language`
+   to a public form) before announcing it.
+
+Never change a `{{t_*}}` to triple braces — double braces HTML-escape, and several of these
+values contain user-typed names.
+
+To change wording: edit `emailCopy.ts` (all three languages). `src/__tests__/emailCopy.test.ts`
+fails if a template references a `t_*` key the copy lacks, a language is missing a key, or a
+translation changes the `{placeholders}`.
+
+---
+
 ## Templates
 
 | File | Template ID | Trigger | Variables |
@@ -32,6 +75,8 @@ HTML email templates for the portal's EmailJS integration. All templates use the
 ---
 
 ## Suggested Email Subjects
+
+> For the 13 translated templates the Subject is now `{{t_subject}}` (see *Translated emails* above); the English wording below is what `t_subject` holds in English.
 
 | Template ID | Subject |
 |---|---|

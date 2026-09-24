@@ -4,6 +4,8 @@ import type { TFunction } from 'i18next'
 import { sanitizeFormData } from '@/utils/sanitize'
 import { API_BASE, BRANDS, RETAILER_CONTACTS } from '@/utils/constants'
 import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
+import i18n from '@/i18n'
+import { serverErrorText } from '@/utils/serverError'
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
@@ -317,18 +319,19 @@ export default function RetailerCheckInPage() {
           interests:      safe.interests.join(', '),
           siteFeedback:   safe.siteFeedback,
           comments:       safe.comments,
+          language:       i18n.resolvedLanguage ?? 'en',
         }),
       })
       const data = await res.json().catch(() => ({})) as {
-        message?: string; referenceNumber?: string; retryAfterMinutes?: number
+        message?: string; code?: string; params?: Record<string, unknown>; referenceNumber?: string; retryAfterMinutes?: number
       }
       if (res.status === 429) {
         // The server knows the real remaining time — trust it over this browser.
         cooldown.lock(data.retryAfterMinutes ?? 60)
-        setSendError(data.message ?? t('errors.alreadyCheckedIn'))
+        setSendError(serverErrorText(data, t('errors.alreadyCheckedIn')))
         return
       }
-      if (!res.ok) throw new Error(data.message ?? 'Request failed')
+      if (!res.ok) throw new Error(data.message ? serverErrorText(data, data.message) : 'Request failed')
       cooldown.start()
       setReference(data.referenceNumber ?? '')
     } catch (err) {

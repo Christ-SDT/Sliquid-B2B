@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "invalidCredentials": "Invalid email or password",
+    "credentialsRequired": "Email and password required",
+    "accountDeclined": "Your registration request was declined. Please contact support@sliquid.com.",
+    "loginRateLimited": "Too many login attempts. Please try again in 15 minutes.",
+    "allFieldsRequired": "All fields are required",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "emailInUse": "Email already in use",
+    "emailRequired": "Email is required",
+    "resetRateLimited": "Too many password reset requests. Please try again in 15 minutes.",
+    "resetFieldsRequired": "Token and password are required",
+    "resetLinkInvalid": "Invalid or expired reset link",
+    "resetLinkExpired": "Reset link has expired. Please request a new one."
+  },
+  "forms": {
+    "missingFields": "Missing required fields.",
+    "invalidEmail": "Invalid email address.",
+    "nameRequired": "name is required.",
+    "sendFailed": "Failed to send. Please try again.",
+    "sendFailedRetry": "We hit a temporary issue sending your submission. Please try again in a moment — you won't be blocked from retrying.",
+    "cooldown_one": "We've already received your submission — our team is on it. You can send another in about {{count}} minute.",
+    "cooldown_other": "We've already received your submission — our team is on it. You can send another in about {{count}} minutes.",
+    "refused": "We couldn't accept this submission. If you believe this is a mistake, please email sales@sliquid.com directly and we will pick it up from there."
+  }
+}

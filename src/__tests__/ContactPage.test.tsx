@@ -1,14 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import ContactPage from '../pages/ContactPage'
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
-
-vi.mock('@emailjs/browser', () => ({
-  default: { send: vi.fn() },
-}))
 
 vi.mock('@/utils/constants', () => ({
   EMAILJS_PUBLIC_KEY:           'test-public-key',
@@ -21,8 +17,14 @@ vi.mock('@/utils/constants', () => ({
   EMAILJS_RETAILER_CONFIRM_TID: 'test-retailer-confirm-tid',
 }))
 
-import emailjs from '@emailjs/browser'
-const mockSend = vi.mocked(emailjs.send)
+// Validation tests assert that nothing is sent. Every test gets a fetch spy;
+// submission tests replace it with their own response.
+let fetchSpy: ReturnType<typeof vi.fn>
+beforeEach(() => {
+  fetchSpy = vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({}) })
+  vi.stubGlobal('fetch', fetchSpy)
+})
+afterEach(() => vi.unstubAllGlobals())
 
 function renderPage() {
   return render(<MemoryRouter><ContactPage /></MemoryRouter>)
@@ -71,7 +73,7 @@ describe('ContactPage — validation', () => {
     await userEvent.type(screen.getByLabelText(/message/i), 'Hello, I would like more info about wholesale.')
     await userEvent.click(screen.getByRole('button', { name: /send message/i }))
     await waitFor(() => expect(screen.getByText(/full name is required/i)).toBeInTheDocument())
-    expect(mockSend).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('shows error for invalid email', async () => {
@@ -82,7 +84,7 @@ describe('ContactPage — validation', () => {
     await userEvent.type(screen.getByLabelText(/message/i), 'Hello, I would like more info about wholesale.')
     await userEvent.click(screen.getByRole('button', { name: /send message/i }))
     await waitFor(() => expect(screen.getByText(/valid email address/i)).toBeInTheDocument())
-    expect(mockSend).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('shows error when inquiry type is not selected', async () => {
@@ -92,7 +94,7 @@ describe('ContactPage — validation', () => {
     await userEvent.type(screen.getByLabelText(/message/i), 'Hello, I would like more info about wholesale.')
     await userEvent.click(screen.getByRole('button', { name: /send message/i }))
     await waitFor(() => expect(screen.getByText(/select an inquiry type/i)).toBeInTheDocument())
-    expect(mockSend).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('shows error when message is too short', async () => {
@@ -103,43 +105,52 @@ describe('ContactPage — validation', () => {
     await userEvent.type(screen.getByLabelText(/message/i), 'Too short')
     await userEvent.click(screen.getByRole('button', { name: /send message/i }))
     await waitFor(() => expect(screen.getByText(/at least 20 characters/i)).toBeInTheDocument())
-    expect(mockSend).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 })
 
 // ─── Submission ───────────────────────────────────────────────────────────────
 
 describe('ContactPage — submission', () => {
-  beforeEach(() => vi.clearAllMocks())
+  // The page posts to /api/b2b/contact with fetch. These tests used to mock
+  // emailjs (no longer used) and so submitted to the PRODUCTION API on every run.
+  const ok = () => vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({}) })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    window.localStorage.clear() // a successful submit starts the 1h cooldown
+  })
 
-  it('calls emailjs.send on valid submission', async () => {
-    mockSend.mockResolvedValue({ status: 200, text: 'OK' })
+  it('posts the message to /api/b2b/contact on valid submission', async () => {
+    const fetchSpy = ok()
+    vi.stubGlobal('fetch', fetchSpy)
     renderPage()
     await fillRequiredFields()
     await userEvent.click(screen.getByRole('button', { name: /send message/i }))
-    await waitFor(() => expect(mockSend).toHaveBeenCalled())
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/api/b2b/contact'), expect.objectContaining({ method: 'POST' })))
+    const body = JSON.parse(fetchSpy.mock.calls[0][1].body)
+    expect(body).toMatchObject({ fromName: 'Jane Doe', fromEmail: 'jane@store.com', company: 'Acme Wellness', subject: 'retailer' })
   })
 
   it('disables the submit button while sending', async () => {
-    let resolve!: (v: any) => void
-    mockSend.mockReturnValue(new Promise(r => { resolve = r }))
+    let resolve!: (v: unknown) => void
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise(r => { resolve = r })))
     renderPage()
     await fillRequiredFields()
     await userEvent.click(screen.getByRole('button', { name: /send message/i }))
     await waitFor(() => expect(screen.getByRole('button', { name: /sending/i })).toBeDisabled())
-    resolve({ status: 200, text: 'OK' })
+    resolve({ ok: true, status: 200, json: () => Promise.resolve({}) })
   })
 
-  it('shows "Message Sent" success heading after sending', async () => {
-    mockSend.mockResolvedValue({ status: 200, text: 'OK' })
+  it('shows "Message Sent" success heading after the server accepts it', async () => {
+    vi.stubGlobal('fetch', ok())
     renderPage()
     await fillRequiredFields()
     await userEvent.click(screen.getByRole('button', { name: /send message/i }))
     await waitFor(() => expect(screen.getByText(/message sent/i)).toBeInTheDocument())
   })
 
-  it('re-enables submit button after emailjs throws without crashing', async () => {
-    mockSend.mockRejectedValue(new Error('Network error'))
+  it('re-enables the submit button and shows no success when the request fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
     renderPage()
     await fillRequiredFields()
     await userEvent.click(screen.getByRole('button', { name: /send message/i }))
@@ -147,5 +158,39 @@ describe('ContactPage — submission', () => {
       expect(screen.getByRole('button', { name: /send message/i })).not.toBeDisabled()
     )
     expect(screen.queryByText(/message sent/i)).not.toBeInTheDocument()
+  })
+})
+
+// ─── Language (Phase 5: server sends the partner's email in this language) ───
+
+describe('request carries the visitor language', () => {
+  afterEach(async () => {
+    vi.unstubAllGlobals()
+    window.localStorage.clear() // a successful submit starts the 1h cooldown
+    const { default: i18n } = await import('@/i18n')
+    await i18n.changeLanguage('en')
+  })
+
+  async function submittedBody(switchTo?: 'es' | 'fr') {
+    const fetchSpy = vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({}) })
+    vi.stubGlobal('fetch', fetchSpy)
+    const { container } = renderPage()
+    await fillRequiredFields()
+    if (switchTo) {
+      const { default: i18n } = await import('@/i18n')
+      await act(async () => { await i18n.changeLanguage(switchTo) })
+    }
+    fireEvent.submit(container.querySelector('form')!)
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/api/b2b/contact'), expect.anything()))
+    const [, init] = fetchSpy.mock.calls.find(([url]) => String(url).includes('/api/b2b/contact'))!
+    return JSON.parse(init.body as string) as Record<string, unknown>
+  }
+
+  it('sends language "en" by default', async () => {
+    expect((await submittedBody()).language).toBe('en')
+  })
+
+  it('sends the language the visitor switched to', async () => {
+    expect((await submittedBody('es')).language).toBe('es')
   })
 })

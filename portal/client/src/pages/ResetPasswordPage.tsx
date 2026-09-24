@@ -4,6 +4,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Loader2, Lock, ArrowLeft, CheckCircle2, Eye, EyeOff, Clock, MailOpen } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { serverErrorText } from '@/lib/serverError'
 
 export default function ResetPasswordPage() {
   const { t: tCommon } = useTranslation('common')
@@ -37,13 +38,11 @@ export default function ResetPasswordPage() {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        // Matched against the server's English wording to detect an expired token;
-        // only the fallback shown to the user is translated.
-        const msg: string = data.message ?? t('shared.genericError')
-        if (msg.toLowerCase().includes('expired') || msg.toLowerCase().includes('invalid')) {
+        // A dead or expired link gets the "request a new link" screen instead of an error.
+        if (data.code === 'auth.resetLinkInvalid' || data.code === 'auth.resetLinkExpired') {
           setExpired(true); return
         }
-        throw new Error(msg)
+        throw new Error(serverErrorText(data, t('shared.genericError')))
       }
       setDone(true)
     } catch (err: any) {

@@ -1341,6 +1341,20 @@ const migrations: Migration[] = [
         db.exec('ALTER TABLE users ADD COLUMN preferred_language TEXT')
       }
     },
+  },  {
+    version: 63,
+    name: 'add_i18n_to_notifications',
+    // A notification's title/message are stored as English text at insert time,
+    // so a partner browsing in es/fr saw them in English. `i18n_key` + JSON
+    // `i18n_params` let the client render it in the viewer's language; the
+    // stored English stays as the fallback (and for rows written before v63).
+    up: () => {
+      const cols = (
+        db.prepare("SELECT name FROM pragma_table_info('notifications')").all() as { name: string }[]
+      ).map(c => c.name)
+      if (!cols.includes('i18n_key')) db.exec('ALTER TABLE notifications ADD COLUMN i18n_key TEXT')
+      if (!cols.includes('i18n_params')) db.exec('ALTER TABLE notifications ADD COLUMN i18n_params TEXT')
+    },
   },
 ]
 

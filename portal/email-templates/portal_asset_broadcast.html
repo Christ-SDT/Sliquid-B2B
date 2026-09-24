@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{lang}}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>New Asset Available – Sliquid B2B Portal</title>
+  <title>{{t_subject}}</title>
 </head>
 <!--
   Template ID : portal_asset_broadcast
+
+  Translated copy: {{lang}} + {{t_*}} variables, filled per language by
+  portal/server/src/emailCopy.ts. Subject field in EmailJS: {{t_subject}}
   Variables   : {{user_name}}, {{asset_name}}, {{brand}}, {{portal_url}}, {{to_email}}
   Recipient   : all non-admin active portal users
 -->
@@ -21,7 +24,7 @@
             <td style="background-color:#fefaf4;border-radius:8px 8px 0 0;border-bottom:1px solid #ddc9ae;padding:24px 40px;text-align:center;">
               <img src="https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/reference-images/58439771-8fd8-454f-81eb-e2e5123dede5.png" alt="Sliquid" style="max-width:180px;height:auto;display:block;margin:0 auto;" />
               <p style="margin:10px 0 0;font-size:22px;font-weight:700;color:#0A84C0;letter-spacing:2px;">SLIQUID</p>
-              <p style="margin:4px 0 0;font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:#a08060;">B2B Partner Portal</p>
+              <p style="margin:4px 0 0;font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:#a08060;">{{t_tagline}}</p>
             </td>
           </tr>
 
@@ -33,14 +36,14 @@
               <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
                 <tr>
                   <td style="background-color:#e0f2fe;border:1px solid #7dd3fc;border-radius:4px;padding:4px 12px;">
-                    <p style="margin:0;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#0369a1;">New in Product Library</p>
+                    <p style="margin:0;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#0369a1;">{{t_badge}}</p>
                   </td>
                 </tr>
               </table>
 
-              <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#2c1a0a;">New assets just dropped, {{user_name}}!</h1>
+              <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#2c1a0a;">{{t_heading}}</h1>
               <p style="margin:0 0 28px;font-size:15px;color:#6b4c30;line-height:1.6;">
-                Fresh content is now available in your Product Library. Head to the portal to preview and download it for your store.
+                {{t_intro}}
               </p>
 
               <!-- Asset info box -->
@@ -50,11 +53,11 @@
                     <table width="100%" cellpadding="0" cellspacing="0" border="0">
                       <tr>
                         <td width="50%" style="padding-right:12px;">
-                          <p style="margin:0 0 4px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#a08060;">Asset</p>
+                          <p style="margin:0 0 4px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#a08060;">{{t_label_asset}}</p>
                           <p style="margin:0;font-size:15px;font-weight:600;color:#2c1a0a;">{{asset_name}}</p>
                         </td>
                         <td width="50%" style="padding-left:12px;">
-                          <p style="margin:0 0 4px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#a08060;">Brand</p>
+                          <p style="margin:0 0 4px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#a08060;">{{t_label_brand}}</p>
                           <p style="margin:0;font-size:15px;font-weight:600;color:#2c1a0a;">{{brand}}</p>
                         </td>
                       </tr>
@@ -67,7 +70,7 @@
               <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="background-color:#0A84C0;border-radius:6px;">
-                    <a href="{{portal_url}}/assets" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">View Product Library →</a>
+                    <a href="{{portal_url}}/assets" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">{{t_cta}}</a>
                   </td>
                 </tr>
               </table>
@@ -79,8 +82,8 @@
           <tr>
             <td style="background-color:#f0e5d4;border:1px solid #ddc9ae;border-top:none;border-radius:0 0 8px 8px;padding:20px 40px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#a08060;">
-                This email was sent by the Sliquid B2B Partner Portal.<br />
-                Questions? Contact <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>
+                {{t_footer_sent}}<br />
+                {{t_footer_questions}} <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>
               </p>
             </td>
           </tr>

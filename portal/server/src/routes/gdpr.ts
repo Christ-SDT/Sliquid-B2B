@@ -53,10 +53,10 @@ router.post('/request', (req, res) => {
     res.status(400).json({ message: 'type must be "access" or "deletion".' }); return
   }
   if (!name || typeof name !== 'string' || !name.trim()) {
-    res.status(400).json({ message: 'name is required.' }); return
+    res.status(400).json({ message: 'name is required.', code: 'forms.nameRequired' }); return
   }
   if (!email || !emailRe.test(email)) {
-    res.status(400).json({ message: 'A valid email address is required.' }); return
+    res.status(400).json({ message: 'A valid email address is required.', code: 'forms.invalidEmail' }); return
   }
 
   // A repeat inside the hour is a double-click, not a second request. The guard

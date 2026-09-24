@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{lang}}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>We received your message — Sliquid</title>
+  <title>{{t_subject}}</title>
 </head>
+<!--
+  Template ID : b2b_contact_reply
+  Translated copy: {{lang}} + {{t_*}} variables, filled per language by
+  portal/server/src/emailCopy.ts. Subject field in EmailJS: {{t_subject}}
+-->
 <body style="margin:0;padding:0;background-color:#f0f4f8;font-family:Inter,Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0f4f8;">
     <tr>
@@ -16,7 +21,7 @@
             <td style="background-color:#fefaf4;border-radius:8px 8px 0 0;border-bottom:1px solid #ddc9ae;padding:24px 40px;text-align:center;">
               <img src="https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/reference-images/58439771-8fd8-454f-81eb-e2e5123dede5.png" alt="Sliquid" style="max-width:180px;height:auto;display:block;margin:0 auto;" />
               <p style="margin:10px 0 0;font-size:22px;font-weight:700;color:#0A84C0;letter-spacing:2px;">SLIQUID</p>
-              <p style="margin:4px 0 0;font-size:11px;color:#a08060;letter-spacing:3px;text-transform:uppercase;">B2B Partnerships</p>
+              <p style="margin:4px 0 0;font-size:11px;color:#a08060;letter-spacing:3px;text-transform:uppercase;">{{t_tagline}}</p>
             </td>
           </tr>
 
@@ -24,12 +29,12 @@
           <tr>
             <td style="background-color:#ffffff;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:40px 40px 32px;">
 
-              <p style="margin:0 0 20px;font-size:22px;font-weight:700;color:#1a202c;">Thanks for reaching out, {{to_name}}!</p>
+              <p style="margin:0 0 20px;font-size:22px;font-weight:700;color:#1a202c;">{{t_heading}}</p>
               <p style="margin:0 0 16px;font-size:14px;color:#4a5568;line-height:1.7;">
-                We've received your message and a member of our B2B team will review it shortly. We typically respond within <strong>2 business days</strong>.
+                {{t_intro_before}} <strong>{{t_intro_duration}}</strong>.
               </p>
               <p style="margin:0 0 28px;font-size:14px;color:#4a5568;line-height:1.7;">
-                In the meantime, you're welcome to explore our partner portal where you can access product information, marketing assets, and training resources.
+                {{t_portal}}
               </p>
 
               <!-- CTA -->
@@ -38,7 +43,7 @@
                   <td style="background-color:#0A84C0;border-radius:8px;">
                     <a href="https://portal.sliquid.com"
                        style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">
-                      Visit Partner Portal
+                      {{t_cta}}
                     </a>
                   </td>
                 </tr>
@@ -48,15 +53,15 @@
               <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:8px;background-color:#f0f8ff;border-radius:8px;border:1px solid #bee3f8;">
                 <tr>
                   <td style="padding:20px 24px;">
-                    <p style="margin:0 0 12px;font-size:13px;font-weight:700;color:#2b6cb0;text-transform:uppercase;letter-spacing:0.5px;">What happens next</p>
+                    <p style="margin:0 0 12px;font-size:13px;font-weight:700;color:#2b6cb0;text-transform:uppercase;letter-spacing:0.5px;">{{t_next_heading}}</p>
                     <p style="margin:0 0 8px;font-size:13px;color:#2d3748;line-height:1.6;">
-                      ① Our team reviews your inquiry and matches it to the right contact.
+                      ① {{t_step1}}
                     </p>
                     <p style="margin:0 0 8px;font-size:13px;color:#2d3748;line-height:1.6;">
-                      ② We'll reach out by email (or phone if you provided a number).
+                      ② {{t_step2}}
                     </p>
                     <p style="margin:0;font-size:13px;color:#2d3748;line-height:1.6;">
-                      ③ You'll receive a tailored proposal or follow-up based on your inquiry type.
+                      ③ {{t_step3}}
                     </p>
                   </td>
                 </tr>
@@ -68,8 +73,8 @@
           <!-- FOOTER -->
           <tr>
             <td style="background-color:#f7fafc;border:1px solid #e2e8f0;border-radius:0 0 8px 8px;padding:20px 40px;text-align:center;">
-              <p style="margin:0 0 4px;font-size:12px;color:#718096;">Questions? Reply to this email or contact <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a></p>
-              <p style="margin:0;font-size:11px;color:#a0aec0;">© 2025 Sliquid. All rights reserved.</p>
+              <p style="margin:0 0 4px;font-size:12px;color:#718096;">{{t_footer_reply}} <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a></p>
+              <p style="margin:0;font-size:11px;color:#a0aec0;">© 2025 Sliquid. {{t_rights}}</p>
             </td>
           </tr>
 

@@ -103,7 +103,7 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'),
     `).run(title, brand, type, fileUrl, thumbUrl, file_size ?? null, dimensions ?? null, description ?? null, campaign ?? null, s3Key)
 
     if (req.body.notify === 'true') {
-      notifyUsers('new_asset', 'New in Product Library', `${title} (${brand}) has been added to the Product Library.`, '/assets')
+      notifyUsers('new_asset', 'New in Product Library', `${title} (${brand}) has been added to the Product Library.`, '/assets', { key: 'productLibraryItem', params: { name: title, brand } })
       sendBroadcastEmail({ assetName: title, brand })
         .catch((err: unknown) => console.error('[email] Broadcast failed:', err))
     }
@@ -177,7 +177,7 @@ router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.a
   }
 
   if (notify === 'true' && items.length > 0) {
-    notifyUsers('new_asset', 'New in Product Library', `${items.length} new file${items.length > 1 ? 's' : ''} (${brand}) added to the Product Library.`, '/assets')
+    notifyUsers('new_asset', 'New in Product Library', `${items.length} new file${items.length > 1 ? 's' : ''} (${brand}) added to the Product Library.`, '/assets', { key: 'productLibraryBulk', params: { count: items.length, brand } })
     sendBroadcastEmail({ assetName: `${items.length} new file${items.length > 1 ? 's' : ''}`, brand })
       .catch((err: unknown) => console.error('[email] Broadcast failed:', err))
   }
@@ -256,7 +256,7 @@ router.post('/', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
     INSERT INTO creatives (title, brand, type, campaign, thumbnail_url, file_url, description, dimensions, file_size)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(title, brand, type, campaign ?? null, thumbnail_url ?? null, file_url, description ?? null, dimensions ?? null, file_size ?? null)
-  notifyUsers('new_asset', 'New in Product Library', `${title} (${brand}) has been added to the Product Library.`, '/assets')
+  notifyUsers('new_asset', 'New in Product Library', `${title} (${brand}) has been added to the Product Library.`, '/assets', { key: 'productLibraryItem', params: { name: title, brand } })
   res.status(201).json({ id: result.lastInsertRowid })
 })
 

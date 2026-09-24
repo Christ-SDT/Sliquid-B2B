@@ -185,6 +185,7 @@ export function screenSubmission(
 function refusedBody(label: string) {
   return {
     blocked: true,
+    code: 'forms.refused',
     message:
       `We couldn't accept this ${label}. If you believe this is a mistake, ` +
       'please email sales@sliquid.com directly and we will pick it up from there.',
@@ -196,6 +197,8 @@ export function cooldownResponse(state: CooldownState, formLabel: string) {
   return {
     alreadySubmitted: true,
     retryAfterMinutes: state.retryAfterMinutes,
+    code: 'forms.cooldown',
+    params: { count: state.retryAfterMinutes },
     message:
       `We've already received your ${formLabel} — our team is on it. ` +
       `You can send another in about ${state.retryAfterMinutes} minute${state.retryAfterMinutes === 1 ? '' : 's'}.`,

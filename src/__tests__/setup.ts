@@ -25,3 +25,12 @@ if (typeof globalThis.localStorage === 'undefined' || globalThis.localStorage ==
 // detector reads storage during init.
 const { default: i18n } = await import('@/i18n')
 await i18n.changeLanguage('en')
+
+// No test may reach the network. Pages post to the PRODUCTION API by default
+// (API_BASE falls back to the Railway host), and for months two suites did
+// exactly that on every run — creating real submissions and emailing the sales
+// inbox. Any fetch a test hasn't stubbed now fails loudly with its URL.
+// vi.stubGlobal('fetch', …) in a test overrides this; vi.unstubAllGlobals()
+// restores it.
+globalThis.fetch = ((input: RequestInfo | URL) =>
+  Promise.reject(new Error(`Unmocked fetch in test: ${String(input instanceof Request ? input.url : input)} — stub it with vi.stubGlobal('fetch', …)`))) as typeof fetch

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import { api, setToken, clearToken } from '@/api/client'
 import type { User } from '@/types'
-import { applyAccountLanguage } from '@/i18n'
+import i18n, { applyAccountLanguage } from '@/i18n'
 
 interface AuthState {
   user: User | null
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function register(name: string, email: string, company: string, password: string, requestedRole?: string) {
-    await api.post<{ token: string; user: User }>('/auth/register', { name, email, company, password, requested_role: requestedRole })
+    await api.post<{ token: string; user: User }>('/auth/register', { name, email, company, password, requested_role: requestedRole, language: i18n.resolvedLanguage ?? 'en' })
     // Do not auto-login — registration is pending admin approval
   }
 

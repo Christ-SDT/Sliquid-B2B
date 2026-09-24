@@ -101,7 +101,7 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'),
     ).run(name, brand, type, fileUrl, thumbUrl, file_size ?? null, dimensions ?? null, s3Key)
 
     if (req.body.notify === 'true') {
-      notifyUsers('new_asset', 'New in Product Library', `${name} (${brand}) has been added to the Product Library.`, '/assets')
+      notifyUsers('new_asset', 'New in Product Library', `${name} (${brand}) has been added to the Product Library.`, '/assets', { key: 'productLibraryItem', params: { name: name, brand } })
       sendBroadcastEmail({ assetName: name, brand })
         .catch((err: unknown) => console.error('[email] Broadcast failed:', err))
     }
@@ -175,7 +175,7 @@ router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.a
   }
 
   if (notify === 'true' && items.length > 0) {
-    notifyUsers('new_asset', 'New in Product Library', `${items.length} new file${items.length > 1 ? 's' : ''} (${brand}) added to the Product Library.`, '/assets')
+    notifyUsers('new_asset', 'New in Product Library', `${items.length} new file${items.length > 1 ? 's' : ''} (${brand}) added to the Product Library.`, '/assets', { key: 'productLibraryBulk', params: { count: items.length, brand } })
     sendBroadcastEmail({ assetName: `${items.length} new file${items.length > 1 ? 's' : ''}`, brand })
       .catch((err: unknown) => console.error('[email] Broadcast failed:', err))
   }
@@ -253,7 +253,7 @@ router.post('/', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const result = db.prepare(
     'INSERT INTO assets (name, brand, type, file_url, thumbnail_url, file_size, dimensions) VALUES (?, ?, ?, ?, ?, ?, ?)'
   ).run(name, brand, type, file_url, thumbnail_url ?? null, file_size ?? null, dimensions ?? null)
-  notifyUsers('new_asset', 'New in Product Library', `${name} (${brand}) has been added to the Product Library.`, '/assets')
+  notifyUsers('new_asset', 'New in Product Library', `${name} (${brand}) has been added to the Product Library.`, '/assets', { key: 'productLibraryItem', params: { name: name, brand } })
   res.status(201).json({ id: result.lastInsertRowid })
 })
 

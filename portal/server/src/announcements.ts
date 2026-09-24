@@ -135,7 +135,7 @@ export function sweepScheduledAnnouncements(): number {
     if (a.show_on_public === 1) {
       // Also on the public B2B site, so it is safe for everyone including users
       // still awaiting approval.
-      notifyEveryone('new_announcement', 'New announcement', a.title, `/announcements/${a.slug}`)
+      notifyEveryone('new_announcement', 'New announcement', a.title, `/announcements/${a.slug}`, { key: 'announcement', params: { title: a.title } })
     } else {
       // Partner-only. Pending users cannot open it (their feed is filtered to
       // the public subset — see PENDING_SURFACE in routes/announcements.ts), so
@@ -143,7 +143,7 @@ export function sweepScheduledAnnouncements(): number {
       const ids = (db.prepare(
         "SELECT id FROM users WHERE status IS NULL OR status <> 'pending'"
       ).all() as { id: number }[]).map(r => r.id)
-      notifyUserIds(ids, 'new_announcement', 'New announcement', a.title, `/announcements/${a.slug}`)
+      notifyUserIds(ids, 'new_announcement', 'New announcement', a.title, `/announcements/${a.slug}`, { key: 'announcement', params: { title: a.title } })
     }
     mark.run(a.id)
   }

@@ -390,8 +390,9 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 60 | `form_submissions_table` | Creates `form_submissions` (`form_key`, `email`, `created_at`) — the shared one-hour cooldown ledger for every public intake form. Index on `(form_key, email, created_at)` |
 | 61 | `form_submissions_name` | Adds `name` to `form_submissions` + index — lets the repeat limit count an identity rather than just an address |
 | 62 | `add_preferred_language_to_users` | Adds `preferred_language TEXT` to `users` (`en`/`es`/`fr`, NULL = never chose). See [Internationalization](#internationalization-i18n) |
+| 63 | `add_i18n_to_notifications` | Adds `i18n_key TEXT` + `i18n_params TEXT` (JSON) to `notifications` so partner-facing notifications render in the viewer's language; stored English stays the fallback |
 
-**Next migration version: 63**
+**Next migration version: 64**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -1471,6 +1472,13 @@ portal/server/src/__tests__/
 ```
 
 Marketing site (`npm test` at the repo root, vitest + jsdom):
+
+⛔ **Tests must never reach the network.** Pages post to the **production** API by default
+(`API_BASE` falls back to the Railway host), and the Contact / Become-a-Retailer submission
+tests did exactly that for months — creating real submissions and emailing sales, and failing
+once production's spam limit refused the fixture. `src/__tests__/setup.ts` now replaces
+`fetch` with a guard that rejects any unstubbed request with its URL; stub it per test with
+`vi.stubGlobal('fetch', …)`. The whole marketing suite is green (176/176).
 ```
 src/__tests__/announcementBody.test.tsx   # 25 tests: shape classification, quirks-mode
                                           # regression, sanitization, sandbox invariant
@@ -1849,8 +1857,32 @@ app (`src/i18n/` and `portal/client/src/i18n/`, near-identical copies — edit b
     text, not by these getters.
   - A video with no captions shows none; captions must be added in YouTube Studio (also a WCAG
     1.2.2 Level A requirement).
+- **Emails (Phase 5a)** — one EmailJS template per email; translated copy travels as extra
+  template variables. `src/emailCopy.ts` holds en/es/fr strings for the 13 partner-facing
+  templates (`*_admin`, `portal_register_admin` and `b2b_hp_application` go to staff and stay
+  English); `email.ts` spreads `lang` + `t_*` vars **alongside every old variable**, so templates
+  not yet re-pasted keep sending correct English. Language: portal users →
+  `users.preferred_language` (`preferredLanguageOf()` in `src/languages.ts`); register /
+  forgot-password / public forms → the `language` field clients send (`i18n.resolvedLanguage`),
+  always through `resolveLanguage()`.
+  ⚠️ **Nobody gets a translated email until each of the 13 templates is re-pasted in the EmailJS
+  dashboard and its Subject set to `{{t_subject}}`** — see `portal/email-templates/README.md`
+  (Rollout). EmailJS `{{var}}` HTML-escapes; never use triple braces for user-derived values.
+- **Notifications (Phase 5b)** — helpers take an optional `{ key, params }`; the partner-visible
+  types (`new_asset`, `new_announcement`, `account_approved`) pass one, and the TopBar renders
+  `notifications:<key>.title/.message` with the stored English as fallback. English in
+  `notifications.json` must stay byte-identical to the server's text. Admin-only notifications
+  pass no key (English). `account_approved` was missing from `USER_VISIBLE_TYPES`, so approved
+  partners never saw it — fixed.
+- **Server error codes (Phase 5b)** — user-visible auth/form errors carry a stable `code`
+  (`auth.invalidCredentials`, `forms.cooldown`, `forms.refused`, …) beside the unchanged English
+  `message`; both apps translate via `serverErrorText()` and the `errors` namespace, falling
+  back to the message. Match on `code`, never on English wording. The portal `api` client throws
+  `ApiError` (`code`/`params`/`status`) and no longer treats a 401 from `/auth/*` (wrong
+  password) as an expired session.
 - Rollout: Phase 1 foundation ✓, Phase 2 marketing site ✓, Phase 3 portal UI ✓, Phase 4 video
-  captions ✓. Next: per-language email templates + server-generated text (notifications, errors). Captivate SCORM quizzes can't be
+  captions ✓, Phase 5 emails/notifications/errors ✓ (emails pending the EmailJS re-paste).
+  Remaining English by design: legal pages, admin UI, DB/WordPress content, certificate PDF. Captivate SCORM quizzes can't be
   translated from code (text is compiled into `project.js`); they need per-language re-exports.
 
 ⚠️ Node 26 (this machine's default) ships an experimental global `localStorage` that shadows
@@ -1863,7 +1895,7 @@ happens.
 - **Icons:** `lucide-react` exclusively.
 - **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export), public pre-auth calls (e.g., `/api/stores` from RegisterPage), and the public certificate verify page use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **63**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **64**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
 - **`AnnouncementBody.tsx` is duplicated** in `src/components/` and `portal/client/src/components/`.

@@ -10,6 +10,9 @@ export interface Notification {
   link?: string | null
   read: number // 0 = unread, 1 = read
   created_at: string
+  /** Key under the `notifications` namespace; null for admin-only and pre-v63 rows. */
+  i18n_key?: string | null
+  i18n_params?: Record<string, string | number> | null
 }
 
 interface NotificationContextValue {

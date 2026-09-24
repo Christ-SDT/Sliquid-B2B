@@ -498,7 +498,7 @@ router.post('/upload', requireAuth, requireRole('tier5', 'admin'), upload.single
 
     if (notify === 'true') {
       const name = (row.label as string) ?? file.originalname
-      notifyUsers('new_asset', 'New Media Added', `${name} has been added to the Media Library.`, '/media')
+      notifyUsers('new_asset', 'New Media Added', `${name} has been added to the Media Library.`, '/media', { key: 'mediaItem', params: { name } })
       sendBroadcastEmail({ assetName: name, brand: '' })
         .catch((err: unknown) => console.error('[email] Broadcast failed:', err))
     }
@@ -553,7 +553,7 @@ router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.a
   }
 
   if (notify === 'true' && items.length > 0) {
-    notifyUsers('new_asset', 'New Media Added', `${items.length} new file${items.length > 1 ? 's' : ''} added to the Media Library.`, '/media')
+    notifyUsers('new_asset', 'New Media Added', `${items.length} new file${items.length > 1 ? 's' : ''} added to the Media Library.`, '/media', { key: 'mediaBulk', params: { count: items.length } })
     sendBroadcastEmail({ assetName: `${items.length} new file${items.length > 1 ? 's' : ''}`, brand: resolvedBrand })
       .catch((err: unknown) => console.error('[email] Broadcast failed:', err))
   }

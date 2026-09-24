@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { db } from '../database.js'
 import { sendContactFormEmails, sendRetailerApplicationEmails, sendHPApplicationEmail, sendRetailerCheckInEmails } from '../email.js'
 import { FORM_KEYS, screenSubmission, recordFormSubmission } from '../formGate.js'
+import { resolveLanguage } from '../languages.js'
 
 const router = Router()
 
@@ -67,16 +68,16 @@ async function addToMailchimp(data: {
 // ─── POST /api/b2b/contact ────────────────────────────────────────────────────
 
 router.post('/contact', async (req, res) => {
-  const { fromName, fromEmail, company, phone, subject, message } = req.body
+  const { fromName, fromEmail, company, phone, subject, message, language } = req.body
 
   if (!fromName || !fromEmail || !subject || !message) {
-    res.status(400).json({ message: 'Missing required fields.' })
+    res.status(400).json({ message: 'Missing required fields.', code: 'forms.missingFields' })
     return
   }
 
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRe.test(fromEmail)) {
-    res.status(400).json({ message: 'Invalid email address.' })
+    res.status(400).json({ message: 'Invalid email address.', code: 'forms.invalidEmail' })
     return
   }
 
@@ -86,12 +87,12 @@ router.post('/contact', async (req, res) => {
   if (!screen.ok) { res.status(screen.status).json(screen.body); return }
 
   try {
-    await sendContactFormEmails({ fromName, fromEmail, company: company || '', phone: phone || '', subject, message })
+    await sendContactFormEmails({ fromName, fromEmail, company: company || '', phone: phone || '', subject, message, language: resolveLanguage(language) })
     recordFormSubmission(FORM_KEYS.contact, fromEmail, fromName)
     res.json({ ok: true })
   } catch (err: any) {
     console.error('[b2b-forms] Contact error:', err)
-    res.status(500).json({ message: 'Failed to send message. Please try again.' })
+    res.status(500).json({ message: 'Failed to send message. Please try again.', code: 'forms.sendFailed' })
   }
 })
 
@@ -99,16 +100,16 @@ router.post('/contact', async (req, res) => {
 // Public — called by the main B2B site, no auth required
 
 router.post('/retailer-apply', async (req, res) => {
-  const { company, contactName, address, phone, email, website, brands, storeLocator, comments } = req.body
+  const { company, contactName, address, phone, email, website, brands, storeLocator, comments, language } = req.body
 
   if (!company || !contactName || !email || !phone || !brands) {
-    res.status(400).json({ message: 'Missing required fields.' })
+    res.status(400).json({ message: 'Missing required fields.', code: 'forms.missingFields' })
     return
   }
 
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRe.test(email)) {
-    res.status(400).json({ message: 'Invalid email address.' })
+    res.status(400).json({ message: 'Invalid email address.', code: 'forms.invalidEmail' })
     return
   }
 
@@ -123,12 +124,13 @@ router.post('/retailer-apply', async (req, res) => {
       website: website || 'N/A', brands,
       storeLocator: storeLocator || 'No',
       comments: comments || 'N/A',
+      language: resolveLanguage(language),
     })
     recordFormSubmission(FORM_KEYS.retailerApply, email, contactName)
     res.json({ ok: true })
   } catch (err: any) {
     console.error('[b2b-forms] Retailer apply error:', err)
-    res.status(500).json({ message: 'Failed to send application. Please try again.' })
+    res.status(500).json({ message: 'Failed to send application. Please try again.', code: 'forms.sendFailed' })
   }
 })
 
@@ -149,13 +151,13 @@ router.post('/hp-apply', async (req, res) => {
   if (!contactPhone) missing.push('Phone Number')
   if (!email) missing.push('Email')
   if (missing.length > 0) {
-    res.status(400).json({ message: `Please fill in the following: ${missing.join(', ')}.` })
+    res.status(400).json({ message: `Please fill in the following: ${missing.join(', ')}.`, code: 'forms.missingFields' })
     return
   }
 
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRe.test(email)) {
-    res.status(400).json({ message: 'Invalid email address.' })
+    res.status(400).json({ message: 'Invalid email address.', code: 'forms.invalidEmail' })
     return
   }
 
@@ -193,7 +195,7 @@ router.post('/hp-apply', async (req, res) => {
     res.json({ ok: true, referenceNumber })
   } catch (err: any) {
     console.error('[b2b-forms] HP apply error:', err)
-    res.status(500).json({ message: "We hit a temporary issue sending your application. Please try again in a moment — you won't be blocked from retrying." })
+    res.status(500).json({ message: "We hit a temporary issue sending your application. Please try again in a moment — you won't be blocked from retrying.", code: 'forms.sendFailedRetry' })
   }
 })
 
@@ -216,13 +218,13 @@ router.post('/retailer-checkin', async (req, res) => {
   if (!contactName) missing.push('Your Name')
   if (!email)       missing.push('Email')
   if (missing.length > 0) {
-    res.status(400).json({ message: `Please fill in the following: ${missing.join(', ')}.` })
+    res.status(400).json({ message: `Please fill in the following: ${missing.join(', ')}.`, code: 'forms.missingFields' })
     return
   }
 
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRe.test(email)) {
-    res.status(400).json({ message: 'Invalid email address.' })
+    res.status(400).json({ message: 'Invalid email address.', code: 'forms.invalidEmail' })
     return
   }
 
@@ -252,6 +254,7 @@ router.post('/retailer-checkin', async (req, res) => {
         interests:      interests || '',
         siteFeedback:   siteFeedback || '',
         comments:       comments || '',
+        language:       resolveLanguage(req.body?.language),
       })
     } catch (emailErr) {
       // Same rollback as hp-apply: a failed send must not leave a row behind, or
@@ -264,7 +267,7 @@ router.post('/retailer-checkin', async (req, res) => {
     res.json({ ok: true, referenceNumber })
   } catch (err: any) {
     console.error('[b2b-forms] Retailer check-in error:', err)
-    res.status(500).json({ message: "We hit a temporary issue sending your check-in. Please try again in a moment — you won't be blocked from retrying." })
+    res.status(500).json({ message: "We hit a temporary issue sending your check-in. Please try again in a moment — you won't be blocked from retrying.", code: 'forms.sendFailedRetry' })
   }
 })
 
@@ -275,13 +278,13 @@ router.post('/booth-signup', async (req, res) => {
   const { name, email, businessName, businessType, storeNames, storeCount, websiteUrl, contactName, contactPhone } = req.body
 
   if (!name || !email || !businessName || !businessType || !contactName) {
-    res.status(400).json({ message: 'Missing required fields.' })
+    res.status(400).json({ message: 'Missing required fields.', code: 'forms.missingFields' })
     return
   }
 
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRe.test(email)) {
-    res.status(400).json({ message: 'Invalid email address.' })
+    res.status(400).json({ message: 'Invalid email address.', code: 'forms.invalidEmail' })
     return
   }
 

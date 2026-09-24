@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "invalidCredentials": "Correo electrónico o contraseña incorrectos",
+    "credentialsRequired": "Se requieren el correo electrónico y la contraseña",
+    "accountDeclined": "Su solicitud de registro fue rechazada. Comuníquese con support@sliquid.com.",
+    "loginRateLimited": "Demasiados intentos de inicio de sesión. Vuelva a intentarlo en 15 minutos.",
+    "allFieldsRequired": "Todos los campos son obligatorios",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+    "emailInUse": "Este correo electrónico ya está en uso",
+    "emailRequired": "El correo electrónico es obligatorio",
+    "resetRateLimited": "Demasiadas solicitudes de restablecimiento de contraseña. Vuelva a intentarlo en 15 minutos.",
+    "resetFieldsRequired": "Se requieren el token y la contraseña",
+    "resetLinkInvalid": "El enlace de restablecimiento no es válido o ha caducado",
+    "resetLinkExpired": "El enlace de restablecimiento ha caducado. Solicite uno nuevo."
+  },
+  "forms": {
+    "missingFields": "Faltan campos obligatorios.",
+    "invalidEmail": "La dirección de correo electrónico no es válida.",
+    "nameRequired": "El nombre es obligatorio.",
+    "sendFailed": "No se pudo enviar. Vuelva a intentarlo.",
+    "sendFailedRetry": "Tuvimos un problema temporal al enviar su solicitud. Vuelva a intentarlo en un momento; no se le bloqueará por reintentar.",
+    "cooldown_one": "Ya recibimos su envío y nuestro equipo se está encargando. Podrá enviar otro en aproximadamente {{count}} minuto.",
+    "cooldown_other": "Ya recibimos su envío y nuestro equipo se está encargando. Podrá enviar otro en aproximadamente {{count}} minutos.",
+    "refused": "No pudimos aceptar este envío. Si cree que se trata de un error, escriba directamente a sales@sliquid.com y nos encargaremos a partir de ahí."
+  }
+}

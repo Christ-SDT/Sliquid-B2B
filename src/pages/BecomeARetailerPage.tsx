@@ -3,6 +3,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { sanitizeFormData } from '@/utils/sanitize'
 import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
+import { serverErrorText } from '@/utils/serverError'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -227,12 +228,17 @@ export default function BecomeARetailerPage() {
           brands:       safe.brands.join(', ') || 'None selected',
           storeLocator: safe.storeLocator ? 'Yes' : 'No',
           comments:     safe.comments || 'N/A',
+          language:     i18n.resolvedLanguage ?? 'en',
         }),
       })
-      const data = await res.json().catch(() => ({})) as { message?: string; retryAfterMinutes?: number }
+      const data = await res.json().catch(() => ({})) as { message?: string; code?: string; params?: Record<string, unknown>; retryAfterMinutes?: number }
       if (res.status === 429) {
         cooldown.lock(data.retryAfterMinutes ?? 60)
-        setSendError(data.message ?? t('errors.alreadyApplied'))
+        setSendError(serverErrorText(data, t('errors.alreadyApplied')))
+        return
+      }
+      if (res.status === 403) {
+        setSendError(serverErrorText(data, t('errors.sendFailed')))
         return
       }
       if (!res.ok) throw new Error(data.message ?? 'Request failed')

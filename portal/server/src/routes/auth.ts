@@ -7,6 +7,7 @@ import { db } from '../database.js'
 import { requireAuth, JWT_SECRET } from '../middleware/auth.js'
 import { sendRegistrationConfirm, sendPasswordResetEmail } from '../email.js'
 import { notifyAdmins } from '../notifications.js'
+import { SUPPORTED_LANGUAGES, isSupportedLanguage, resolveLanguage } from '../languages.js'
 
 const router = Router()
 
@@ -15,23 +16,23 @@ const loginLimiter = rateLimit({
   max: 15,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { message: 'Too many login attempts. Please try again in 15 minutes.' },
+  message: { message: 'Too many login attempts. Please try again in 15 minutes.', code: 'auth.loginRateLimited' },
 })
 
 router.post('/login', loginLimiter, (req, res) => {
   const { email, password } = req.body
   if (!email || !password) {
-    res.status(400).json({ message: 'Email and password required' })
+    res.status(400).json({ message: 'Email and password required', code: 'auth.credentialsRequired' })
     return
   }
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any
-  if (!user) { res.status(401).json({ message: 'Invalid email or password' }); return }
+  if (!user) { res.status(401).json({ message: 'Invalid email or password', code: 'auth.invalidCredentials' }); return }
 
   const valid = bcrypt.compareSync(password, user.password_hash)
-  if (!valid) { res.status(401).json({ message: 'Invalid email or password' }); return }
+  if (!valid) { res.status(401).json({ message: 'Invalid email or password', code: 'auth.invalidCredentials' }); return }
 
   if (user.status === 'declined') {
-    res.status(403).json({ message: 'Your registration request was declined. Please contact support@sliquid.com.' })
+    res.status(403).json({ message: 'Your registration request was declined. Please contact support@sliquid.com.', code: 'auth.accountDeclined' })
     return
   }
 
@@ -53,31 +54,34 @@ const REQUESTED_ROLE_LABEL: Record<string, string> = {
 }
 
 router.post('/register', loginLimiter, async (req, res) => {
-  const { name, email, company, password, requested_role } = req.body
+  const { name, email, company, password, requested_role, language } = req.body
   if (!name || !email || !company || !password) {
-    res.status(400).json({ message: 'All fields are required' })
+    res.status(400).json({ message: 'All fields are required', code: 'auth.allFieldsRequired' })
     return
   }
   if (password.length < 8) {
-    res.status(400).json({ message: 'Password must be at least 8 characters' })
+    res.status(400).json({ message: 'Password must be at least 8 characters', code: 'auth.passwordTooShort' })
     return
   }
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email)
   if (existing) {
-    res.status(409).json({ message: 'Email already in use' })
+    res.status(409).json({ message: 'Email already in use', code: 'auth.emailInUse' })
     return
   }
   const role = 'tier4'
   const status = 'pending'
   const requestedRole = requested_role === 'tier1' || requested_role === 'tier2' ? requested_role : null
+  // The UI language they registered in becomes their saved preference. Anything
+  // unsupported is stored as NULL ("never chose"), not coerced to English.
+  const preferredLanguage = isSupportedLanguage(language) ? language : null
   const password_hash = await bcrypt.hash(password, 10)
   const result = db.prepare(
-    'INSERT INTO users (name, email, company, password_hash, role, status, requested_role) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).run(name, email, company, password_hash, role, status, requestedRole)
+    'INSERT INTO users (name, email, company, password_hash, role, status, requested_role, preferred_language) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(name, email, company, password_hash, role, status, requestedRole, preferredLanguage)
   const userId = result.lastInsertRowid as number
   const token = jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: '7d' })
 
-  sendRegistrationConfirm({ name, email, company })
+  sendRegistrationConfirm({ name, email, company, language: resolveLanguage(preferredLanguage) })
     .catch(err => console.error('[email] Registration email failed:', err))
 
   const roleHint = requestedRole ? ` as a ${REQUESTED_ROLE_LABEL[requestedRole]}` : ''
@@ -100,12 +104,9 @@ router.get('/me', requireAuth, (req, res) => {
   res.json({ ...req.user, preferred_language: row?.preferred_language ?? null })
 })
 
-// Must match SUPPORTED_LANGUAGES in both clients' i18n setup.
-export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr'] as const
-
 router.put('/me/language', requireAuth, (req, res) => {
   const { language } = req.body ?? {}
-  if (!SUPPORTED_LANGUAGES.includes(language)) {
+  if (!isSupportedLanguage(language)) {
     return res.status(400).json({ message: `language must be one of: ${SUPPORTED_LANGUAGES.join(', ')}` })
   }
   db.prepare('UPDATE users SET preferred_language = ? WHERE id = ?').run(language, req.user!.id)
@@ -119,15 +120,16 @@ const resetLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { message: 'Too many password reset requests. Please try again in 15 minutes.' },
+  message: { message: 'Too many password reset requests. Please try again in 15 minutes.', code: 'auth.resetRateLimited' },
 })
 
 router.post('/forgot-password', resetLimiter, async (req, res) => {
-  const { email } = req.body
-  if (!email) { res.status(400).json({ message: 'Email is required' }); return }
+  const { email, language } = req.body
+  if (!email) { res.status(400).json({ message: 'Email is required', code: 'auth.emailRequired' }); return }
 
   // Always return 200 to prevent email enumeration
-  const user = db.prepare('SELECT id, name FROM users WHERE email = ?').get(email) as { id: number; name: string } | undefined
+  const user = db.prepare('SELECT id, name, preferred_language FROM users WHERE email = ?').get(email) as
+    { id: number; name: string; preferred_language: string | null } | undefined
   if (!user) { res.json({ ok: true }); return }
 
   const token = randomBytes(32).toString('hex')
@@ -138,7 +140,10 @@ router.post('/forgot-password', resetLimiter, async (req, res) => {
   const RESET_BASE = (process.env.B2B_SITE_URL ?? process.env.PORTAL_URL ?? 'https://hq.sliquid.com').replace(/\/$/, '')
   const resetUrl = `${RESET_BASE}/reset-password?token=${token}`
 
-  sendPasswordResetEmail({ toName: user.name, toEmail: email, resetUrl })
+  // The language of the page they asked from wins (they may be on a new device);
+  // otherwise their saved preference.
+  const emailLanguage = isSupportedLanguage(language) ? language : resolveLanguage(user.preferred_language)
+  sendPasswordResetEmail({ toName: user.name, toEmail: email, resetUrl, language: emailLanguage })
     .catch(err => console.error('[email] Password reset email failed:', err))
 
   res.json({ ok: true })
@@ -148,15 +153,15 @@ router.post('/forgot-password', resetLimiter, async (req, res) => {
 
 router.post('/reset-password', async (req, res) => {
   const { token, password } = req.body
-  if (!token || !password) { res.status(400).json({ message: 'Token and password are required' }); return }
-  if (password.length < 8) { res.status(400).json({ message: 'Password must be at least 8 characters' }); return }
+  if (!token || !password) { res.status(400).json({ message: 'Token and password are required', code: 'auth.resetFieldsRequired' }); return }
+  if (password.length < 8) { res.status(400).json({ message: 'Password must be at least 8 characters', code: 'auth.passwordTooShort' }); return }
 
   const user = db.prepare('SELECT id, reset_token_expires FROM users WHERE reset_token = ?').get(token) as { id: number; reset_token_expires: string } | undefined
-  if (!user) { res.status(400).json({ message: 'Invalid or expired reset link' }); return }
+  if (!user) { res.status(400).json({ message: 'Invalid or expired reset link', code: 'auth.resetLinkInvalid' }); return }
 
   if (new Date(user.reset_token_expires) < new Date()) {
     db.prepare('UPDATE users SET reset_token = NULL, reset_token_expires = NULL WHERE id = ?').run(user.id)
-    res.status(400).json({ message: 'Reset link has expired. Please request a new one.' }); return
+    res.status(400).json({ message: 'Reset link has expired. Please request a new one.', code: 'auth.resetLinkExpired' }); return
   }
 
   const password_hash = await bcrypt.hash(password, 10)

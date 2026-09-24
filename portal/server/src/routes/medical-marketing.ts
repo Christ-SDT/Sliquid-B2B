@@ -7,6 +7,7 @@ import { db } from '../database.js'
 import { requireAuth, requireRole, requireAdminViewer, requireRoleOrAdminViewer } from '../middleware/auth.js'
 import { notifyAdmins } from '../notifications.js'
 import { sendMedicalMarketingRequestEmails } from '../email.js'
+import { preferredLanguageOf } from '../languages.js'
 
 const router = Router()
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50_000_000 } })
@@ -244,6 +245,7 @@ router.post('/apply', requireAuth, (req: any, res) => {
     company: business_name,
     requestedItems: requested_items,
     notes: request_notes ?? '',
+    language: preferredLanguageOf(req.user!.id),
   }).catch(err => console.error('[email] Medical marketing request emails failed:', err))
 
   res.status(201).json({ id: result.lastInsertRowid, status: 'pending' })

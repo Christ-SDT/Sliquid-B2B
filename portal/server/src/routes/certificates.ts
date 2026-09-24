@@ -4,6 +4,7 @@ import { db } from '../database.js'
 import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 import { sendRewardConfirmEmail, sendRewardAdminEmail } from '../email.js'
 import { notifyAdmins } from '../notifications.js'
+import { preferredLanguageOf } from '../languages.js'
 import {
   getRewardOptions,
   deriveRewardProducts,
@@ -101,6 +102,7 @@ router.post('/reward', requireAuth, (req, res) => {
     product: product.trim(),
     shirtSize,
     address: addressStr,
+    language: preferredLanguageOf(user.id),
   }).catch(err => console.error('[email] Reward confirm email failed:', err))
 
   // Look up average quiz score across all passed results for this user

@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
+import i18n from '@/i18n'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -20,7 +21,7 @@ export default function ForgotPasswordPage() {
       await fetch(`${PORTAL_API}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), language: i18n.resolvedLanguage ?? 'en' }),
       })
       // Always show success — server never reveals whether the email exists
       setSubmitted(true)

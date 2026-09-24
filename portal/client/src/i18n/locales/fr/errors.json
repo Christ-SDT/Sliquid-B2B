@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "invalidCredentials": "Adresse courriel ou mot de passe invalide",
+    "credentialsRequired": "L’adresse courriel et le mot de passe sont requis",
+    "accountDeclined": "Votre demande d’inscription a été refusée. Veuillez écrire à support@sliquid.com.",
+    "loginRateLimited": "Trop de tentatives de connexion. Veuillez réessayer dans 15 minutes.",
+    "allFieldsRequired": "Tous les champs sont obligatoires",
+    "passwordTooShort": "Le mot de passe doit comporter au moins 8 caractères",
+    "emailInUse": "Cette adresse courriel est déjà utilisée",
+    "emailRequired": "L’adresse courriel est obligatoire",
+    "resetRateLimited": "Trop de demandes de réinitialisation du mot de passe. Veuillez réessayer dans 15 minutes.",
+    "resetFieldsRequired": "Le jeton et le mot de passe sont requis",
+    "resetLinkInvalid": "Lien de réinitialisation invalide ou expiré",
+    "resetLinkExpired": "Le lien de réinitialisation a expiré. Veuillez en demander un nouveau."
+  },
+  "forms": {
+    "missingFields": "Des champs obligatoires sont manquants.",
+    "invalidEmail": "Adresse courriel invalide.",
+    "nameRequired": "Le nom est obligatoire.",
+    "sendFailed": "L’envoi a échoué. Veuillez réessayer.",
+    "sendFailedRetry": "Un problème temporaire a empêché l’envoi. Veuillez réessayer dans un instant — vous ne serez pas bloqué si vous réessayez.",
+    "cooldown_one": "Nous avons bien reçu votre envoi et notre équipe s’en occupe. Vous pourrez en envoyer un autre dans environ {{count}} minute.",
+    "cooldown_other": "Nous avons bien reçu votre envoi et notre équipe s’en occupe. Vous pourrez en envoyer un autre dans environ {{count}} minutes.",
+    "refused": "Nous n’avons pas pu accepter cet envoi. Si vous pensez qu’il s’agit d’une erreur, écrivez directement à sales@sliquid.com et nous prendrons le relais."
+  }
+}

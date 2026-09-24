@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{lang}}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Marketing Request Received – Sliquid B2B Portal</title>
+  <title>{{t_subject}}</title>
 </head>
 <!--
   Template ID : portal_marketing_user
+
+  Translated copy: {{lang}} + {{t_*}} variables, filled per language by
+  portal/server/src/emailCopy.ts. Subject field in EmailJS: {{t_subject}}
   Variables   : {{user_name}}, {{requested_items}}, {{to_email}}
   Recipient   : the user who submitted the physical marketing asset request
 -->
@@ -21,7 +24,7 @@
             <td style="background-color:#fefaf4;border-radius:8px 8px 0 0;border-bottom:1px solid #ddc9ae;padding:24px 40px;text-align:center;">
               <img src="https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/reference-images/58439771-8fd8-454f-81eb-e2e5123dede5.png" alt="Sliquid" style="max-width:180px;height:auto;display:block;margin:0 auto;" />
               <p style="margin:10px 0 0;font-size:22px;font-weight:700;color:#0A84C0;letter-spacing:2px;">SLIQUID</p>
-              <p style="margin:4px 0 0;font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:#a08060;">B2B Partner Portal</p>
+              <p style="margin:4px 0 0;font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:#a08060;">{{t_tagline}}</p>
             </td>
           </tr>
 
@@ -33,14 +36,14 @@
               <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
                 <tr>
                   <td style="background-color:#dcfce7;border:1px solid #86efac;border-radius:4px;padding:4px 12px;">
-                    <p style="margin:0;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#15803d;">✓ Request Received</p>
+                    <p style="margin:0;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#15803d;">✓ {{t_badge}}</p>
                   </td>
                 </tr>
               </table>
 
-              <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#2c1a0a;">We got your request, {{user_name}}!</h1>
+              <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#2c1a0a;">{{t_heading}}</h1>
               <p style="margin:0 0 28px;font-size:15px;color:#6b4c30;line-height:1.6;">
-                Your marketing request has been submitted. Our team will review it and reach out to confirm details.
+                {{t_intro}}
               </p>
 
               <!-- Divider -->
@@ -49,7 +52,7 @@
               </table>
 
               <!-- Request summary -->
-              <p style="margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#a08060;">Requested Items</p>
+              <p style="margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#a08060;">{{t_label_items}}</p>
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;background-color:#f0e5d4;border:1px solid #ddc9ae;border-radius:8px;">
                 <tr>
                   <td style="padding:20px 24px;">
@@ -59,7 +62,7 @@
               </table>
 
               <p style="margin:0;font-size:14px;color:#6b4c30;line-height:1.6;">
-                Questions about your request? Reach out at <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>.
+                {{t_help}} <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>.
               </p>
 
             </td>
@@ -69,8 +72,8 @@
           <tr>
             <td style="background-color:#f0e5d4;border:1px solid #ddc9ae;border-top:none;border-radius:0 0 8px 8px;padding:20px 40px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#a08060;">
-                This email was sent by the Sliquid B2B Partner Portal.<br />
-                Questions? Contact <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>
+                {{t_footer_sent}}<br />
+                {{t_footer_questions}} <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>
               </p>
             </td>
           </tr>

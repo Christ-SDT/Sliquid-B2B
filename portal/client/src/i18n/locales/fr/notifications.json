@@ -1,0 +1,28 @@
+{
+  "productLibraryItem": {
+    "title": "Nouveauté dans la Bibliothèque de produits",
+    "message": "{{name}} ({{brand}}) a été ajouté à la Bibliothèque de produits."
+  },
+  "productLibraryBulk": {
+    "title": "Nouveauté dans la Bibliothèque de produits",
+    "message_one": "{{count}} nouveau fichier ({{brand}}) a été ajouté à la Bibliothèque de produits.",
+    "message_other": "{{count}} nouveaux fichiers ({{brand}}) ont été ajoutés à la Bibliothèque de produits."
+  },
+  "mediaItem": {
+    "title": "Nouveau média ajouté",
+    "message": "{{name}} a été ajouté à la Médiathèque."
+  },
+  "mediaBulk": {
+    "title": "Nouveau média ajouté",
+    "message_one": "{{count}} nouveau fichier a été ajouté à la Médiathèque.",
+    "message_other": "{{count}} nouveaux fichiers ont été ajoutés à la Médiathèque."
+  },
+  "announcement": {
+    "title": "Nouvelle annonce",
+    "message": "{{title}}"
+  },
+  "accountApproved": {
+    "title": "Votre compte a été approuvé!",
+    "message": "Bienvenue dans le Portail partenaires Sliquid. Vous pouvez maintenant vous connecter et accéder à votre compte."
+  }
+}

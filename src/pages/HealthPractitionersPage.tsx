@@ -3,6 +3,8 @@ import { Trans, useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { sanitizeFormData } from '@/utils/sanitize'
 import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
+import i18n from '@/i18n'
+import { serverErrorText } from '@/utils/serverError'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -316,11 +318,12 @@ export default function HealthPractitionersPage() {
           contactPhone:     safe.contactPhone,
           preferredContact: safe.preferredContact,
           addToDirectory:   safe.addToDirectory,
+          language:         i18n.resolvedLanguage ?? 'en',
         }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({})) as {
-          message?: string; alreadySubmitted?: boolean; retryAfterMinutes?: number
+          message?: string; code?: string; params?: Record<string, unknown>; alreadySubmitted?: boolean; retryAfterMinutes?: number
         }
         if (data.alreadySubmitted) {
           // Keep the existing dedicated screen, but also start the clock so a
@@ -329,7 +332,7 @@ export default function HealthPractitionersPage() {
           setAlreadySubmitted(true)
           return
         }
-        throw new HPApiError(data.message ?? t('errors.serverUnexpected'))
+        throw new HPApiError(serverErrorText(data, t('errors.serverUnexpected')))
       }
       cooldown.start()
       setSubmitted(true)

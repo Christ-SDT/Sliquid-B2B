@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext'
 import { Loader2 } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { serverErrorText } from '@/lib/serverError'
 
 export default function LoginPage() {
   const { t: tCommon } = useTranslation('common')
@@ -27,7 +28,7 @@ export default function LoginPage() {
       await login(email, password)
       navigate('/dashboard', { replace: true })
     } catch (err: any) {
-      setError(err.message ?? t('login.failed'))
+      setError(serverErrorText(err, t('login.failed')))
     } finally {
       setLoading(false)
     }

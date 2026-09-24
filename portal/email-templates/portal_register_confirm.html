@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{lang}}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registration Received – Sliquid B2B Portal</title>
+  <title>{{t_subject}}</title>
 </head>
 <!--
   Template ID : portal_register_confirm
+
+  Translated copy: {{lang}} + {{t_*}} variables, filled per language by
+  portal/server/src/emailCopy.ts. Subject field in EmailJS: {{t_subject}}
   Variables   : {{user_name}}, {{user_email}}, {{to_email}}
   Recipient   : the new user
 -->
@@ -21,7 +24,7 @@
             <td style="background-color:#fefaf4;border-radius:8px 8px 0 0;border-bottom:1px solid #ddc9ae;padding:24px 40px;text-align:center;">
               <img src="https://sliquid-ai-creator.s3.us-east-2.amazonaws.com/reference-images/58439771-8fd8-454f-81eb-e2e5123dede5.png" alt="Sliquid" style="max-width:180px;height:auto;display:block;margin:0 auto;" />
               <p style="margin:10px 0 0;font-size:22px;font-weight:700;color:#0A84C0;letter-spacing:2px;">SLIQUID</p>
-              <p style="margin:4px 0 0;font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:#a08060;">B2B Partner Portal</p>
+              <p style="margin:4px 0 0;font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:#a08060;">{{t_tagline}}</p>
             </td>
           </tr>
 
@@ -29,18 +32,18 @@
           <tr>
             <td style="background-color:#fefaf4;border-left:1px solid #ddc9ae;border-right:1px solid #ddc9ae;padding:40px 40px 32px;">
 
-              <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#2c1a0a;">Welcome, {{user_name}}!</h1>
+              <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#2c1a0a;">{{t_heading}}</h1>
               <p style="margin:0 0 24px;font-size:15px;color:#6b4c30;line-height:1.6;">
-                Thank you for registering with the <strong style="color:#2c1a0a;">Sliquid B2B Partner Portal</strong>. Your account has been received and is currently under review by our team.
+                {{t_intro_before}} <strong style="color:#2c1a0a;">Sliquid B2B Partner Portal</strong>{{t_intro_after}}
               </p>
 
               <!-- Status box -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;background-color:#fef9f0;border:1px solid #f59e0b;border-radius:8px;">
                 <tr>
                   <td style="padding:16px 20px;">
-                    <p style="margin:0;font-size:13px;font-weight:600;color:#92400e;">⏳ Pending Review</p>
+                    <p style="margin:0;font-size:13px;font-weight:600;color:#92400e;">⏳ {{t_badge}}</p>
                     <p style="margin:6px 0 0;font-size:13px;color:#92400e;line-height:1.5;">
-                      Our team will review your application and grant portal access shortly. You'll receive a confirmation email once your account is approved.
+                      {{t_pending}}
                     </p>
                   </td>
                 </tr>
@@ -52,22 +55,22 @@
               </table>
 
               <!-- Account details -->
-              <p style="margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#a08060;">Your Registration Details</p>
+              <p style="margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#a08060;">{{t_details_heading}}</p>
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
                 <tr>
                   <td width="50%" style="padding-right:12px;padding-bottom:12px;">
-                    <p style="margin:0 0 3px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#a08060;">Name</p>
+                    <p style="margin:0 0 3px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#a08060;">{{t_label_name}}</p>
                     <p style="margin:0;font-size:14px;color:#2c1a0a;">{{user_name}}</p>
                   </td>
                   <td width="50%" style="padding-left:12px;padding-bottom:12px;">
-                    <p style="margin:0 0 3px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#a08060;">Email</p>
+                    <p style="margin:0 0 3px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#a08060;">{{t_label_email}}</p>
                     <p style="margin:0;font-size:14px;color:#2c1a0a;">{{user_email}}</p>
                   </td>
                 </tr>
               </table>
 
               <p style="margin:0;font-size:14px;color:#6b4c30;line-height:1.6;">
-                If you have any questions in the meantime, feel free to reach out at <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>.
+                {{t_help}} <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>.
               </p>
 
             </td>
@@ -77,8 +80,8 @@
           <tr>
             <td style="background-color:#f0e5d4;border:1px solid #ddc9ae;border-top:none;border-radius:0 0 8px 8px;padding:20px 40px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#a08060;">
-                This email was sent by the Sliquid B2B Partner Portal.<br />
-                Questions? Contact <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>
+                {{t_footer_sent}}<br />
+                {{t_footer_questions}} <a href="mailto:support@sliquid.com" style="color:#0A84C0;text-decoration:none;">support@sliquid.com</a>
               </p>
             </td>
           </tr>

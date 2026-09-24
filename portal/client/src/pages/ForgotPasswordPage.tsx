@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom'
 import { Loader2, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import i18n from '@/i18n'
+import { serverErrorText } from '@/lib/serverError'
 
 export default function ForgotPasswordPage() {
   const { t: tCommon } = useTranslation('common')
@@ -23,11 +25,11 @@ export default function ForgotPasswordPage() {
       const res = await fetch(`${apiUrl}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, language: i18n.resolvedLanguage ?? 'en' }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        throw new Error(data.message ?? t('shared.genericError'))
+        throw new Error(serverErrorText(data, t('shared.genericError')))
       }
       setSent(true)
     } catch (err: any) {

@@ -2,6 +2,8 @@ import { useState, FormEvent, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
 import { ChevronDown, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import i18n from '@/i18n'
+import { serverErrorText } from '@/utils/serverError'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -64,11 +66,11 @@ export default function RegisterPage() {
       const res = await fetch(`${PORTAL_API}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), company: company.trim(), password, requested_role: requestedRole }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), company: company.trim(), password, requested_role: requestedRole, language: i18n.resolvedLanguage ?? 'en' }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        throw new Error((data as { message?: string }).message ?? t('register.errors.failed'))
+        throw new Error(serverErrorText(data, t('register.errors.failed')))
       }
       setSubmitted(true)
     } catch (err: unknown) {

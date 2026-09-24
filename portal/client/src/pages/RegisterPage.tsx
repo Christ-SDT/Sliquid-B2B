@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext'
 import { Loader2, Eye, EyeOff, ChevronDown, CheckCircle } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { serverErrorText } from '@/lib/serverError'
 
 interface Store { id: number; name: string }
 
@@ -105,8 +106,7 @@ export default function RegisterPage() {
       await register(name, email, company, password, requestedRole ?? undefined)
       setSubmitted(true)
     } catch (err: any) {
-      // The server's message is English; map the one we can recognise.
-      setError(err.message === 'Email already in use' ? t('register.errors.emailInUse') : (err.message ?? t('register.errors.failed')))
+      setError(serverErrorText(err, t('register.errors.failed')))
     } finally {
       setLoading(false)
     }

@@ -3,6 +3,7 @@ import { db } from '../database.js'
 import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 import { notifyAdmins } from '../notifications.js'
 import { sendMarketingRequestEmails } from '../email.js'
+import { preferredLanguageOf } from '../languages.js'
 
 const router = Router()
 
@@ -36,6 +37,7 @@ router.post('/apply', requireAuth, (req, res) => {
     company: business_name,
     requestedItems: requested_items,
     notes: request_notes ?? '',
+    language: preferredLanguageOf(req.user!.id),
   }).catch(err => console.error('[email] Marketing request emails failed:', err))
 
   res.status(201).json({ id: result.lastInsertRowid, status: 'pending' })

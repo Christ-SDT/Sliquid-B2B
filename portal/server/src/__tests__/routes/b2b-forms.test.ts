@@ -58,6 +58,7 @@ describe('POST /api/b2b/retailer-checkin', () => {
         const { [field]: _omit, ...rest } = VALID
         const res = await request(app).post('/api/b2b/retailer-checkin').send(rest)
         expect(res.status).toBe(400)
+        expect(res.body.code).toBe('forms.missingFields')
         expect(db.prepare('SELECT COUNT(*) c FROM retailer_checkins').get()).toEqual({ c: 0 })
       })
     }
@@ -65,6 +66,7 @@ describe('POST /api/b2b/retailer-checkin', () => {
     it('rejects a malformed email', async () => {
       const res = await request(app).post('/api/b2b/retailer-checkin').send({ ...VALID, email: 'not-an-email' })
       expect(res.status).toBe(400)
+      expect(res.body).toMatchObject({ message: 'Invalid email address.', code: 'forms.invalidEmail' })
       expect(db.prepare('SELECT COUNT(*) c FROM retailer_checkins').get()).toEqual({ c: 0 })
     })
 
@@ -209,6 +211,10 @@ describe('one-hour submission gate', () => {
         expect(res.body.alreadySubmitted).toBe(true)
         expect(res.body.retryAfterMinutes).toBeGreaterThan(0)
         expect(res.body.retryAfterMinutes).toBeLessThanOrEqual(60)
+        // Clients translate by code; the English message is still sent unchanged.
+        expect(res.body.code).toBe('forms.cooldown')
+        expect(res.body.params).toEqual({ count: res.body.retryAfterMinutes })
+        expect(res.body.message).toMatch(/^We've already received your /)
       })
 
       it('matches the email case-insensitively', async () => {

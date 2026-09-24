@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { serverErrorText } from '@/utils/serverError'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -63,7 +64,7 @@ export default function ResetPasswordPage() {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setError((data as { message?: string }).message ?? t('reset.errors.failed'))
+        setError(serverErrorText(data, t('reset.errors.failed')))
         return
       }
       // Success — redirect to login with a flag so it can show a success banner

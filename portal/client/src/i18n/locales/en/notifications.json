@@ -1,0 +1,28 @@
+{
+  "productLibraryItem": {
+    "title": "New in Product Library",
+    "message": "{{name}} ({{brand}}) has been added to the Product Library."
+  },
+  "productLibraryBulk": {
+    "title": "New in Product Library",
+    "message_one": "{{count}} new file ({{brand}}) added to the Product Library.",
+    "message_other": "{{count}} new files ({{brand}}) added to the Product Library."
+  },
+  "mediaItem": {
+    "title": "New Media Added",
+    "message": "{{name}} has been added to the Media Library."
+  },
+  "mediaBulk": {
+    "title": "New Media Added",
+    "message_one": "{{count}} new file added to the Media Library.",
+    "message_other": "{{count}} new files added to the Media Library."
+  },
+  "announcement": {
+    "title": "New announcement",
+    "message": "{{title}}"
+  },
+  "accountApproved": {
+    "title": "Your account has been approved!",
+    "message": "Welcome to the Sliquid Partner Portal. You can now log in and access your account."
+  }
+}

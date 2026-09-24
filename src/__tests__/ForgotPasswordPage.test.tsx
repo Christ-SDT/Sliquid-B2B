@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import ForgotPasswordPage from '../pages/ForgotPasswordPage'
@@ -122,5 +122,39 @@ describe('ForgotPasswordPage — submission', () => {
       expect.stringContaining('/api/auth/forgot-password'),
       expect.objectContaining({ method: 'POST' })
     ))
+  })
+})
+
+// ─── Language (Phase 5: server sends the partner's email in this language) ───
+
+describe('request carries the visitor language', () => {
+  afterEach(async () => {
+    vi.unstubAllGlobals()
+    window.localStorage.clear() // a successful submit starts the 1h cooldown
+    const { default: i18n } = await import('@/i18n')
+    await i18n.changeLanguage('en')
+  })
+
+  async function submittedBody(switchTo?: 'es' | 'fr') {
+    const fetchSpy = vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({}) })
+    vi.stubGlobal('fetch', fetchSpy)
+    const { container } = renderPage()
+    await userEvent.type(screen.getByLabelText(/email address/i), 'jane@store.com')
+    if (switchTo) {
+      const { default: i18n } = await import('@/i18n')
+      await act(async () => { await i18n.changeLanguage(switchTo) })
+    }
+    fireEvent.submit(container.querySelector('form')!)
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/api/auth/forgot-password'), expect.anything()))
+    const [, init] = fetchSpy.mock.calls.find(([url]) => String(url).includes('/api/auth/forgot-password'))!
+    return JSON.parse(init.body as string) as Record<string, unknown>
+  }
+
+  it('sends language "en" by default', async () => {
+    expect((await submittedBody()).language).toBe('en')
+  })
+
+  it('sends the language the visitor switched to', async () => {
+    expect((await submittedBody('es')).language).toBe('es')
   })
 })

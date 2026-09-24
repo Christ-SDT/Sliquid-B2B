@@ -7,10 +7,23 @@ import { useNotifications } from '@/context/NotificationContext'
 import { isAdmin } from '@/types'
 import { cn, timeAgo } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
+import type { Notification } from '@/context/NotificationContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 interface Props {
   onMenuClick: () => void
+}
+
+/**
+ * A notification in the viewer's language when the server attached a key
+ * (partner-facing types, v63+); otherwise — admin-only types and older rows —
+ * the English text stored at insert time.
+ */
+function notificationText(t: TFunction, n: Notification, field: 'title' | 'message'): string {
+  const stored = field === 'title' ? n.title : n.message
+  if (!n.i18n_key) return stored
+  return t(`notifications:${n.i18n_key}.${field}`, { ...(n.i18n_params ?? {}), defaultValue: stored })
 }
 
 const NOTIF_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -151,10 +164,10 @@ export default function TopBar({ onMenuClick }: Props) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className={cn('text-sm font-medium leading-tight', n.read === 0 ? 'text-on-canvas' : 'text-on-canvas-subtle')}>
-                            {n.title}
+                            {notificationText(t, n, 'title')}
                           </p>
                           <p className="text-on-canvas-muted text-xs mt-0.5 line-clamp-2 leading-relaxed">
-                            {n.message}
+                            {notificationText(t, n, 'message')}
                           </p>
                           <p className="text-on-canvas-muted/60 text-[10px] mt-1">{timeAgo(n.created_at)}</p>
                         </div>

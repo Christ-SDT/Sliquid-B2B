@@ -2,6 +2,8 @@ import { useState, useId } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { sanitizeFormData } from '@/utils/sanitize'
 import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
+import i18n from '@/i18n'
+import { serverErrorText } from '@/utils/serverError'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -50,15 +52,15 @@ function RequestForm({ type, onSuccess }: { type: RequestType; onSuccess: () => 
       const res = await fetch(`${API_BASE}/api/gdpr/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, name: safe.name, email: safe.email, message: safe.message || undefined }),
+        body: JSON.stringify({ type, name: safe.name, email: safe.email, message: safe.message || undefined, language: i18n.resolvedLanguage ?? 'en' }),
       })
-      const data = await res.json().catch(() => ({})) as { message?: string; retryAfterMinutes?: number }
+      const data = await res.json().catch(() => ({})) as { message?: string; code?: string; params?: Record<string, unknown>; retryAfterMinutes?: number }
       if (res.status === 429) {
         cooldown.lock(data.retryAfterMinutes ?? 60)
-        setSendError(data.message ?? t('errors.alreadyReceived'))
+        setSendError(serverErrorText(data, t('errors.alreadyReceived')))
         return
       }
-      if (!res.ok) throw new Error(data.message ?? t('errors.generic'))
+      if (!res.ok) throw new Error(serverErrorText(data, t('errors.generic')))
       cooldown.start()
       onSuccess()
     } catch (err: any) {

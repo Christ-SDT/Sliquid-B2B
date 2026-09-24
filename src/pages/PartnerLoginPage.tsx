@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
 import i18n from '@/i18n'
+import { serverErrorText } from '@/utils/serverError'
 
 const PORTAL_API = import.meta.env.VITE_PORTAL_API_URL ?? 'https://sliquid-b2b-production.up.railway.app'
 const PORTAL_URL = import.meta.env.VITE_PORTAL_URL ?? 'https://portal.sliquid.com'
@@ -14,7 +15,7 @@ export async function loginToPortal(email: string, password: string) {
   })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
-    throw new Error((data as { message?: string }).message ?? i18n.t('auth:login.errors.invalidCredentials'))
+    throw new Error(serverErrorText(data, i18n.t('auth:login.errors.invalidCredentials')))
   }
   return res.json() as Promise<{ token: string; user: { name: string } }>
 }

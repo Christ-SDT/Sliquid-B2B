@@ -4,6 +4,8 @@ import type { TFunction } from 'i18next'
 import type { ContactFormData, ContactFormErrors } from '@/types'
 import { sanitizeFormData } from '@/utils/sanitize'
 import FormCooldownNotice, { useFormCooldown } from '@/components/FormCooldownNotice'
+import i18n from '@/i18n'
+import { serverErrorText } from '@/utils/serverError'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://sliquid-b2b-production.up.railway.app'
 
@@ -92,15 +94,22 @@ export default function ContactPage() {
           phone:     sanitized.phone ?? '',
           subject:   sanitized.subject,
           message:   sanitized.message,
+          language:  i18n.resolvedLanguage ?? 'en',
         }),
       })
-      const data = await res.json().catch(() => ({})) as { message?: string; retryAfterMinutes?: number }
+      const data = await res.json().catch(() => ({})) as { message?: string; code?: string; params?: Record<string, unknown>; retryAfterMinutes?: number }
       if (res.status === 429) {
         // A duplicate inside the hour still means their first message landed,
         // so the success screen is honest here — just start the clock so the
         // form is locked rather than re-offered.
         cooldown.lock(data.retryAfterMinutes ?? 60)
         setSubmitted(true)
+        return
+      }
+      // A spam-block refusal carries its own text (with a human contact route);
+      // anything else falls through to the generic send failure below.
+      if (res.status === 403) {
+        setSendError(serverErrorText(data, t('errors.sendFailed')))
         return
       }
       if (!res.ok) throw new Error(data.message ?? 'Request failed')

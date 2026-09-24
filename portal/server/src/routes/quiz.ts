@@ -4,6 +4,7 @@ import { db } from '../database.js'
 import { requireAuth } from '../middleware/auth.js'
 import { sendQuizPassEmail, sendCertificateEmail } from '../email.js'
 import { notifyAdmins } from '../notifications.js'
+import { INTL_LOCALE, preferredLanguageOf } from '../languages.js'
 
 const router = Router()
 
@@ -31,11 +32,13 @@ router.post('/complete', requireAuth, (req, res) => {
   `).run(user.id, quizId, clampedScore, passed)
 
   if (passed) {
+    const language = preferredLanguageOf(user.id)
     sendQuizPassEmail({
       toName: user.name,
       toEmail: user.email,
       quizTitle: quizTitle ?? quizId,
       score: clampedScore,
+      language,
     }).catch(err => console.error('[email] Failed to send pass email:', err))
 
     // Check if all trainings have been passed → auto-issue certificate
@@ -58,14 +61,16 @@ router.post('/complete', requireAuth, (req, res) => {
             'INSERT INTO certificates (certificate_number, user_id, issued_to) VALUES (?, ?, ?)'
           ).run(certNumber, user.id, user.name)
           console.log(`[cert] Issued certificate ${certNumber} to user ${user.id} (${user.name})`)
-          const completionDate = new Date().toLocaleDateString('en-US', {
-            year: 'numeric', month: 'long', day: 'numeric',
-          })
+          const dateOpts = { year: 'numeric', month: 'long', day: 'numeric' } as const
+          const now = new Date()
+          const completionDate = now.toLocaleDateString('en-US', dateOpts)
           sendCertificateEmail({
             toName: user.name,
             toEmail: user.email,
             certNumber,
             completionDate,
+            localizedCompletionDate: now.toLocaleDateString(INTL_LOCALE[language], dateOpts),
+            language,
           }).catch(err => console.error('[email] Certificate email failed:', err))
 
           // Notify admins that a certificate was issued

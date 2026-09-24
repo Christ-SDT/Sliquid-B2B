@@ -1,14 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import BecomeARetailerPage from '../pages/BecomeARetailerPage'
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
-
-vi.mock('@emailjs/browser', () => ({
-  default: { send: vi.fn() },
-}))
 
 // Stub env vars so the "not configured" guard never fires in tests
 vi.mock('@/utils/constants', () => ({
@@ -18,8 +14,14 @@ vi.mock('@/utils/constants', () => ({
   EMAILJS_RETAILER_CONFIRM_TID:'test-confirm-tid',
 }))
 
-import emailjs from '@emailjs/browser'
-const mockSend = vi.mocked(emailjs.send)
+// Validation tests assert that nothing is sent. Every test gets a fetch spy;
+// submission tests replace it with their own response.
+let fetchSpy: ReturnType<typeof vi.fn>
+beforeEach(() => {
+  fetchSpy = vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({}) })
+  vi.stubGlobal('fetch', fetchSpy)
+})
+afterEach(() => vi.unstubAllGlobals())
 
 function renderPage() {
   return render(<MemoryRouter><BecomeARetailerPage /></MemoryRouter>)
@@ -103,7 +105,7 @@ describe('BecomeARetailerPage — validation', () => {
     renderPage()
     fireEvent.submit(screen.getByRole('button', { name: /submit/i }))
     await waitFor(() => expect(screen.getByText(/company is required/i)).toBeInTheDocument())
-    expect(mockSend).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('shows error when first name is missing', async () => {
@@ -111,7 +113,7 @@ describe('BecomeARetailerPage — validation', () => {
     await userEvent.type(screen.getByLabelText(/company/i), 'Acme')
     fireEvent.submit(screen.getByRole('button', { name: /submit/i }))
     await waitFor(() => expect(screen.getByText(/first name is required/i)).toBeInTheDocument())
-    expect(mockSend).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('shows error for invalid email', async () => {
@@ -119,7 +121,7 @@ describe('BecomeARetailerPage — validation', () => {
     await userEvent.type(screen.getByLabelText(/email/i), 'not-valid')
     fireEvent.submit(screen.getByRole('button', { name: /submit/i }))
     await waitFor(() => expect(screen.getByText(/valid email address is required/i)).toBeInTheDocument())
-    expect(mockSend).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('shows error when no brand is selected', async () => {
@@ -131,7 +133,7 @@ describe('BecomeARetailerPage — validation', () => {
     await userEvent.type(screen.getByLabelText(/email/i), 'jane@store.com')
     fireEvent.submit(screen.getByRole('button', { name: /submit/i }))
     await waitFor(() => expect(screen.getByText(/select at least one brand/i)).toBeInTheDocument())
-    expect(mockSend).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('shows error when MAP policy is not agreed', async () => {
@@ -144,25 +146,34 @@ describe('BecomeARetailerPage — validation', () => {
     await userEvent.click(screen.getByLabelText(/sliquid naturals/i))
     fireEvent.submit(screen.getByRole('button', { name: /submit/i }))
     await waitFor(() => expect(screen.getByText(/must agree to the sliquid map policy/i)).toBeInTheDocument())
-    expect(mockSend).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 })
 
 // ─── Submission ───────────────────────────────────────────────────────────────
 
 describe('BecomeARetailerPage — submission', () => {
-  beforeEach(() => vi.clearAllMocks())
+  // The page posts to /api/b2b/retailer-apply with fetch. These tests used to
+  // mock emailjs (no longer used) and so submitted to the PRODUCTION API on
+  // every run — whose spam repeat-limit eventually refused the fixture.
+  const ok = () => vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({}) })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    window.localStorage.clear() // a successful submit starts the 1h cooldown
+  })
 
-  it('calls emailjs.send twice (admin + confirm) on valid submission', async () => {
-    mockSend.mockResolvedValue({ status: 200, text: 'OK' })
+  it('posts the application to /api/b2b/retailer-apply on valid submission', async () => {
+    const fetchSpy = ok()
+    vi.stubGlobal('fetch', fetchSpy)
     renderPage()
     await fillRequiredFields()
     fireEvent.submit(screen.getByRole('button', { name: /submit/i }))
-    await waitFor(() => expect(mockSend).toHaveBeenCalledTimes(2))
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/api/b2b/retailer-apply'), expect.objectContaining({ method: 'POST' })))
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
   })
 
-  it('shows thank you modal after successful submission', async () => {
-    mockSend.mockResolvedValue({ status: 200, text: 'OK' })
+  it('shows thank you modal after the server accepts it', async () => {
+    vi.stubGlobal('fetch', ok())
     renderPage()
     await fillRequiredFields()
     fireEvent.submit(screen.getByRole('button', { name: /submit/i }))
@@ -170,20 +181,54 @@ describe('BecomeARetailerPage — submission', () => {
   })
 
   it('disables submit button while sending', async () => {
-    let resolve!: (v: any) => void
-    mockSend.mockReturnValue(new Promise(r => { resolve = r }))
+    let resolve!: (v: unknown) => void
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise(r => { resolve = r })))
     renderPage()
     await fillRequiredFields()
     fireEvent.submit(screen.getByRole('button', { name: /submit/i }))
     await waitFor(() => expect(screen.getByRole('button', { name: /submitting/i })).toBeDisabled())
-    resolve({ status: 200, text: 'OK' })
+    resolve({ ok: true, status: 200, json: () => Promise.resolve({}) })
   })
 
-  it('shows error banner when emailjs throws', async () => {
-    mockSend.mockRejectedValue(new Error('Network error'))
+  it('shows error banner when the send fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
     renderPage()
     await fillRequiredFields()
     fireEvent.submit(screen.getByRole('button', { name: /submit/i }))
     await waitFor(() => expect(screen.getByText(/something went wrong/i)).toBeInTheDocument())
+  })
+})
+
+// ─── Language (Phase 5: server sends the partner's email in this language) ───
+
+describe('request carries the visitor language', () => {
+  afterEach(async () => {
+    vi.unstubAllGlobals()
+    window.localStorage.clear() // a successful submit starts the 1h cooldown
+    const { default: i18n } = await import('@/i18n')
+    await i18n.changeLanguage('en')
+  })
+
+  async function submittedBody(switchTo?: 'es' | 'fr') {
+    const fetchSpy = vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({}) })
+    vi.stubGlobal('fetch', fetchSpy)
+    const { container } = renderPage()
+    await fillRequiredFields()
+    if (switchTo) {
+      const { default: i18n } = await import('@/i18n')
+      await act(async () => { await i18n.changeLanguage(switchTo) })
+    }
+    fireEvent.submit(container.querySelector('form')!)
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/api/b2b/retailer-apply'), expect.anything()))
+    const [, init] = fetchSpy.mock.calls.find(([url]) => String(url).includes('/api/b2b/retailer-apply'))!
+    return JSON.parse(init.body as string) as Record<string, unknown>
+  }
+
+  it('sends language "en" by default', async () => {
+    expect((await submittedBody()).language).toBe('en')
+  })
+
+  it('sends the language the visitor switched to', async () => {
+    expect((await submittedBody('es')).language).toBe('es')
   })
 })

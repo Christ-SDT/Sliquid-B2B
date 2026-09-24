@@ -49,6 +49,8 @@ describe('blocklist file', () => {
     const res = await request(app).post('/api/b2b/contact').send(CONTACT)
     expect(res.status).toBe(403)
     expect(res.body.blocked).toBe(true)
+    // A generic code — it must not reveal which rule matched.
+    expect(res.body.code).toBe('forms.refused')
     expect(db.prepare('SELECT COUNT(*) c FROM form_submissions').get()).toEqual({ c: 0 })
   })
 

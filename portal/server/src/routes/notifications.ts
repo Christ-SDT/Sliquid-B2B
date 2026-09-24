@@ -8,7 +8,10 @@ const router = Router()
 // alerts, marketing requests, announcement review queue) are hidden from them.
 // NOTE: a new user-facing notification type MUST be added here or it will be
 // inserted for tier1–tier4 and then silently filtered out of their feed.
-const USER_VISIBLE_TYPES = ['new_asset', 'new_announcement']
+// `account_approved` was missing — the approval notice was written for the
+// newly approved partner and then never shown to them. (`account_declined`
+// stays out: declined users are blocked at login, so there is no feed to show.)
+const USER_VISIBLE_TYPES = ['new_asset', 'new_announcement', 'account_approved']
 
 // GET /api/notifications — latest 30 for current user, unread first
 router.get('/', requireAuth, (req, res) => {
@@ -22,13 +25,20 @@ router.get('/', requireAuth, (req, res) => {
     WHERE user_id = ? ${typeFilter}
     ORDER BY read ASC, created_at DESC
     LIMIT 30
-  `).all(req.user!.id)
+  `).all(req.user!.id) as { i18n_params: string | null }[]
 
   const { count } = db.prepare(
     `SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND read = 0 ${typeFilter}`
   ).get(req.user!.id) as { count: number }
 
-  res.json({ notifications, unreadCount: count })
+  // i18n_params is stored as JSON text; hand the client an object (or null).
+  const withParams = notifications.map(n => {
+    let params: unknown = null
+    try { params = n.i18n_params ? JSON.parse(n.i18n_params) : null } catch { /* malformed → fall back to English text */ }
+    return { ...n, i18n_params: params }
+  })
+
+  res.json({ notifications: withParams, unreadCount: count })
 })
 
 // PUT /api/notifications/read-all — mark all as read (must be before /:id/read)

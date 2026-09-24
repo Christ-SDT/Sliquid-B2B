@@ -3,6 +3,7 @@ import { db } from '../database.js'
 import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth.js'
 import { sendApprovalEmail, sendDeclineEmail } from '../email.js'
 import { notifyUser } from '../notifications.js'
+import { preferredLanguageOf } from '../languages.js'
 
 const router = Router()
 
@@ -69,10 +70,11 @@ router.post('/users/:id/approve', requireAuth, requireRole('tier5', 'admin'), (r
     if (user.company?.trim()) {
       db.prepare('INSERT OR IGNORE INTO stores (name) VALUES (?)').run(user.company.trim())
     }
-    sendApprovalEmail({ name: user.name, email: user.email, role: user.role })
+    sendApprovalEmail({ name: user.name, email: user.email, role: user.role, language: preferredLanguageOf(id) })
       .catch(err => console.error('[email] Approval email failed:', err))
     notifyUser(id, 'account_approved', 'Your account has been approved!',
-      'Welcome to the Sliquid Partner Portal. You can now log in and access your account.', '/dashboard')
+      'Welcome to the Sliquid Partner Portal. You can now log in and access your account.', '/dashboard',
+      { key: 'accountApproved' })
   }
   res.json(user)
 })
@@ -83,7 +85,7 @@ router.post('/users/:id/decline', requireAuth, requireRole('tier5', 'admin'), (r
   const result = db.prepare("UPDATE users SET status = 'declined' WHERE id = ?").run(id)
   if (result.changes === 0) { res.status(404).json({ message: 'User not found' }); return }
   if (user) {
-    sendDeclineEmail({ name: user.name, email: user.email })
+    sendDeclineEmail({ name: user.name, email: user.email, language: preferredLanguageOf(id) })
       .catch(err => console.error('[email] Decline email failed:', err))
     notifyUser(id, 'account_declined', 'Registration Update',
       'Your registration request was not approved at this time. Please contact support@sliquid.com for more information.')
