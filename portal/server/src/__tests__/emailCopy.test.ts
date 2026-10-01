@@ -50,6 +50,20 @@ describe('email copy', () => {
     expect(body).not.toMatch(/\{\{\{/)
   })
 
+  // New languages start as copies of English (so the server compiles while
+  // they're translated). Fail if one would ship that way: most strings must
+  // differ from English (some legitimately don't, e.g. a bare "{user_name}").
+  it.each(SUPPORTED_LANGUAGES.filter(l => l !== 'en'))('%s email copy is actually translated', (lng) => {
+    let total = 0, same = 0
+    for (const id of Object.keys(EMAIL_COPY) as EmailTemplateId[]) {
+      for (const [key, value] of Object.entries(EMAIL_COPY[id].en)) {
+        total++
+        if ((EMAIL_COPY[id][lng] as Record<string, string>)[key] === value) same++
+      }
+    }
+    expect(same / total, `${lng}: ${same} of ${total} email strings are still English`).toBeLessThanOrEqual(0.5)
+  })
+
   it('role labels and defaults exist in every language', () => {
     const roles = Object.keys(ROLE_LABELS.en).sort()
     for (const lng of SUPPORTED_LANGUAGES) {

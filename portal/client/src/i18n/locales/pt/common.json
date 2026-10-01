@@ -1,0 +1,96 @@
+{
+  "skipToContent": "Pular para o conteúdo principal",
+  "language": {
+    "label": "Idioma"
+  },
+  "roles": {
+    "tier1": "Funcionário de loja",
+    "tier2": "Gerência de loja",
+    "tier3": "Distribuidor",
+    "tier4": "Prospect",
+    "tier5": "Administrador",
+    "tier6": "Parceiro médico",
+    "tier7": "Mídia",
+    "tier8": "Jurídico (somente leitura)"
+  },
+  "time": {
+    "justNow": "agora mesmo"
+  },
+  "nav": {
+    "dashboard": "Painel",
+    "announcements": "Comunicados",
+    "assets": "Biblioteca de ativos",
+    "distributors": "Distribuidores",
+    "trainings": "Treinamento digital",
+    "creator": "Criador com IA",
+    "retailer": "Marketing na loja",
+    "medicalMarketing": "Marketing médico",
+    "requests": "Solicitações de parceiros",
+    "marketingRequests": "Solicitações de marketing",
+    "media": "Biblioteca de mídia",
+    "users": "Gestão de usuários",
+    "gdprRequests": "Solicitações de RGPD",
+    "manageAnnouncements": "Gerenciar comunicados"
+  },
+  "sidebar": {
+    "logoAlt": "Lótus Sliquid",
+    "brand": "PORTAL DE PARCEIROS",
+    "closeMenu": "Fechar menu",
+    "readOnly": "Acesso somente leitura — você pode ver tudo aqui, mas não pode alterar nada.",
+    "signOut": "Sair"
+  },
+  "theme": {
+    "wellnessMode": "Modo bem-estar",
+    "toggle": "Alternar tema"
+  },
+  "topbar": {
+    "openMenu": "Abrir menu",
+    "notifications": "Notificações",
+    "markAllRead": "Marcar todas como lidas",
+    "empty": "Ainda não há notificações",
+    "account": "Menu da conta",
+    "adminTools": "Ferramentas de administração",
+    "admin": {
+      "products": "Produtos",
+      "inventory": "Estoque",
+      "invoices": "Faturas",
+      "analytics": "Análises",
+      "referenceGallery": "Galeria de referência",
+      "myStore": "Minha loja",
+      "serverLogs": "Logs do servidor"
+    },
+    "newCount_one": "{{count}} nova",
+    "newCount_other": "{{count}} novas"
+  },
+  "titles": {
+    "dashboard": "Painel",
+    "announcements": "Comunicados",
+    "announcement": "Comunicado",
+    "manageAnnouncements": "Gerenciar comunicados",
+    "products": "Produtos",
+    "assets": "Biblioteca de produtos",
+    "inventory": "Estoque",
+    "invoices": "Faturas",
+    "stats": "Estatísticas",
+    "distributors": "Distribuidores",
+    "retailer": "Materiais de marketing",
+    "trainings": "Treinamentos",
+    "quiz": "Questionário de treinamento",
+    "users": "Usuários",
+    "requests": "Solicitações de parceiros",
+    "marketingRequests": "Solicitações de marketing",
+    "storeUsers": "Minha loja",
+    "creator": "Criador",
+    "media": "Mídia",
+    "referenceGallery": "Galeria de referência",
+    "logs": "Logs",
+    "medicalMarketing": "Marketing médico",
+    "gdprRequests": "Solicitações de RGPD",
+    "login": "Entrar",
+    "employeeLogin": "Acesso de funcionários",
+    "register": "Criar conta",
+    "forgotPassword": "Esqueci minha senha",
+    "resetPassword": "Redefinir senha",
+    "verify": "Verificar certificado"
+  }
+}

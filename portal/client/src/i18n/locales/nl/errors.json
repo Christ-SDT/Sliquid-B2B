@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "invalidCredentials": "Ongeldig e-mailadres of wachtwoord",
+    "credentialsRequired": "E-mailadres en wachtwoord zijn verplicht",
+    "accountDeclined": "Uw registratieverzoek is afgewezen. Neem contact op met support@sliquid.com.",
+    "loginRateLimited": "Te veel inlogpogingen. Probeer het over 15 minuten opnieuw.",
+    "allFieldsRequired": "Alle velden zijn verplicht",
+    "passwordTooShort": "Het wachtwoord moet minimaal 8 tekens bevatten",
+    "emailInUse": "Dit e-mailadres is al in gebruik",
+    "emailRequired": "E-mailadres is verplicht",
+    "resetRateLimited": "Te veel verzoeken om het wachtwoord te herstellen. Probeer het over 15 minuten opnieuw.",
+    "resetFieldsRequired": "Token en wachtwoord zijn verplicht",
+    "resetLinkInvalid": "Ongeldige of verlopen herstellink",
+    "resetLinkExpired": "De herstellink is verlopen. Vraag een nieuwe aan."
+  },
+  "forms": {
+    "missingFields": "Verplichte velden ontbreken.",
+    "invalidEmail": "Ongeldig e-mailadres.",
+    "nameRequired": "Naam is verplicht.",
+    "sendFailed": "Verzenden mislukt. Probeer het opnieuw.",
+    "sendFailedRetry": "Er is een tijdelijk probleem opgetreden bij het verzenden. Probeer het zo meteen opnieuw — u wordt niet geblokkeerd.",
+    "cooldown_one": "We hebben uw inzending al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuut opnieuw iets versturen.",
+    "cooldown_other": "We hebben uw inzending al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuten opnieuw iets versturen.",
+    "refused": "We konden deze inzending niet accepteren. Denkt u dat dit een vergissing is? Stuur dan rechtstreeks een e-mail naar sales@sliquid.com, dan pakken wij het daar op."
+  }
+}

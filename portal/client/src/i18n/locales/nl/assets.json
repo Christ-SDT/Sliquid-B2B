@@ -1,0 +1,96 @@
+{
+  "actions": {
+    "back": "Terug",
+    "close": "Sluiten",
+    "view": "Bekijken",
+    "download": "Downloaden",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "confirmDelete": "Verwijderen bevestigen",
+    "cancel": "Annuleren",
+    "cancelDelete": "Verwijderen annuleren"
+  },
+  "sections": {
+    "logos": "Logo's",
+    "banners": "Banners",
+    "socialMedia": "Social media",
+    "documents": "Documenten",
+    "emailTemplates": "E-mailsjablonen",
+    "campaignMaterials": "Campagnemateriaal",
+    "videos": "Video's",
+    "generatedImages": "Gegenereerde afbeeldingen",
+    "other": "Overig"
+  },
+  "types": {
+    "logo": "Logo",
+    "banner": "Banner",
+    "social": "Social",
+    "document": "Document",
+    "socialMedia": "Social media",
+    "email": "E-mail",
+    "print": "Print",
+    "multi": "Multi",
+    "video": "Video",
+    "aiGenerated": "AI-gegenereerd"
+  },
+  "brands": {
+    "userGenerated": "Content van gebruikers"
+  },
+  "detail": {
+    "createdBy": "Gemaakt door {{name}}",
+    "closeViewer": "Viewer sluiten",
+    "previewUnavailable": "Geen voorbeeld beschikbaar voor dit bestandstype.",
+    "openInNewTab": "Openen in nieuw tabblad"
+  },
+  "explorer": {
+    "allItems": "Alle items",
+    "files_one": "({{count}} bestand)",
+    "files_other": "({{count}} bestanden)",
+    "empty": "Geen bestanden in dit onderdeel"
+  },
+  "brand": {
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "browse": "Bladeren per categorie",
+    "viewAll": "Alles van {{brand}} bekijken ({{count}})",
+    "all": "Alles ({{count}})",
+    "showingOf": "8 van {{total}} bestanden",
+    "files_one": "{{count}} bestand",
+    "files_other": "{{count}} bestanden",
+    "showAllBrand": "Alles van {{brand}} tonen",
+    "showAllSection": "Alle {{section}} tonen",
+    "featured": "Uitgelicht",
+    "feature": "Dit item uitlichten",
+    "unfeature": "Uit uitgelicht verwijderen"
+  },
+  "shots": {
+    "title": "Productfoto's",
+    "subtitle": "Productfotografie in hoge resolutie voor alle merken",
+    "viewAll": "Alle productfoto's bekijken ({{count}})",
+    "badge": "Productfoto",
+    "images_one": "({{count}} afbeelding)",
+    "images_other": "({{count}} afbeeldingen)",
+    "select": "Selecteren",
+    "searchPlaceholder": "Productfoto's zoeken…",
+    "deselectAll": "Alles deselecteren",
+    "selectAll": "Alles selecteren ({{count}})",
+    "selectedCount": "{{count}} geselecteerd",
+    "preparing": "Voorbereiden…",
+    "downloadZip": "Downloaden als ZIP ({{count}})",
+    "downloadN": "Downloaden ({{count}})",
+    "clear": "Wissen",
+    "noMatch": "Geen afbeeldingen gevonden",
+    "empty": "Nog geen productfoto's",
+    "rename": "Hernoemen",
+    "closeViewer": "Viewer sluiten"
+  },
+  "page": {
+    "title": "Bestandsbibliotheek",
+    "searchPlaceholder": "Bibliotheek doorzoeken…",
+    "addItem": "Item toevoegen",
+    "noMatch": "Geen items gevonden",
+    "empty": "Nog geen items in de bibliotheek",
+    "addFirst": "Voeg het eerste item toe",
+    "deleteFailed": "Item verwijderen mislukt"
+  }
+}

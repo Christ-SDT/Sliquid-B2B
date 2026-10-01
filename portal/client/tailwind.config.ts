@@ -58,7 +58,9 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        // Inter has no CJK glyphs; name the Simplified Chinese system fonts so zh
+        // renders consistently (macOS/iOS, older macOS, Windows, Android/Linux).
+        sans: ['Inter', 'system-ui', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': { from: { height: '0' }, to: { height: 'var(--radix-accordion-content-height)' } },

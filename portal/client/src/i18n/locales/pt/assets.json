@@ -1,0 +1,96 @@
+{
+  "actions": {
+    "back": "Voltar",
+    "close": "Fechar",
+    "view": "Ver",
+    "download": "Baixar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "confirmDelete": "Confirmar exclusão",
+    "cancel": "Cancelar",
+    "cancelDelete": "Cancelar exclusão"
+  },
+  "sections": {
+    "logos": "Logotipos",
+    "banners": "Banners",
+    "socialMedia": "Redes sociais",
+    "documents": "Documentos",
+    "emailTemplates": "Modelos de e-mail",
+    "campaignMaterials": "Materiais de campanha",
+    "videos": "Vídeos",
+    "generatedImages": "Imagens geradas",
+    "other": "Outros"
+  },
+  "types": {
+    "logo": "Logotipo",
+    "banner": "Banner",
+    "social": "Social",
+    "document": "Documento",
+    "socialMedia": "Redes sociais",
+    "email": "E-mail",
+    "print": "Impressão",
+    "multi": "Múltiplo",
+    "video": "Vídeo",
+    "aiGenerated": "Gerado por IA"
+  },
+  "brands": {
+    "userGenerated": "Conteúdo gerado por usuários"
+  },
+  "detail": {
+    "createdBy": "Criado por {{name}}",
+    "closeViewer": "Fechar visualizador",
+    "previewUnavailable": "Pré-visualização indisponível para este tipo de arquivo.",
+    "openInNewTab": "Abrir em nova aba"
+  },
+  "explorer": {
+    "allItems": "Todos os itens",
+    "files_one": "({{count}} arquivo)",
+    "files_other": "({{count}} arquivos)",
+    "empty": "Nenhum arquivo nesta seção"
+  },
+  "brand": {
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} itens",
+    "browse": "Navegar por categoria",
+    "viewAll": "Ver tudo de {{brand}} ({{count}})",
+    "all": "Todos ({{count}})",
+    "showingOf": "Mostrando 8 de {{total}} arquivos",
+    "files_one": "{{count}} arquivo",
+    "files_other": "{{count}} arquivos",
+    "showAllBrand": "Mostrar tudo de {{brand}}",
+    "showAllSection": "Mostrar tudo em {{section}}",
+    "featured": "Destaque",
+    "feature": "Destacar este item",
+    "unfeature": "Remover dos destaques"
+  },
+  "shots": {
+    "title": "Fotos de produto",
+    "subtitle": "Fotografia de produto em alta resolução de todas as marcas",
+    "viewAll": "Ver todas as fotos de produto ({{count}})",
+    "badge": "Foto de produto",
+    "images_one": "({{count}} imagem)",
+    "images_other": "({{count}} imagens)",
+    "select": "Selecionar",
+    "searchPlaceholder": "Pesquisar fotos de produto…",
+    "deselectAll": "Desmarcar todas",
+    "selectAll": "Selecionar todas ({{count}})",
+    "selectedCount": "{{count}} selecionadas",
+    "preparing": "Preparando…",
+    "downloadZip": "Baixar como ZIP ({{count}})",
+    "downloadN": "Baixar ({{count}})",
+    "clear": "Limpar",
+    "noMatch": "Nenhuma imagem corresponde à sua pesquisa",
+    "empty": "Ainda não há fotos de produto",
+    "rename": "Renomear",
+    "closeViewer": "Fechar visualizador"
+  },
+  "page": {
+    "title": "Biblioteca de ativos",
+    "searchPlaceholder": "Pesquisar na biblioteca…",
+    "addItem": "Adicionar item",
+    "noMatch": "Nenhum item corresponde à sua pesquisa",
+    "empty": "Ainda não há itens na biblioteca",
+    "addFirst": "Adicionar o primeiro item",
+    "deleteFailed": "Não foi possível excluir o item"
+  }
+}

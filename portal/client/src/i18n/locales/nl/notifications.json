@@ -1,0 +1,28 @@
+{
+  "productLibraryItem": {
+    "title": "Nieuw in de Productbibliotheek",
+    "message": "{{name}} ({{brand}}) is toegevoegd aan de Productbibliotheek."
+  },
+  "productLibraryBulk": {
+    "title": "Nieuw in de Productbibliotheek",
+    "message_one": "{{count}} nieuw bestand ({{brand}}) toegevoegd aan de Productbibliotheek.",
+    "message_other": "{{count}} nieuwe bestanden ({{brand}}) toegevoegd aan de Productbibliotheek."
+  },
+  "mediaItem": {
+    "title": "Nieuwe media toegevoegd",
+    "message": "{{name}} is toegevoegd aan de Mediabibliotheek."
+  },
+  "mediaBulk": {
+    "title": "Nieuwe media toegevoegd",
+    "message_one": "{{count}} nieuw bestand toegevoegd aan de Mediabibliotheek.",
+    "message_other": "{{count}} nieuwe bestanden toegevoegd aan de Mediabibliotheek."
+  },
+  "announcement": {
+    "title": "Nieuwe aankondiging",
+    "message": "{{title}}"
+  },
+  "accountApproved": {
+    "title": "Uw account is goedgekeurd!",
+    "message": "Welkom bij het Sliquid Partnerportaal. U kunt nu inloggen en uw account gebruiken."
+  }
+}

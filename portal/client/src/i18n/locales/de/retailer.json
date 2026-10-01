@@ -1,0 +1,63 @@
+{
+  "card": {
+    "select": "Auswählen",
+    "selected": "✓ Ausgewählt",
+    "selectDesigns": "Designs wählen",
+    "editItem": "Artikel bearbeiten",
+    "deleteItem": "Artikel löschen",
+    "confirmDelete": "Löschen",
+    "cancelDelete": "Löschen abbrechen"
+  },
+  "success": {
+    "title": "Anfrage gesendet!",
+    "body": "Danke, <bold>{{name}}</bold>! Ihre Anfrage nach Werbematerial für <bold>{{company}}</bold> ist eingegangen. Unser Team meldet sich in Kürze.",
+    "itemsRequested": "Angeforderte Artikel",
+    "hostedBy": "Bereitgestellt von Team Sliquid"
+  },
+  "header": {
+    "title": "Physisches Werbematerial anfordern",
+    "intro": "Sehen Sie sich unten unsere Displayartikel für den Laden an. Wählen Sie die gewünschten Artikel für Ihren Standort aus, geben Sie Ihre Daten ein und senden Sie die Anfrage ab.",
+    "addItem": "Artikel hinzufügen"
+  },
+  "status": {
+    "approved": "Anfrage genehmigt",
+    "declined": "Anfrage abgelehnt",
+    "pending": "Anfrage wird geprüft",
+    "declinedBody": "Ihre vorherige Anfrage wurde nicht erfüllt. Sie können unten eine neue stellen.",
+    "approvedBody": "Ihre Anfrage für {{business}} ist genehmigt und wird bearbeitet.",
+    "pendingBody": "Ihre Anfrage für {{business}} wird vom Sliquid-Team geprüft.",
+    "requested": "Angefordert:"
+  },
+  "catalog": {
+    "heading": "Verfügbare Artikel",
+    "hint": "Klicken Sie bei einem Artikel auf <bold>Auswählen</bold>, um ihn Ihrer Anfrage hinzuzufügen."
+  },
+  "training": {
+    "heading": "Schulungsanfrage",
+    "addOption": "Option hinzufügen",
+    "intro": "Fordern Sie eine Schulung mit einem Sliquid-Markenvertreter an. Wählen Sie das Format, das am besten zu Ihrem Team passt.",
+    "availability": "Die Verfügbarkeit ist nicht garantiert, da sich der Terminplan unseres Vertriebsteams ändern kann. Nach Eingang Ihrer Anfrage melden wir uns, um die Verfügbarkeit zu bestätigen."
+  },
+  "form": {
+    "heading": "Ihre Angaben",
+    "intro": "Teilen Sie uns mit, wohin wir die Materialien senden sollen.",
+    "selected": "Ausgewählt ({{count}})",
+    "selectFirst": "Bitte wählen Sie oben vor dem Absenden mindestens einen Artikel oder eine Schulungsoption aus.",
+    "fullName": "Vollständiger Name *",
+    "namePlaceholder": "Erika Muster",
+    "company": "Firmen-/Geschäftsname *",
+    "companyPlaceholder": "Name Ihres Geschäfts oder Ihrer Firma",
+    "location": "Standort / Ladenadresse *",
+    "locationPlaceholder": "Hauptstr. 1, 10115 Berlin",
+    "notes": "Weitere Hinweise",
+    "optional": "(optional)",
+    "notesPlaceholder": "Was sollten wir sonst noch zu Ihrer Anfrage wissen?",
+    "submitting": "Wird gesendet…",
+    "submit": "Anfrage senden"
+  },
+  "errors": {
+    "selectAtLeastOne": "Bitte wählen Sie oben vor dem Absenden mindestens einen Artikel oder eine Leistung aus.",
+    "selectDesign": "Bitte wählen Sie mindestens ein Design für „{{name}}“ aus.",
+    "submitFailed": "Senden fehlgeschlagen. Bitte versuchen Sie es erneut."
+  }
+}

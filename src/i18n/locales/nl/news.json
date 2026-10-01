@@ -1,0 +1,62 @@
+{
+  "pressRelease": "Persbericht",
+  "readMore": "Lees meer",
+  "newsroom": "Nieuwsruimte",
+  "announcements": {
+    "title": "Aankondigingen",
+    "intro": "Officiële persberichten van Sliquid — productlanceringen, prijzen, distributienieuws en mijlpalen van het bedrijf.",
+    "listHeading": "Persberichten",
+    "loadError": "Aankondigingen konden niet worden geladen. Probeer het later opnieuw.",
+    "emptyTitle": "Nog geen aankondigingen",
+    "emptyBody": "Kom binnenkort terug, of <contactLink>neem contact op</contactLink> met ons persteam."
+  },
+  "detail": {
+    "backToAll": "Alle aankondigingen",
+    "viewOnSliquid": "Bekijken op sliquid.com",
+    "docTitleLoading": "Aankondiging",
+    "docTitleNotFound": "Aankondiging niet gevonden",
+    "notFoundTitle": "Aankondiging niet gevonden",
+    "notFoundBody": "Deze aankondiging is mogelijk verwijderd of de link is onjuist."
+  },
+  "insights": {
+    "eyebrow": "Kenniscentrum",
+    "title": "Inzichten en branchenieuws",
+    "intro": "Blijf op de hoogte van Sliquid-productlanceringen, distributie-updates, visies van het management en educatieve content, speciaal voor onze B2B-partners.",
+    "searchResults": "Resultaten voor: <query>\"{{query}}\"</query> — <clearLink>zoekopdracht wissen</clearLink>",
+    "filterLabel": "Artikelen filteren op categorie",
+    "allCategories": "Alle",
+    "noArticles": "Geen artikelen gevonden.",
+    "viewAll": "Alle artikelen bekijken",
+    "featured": "Uitgelicht",
+    "readFullArticle": "Lees het volledige artikel",
+    "latest": "Nieuwste",
+    "resourcesEyebrow": "Partnermateriaal",
+    "resourcesTitle": "B2B-materiaal en downloads",
+    "resourcesIntro": "Praktische hulpmiddelen voor detailhandelaars, zorgverleners en distributeurs. Vraag een van de onderstaande items aan bij ons B2B-team.",
+    "resources": {
+      "wholesale-catalog": {
+        "title": "Groothandelscatalogus 2025",
+        "description": "Volledige SKU-lijst met groothandelsprijsniveaus, minimale bestelhoeveelheden en productspecificaties voor Sliquid, RIDE Lube en Ride Rocco.",
+        "cta": "Catalogus aanvragen"
+      },
+      "ingredient-sheet": {
+        "title": "Overzicht ingrediënten",
+        "description": "Een klinisch naslagblad van één pagina met de belangrijkste ingrediënten, vermeden toevoegingen, pH-bereiken en compatibiliteit — bedoeld voor zorgverleners.",
+        "cta": "Aanvragen voor uw praktijk"
+      },
+      "merch-guide": {
+        "title": "Merchandisinggids voor de detailhandel",
+        "description": "Aanbevelingen voor planogrammen, specificaties van displaykits, signing en beproefde schapstrategieën om de verkoop van Sliquid in de winkel te maximaliseren.",
+        "cta": "Aanvragen voor uw winkel"
+      },
+      "distributor-brief": {
+        "title": "Overzicht wereldwijde distributie",
+        "description": "Kaarten van werkgebieden, logistieke vereisten, ondersteuning bij regelgevingsdocumentatie en contactgegevens voor vragen over distributiepartnerschappen.",
+        "cta": "Neem contact op met ons distributieteam"
+      }
+    },
+    "newsletterTitle": "Mis geen enkele update",
+    "newsletterBody": "Ontvang nieuwe productlanceringen, distributienieuws en B2B-materiaal rechtstreeks in uw inbox.",
+    "newsletterButton": "Aanmelden voor updates"
+  }
+}

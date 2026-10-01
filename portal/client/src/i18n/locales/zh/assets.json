@@ -1,0 +1,96 @@
+{
+  "actions": {
+    "back": "返回",
+    "close": "关闭",
+    "view": "查看",
+    "download": "下载",
+    "edit": "编辑",
+    "delete": "删除",
+    "confirmDelete": "确认删除",
+    "cancel": "取消",
+    "cancelDelete": "取消删除"
+  },
+  "sections": {
+    "logos": "标志",
+    "banners": "横幅",
+    "socialMedia": "社交媒体",
+    "documents": "文档",
+    "emailTemplates": "电子邮件模板",
+    "campaignMaterials": "营销活动物料",
+    "videos": "视频",
+    "generatedImages": "生成的图片",
+    "other": "其他"
+  },
+  "types": {
+    "logo": "标志",
+    "banner": "横幅",
+    "social": "社交",
+    "document": "文档",
+    "socialMedia": "社交媒体",
+    "email": "电子邮件",
+    "print": "印刷品",
+    "multi": "多种",
+    "video": "视频",
+    "aiGenerated": "AI 生成"
+  },
+  "brands": {
+    "userGenerated": "用户生成内容"
+  },
+  "detail": {
+    "createdBy": "创建者：{{name}}",
+    "closeViewer": "关闭查看器",
+    "previewUnavailable": "此文件类型不支持预览。",
+    "openInNewTab": "在新标签页中打开"
+  },
+  "explorer": {
+    "allItems": "所有项目",
+    "files_one": "（{{count}} 个文件）",
+    "files_other": "（{{count}} 个文件）",
+    "empty": "此分类中暂无文件"
+  },
+  "brand": {
+    "items_one": "{{count}} 个项目",
+    "items_other": "{{count}} 个项目",
+    "browse": "按类别浏览",
+    "viewAll": "查看全部 {{brand}}（{{count}}）",
+    "all": "全部（{{count}}）",
+    "showingOf": "显示 8 / {{total}} 个文件",
+    "files_one": "{{count}} 个文件",
+    "files_other": "{{count}} 个文件",
+    "showAllBrand": "显示全部 {{brand}}",
+    "showAllSection": "显示全部{{section}}",
+    "featured": "精选",
+    "feature": "设为精选",
+    "unfeature": "取消精选"
+  },
+  "shots": {
+    "title": "产品图",
+    "subtitle": "所有品牌的高清产品摄影",
+    "viewAll": "查看全部产品图（{{count}}）",
+    "badge": "产品图",
+    "images_one": "（{{count}} 张图片）",
+    "images_other": "（{{count}} 张图片）",
+    "select": "选择",
+    "searchPlaceholder": "搜索产品图…",
+    "deselectAll": "取消全选",
+    "selectAll": "全选（{{count}}）",
+    "selectedCount": "已选择 {{count}} 项",
+    "preparing": "正在准备…",
+    "downloadZip": "下载 ZIP 压缩包（{{count}}）",
+    "downloadN": "下载（{{count}}）",
+    "clear": "清除",
+    "noMatch": "没有与您的搜索匹配的图片",
+    "empty": "暂无产品图",
+    "rename": "重命名",
+    "closeViewer": "关闭查看器"
+  },
+  "page": {
+    "title": "资源库",
+    "searchPlaceholder": "搜索资源库…",
+    "addItem": "添加项目",
+    "noMatch": "没有与您的搜索匹配的项目",
+    "empty": "资源库中暂无项目",
+    "addFirst": "添加第一个项目",
+    "deleteFailed": "项目删除失败"
+  }
+}

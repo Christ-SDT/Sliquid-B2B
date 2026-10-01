@@ -1,0 +1,22 @@
+{
+  "title": "Mijn winkel",
+  "subtitleCompany": "Leden geregistreerd onder {{company}}",
+  "subtitle": "Leden geregistreerd bij uw winkel",
+  "loadError": "Winkelleden konden niet worden geladen",
+  "totalMembers": "Totaal aantal leden",
+  "quizzesPassed": "Geslaagde quizzen",
+  "avgPassed": "Gem. geslaagde quizzen",
+  "searchPlaceholder": "Zoek op naam of e-mail…",
+  "searchLabel": "Leden zoeken",
+  "noMatch": "Geen leden gevonden die aan uw zoekopdracht voldoen.",
+  "empty": "Nog geen leden geregistreerd.",
+  "table": {
+    "name": "Naam",
+    "email": "E-mail",
+    "accountType": "Accounttype",
+    "quizzesPassed": "Geslaagde quizzen",
+    "joined": "Lid sinds"
+  },
+  "showing_one": "{{shown}} van {{count}} lid",
+  "showing_other": "{{shown}} van {{count}} leden"
+}

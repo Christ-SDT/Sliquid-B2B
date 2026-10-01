@@ -1,0 +1,12 @@
+{
+  "title": "Vertriebspartner",
+  "subtitle": "Finden Sie autorisierte Sliquid-Vertriebspartner in Ihrer Nähe.",
+  "searchPlaceholder": "Nach Name, Stadt, Bundesland oder Region suchen…",
+  "searchLabel": "Vertriebspartner suchen",
+  "regionFilter": "Nach Region filtern",
+  "allRegions": "Alle Regionen",
+  "count_one": "{{count}} Vertriebspartner gefunden",
+  "count_other": "{{count}} Vertriebspartner gefunden",
+  "empty": "Keine Vertriebspartner gefunden",
+  "contact": "Kontakt: <name>{{name}}</name>"
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest'
-import i18n from '@/i18n'
+import i18n, { SUPPORTED_LANGUAGES } from '@/i18n'
 import { ROUTE_TITLES, getDefaultTitle } from '@/utils/pageTitles'
 
 // Mirrors the static <Route path> list in App.tsx. Kept as a literal array
@@ -42,7 +42,7 @@ describe('page titles (WCAG 2.4.2 Page Titled)', () => {
     }
   })
 
-  it.each(['en', 'es', 'fr'])('gives every static route a unique title in %s', async (lng) => {
+  it.each([...SUPPORTED_LANGUAGES])('gives every static route a unique title in %s', async (lng) => {
     await i18n.changeLanguage(lng)
     const titles = STATIC_ROUTES.map(title)
     expect(new Set(titles).size).toBe(titles.length)

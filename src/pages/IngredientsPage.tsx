@@ -100,7 +100,7 @@ export default function IngredientsPage() {
               className="border border-gray-100 rounded-card p-7 bg-white hover:border-sliquid-blue
                          transition-colors duration-150"
             >
-              <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 mb-3">
                 <h3 className="text-text-dark text-lg font-semibold">
                   {t(`key.items.${id}.name`)}
                 </h3>

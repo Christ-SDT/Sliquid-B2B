@@ -1,0 +1,149 @@
+{
+  "hero": {
+    "eyebrow": "Padrões de formulação",
+    "title": "Ingredientes em que você pode confiar",
+    "body": "Mantemos nossas formulações em um padrão mais alto. Sem aditivos nocivos, sem atalhos, sem concessões. Veja exatamente o que isso significa."
+  },
+  "philosophy": {
+    "title": "Nossa filosofia de ingredientes",
+    "p1": "A Sliquid nasceu da convicção de que produtos íntimos devem ser tão limpos e seguros quanto qualquer outro produto que você usa no corpo. Em 2002, isso significava ir contra o padrão do setor, rejeitando glicerina, parabenos e fragrâncias artificiais numa época em que eles estavam em toda parte.",
+    "p2": "Hoje, nossa filosofia de ingredientes continua a mesma. Usamos ingredientes naturais e orgânicos da mais alta qualidade, submetemos todas as fórmulas a testes rigorosos e informamos todos os componentes no rótulo, sem exceções."
+  },
+  "standards": {
+    "title": "No que acreditamos",
+    "items": {
+      "glycerin-free": {
+        "title": "Sem glicerina",
+        "description": "Nenhuma das nossas fórmulas contém glicerina, que pode alimentar fungos e desequilibrar o pH."
+      },
+      "paraben-free": {
+        "title": "Sem parabenos",
+        "description": "Nunca usamos parabenos, uma classe de conservantes sintéticos associada a desequilíbrios hormonais."
+      },
+      "body-safe": {
+        "title": "Seguros para o corpo",
+        "description": "Todas as formulações têm pH equilibrado com o do corpo e são testadas como hipoalergênicas para peles sensíveis."
+      },
+      "vegan": {
+        "title": "Veganos e cruelty-free",
+        "description": "Nenhum ingrediente de origem animal e nenhum teste em animais, nunca."
+      },
+      "made-in-usa": {
+        "title": "Feitos nos EUA",
+        "description": "Todos os produtos Sliquid são formulados e fabricados nos Estados Unidos, com qualidade e controle consistentes do início ao fim."
+      },
+      "transparent": {
+        "title": "Transparência total",
+        "description": "Todos os ingredientes de todas as fórmulas são informados. Sem fragrâncias ocultas, sem compostos misteriosos."
+      }
+    }
+  },
+  "key": {
+    "eyebrow": "O que há dentro",
+    "title": "Principais ingredientes que usamos",
+    "intro": "Cada ingrediente é selecionado de forma intencional, de acordo com sua função na formulação. Veja abaixo uma visão geral dos principais componentes usados em nossos produtos e seus respectivos benefícios.",
+    "items": {
+      "purified-water": {
+        "name": "Água purificada",
+        "tag": "Base",
+        "description": "A base de todas as fórmulas à base de água. Purificada por nosso sistema de filtragem por osmose reversa em 9 etapas, que inclui uma etapa de deionização, ela representa cerca de 96% do Naturals H2O e é o veículo puro de todas as fórmulas solúveis em água."
+      },
+      "aloe-vera": {
+        "name": "Aloe Barbadensis Leaf Juice",
+        "tag": "Base",
+        "description": "O ingrediente-base da linha Organics, extraído diretamente das folhas da babosa (aloe vera). Naturalmente lubrificante e cicatrizante, é usado há séculos para acalmar e proteger a pele. Anti-inflamatório e compatível com o pH de tecidos sensíveis."
+      },
+      "plant-cellulose": {
+        "name": "Celulose vegetal",
+        "tag": "Espessante",
+        "description": "Um espessante natural, vegano e sem glúten. Proporciona o deslizamento sedoso característico e uma consistência suave, sem polímeros sintéticos."
+      },
+      "agar-agar": {
+        "name": "Ágar-ágar",
+        "tag": "Espessante",
+        "description": "Obtido de algas vermelhas, o ágar-ágar é um material natural de origem vegetal usado para dar viscosidade ao lubrificante. Uma alternativa limpa, derivada de algas, aos agentes gelificantes sintéticos."
+      },
+      "guar-gum": {
+        "name": "Goma guar (Cyamopsis)",
+        "tag": "Estabilizante",
+        "description": "Derivado do feijão guar, este aditivo natural e atóxico permite que a fibra de celulose vegetal deslize com uma sensação extremamente escorregadia, ao mesmo tempo em que estabiliza a fórmula."
+      },
+      "vitamin-e": {
+        "name": "Tocoferóis naturais (vitamina E)",
+        "tag": "Antioxidante",
+        "description": "Um hidratante natural para a pele e um poderoso antioxidante. Condiciona a pele, prolonga a validade sem conservantes sintéticos e cria uma sutil barreira protetora para mucosas sensíveis."
+      },
+      "flax-extract": {
+        "name": "Extrato de linhaça",
+        "tag": "Hidratante",
+        "description": "Usado nas fórmulas Sliquid Organics como hidratante de origem vegetal e emoliente restaurador. Rico em ácidos graxos ômega, ajuda a restaurar a elasticidade da pele e favorece uma hidratação duradoura."
+      },
+      "hibiscus": {
+        "name": "Extrato de hibisco",
+        "tag": "Emoliente",
+        "description": "Adicionado ao Sliquid Organics como emoliente restaurador e cicatrizante. O hibisco é conhecido por devolver elasticidade e maciez à pele, sendo especialmente benéfico para tecidos sensíveis ou irritados."
+      },
+      "green-tea": {
+        "name": "Extrato de chá verde",
+        "tag": "Anti-inflamatório",
+        "description": "Um anti-inflamatório botânico presente na lista de ingredientes da linha Organics. O extrato de chá verde ajuda a acalmar irritações e oferece ação antioxidante, protegendo ainda mais a pele sensível das agressões do ambiente."
+      },
+      "sunflower-seed": {
+        "name": "Extrato de semente de girassol",
+        "tag": "Tônico para a pele",
+        "description": "Usado no Sliquid Organics como tônico suave de limpeza e efeito calmante. O extrato de semente de girassol é rico em vitaminas e ácidos graxos que nutrem e acalmam a pele sem comprometer suas barreiras naturais."
+      },
+      "citric-acid": {
+        "name": "Ácido cítrico",
+        "tag": "Regulador de pH",
+        "description": "Usado em todos os produtos Sliquid à base de água. Um ácido orgânico suave derivado da raiz da mandioca, usado para ajustar o pH de cada fórmula à faixa natural do corpo. Atua como antisséptico natural e regulador de pH e trabalha em conjunto com o sorbato de potássio para prolongar a validade com segurança. "
+      },
+      "potassium-sorbate": {
+        "name": "Sorbato de potássio e benzoato de sódio",
+        "tag": "Conservante",
+        "description": "Conservantes suaves, seguros para o corpo, atóxicos e não irritantes, comumente usados em cosméticos e alimentos. Usados juntos para garantir a validade e combater bactérias e fungos do ambiente."
+      },
+      "dimethicone": {
+        "name": "Cyclopentasiloxane, Dimethicone & Dimethiconol",
+        "tag": "Deslizamento",
+        "description": "Nossa mistura exclusiva de silicones, que são inertes, não absorvíveis e hipoalergênicos. Proporcionam um deslizamento de duração ultralonga e propriedades hidrofóbicas (à prova d'água). Compatíveis com látex, mas não com brinquedos de silicone."
+      }
+    }
+  },
+  "avoided": {
+    "eyebrow": "O que nunca aceitamos",
+    "title": "Ingredientes que nunca usamos e por quê",
+    "intro": "Saber o que não está em um produto é tão importante quanto saber o que está. Estes são os ingredientes mais comuns nas fórmulas da concorrência que a Sliquid rejeitou.",
+    "items": {
+      "glycerin": {
+        "name": "Glicerina",
+        "reason": "Um álcool de açúcar que pode alimentar o fungo Candida e desequilibrar o microbioma vaginal, aumentando o risco de infecções. Presente na maioria dos lubrificantes de grande consumo, mas ausente de todas as fórmulas Sliquid."
+      },
+      "parabens": {
+        "name": "Parabenos",
+        "reason": "Conservantes sintéticos (metilparabeno, propilparabeno etc.) que atuam como xenoestrógenos, imitando o estrogênio no corpo. Associados a desequilíbrios hormonais e encontrados em tecido de tumores de mama em diversos estudos."
+      },
+      "propylene-glycol": {
+        "name": "Propilenoglicol",
+        "reason": "Um solvente e umectante comum que pode causar dermatite de contato e irritação em pessoas sensíveis."
+      },
+      "nonoxynol-9": {
+        "name": "Nonoxinol-9",
+        "reason": "Um surfactante espermicida que, com o uso repetido, pode desgastar o epitélio vaginal e aumentar a suscetibilidade a ISTs. Já foi padrão nos lubrificantes de \"sexo seguro\", mas hoje é amplamente contraindicado pelos profissionais de saúde."
+      },
+      "benzocaine": {
+        "name": "Benzocaína / agentes anestésicos",
+        "reason": "Os anestésicos tópicos mascaram os sinais de dor que existem para proteger os tecidos contra lesões. A Sliquid não usa agentes dessensibilizantes em nenhuma fórmula de lubrificante."
+      },
+      "artificial-fragrance": {
+        "name": "Fragrâncias artificiais",
+        "reason": "Aromas sintéticos podem ser desnecessariamente agressivos, principalmente para peles sensíveis, por isso nos dedicamos a manter nossos produtos o mais suaves e respeitosos com o corpo possível. Ao priorizar ingredientes limpos e simples, garantimos uma experiência mais natural, que apoia o corpo em vez de sobrecarregá-lo."
+      }
+    }
+  },
+  "cta": {
+    "title": "Precisa de ajuda para indicar as fórmulas certas aos seus clientes?",
+    "body": "Nossa equipe B2B pode apresentar a matriz completa de produtos, abrangendo fórmulas à base de água, de silicone e híbridas, para recomendar os SKUs certos para o seu contexto específico de varejo, distribuição ou clínica.",
+    "button": "Fale com nossa equipe"
+  }
+}

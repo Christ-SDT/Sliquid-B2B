@@ -1,0 +1,55 @@
+{
+  "hero": {
+    "eyebrow": "Werk samen met Sliquid",
+    "title": "Wilt u Sliquid-detailhandelaar of -distributeur worden?",
+    "body": "Vul het onderstaande formulier in, dan neemt een medewerker van het Sliquid-verkoopteam binnenkort contact met u op."
+  },
+  "form": {
+    "heading": "Word detailhandelaar of distributeur",
+    "company": "Bedrijf",
+    "name": "Naam",
+    "first": "Voornaam",
+    "last": "Achternaam",
+    "address": "Adres",
+    "street": "Straat en huisnummer",
+    "addressLine2": "Adresregel 2",
+    "city": "Plaats",
+    "state": "Staat / provincie / regio",
+    "zip": "Postcode",
+    "country": "Land",
+    "countryOther": "Anders",
+    "phone": "Telefoonnummer",
+    "email": "E-mail",
+    "website": "Website",
+    "storeLocatorHeading": "Winkelzoeker",
+    "storeLocator": "Wilt u worden opgenomen in onze winkelzoeker?",
+    "brandsHeading": "Merken waarin u geïnteresseerd bent",
+    "comments": "Vragen / opmerkingen?",
+    "mapHeading": "U moet het beleid doorlezen",
+    "mapAgree": "Ik ga akkoord met het onderstaande MAP-beleid van Sliquid",
+    "mapLink": "Sliquid-beleid voor minimale adverteerprijzen (MAP)",
+    "submit": "Verzenden",
+    "submitting": "Verzenden…"
+  },
+  "errors": {
+    "companyRequired": "Bedrijf is verplicht.",
+    "firstNameRequired": "Voornaam is verplicht.",
+    "lastNameRequired": "Achternaam is verplicht.",
+    "streetRequired": "Straat en huisnummer zijn verplicht.",
+    "cityRequired": "Plaats is verplicht.",
+    "stateRequired": "Staat / provincie is verplicht.",
+    "zipRequired": "Postcode is verplicht.",
+    "phoneRequired": "Telefoonnummer is verplicht.",
+    "emailInvalid": "Een geldig e-mailadres is verplicht.",
+    "brandsRequired": "Selecteer minstens één merk.",
+    "mapRequired": "U moet akkoord gaan met het MAP-beleid van Sliquid.",
+    "alreadyApplied": "U heeft onlangs al een aanvraag ingediend.",
+    "sendFailed": "Er is iets misgegaan bij het verzenden van uw aanvraag. Probeer het opnieuw of mail rechtstreeks naar sales@sliquid.com."
+  },
+  "thanks": {
+    "title": "Bedankt voor uw aanvraag!",
+    "body": "We hebben uw aanvraag om Sliquid-detailhandelaar of -distributeur te worden ontvangen. Een medewerker van ons verkoopteam bekijkt uw inzending en neemt binnenkort contact met u op.",
+    "questions": "Heeft u nu al vragen? Neem gerust contact op via <email>sales@sliquid.com</email>.",
+    "done": "Klaar"
+  }
+}

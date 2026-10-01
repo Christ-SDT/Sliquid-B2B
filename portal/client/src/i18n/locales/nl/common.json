@@ -1,0 +1,96 @@
+{
+  "skipToContent": "Naar hoofdinhoud",
+  "language": {
+    "label": "Taal"
+  },
+  "roles": {
+    "tier1": "Winkelmedewerker",
+    "tier2": "Winkelmanagement",
+    "tier3": "Distributeur",
+    "tier4": "Prospect",
+    "tier5": "Beheerder",
+    "tier6": "Medische partner",
+    "tier7": "Media",
+    "tier8": "Juridisch (alleen lezen)"
+  },
+  "time": {
+    "justNow": "zojuist"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "announcements": "Aankondigingen",
+    "assets": "Bestandsbibliotheek",
+    "distributors": "Distributeurs",
+    "trainings": "Digitale training",
+    "creator": "AI-maker",
+    "retailer": "Winkelmarketing",
+    "medicalMarketing": "Medische marketing",
+    "requests": "Partneraanvragen",
+    "marketingRequests": "Marketingaanvragen",
+    "media": "Mediabibliotheek",
+    "users": "Gebruikersbeheer",
+    "gdprRequests": "AVG-verzoeken",
+    "manageAnnouncements": "Aankondigingen beheren"
+  },
+  "sidebar": {
+    "logoAlt": "Sliquid-lotus",
+    "brand": "PARTNERPORTAAL",
+    "closeMenu": "Menu sluiten",
+    "readOnly": "Alleen-lezentoegang — u kunt hier alles bekijken, maar niets wijzigen.",
+    "signOut": "Uitloggen"
+  },
+  "theme": {
+    "wellnessMode": "Wellnessmodus",
+    "toggle": "Thema wisselen"
+  },
+  "topbar": {
+    "openMenu": "Menu openen",
+    "notifications": "Meldingen",
+    "markAllRead": "Alles als gelezen markeren",
+    "empty": "Nog geen meldingen",
+    "account": "Accountmenu",
+    "adminTools": "Beheertools",
+    "admin": {
+      "products": "Producten",
+      "inventory": "Voorraad",
+      "invoices": "Facturen",
+      "analytics": "Analyses",
+      "referenceGallery": "Referentiegalerij",
+      "myStore": "Mijn winkel",
+      "serverLogs": "Serverlogboeken"
+    },
+    "newCount_one": "{{count}} nieuw",
+    "newCount_other": "{{count}} nieuw"
+  },
+  "titles": {
+    "dashboard": "Dashboard",
+    "announcements": "Aankondigingen",
+    "announcement": "Aankondiging",
+    "manageAnnouncements": "Aankondigingen beheren",
+    "products": "Producten",
+    "assets": "Productbibliotheek",
+    "inventory": "Voorraad",
+    "invoices": "Facturen",
+    "stats": "Statistieken",
+    "distributors": "Distributeurs",
+    "retailer": "Marketingmateriaal",
+    "trainings": "Trainingen",
+    "quiz": "Trainingsquiz",
+    "users": "Gebruikers",
+    "requests": "Partneraanvragen",
+    "marketingRequests": "Marketingaanvragen",
+    "storeUsers": "Mijn winkel",
+    "creator": "Maker",
+    "media": "Media",
+    "referenceGallery": "Referentiegalerij",
+    "logs": "Logboeken",
+    "medicalMarketing": "Medische marketing",
+    "gdprRequests": "AVG-verzoeken",
+    "login": "Inloggen",
+    "employeeLogin": "Inloggen voor medewerkers",
+    "register": "Account aanmaken",
+    "forgotPassword": "Wachtwoord vergeten",
+    "resetPassword": "Wachtwoord herstellen",
+    "verify": "Certificaat verifiëren"
+  }
+}

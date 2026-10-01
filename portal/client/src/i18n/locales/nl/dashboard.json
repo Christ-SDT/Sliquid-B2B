@@ -1,0 +1,42 @@
+{
+  "greeting": {
+    "morning": "Goedemorgen, {{name}}",
+    "afternoon": "Goedemiddag, {{name}}",
+    "evening": "Goedenavond, {{name}}"
+  },
+  "viewAll": "Alles bekijken",
+  "assets": {
+    "title": "Digitale bestanden",
+    "empty": "Geen bestanden beschikbaar"
+  },
+  "distributors": {
+    "title": "Distributeurs",
+    "empty": "Geen distributeurs beschikbaar"
+  },
+  "trainings": {
+    "title": "Trainingen",
+    "completed": "{{passed}} / {{total}} voltooid",
+    "minutesShort_one": "{{count}}m",
+    "minutesShort_other": "{{count}}m",
+    "passed": "Geslaagd",
+    "retake": "Herhalen",
+    "start": "Starten"
+  },
+  "pending": {
+    "badge": "Wacht op goedkeuring",
+    "body": "Uw account is ingediend en wordt beoordeeld door een beheerder. Na goedkeuring krijgt u volledige toegang.",
+    "didYouKnow": "Wist u dat?",
+    "facts": {
+      "since2002": "Sliquid formuleert al sinds 2002 intieme producten die veilig zijn voor het lichaam en een uitgebalanceerde pH hebben.",
+      "freeFrom": "Elk product is vrij van parabenen, glycerine, DEA en gluten.",
+      "lineup": "Het assortiment omvat meer dan 40 SKU's in de collecties Naturals, Organics, RIDE, Silver en Swirl.",
+      "countries": "Sliquid is verkrijgbaar in meer dan 40 landen wereldwijd."
+    },
+    "sellQuestion": "Wilt u Sliquid in uw winkel verkopen?",
+    "register": "Registreer als Sliquid Insider-detailhandelaar"
+  },
+  "upgrade": {
+    "title": "U heeft {{tier}}-toegang",
+    "body": "Wilt u meer van het portaal ontgrendelen? Neem contact op met uw Sliquid-vertegenwoordiger over een upgrade."
+  }
+}

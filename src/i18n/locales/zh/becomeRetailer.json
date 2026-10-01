@@ -1,0 +1,55 @@
+{
+  "hero": {
+    "eyebrow": "与 Sliquid 合作",
+    "title": "您想成为 Sliquid 零售商或经销商吗？",
+    "body": "请填写以下表格，Sliquid 销售团队的成员将很快与您联系。"
+  },
+  "form": {
+    "heading": "成为零售商或经销商",
+    "company": "公司",
+    "name": "姓名",
+    "first": "名",
+    "last": "姓",
+    "address": "地址",
+    "street": "街道地址",
+    "addressLine2": "地址第 2 行",
+    "city": "城市",
+    "state": "州 / 省 / 地区",
+    "zip": "邮政编码",
+    "country": "国家/地区",
+    "countryOther": "其他",
+    "phone": "电话号码",
+    "email": "电子邮件",
+    "website": "网站",
+    "storeLocatorHeading": "门店查询",
+    "storeLocator": "您是否希望加入我们的门店查询列表？",
+    "brandsHeading": "您感兴趣的品牌",
+    "comments": "问题 / 意见？",
+    "mapHeading": "您必须阅读该政策",
+    "mapAgree": "我同意下方的 Sliquid MAP 政策",
+    "mapLink": "Sliquid 最低广告价格政策",
+    "submit": "提交",
+    "submitting": "正在提交…"
+  },
+  "errors": {
+    "companyRequired": "请填写公司名称。",
+    "firstNameRequired": "请填写名字。",
+    "lastNameRequired": "请填写姓氏。",
+    "streetRequired": "请填写街道地址。",
+    "cityRequired": "请填写城市。",
+    "stateRequired": "请填写州 / 省。",
+    "zipRequired": "请填写邮政编码。",
+    "phoneRequired": "请填写电话号码。",
+    "emailInvalid": "请填写有效的电子邮件地址。",
+    "brandsRequired": "请至少选择一个品牌。",
+    "mapRequired": "您必须同意 Sliquid MAP 政策。",
+    "alreadyApplied": "您最近已提交过申请。",
+    "sendFailed": "发送您的申请时出现问题。请重试，或直接发送电子邮件至 sales@sliquid.com。"
+  },
+  "thanks": {
+    "title": "感谢您的申请！",
+    "body": "我们已收到您成为 Sliquid 零售商或经销商的申请。我们的销售团队成员将审核您的申请，并很快与您联系。",
+    "questions": "如有任何紧急问题，欢迎通过 <email>sales@sliquid.com</email> 与我们联系。",
+    "done": "完成"
+  }
+}

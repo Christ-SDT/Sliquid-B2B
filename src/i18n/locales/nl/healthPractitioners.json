@@ -1,0 +1,151 @@
+{
+  "hero": {
+    "eyebrow": "Medical Partners Program",
+    "title": "Het wellnessmerk dat zorgverleners vertrouwen",
+    "body": "Sliquid voorziet zorgverleners van materiaal van klinisch niveau, gratis patiëntmonsters en educatief materiaal, zodat u met vertrouwen aanbevelingen kunt doen en blijvend vertrouwen van patiënten opbouwt op het gebied van intieme wellness.",
+    "cta": "Aanmelden voor het programma"
+  },
+  "ingredients": {
+    "heading": "Ingrediënten die u kunt vertrouwen",
+    "body": "Elk ingrediënt is gekozen op klinische compatibiliteit. Geen glycerine, geen parabenen, geen kunstmatige geurstoffen — alleen zuivere formules die veilig genoeg zijn om aan te bevelen aan uw gevoeligste patiënten.",
+    "fullBreakdown": "Wilt u het volledige ingrediëntenoverzicht? <cta>Bekijk onze complete formuleringsnormen →</cta>",
+    "items": {
+      "purified-water": {
+        "name": "Gezuiverd water",
+        "tag": "Basis",
+        "description": "De basis van elke formule op waterbasis. Gezuiverd met ons 9-traps omgekeerde-osmosefiltersysteem, inclusief een deïonisatiestap, dient het als zuivere, verontreinigingsvrije drager voor alle wateroplosbare ingrediënten."
+      },
+      "aloe-vera": {
+        "name": "Biologische Aloe Barbadensis Leaf Juice",
+        "tag": "Verzachtende basis",
+        "description": "Rechtstreeks gewonnen uit aloë vera-bladeren. Dit van nature glijdende en helende ingrediënt is ontstekingsremmend en pH-vriendelijk voor gevoelig slijmvlies."
+      },
+      "vitamin-e": {
+        "name": "Natuurlijke tocoferolen (vitamine E)",
+        "tag": "Antioxidant",
+        "description": "Verzorgt de huid en biedt antioxidantondersteuning. Verlengt op natuurlijke wijze de houdbaarheid en beschermt gevoelig weefsel zonder synthetische conserveermiddelen."
+      },
+      "citric-acid": {
+        "name": "Citroenzuur",
+        "tag": "pH-regelaar",
+        "description": "Stemt elke formule af op het natuurlijke pH-bereik van het lichaam van 3,8 tot 4,5. Werkt als natuurlijk antisepticum en pH-buffer, essentieel voor een gezond vaginaal microbioom."
+      },
+      "potassium-sorbate": {
+        "name": "Kaliumsorbaat en natriumbenzoaat",
+        "tag": "Conserveermiddel",
+        "description": "Twee van de mildste niet-giftige conserveermiddelen die er zijn. Ze verlengen de houdbaarheid en voorkomen besmetting, zonder de risico's op hormoonverstoring die met parabenen worden geassocieerd."
+      },
+      "plant-cellulose": {
+        "name": "Plantaardige cellulose",
+        "tag": "Natuurlijk verdikkingsmiddel",
+        "description": "Gewonnen uit katoen en volledig vegan en glutenvrij. Zorgt voor de zijdezachte glijding waar Sliquid om bekendstaat, zonder synthetische polymeren of petrochemische derivaten."
+      }
+    }
+  },
+  "imageAlt": "Sliquid-producten voor intieme wellness, uitgestald voor zorgverleners",
+  "program": {
+    "heading": "Programmadetails",
+    "tabsLabel": "Programmadetails",
+    "tabRequirements": "Voorwaarden",
+    "tabHow": "Hoe het werkt",
+    "requirements": {
+      "professional": "U moet een aantoonbare medische professional of docent/begeleider van een organisatie op een hogeschool of universiteit zijn met een huidige functie bij een gevestigde instelling. Dit geldt ook voor studentvertegenwoordigers van studentenorganisaties die namens een onderwijsinstelling optreden.",
+      "address": "U moet een verifieerbaar postadres opgeven dat specifiek hoort bij de medische instelling of campus die op het formulier staat. Woonadressen en postbusadressen worden niet geaccepteerd. Geen uitzonderingen.",
+      "international": "Bij aanvragen van buiten de Verenigde Staten moeten de verzend- en invoerkosten van de gratis monsterzending zelf worden betaald.",
+      "onePerPractice": "Slechts één aanvraag per praktijk of organisatie. Dubbele inzendingen worden uitgesloten."
+    },
+    "how": {
+      "approval": "Uw kliniek of organisatie MOET aan alle genoemde voorwaarden voldoen. Na positieve verificatie van de door u verstrekte gegevens wordt uw praktijk/organisatie goedgekeurd voor een eenmalige, gratis zending van 100 monsters voor eenmalig gebruik en marketingmateriaal met een kortingscode voor uw cliënten op onze site. De beoordeling kan tot 6 weken duren. DIEN SLECHTS ÉÉN AANVRAAG IN en wacht tot onze medewerkers contact met u opnemen. U hoort van ons, of u nu wordt goedgekeurd of afgewezen.",
+      "shipping": "Verzending is gratis binnen de Verenigde Staten, maar moet door alle internationale partners vooraf worden betaald. Welke formules worden verzonden, bepaalt Sliquid; dit kan op elk moment wijzigen.",
+      "additional": "Let op: ALLEEN uw eerste zending van 100 monsters is gratis. Extra monsters zijn verkrijgbaar tegen een speciaal kortingstarief voor Medical Partners. Vraag uw Sliquid-vertegenwoordiger naar de prijsstructuur en het bestelformulier.",
+      "shippingNote": "*De kosten van internationale verzending verschillen per locatie en zijn afhankelijk van het tarief van de vervoerder op het moment van verzending. Een Sliquid-vertegenwoordiger deelt dit tarief met internationale partners."
+    }
+  },
+  "gate": {
+    "title": "Voordat u zich aanmeldt",
+    "body": "Bevestig dat uw praktijk aan alle onderstaande voorwaarden voldoet. Inzendingen die niet aan deze criteria voldoen, worden niet verwerkt.",
+    "accept": "Ik voldoe aan alle voorwaarden — doorgaan",
+    "decline": "Ik kom niet in aanmerking",
+    "promptAria": "Voorwaarden bekijken en aanmelding starten",
+    "promptTitle": "Bekijk de voorwaarden voordat u zich aanmeldt",
+    "promptBody": "Bevestig voordat u de aanvraag invult dat uw praktijk aan alle voorwaarden van het programma voldoet.",
+    "promptCta": "Voorwaarden bekijken en aanmelden",
+    "declined": "Bedankt voor het controleren van de voorwaarden. Komt uw praktijk op dit moment niet in aanmerking? <cta>Neem contact met ons op</cta> als u vragen heeft.",
+    "reviewAgain": "Voorwaarden opnieuw bekijken"
+  },
+  "thanks": {
+    "title": "Bedankt voor uw aanmelding!",
+    "body": "We hebben uw aanvraag voor het Sliquid Medical Partners Program ontvangen. Een medewerker van ons team beoordeelt uw inzending en neemt contact met u op — houd rekening met maximaal <bold>6 weken</bold> voor een reactie.",
+    "decision": "U hoort van ons, of uw aanvraag nu wordt goedgekeurd of afgewezen. Dien niet meer dan één aanvraag in.",
+    "done": "Klaar"
+  },
+  "already": {
+    "title": "U heeft zich al aangemeld",
+    "body": "We hebben uw aanvraag voor het Medical Partners Program ontvangen en nemen zo snel mogelijk contact met u op. U hoeft geen nieuwe aanvraag in te dienen."
+  },
+  "submittedPanel": {
+    "title": "Aanvraag ingediend",
+    "body": "We hebben uw aanvraag voor het Sliquid Medical Partners Program ontvangen en nemen zo snel mogelijk contact met u op. U hoeft geen nieuwe aanvraag in te dienen."
+  },
+  "form": {
+    "heading": "Aanvraag Medical Partners Program",
+    "intro": "Vul het onderstaande formulier in om gratis monsters aan te vragen en te worden opgenomen in onze lijst met Medical Partners.",
+    "practiceLegend": "Gegevens van uw praktijk",
+    "practiceType": "Type praktijk",
+    "practiceTypes": {
+      "obgyn": "Gynaecologie",
+      "pelvicFloor": "Bekkenbodemtherapie",
+      "sexualHealth": "Seksuele gezondheid en wellness",
+      "gp": "Huisarts",
+      "other": "Anders (hieronder toelichten)"
+    },
+    "specify": "Licht toe",
+    "specifyPlaceholder": "Beschrijf het type praktijk",
+    "practiceName": "Naam praktijk",
+    "practiceAddress": "Adres praktijk",
+    "street": "Straat en huisnummer",
+    "addressLine2": "Adresregel 2 (unit, verdieping enz.)",
+    "city": "Plaats",
+    "state": "Staat / provincie / regio",
+    "zip": "Postcode",
+    "country": "Land",
+    "practicePhone": "Telefoonnummer praktijk",
+    "practiceWebsite": "Website praktijk",
+    "contactLegend": "Uw contactgegevens",
+    "firstName": "Voornaam",
+    "lastName": "Achternaam",
+    "relationship": "Uw relatie tot de praktijk",
+    "relationshipPlaceholder": "bijv. praktijkmanager, arts, studentvertegenwoordiger",
+    "contactPhone": "Telefoonnummer",
+    "email": "E-mail",
+    "preferredContact": "Voorkeur voor contact",
+    "contactMethods": {
+      "Email": "E-mail",
+      "Phone": "Telefoon",
+      "Either": "Maakt niet uit"
+    },
+    "directory": "Uw praktijk toevoegen aan de pagina Sliquid Medical Partners?",
+    "yes": "Ja",
+    "no": "Nee",
+    "optIn": "Door monsters aan te vragen, ga ik ermee akkoord e-mailupdates van Sliquid te ontvangen als onderdeel van het Medical Partners Program.",
+    "privacy": "Uw gegevens worden alleen gebruikt om uw aanvraag te verwerken en uw monsters te verzenden. Ze worden nooit verkocht, gedeeld of voor een ander doel gebruikt.",
+    "submit": "Aanvraag verzenden",
+    "submitting": "Verzenden…"
+  },
+  "errors": {
+    "practiceTypeRequired": "Kies een type praktijk.",
+    "practiceNameRequired": "Naam praktijk is verplicht.",
+    "streetRequired": "Straat en huisnummer zijn verplicht.",
+    "cityRequired": "Plaats is verplicht.",
+    "stateRequired": "Staat / provincie is verplicht.",
+    "zipRequired": "Postcode is verplicht.",
+    "practicePhoneRequired": "Telefoonnummer praktijk is verplicht.",
+    "firstNameRequired": "Voornaam is verplicht.",
+    "lastNameRequired": "Achternaam is verplicht.",
+    "contactPhoneRequired": "Telefoonnummer is verplicht.",
+    "emailInvalid": "Een geldig e-mailadres is verplicht.",
+    "optInRequired": "U moet akkoord gaan met het ontvangen van e-mails van het Medical Partners Program.",
+    "serverUnexpected": "De server gaf een onverwachte fout. Probeer het opnieuw.",
+    "network": "We konden onze server niet bereiken. Controleer uw verbinding en probeer het opnieuw — uw gegevens zijn nog niet verzonden, dus u kunt veilig opnieuw verzenden, of mail rechtstreeks naar erik@sliquid.com."
+  }
+}

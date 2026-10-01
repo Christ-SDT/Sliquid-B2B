@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "ariaLabel": "Banner principal",
+    "title": "Tudo o que os varejistas Sliquid precisam em um só lugar.",
+    "body": "Sua central de educação sobre produtos, treinamento da equipe, materiais para download e recursos para parceiros que apoiam seu negócio em cada etapa.",
+    "becomeRetailer": "Seja um varejista",
+    "partnerPortal": "Portal de parceiros"
+  },
+  "strategy": {
+    "heading": "Uma forma mais inteligente de crescer juntos",
+    "intro": "Crescer juntos de forma mais inteligente vai além de ter acesso a ferramentas: é contar com a equipe de marketing da Sliquid como uma extensão da sua, pronta para apoiar, planejar estratégias e ajudar você a alcançar resultados.",
+    "cards": {
+      "retailers": {
+        "title": "Varejistas",
+        "description": "Simplifique seu fluxo de trabalho, fortaleça sua presença na loja e on-line e fale diretamente com nossa equipe de marketing para avançar mais rápido, vender melhor e crescer com confiança.",
+        "imageAlt": "Coleção de lubrificantes Sliquid Organics Natural sobre uma superfície limpa",
+        "linkLabel": "Conheça nosso catálogo"
+      },
+      "health-practitioners": {
+        "title": "Profissionais de saúde",
+        "description": "Apoie sua prática com acesso a recursos clínicos, materiais educativos e amostras prontas para pacientes, criados para complementar seu atendimento e ajudar você a cuidar melhor dos seus pacientes.",
+        "imageAlt": "Grupo de produtos de bem-estar íntimo Sliquid Soothe com reflexos",
+        "linkLabel": "Conheça nosso programa"
+      },
+      "global-distributors": {
+        "title": "Distribuidores globais",
+        "description": "Equipe seus times de marketing e vendas com recursos prontos para compartilhar com clientes, aumentando o giro de vendas e fortalecendo a colaboração com a equipe de marketing da Sliquid.",
+        "imageAlt": "Linha de lubrificantes à base de água RIDE Lube",
+        "linkLabel": "Solicite mais informações"
+      }
+    }
+  },
+  "stats": {
+    "heading": "Um ecossistema de saúde e bem-estar realmente integrado",
+    "body": "Como parte da família Sliquid, você tem acesso a uma rede em crescimento que abrange canais de varejo e digitais. Nossa presença física e digital atua junto com nossa inovação de produtos para ajudar você a oferecer benefícios realmente saudáveis e significativos aos seus clientes.",
+    "items": {
+      "years": "anos no setor, o que faz dela uma das poucas marcas tradicionais de verdade em bem-estar íntimo.",
+      "skus": "SKUs em várias coleções, abrangendo lubrificantes, banho e corpo e bem-estar.",
+      "customers": "clientes que confiam na Sliquid para um bem-estar seguro para o corpo.",
+      "zero": "ingredientes desnecessários: essa é a nossa filosofia, com fórmulas com 0 glicerina, 0 parabenos e 0 derivados de açúcar — um diferencial marcante na categoria."
+    }
+  },
+  "brands": {
+    "heading": "Mais marcas. Mais alcance. Mais oportunidades.",
+    "body": "A família Sliquid não para por aí. Com a identidade da RIDE Lube voltada ao público LGBTQ+ e a coleção assinada Ride Rocco, nosso portfólio dá aos parceiros acesso a uma linha de produtos de bem-estar mais ampla e especializada.",
+    "cta": "Conheça nossas marcas irmãs",
+    "imageAlt": "Coleção de produtos Sliquid, RIDE Lube e Ride Rocco",
+    "labelSubtitle": "Lubrificantes de alto desempenho e coleções assinadas"
+  },
+  "ceo": {
+    "heading": "Mensagem da CEO",
+    "quote": "\"Boas-vindas à Sliquid HQ! Estamos muito felizes por você estar aqui. Este espaço foi criado pensando em você, nosso parceiro de varejo e da área médica, para oferecer acesso fácil a informações e recursos que apoiam seu trabalho. Tudo aqui foi pensado para que você se sinta confiante e bem informado ao compartilhar a missão da Sliquid com seus clientes e pacientes.\"",
+    "role": "Cofundadora e CEO"
+  },
+  "cta": {
+    "heading": "Fique por dentro das últimas notícias da Sliquid",
+    "thanks": "Obrigado por se inscrever!",
+    "emailLabel": "Endereço de e-mail",
+    "placeholder": "voce@empresa.com",
+    "invalidEmail": "Digite um endereço de e-mail válido.",
+    "subscribe": "Inscrever-se"
+  }
+}

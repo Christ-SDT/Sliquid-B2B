@@ -1,0 +1,29 @@
+{
+  "header": {
+    "title": "成为 Sliquid 认证专家",
+    "body": "完成本数字培训课程，即可获得 Sliquid 官方认证。每个章节都需观看视频、参加测验，并以 80% 或以上的成绩通过。全部章节完成后，您将获得一份电子证书，并收到 Sliquid 认证专家徽章和 T 恤。作为完成课程的额外奖励，您还将获得一款您自选的 Sliquid 产品。您的 Sliquid 产品知识之旅由此开始，祝您好运！"
+  },
+  "card": {
+    "minutes_one": "{{count}} 分钟",
+    "minutes_other": "{{count}} 分钟",
+    "passScore": "及格线：{{score}}%",
+    "passed": "已通过",
+    "bestScore": "最高得分：<score>{{score}}%</score>",
+    "retake": "重新参加培训",
+    "start": "开始培训"
+  },
+  "complete": {
+    "title": "您已成为 Sliquid 认证专家！",
+    "body": "所有模块均已完成——您的证书已可下载。",
+    "viewCertificate": "查看证书"
+  },
+  "progress": {
+    "completed": "已完成 {{passed}} / {{total}}"
+  },
+  "certModal": {
+    "defaultTitle": "Sliquid 认证专家",
+    "yourCertificate": "您的证书",
+    "claimRewards": "领取奖励",
+    "close": "关闭"
+  }
+}

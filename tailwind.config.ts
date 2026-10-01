@@ -36,7 +36,9 @@ const config: Config = {
         img: '12px',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        // Inter has no CJK glyphs; name the Simplified Chinese system fonts so zh
+        // renders consistently (macOS/iOS, older macOS, Windows, Android/Linux).
+        sans: ['Inter', 'system-ui', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', 'sans-serif'],
       },
       height: {
         hero: '650px',

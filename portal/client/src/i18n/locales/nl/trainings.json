@@ -1,0 +1,29 @@
+{
+  "header": {
+    "title": "Word een Sliquid Certified Expert",
+    "body": "Behaal uw officiële Sliquid-certificering door deze digitale training te voltooien. Bekijk voor elk onderdeel de video, maak de quiz en haal minimaal 80%. Zodra alle onderdelen zijn voltooid, ontvangt u een digitaal certificaat en sturen wij u een Sliquid Certified Expert-speld en -T-shirt. Als bonus voor het voltooien van de cursus ontvangt u bovendien een Sliquid-product naar keuze. Uw reis naar Sliquid-productkennis begint hier. Veel succes!"
+  },
+  "card": {
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "passScore": "Geslaagd: {{score}}%",
+    "passed": "Geslaagd",
+    "bestScore": "Beste score: <score>{{score}}%</score>",
+    "retake": "Training herhalen",
+    "start": "Training starten"
+  },
+  "complete": {
+    "title": "U bent een Sliquid Certified Expert!",
+    "body": "Alle modules voltooid — uw certificaat staat klaar om te downloaden.",
+    "viewCertificate": "Certificaat bekijken"
+  },
+  "progress": {
+    "completed": "{{passed}} / {{total}} voltooid"
+  },
+  "certModal": {
+    "defaultTitle": "Sliquid Certified Expert",
+    "yourCertificate": "Uw certificaat",
+    "claimRewards": "Claim uw beloningen",
+    "close": "Sluiten"
+  }
+}

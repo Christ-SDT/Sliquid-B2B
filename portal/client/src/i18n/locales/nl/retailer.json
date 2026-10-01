@@ -1,0 +1,63 @@
+{
+  "card": {
+    "select": "Selecteren",
+    "selected": "✓ Geselecteerd",
+    "selectDesigns": "Ontwerpen kiezen",
+    "editItem": "Artikel bewerken",
+    "deleteItem": "Artikel verwijderen",
+    "confirmDelete": "Verwijderen",
+    "cancelDelete": "Verwijderen annuleren"
+  },
+  "success": {
+    "title": "Aanvraag verzonden!",
+    "body": "Bedankt, <bold>{{name}}</bold>! Uw aanvraag voor marketingmateriaal voor <bold>{{company}}</bold> is ontvangen. Ons team neemt binnenkort contact met u op.",
+    "itemsRequested": "Aangevraagde artikelen",
+    "hostedBy": "Aangeboden door Team Sliquid"
+  },
+  "header": {
+    "title": "Fysiek marketingmateriaal aanvragen",
+    "intro": "Bekijk hieronder onze displayartikelen voor in de winkel. Kies de artikelen die u voor uw fysieke locatie wilt, vul daarna uw gegevens in en verzend de aanvraag.",
+    "addItem": "Artikel toevoegen"
+  },
+  "status": {
+    "approved": "Aanvraag goedgekeurd",
+    "declined": "Aanvraag afgewezen",
+    "pending": "Aanvraag in behandeling",
+    "declinedBody": "Uw vorige aanvraag is niet uitgevoerd. U kunt hieronder een nieuwe indienen.",
+    "approvedBody": "Uw aanvraag voor {{business}} is goedgekeurd en wordt verwerkt.",
+    "pendingBody": "Uw aanvraag voor {{business}} wordt beoordeeld door het Sliquid-team.",
+    "requested": "Aangevraagd:"
+  },
+  "catalog": {
+    "heading": "Beschikbare artikelen",
+    "hint": "Klik op <bold>Selecteren</bold> bij een artikel om het aan uw aanvraag toe te voegen."
+  },
+  "training": {
+    "heading": "Trainingsaanvraag",
+    "addOption": "Optie toevoegen",
+    "intro": "Vraag een trainingssessie aan met een merkvertegenwoordiger van Sliquid. Kies de vorm die het best bij uw team past.",
+    "availability": "Beschikbaarheid is niet gegarandeerd, omdat de agenda van ons verkoopteam kan wijzigen. Na ontvangst van uw aanvraag nemen wij contact op om de beschikbaarheid te bevestigen."
+  },
+  "form": {
+    "heading": "Uw gegevens",
+    "intro": "Laat ons weten waar we het materiaal naartoe moeten sturen.",
+    "selected": "Geselecteerd ({{count}})",
+    "selectFirst": "Selecteer hierboven minstens één artikel of trainingsoptie voordat u verzendt.",
+    "fullName": "Volledige naam *",
+    "namePlaceholder": "Jan de Vries",
+    "company": "Bedrijfs-/winkelnaam *",
+    "companyPlaceholder": "Naam van uw winkel of bedrijf",
+    "location": "Fysieke locatie / winkeladres *",
+    "locationPlaceholder": "Hoofdstraat 123, Plaats, Postcode",
+    "notes": "Aanvullende opmerkingen",
+    "optional": "(optioneel)",
+    "notesPlaceholder": "Is er nog iets dat we over uw aanvraag moeten weten?",
+    "submitting": "Verzenden…",
+    "submit": "Aanvraag verzenden"
+  },
+  "errors": {
+    "selectAtLeastOne": "Selecteer hierboven minstens één artikel of dienst voordat u verzendt.",
+    "selectDesign": "Selecteer minstens één ontwerp voor \"{{name}}\".",
+    "submitFailed": "Verzenden mislukt. Probeer het opnieuw."
+  }
+}

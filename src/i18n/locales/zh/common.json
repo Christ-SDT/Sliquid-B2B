@@ -1,0 +1,102 @@
+{
+  "skipToContent": "跳至主要内容",
+  "language": {
+    "label": "语言"
+  },
+  "brands": {
+    "sliquid": {
+      "tagline": "原创身体安全型亲密护理品牌",
+      "description": "自 2002 年以来，Sliquid 一直引领纯净亲密健康的发展。每一款配方均不含甘油和对羟基苯甲酸酯，并采用对身体安全的成分精心研制——从畅销的 H2O 水基润滑剂到屡获殊荣的沐浴与身体护理系列。凭借涵盖润滑剂、清洁护理和按摩油的 100 多个 SKU，Sliquid 已成为全球零售商和医疗从业者信赖的标准。",
+      "imageAlt": "Sliquid H2O，属于 Naturals 身体安全润滑剂系列"
+    },
+    "ride-lube": {
+      "tagline": "专为男性打造的高性能产品",
+      "description": "RIDE Lube 专为性能而设计。产品线包括水基、硅基、混合型及特殊配方，每一款都以适合敏感肌肤的成分打造，兼顾浓稠度、顺滑度与持久度。RIDE Lube 以包容为设计理念，服务包括 LGBTQ+ 群体在内的广泛受众，并推出专为跨性别人士研发的 T-Collection。对于寻求忠实、注重性能的客户群的成人用品零售商而言，这是一款高周转率的 SKU。",
+      "imageAlt": "RIDE Lube 水基润滑剂产品组合"
+    },
+    "ride-rocco": {
+      "tagline": "润滑剂中的黄金标准",
+      "description": "Ride Rocco 与成人行业标志性人物 Rocco Steele 合作开发，是一个为货架展示而打造的高端润滑剂系列。提供水基、硅基以及独特的 Seed 混合配方，每款产品都能带来 Rocco 的粉丝所期待的持久表现，并采用与 RIDE Lube 相同的身体安全标准生产。联名包装能有效带动冲动消费，并为零售商连接起一个在各平台追随 Rocco 的忠实、热情的粉丝群体。",
+      "imageAlt": "Ride Rocco 招牌水基润滑剂系列"
+    }
+  },
+  "nav": {
+    "ourBrands": "我们的品牌",
+    "ingredients": "成分",
+    "about": "关于我们",
+    "announcements": "公告",
+    "mapPolicy": "MAP 政策",
+    "contact": "联系我们",
+    "partnerPortal": "合作伙伴门户",
+    "productCatalog": "产品目录",
+    "healthPractitioners": "医疗从业者"
+  },
+  "header": {
+    "homeLink": "Sliquid HQ 首页",
+    "mainNav": "主导航",
+    "mobileNav": "移动端导航",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "search": "搜索",
+    "searchPlaceholder": "搜索"
+  },
+  "footer": {
+    "logoAlt": "Sliquid 莲花标志",
+    "tagline": "携手共创更健康的生活。Sliquid 致力于为全球零售商和医疗服务提供者提供最纯净、最安全的亲密护理产品。",
+    "quickLinks": "快速链接",
+    "otherSites": "其他网站",
+    "contactHeading": "联系方式",
+    "about": "关于我们",
+    "careers": "招贤纳士",
+    "contactUs": "联系我们 ›",
+    "copyright": "版权所有 © {{year}} Sliquid, LLC。保留所有权利。",
+    "accessibility": "无障碍声明",
+    "dataRights": "您的数据权利",
+    "privacy": "隐私政策",
+    "terms": "使用条款"
+  },
+  "titles": {
+    "home": "B2B 合作伙伴门户",
+    "ourBrands": "我们的品牌",
+    "ingredients": "成分",
+    "about": "关于我们",
+    "announcements": "公告",
+    "insights": "洞察",
+    "contact": "联系我们",
+    "partnerLogin": "合作伙伴登录",
+    "forgotPassword": "忘记密码",
+    "resetPassword": "重置密码",
+    "healthPractitioners": "医疗从业者",
+    "becomeRetailer": "成为零售商",
+    "retailerCheckIn": "零售商回访",
+    "catalog": "产品目录",
+    "mapPolicy": "MAP 政策",
+    "privacyPolicy": "隐私政策",
+    "accessibility": "无障碍声明",
+    "dataRights": "您的数据权利",
+    "terms": "使用条款",
+    "erospain": "Erospain 2026",
+    "register": "创建账户",
+    "announcement": "公告详情",
+    "notFound": "页面未找到"
+  },
+  "notFound": {
+    "heading": "页面未找到",
+    "body": "您查找的页面不存在或已被移动。",
+    "backHome": "返回首页"
+  },
+  "cooldown": {
+    "heading": "已收到，谢谢您。",
+    "submission_one": "我们已收到您的提交，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "submission_other": "我们已收到您的提交，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "message_one": "我们已收到您的留言，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "message_other": "我们已收到您的留言，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "application_one": "我们已收到您的申请，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "application_other": "我们已收到您的申请，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "request_one": "我们已收到您的请求，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "request_other": "我们已收到您的请求，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "checkIn_one": "我们已收到您的回访信息，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "checkIn_other": "我们已收到您的回访信息，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "urgent": "在此期间有紧急需求？请发送电子邮件至 <email>sales@sliquid.com</email>。"
+  }
+}

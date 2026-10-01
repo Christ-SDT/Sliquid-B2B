@@ -1,0 +1,16 @@
+{
+  "title": "公告",
+  "subtitle": "Sliquid 官方新闻稿与合作伙伴资讯。",
+  "loadError": "公告加载失败",
+  "pinned": "置顶",
+  "readMore": "阅读公告",
+  "emptyTitle": "暂无公告",
+  "emptyBody": "请稍后再来查看 Sliquid 的最新资讯和新闻稿。",
+  "source": "新闻稿发布于 sliquid.com",
+  "detail": {
+    "back": "返回公告列表",
+    "notFoundTitle": "该公告不可用",
+    "notFoundBody": "该公告可能已被撤下，或链接有误。",
+    "viewOnSliquid": "在 sliquid.com 上查看"
+  }
+}

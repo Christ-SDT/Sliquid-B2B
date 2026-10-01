@@ -1,0 +1,84 @@
+{
+  "hero": {
+    "eyebrow": "Neem contact op",
+    "title": "Laten we samen iets opbouwen",
+    "body": "Of u nu een groothandelsaccount wilt openen, distributie wilt verkennen of op zoek bent naar aanbevelingen van klinisch niveau: ons B2B-team staat klaar om u te helpen."
+  },
+  "partnerships": {
+    "heading": "Met wie wij samenwerken",
+    "retailer": {
+      "title": "Detailhandelaar",
+      "description": "Open een groothandelsaccount om Sliquid, RIDE Lube en Ride Rocco in uw winkel of online te verkopen. Krijg toegang tot merchandisingmateriaal, ondersteuning bij planogrammen en concurrerende groothandelsprijsniveaus."
+    },
+    "media": {
+      "title": "Marketing en media",
+      "description": "Persvragen, merksamenwerkingen, influencerpartnerschappen en redactionele verzoeken. Stuur ons uw mediakit of voorstel, dan neemt ons marketingteam contact met u op."
+    },
+    "distributor": {
+      "title": "Distributeur",
+      "description": "Wij werken met regionale en wereldwijde distributiepartners om onze producten beschikbaar te maken in markten waar directe levering niet mogelijk is. Vertel ons over uw werkgebied en logistieke mogelijkheden."
+    },
+    "medical": {
+      "title": "Medische professionals",
+      "description": "Wij werken samen met artsen, bekkenbodemtherapeuten, gynaecologen, seksuologen en andere bevoegde zorgverleners die intieme wellnessproducten aanbevelen aan hun patiënten. Neem contact op voor meer informatie over ons Medical Partners Program."
+    }
+  },
+  "steps": {
+    "heading": "Wat er daarna gebeurt",
+    "review": {
+      "title": "Wij beoordelen uw vraag",
+      "detail": "Ons B2B-team leest elk bericht en koppelt uw vraag aan de juiste persoon binnen verkoop, distributie of klinische partnerschappen."
+    },
+    "reply": {
+      "title": "U hoort binnen 2 werkdagen van ons",
+      "detail": "Wij nemen per e-mail (of telefonisch, als u een nummer heeft opgegeven) contact op om uw wensen en de vervolgstappen te bespreken."
+    },
+    "proposal": {
+      "title": "Wij sturen een voorstel op maat",
+      "detail": "Afhankelijk van het type vraag ontvangt u een groothandelsprijslijst, een distributieovereenkomst of een overzicht voor klinische partners."
+    },
+    "onboarding": {
+      "title": "Onboarding en ondersteuning",
+      "detail": "Zodra een partnerschap is bevestigd, zorgt uw vaste accountcontact voor producttraining, materiaalpakketten en doorlopende ondersteuning."
+    }
+  },
+  "info": {
+    "heading": "Contactgegevens",
+    "location": "Dallas, TX (hoofdkantoor)",
+    "hours": "Maandag tot en met vrijdag, 9.30 tot 18.00 uur CT",
+    "response": "Reactie binnen 2 werkdagen"
+  },
+  "form": {
+    "heading": "Stuur ons een bericht",
+    "name": "Volledige naam",
+    "company": "Bedrijf",
+    "email": "E-mail",
+    "phone": "Telefoon",
+    "optional": "(optioneel)",
+    "inquiryType": "Type vraag",
+    "message": "Bericht",
+    "submit": "Bericht verzenden",
+    "submitting": "Verzenden…",
+    "footnote": "Wij reageren op alle B2B-vragen binnen 2 werkdagen.",
+    "options": {
+      "placeholder": "Kies een type vraag…",
+      "retailer": "Account voor detailhandel",
+      "media": "Marketing en media",
+      "distributor": "Distributiepartnerschap",
+      "medical": "Medische professional",
+      "general": "Algemene vraag"
+    }
+  },
+  "errors": {
+    "nameRequired": "Volledige naam is verplicht.",
+    "companyRequired": "Bedrijfsnaam is verplicht.",
+    "emailInvalid": "Een geldig e-mailadres is verplicht.",
+    "subjectRequired": "Kies een type vraag.",
+    "messageTooShort": "Het bericht moet minimaal 20 tekens bevatten.",
+    "sendFailed": "We konden uw bericht nu niet verzenden. Probeer het opnieuw of mail rechtstreeks naar sales@sliquid.com."
+  },
+  "success": {
+    "title": "Bericht verzonden",
+    "body": "Ons B2B-team reageert binnen 2 werkdagen."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "header": {
+    "title": "Werden Sie Sliquid Certified Expert",
+    "body": "Erwerben Sie Ihre offizielle Sliquid-Zertifizierung, indem Sie diesen digitalen Schulungskurs abschließen. Sehen Sie sich in jedem Abschnitt das Video an, absolvieren Sie das Quiz und bestehen Sie es mit mindestens 80 %. Sobald alle Abschnitte abgeschlossen sind, erhalten Sie ein digitales Zertifikat sowie einen Sliquid Certified Expert-Pin und ein T-Shirt. Als Bonus für den Kursabschluss erhalten Sie außerdem ein Sliquid-Produkt Ihrer Wahl. Hier beginnt Ihr Weg zum Sliquid-Produktwissen. Viel Erfolg!"
+  },
+  "card": {
+    "minutes_one": "{{count}} Min.",
+    "minutes_other": "{{count}} Min.",
+    "passScore": "Bestehen: {{score}} %",
+    "passed": "Bestanden",
+    "bestScore": "Bestes Ergebnis: <score>{{score}} %</score>",
+    "retake": "Schulung wiederholen",
+    "start": "Schulung starten"
+  },
+  "complete": {
+    "title": "Sie sind Sliquid Certified Expert!",
+    "body": "Alle Module abgeschlossen – Ihr Zertifikat steht zum Download bereit.",
+    "viewCertificate": "Zertifikat ansehen"
+  },
+  "progress": {
+    "completed": "{{passed}} / {{total}} abgeschlossen"
+  },
+  "certModal": {
+    "defaultTitle": "Sliquid Certified Expert",
+    "yourCertificate": "Ihr Zertifikat",
+    "claimRewards": "Belohnungen anfordern",
+    "close": "Schließen"
+  }
+}

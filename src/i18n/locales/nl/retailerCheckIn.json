@@ -1,0 +1,83 @@
+{
+  "applyInstead": "Aanmelden als detailhandelaar",
+  "gate": {
+    "eyebrow": "Sliquid-partners",
+    "title": "Even vooraf — verkoopt uw winkel Sliquid al?",
+    "body": "Deze pagina is alleen voor partners die onze producten al verkopen. Verkoopt u ons nog niet? Dan praten we toch graag met u — we wijzen u het juiste formulier.",
+    "yes": "Ja — wij zijn al Sliquid-detailhandelaar",
+    "no": "Nog niet — we willen dat graag worden"
+  },
+  "declined": {
+    "title": "Laten we u eerst op weg helpen",
+    "body": "Deze pagina is voor winkels die Sliquid al verkopen. Partner worden kost één kort formulier — ons verkoopteam reageert meestal binnen 2–3 werkdagen.",
+    "back": "We verkopen Sliquid toch al — terug"
+  },
+  "thanks": {
+    "title": "Bedankt — we hebben het ontvangen.",
+    "body": "Bedankt voor uw check-in en voor de jaren dat u Sliquid in uw schappen heeft gezet. Uw contactpersoon neemt binnenkort contact met u op.",
+    "reference": "Uw referentienummer",
+    "done": "Klaar"
+  },
+  "hero": {
+    "eyebrow": "Voor onze huidige partners",
+    "title": "Bedankt dat u er altijd bent.",
+    "body": "Elke fles in uw schap is een keuze om achter lichaamsveilige intieme wellness te staan — en na twintig jaar is dat nog steeds waar het ons om draait. Dat nemen we niet licht op.",
+    "newLook": "We hebben de uitstraling van Sliquid en onze samenwerking met u vernieuwd. <bold>Dus — wat vindt u van de nieuwe look?</bold> Laat het ons hieronder weten, en vertel ons wat u nu van ons nodig heeft."
+  },
+  "brands": {
+    "heading": "De merken in uw schap",
+    "body": "Drie merken, één standaard. Elke formule binnen alle drie wordt gemaakt volgens dezelfde lichaamsveilige specificatie — zonder glycerine, zonder parabenen, zonder suikerderivaten.",
+    "visit": "Bezoek {{name}} →"
+  },
+  "form": {
+    "heading": "Check bij ons in",
+    "intro": "Drie velden zijn het enige wat we echt nodig hebben — de rest helpt ons u sneller te helpen.",
+    "company": "Winkel- / bedrijfsnaam",
+    "name": "Uw naam",
+    "email": "E-mail",
+    "phone": "Telefoon",
+    "pointOfContact": "Wie is uw contactpersoon bij Sliquid?",
+    "selectContact": "Kies een contactpersoon…",
+    "contactHelp": "Er is geen fout antwoord — weet u het niet zeker? Kies dan de laatste optie, dan zorgen wij dat het goed terechtkomt.",
+    "contacts": {
+      "michelle": "Michelle Marcus — VP Sales",
+      "colin": "Colin Roy — Senior Vice President",
+      "erik": "Erik Vasquez — VP Marketing",
+      "distributor": "Mijn vertegenwoordiger bij de distributeur",
+      "notSure": "Weet ik niet / ik heb er geen"
+    },
+    "brandsCarried": "Welke merken verkoopt u?",
+    "interestsHeading": "Waarmee kunnen we u nu helpen?",
+    "interests": {
+      "reorder": "Nabestellen / een bestelling plaatsen",
+      "launches": "Info over nieuwe producten en lanceringen",
+      "inStore": "Marketingmateriaal voor in de winkel",
+      "training": "Personeelstraining en certificering",
+      "images": "Bijgewerkte productafbeeldingen en teksten",
+      "storeLocator": "Vermelding in de winkelzoeker",
+      "pricing": "Vraag over MAP of prijzen"
+    },
+    "feedbackHeading": "Wat vindt u van onze nieuwe look?",
+    "feedback": {
+      "love": "Geweldig",
+      "good": "Ziet er goed uit",
+      "notYet": "Nog niet bekeken",
+      "notes": "Ik heb wat opmerkingen"
+    },
+    "comments": "Wilt u ons nog iets laten weten?",
+    "commentsPlaceholder": "Feedback op de nieuwe look, wat goed verkoopt, wat u graag anders zou zien…",
+    "submit": "Check-in verzenden",
+    "submitting": "Verzenden…"
+  },
+  "errors": {
+    "companyRequired": "Winkel- of bedrijfsnaam is verplicht.",
+    "nameRequired": "Uw naam is verplicht.",
+    "emailInvalid": "Een geldig e-mailadres is verplicht.",
+    "alreadyCheckedIn": "U heeft onlangs al ingecheckt.",
+    "sendFailed": "Er is iets misgegaan bij het verzenden van uw check-in. Probeer het opnieuw of mail rechtstreeks naar sales@sliquid.com."
+  },
+  "notRetailer": {
+    "title": "Hier beland maar verkoopt u Sliquid nog niet?",
+    "body": "Waarschijnlijk heeft iemand u deze link doorgestuurd — en daar zijn we blij mee. Onze aanvraag voor detailhandelaars en distributeurs duurt maar een paar minuten."
+  }
+}

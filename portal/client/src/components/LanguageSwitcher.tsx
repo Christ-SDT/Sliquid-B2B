@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Globe } from 'lucide-react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
-import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES, isSupportedLanguage, setLanguage } from '@/i18n'
+import { HTML_LANG, LANGUAGE_NAMES, SUPPORTED_LANGUAGES, isSupportedLanguage, setLanguage } from '@/i18n'
 
 // Native <select> for free keyboard/screen-reader/mobile behaviour. Border uses
 // on-canvas-muted, not portal-border: portal-border is ~1.2–1.6:1 against the
@@ -35,7 +35,7 @@ export default function LanguageSwitcher() {
                    px-1.5 py-1 hover:text-on-canvas focus:outline-none focus:ring-2 focus:ring-portal-accent"
       >
         {SUPPORTED_LANGUAGES.map(lng => (
-          <option key={lng} value={lng} lang={lng}>{LANGUAGE_NAMES[lng]}</option>
+          <option key={lng} value={lng} lang={HTML_LANG[lng]}>{LANGUAGE_NAMES[lng]}</option>
         ))}
       </select>
     </div>

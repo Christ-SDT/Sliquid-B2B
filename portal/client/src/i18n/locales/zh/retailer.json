@@ -1,0 +1,63 @@
+{
+  "card": {
+    "select": "选择",
+    "selected": "✓ 已选择",
+    "selectDesigns": "选择设计",
+    "editItem": "编辑项目",
+    "deleteItem": "删除项目",
+    "confirmDelete": "删除",
+    "cancelDelete": "取消删除"
+  },
+  "success": {
+    "title": "申请已提交！",
+    "body": "谢谢您，<bold>{{name}}</bold>！我们已收到您为 <bold>{{company}}</bold> 提交的营销物料申请，团队将很快与您联系。",
+    "itemsRequested": "所申请的物品",
+    "hostedBy": "由 Sliquid 团队提供"
+  },
+  "header": {
+    "title": "申请实体营销物料",
+    "intro": "浏览下方的店内陈列物品，选择您门店所需的物品，然后填写您的信息并提交。",
+    "addItem": "添加项目"
+  },
+  "status": {
+    "approved": "申请已批准",
+    "declined": "申请未获批准",
+    "pending": "申请待审核",
+    "declinedBody": "您之前的申请未能完成，您可以在下方重新提交。",
+    "approvedBody": "您为 {{business}} 提交的申请已获批准，正在处理中。",
+    "pendingBody": "您为 {{business}} 提交的申请正在由 Sliquid 团队审核。",
+    "requested": "已申请："
+  },
+  "catalog": {
+    "heading": "可选物品",
+    "hint": "点击任意物品上的<bold>选择</bold>，即可将其加入您的申请。"
+  },
+  "training": {
+    "heading": "培训申请",
+    "addOption": "添加选项",
+    "intro": "申请与 Sliquid 品牌代表进行一次培训。请选择最适合您团队的形式。",
+    "availability": "由于销售团队的日程可能变动，我们无法保证时间安排。收到您的申请后，我们会与您联系确认。"
+  },
+  "form": {
+    "heading": "您的信息",
+    "intro": "请告诉我们物料的寄送地址。",
+    "selected": "已选择（{{count}}）",
+    "selectFirst": "提交前，请至少选择上方的一个物品或培训选项。",
+    "fullName": "姓名 *",
+    "namePlaceholder": "张伟",
+    "company": "公司 / 企业名称 *",
+    "companyPlaceholder": "您的门店或公司名称",
+    "location": "实体门店地址 *",
+    "locationPlaceholder": "街道地址、城市、州、邮政编码",
+    "notes": "补充说明",
+    "optional": "（选填）",
+    "notesPlaceholder": "关于您的申请，还有什么想告诉我们的…",
+    "submitting": "正在提交…",
+    "submit": "提交申请"
+  },
+  "errors": {
+    "selectAtLeastOne": "提交前，请至少选择上方的一个物品或服务。",
+    "selectDesign": "请为“{{name}}”至少选择一种设计。",
+    "submitFailed": "提交失败，请重试。"
+  }
+}

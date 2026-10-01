@@ -218,7 +218,7 @@ export default function RegisterPage() {
                 {t('register.role')} <span className="text-on-canvas-muted font-normal">{t('register.optional')}</span>
               </label>
               <p className="text-on-canvas-muted text-xs mb-2">{t('register.roleHint')}</p>
-              <div className="flex gap-5">
+              <div className="flex flex-wrap gap-x-5 gap-y-2">
                 <label className="flex items-center gap-2 text-on-canvas-subtle text-sm cursor-pointer">
                   <input
                     type="checkbox"

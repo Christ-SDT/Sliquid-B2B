@@ -179,7 +179,7 @@ describe('preferred language', () => {
     expect(row.preferred_language).toBeNull()
   })
 
-  it.each([['de'], [''], [null], [123], ['EN']])('rejects unsupported language %p with 400', async (language) => {
+  it.each([['ja'], [''], ['de-AT'], [null], [123], ['EN']])('rejects unsupported language %p with 400', async (language) => {
     const res = await request(app)
       .put('/api/auth/me/language')
       .set('Authorization', bearerToken(adminId, 'tier5'))

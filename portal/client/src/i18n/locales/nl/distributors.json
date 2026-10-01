@@ -1,0 +1,12 @@
+{
+  "title": "Distributeurs",
+  "subtitle": "Vind erkende Sliquid-distributiepartners bij u in de buurt.",
+  "searchPlaceholder": "Zoek op naam, plaats, staat of regio…",
+  "searchLabel": "Distributeurs zoeken",
+  "regionFilter": "Filteren op regio",
+  "allRegions": "Alle regio's",
+  "count_one": "{{count}} distributeur gevonden",
+  "count_other": "{{count}} distributeurs gevonden",
+  "empty": "Geen distributeurs gevonden",
+  "contact": "Contactpersoon: <name>{{name}}</name>"
+}

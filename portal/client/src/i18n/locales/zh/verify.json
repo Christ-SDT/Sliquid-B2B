@@ -1,0 +1,29 @@
+{
+  "title": "证书验证",
+  "subtitle": "输入证书编号以验证其真实性。",
+  "label": "证书编号",
+  "placeholder": "例如 SLQ-2025-A3F7B2",
+  "submit": "验证",
+  "checking": "正在核验…",
+  "serverError": "无法连接验证服务器。",
+  "valid": {
+    "title": "证书已验证",
+    "subtitle": "这是一份真实有效的 Sliquid 证书",
+    "issuedTo": "颁发给",
+    "completed": "完成日期",
+    "number": "证书编号",
+    "program": "课程",
+    "issuedBy": "颁发机构",
+    "status": "状态",
+    "statusValue": "✓ 有效",
+    "note": "此人已完成 Sliquid 认证专家课程的全部必修模块，并展现出专家级的产品知识。"
+  },
+  "invalid": {
+    "title": "未找到证书",
+    "subtitle": "无法验证此证书",
+    "statusValue": "✗ 未找到",
+    "note": "没有与该编号匹配的有效证书。请仔细核对证书编号后重试。"
+  },
+  "searchAgain": "查询其他证书",
+  "signIn": "登录 Sliquid B2B 门户 →"
+}

@@ -1,0 +1,51 @@
+{
+  "header": {
+    "eyebrow": "Catálogo de produtos",
+    "title": "Produtos seguros para o corpo, <lineBreak/>com formulação transparente",
+    "body": "Conheça nossa linha completa de produtos de bem-estar íntimo. Todas as fórmulas são livres de glicerina e parabenos e desenvolvidas para a segurança do corpo. Preços de atacado e pedidos de parceiros disponíveis no <portalLink>portal de parceiros</portalLink>."
+  },
+  "filters": {
+    "brandGroup": "Filtrar por marca",
+    "all": "Todos",
+    "searchLabel": "Pesquisar produtos",
+    "searchPlaceholder": "ex.: Naturals, Satin…"
+  },
+  "results": {
+    "count_one": "{{count}} produto",
+    "count_other": "{{count}} produtos",
+    "loadError": "Não foi possível carregar o catálogo de produtos. Tente novamente mais tarde.",
+    "empty": "Nenhum produto encontrado",
+    "clearSearch": "Limpar pesquisa"
+  },
+  "product": {
+    "new": "Novo",
+    "inStock": "Em estoque",
+    "outOfStock": "Esgotado",
+    "outShort": "Esgotado",
+    "msrp": "Preço sugerido",
+    "priceInPortal": "Preço disponível no portal",
+    "close": "Fechar",
+    "category": "Categoria",
+    "casePack": "Unidades por caixa",
+    "casePackUnits_one": "{{count}} unidade",
+    "casePackUnits_other": "{{count}} unidades",
+    "caseWeight": "Peso da caixa",
+    "unitDimensions": "Dimensões da unidade",
+    "caseDimensions": "Dimensões da caixa",
+    "effective": "Válido a partir de 1º de jan. de 2026"
+  },
+  "retailerCta": {
+    "eyebrow": "Seja nosso parceiro",
+    "title": "Torne-se um varejista Sliquid",
+    "body": "Venda a marca de produtos íntimos seguros para o corpo mais confiável do setor. A Sliquid oferece suporte de marketing dedicado, materiais de merchandising prontos para uso e uma equipe comprometida em ajudar sua loja a vender melhor e crescer com confiança.",
+    "benefits": {
+      "marketing": "Suporte de marketing dedicado",
+      "merchandising": "Materiais de merchandising para loja",
+      "training": "Recursos de treinamento para a equipe",
+      "minimums": "Pedidos mínimos flexíveis",
+      "formulas": "Fórmulas limpas e seguras para o corpo",
+      "trust": "Mais de 20 anos de confiança na marca"
+    },
+    "button": "Candidate-se para ser varejista"
+  }
+}

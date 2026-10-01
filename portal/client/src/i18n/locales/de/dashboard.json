@@ -1,0 +1,42 @@
+{
+  "greeting": {
+    "morning": "Guten Morgen, {{name}}",
+    "afternoon": "Guten Tag, {{name}}",
+    "evening": "Guten Abend, {{name}}"
+  },
+  "viewAll": "Alle anzeigen",
+  "assets": {
+    "title": "Digitale Ressourcen",
+    "empty": "Keine Ressourcen verfügbar"
+  },
+  "distributors": {
+    "title": "Vertriebspartner",
+    "empty": "Keine Vertriebspartner verfügbar"
+  },
+  "trainings": {
+    "title": "Schulungen",
+    "completed": "{{passed}} / {{total}} abgeschlossen",
+    "minutesShort_one": "{{count}} Min.",
+    "minutesShort_other": "{{count}} Min.",
+    "passed": "Bestanden",
+    "retake": "Wiederholen",
+    "start": "Starten"
+  },
+  "pending": {
+    "badge": "Freigabe ausstehend",
+    "body": "Ihr Konto wurde eingereicht und wird vom Administrator geprüft. Nach der Freigabe erhalten Sie vollen Zugriff.",
+    "didYouKnow": "Wussten Sie schon?",
+    "facts": {
+      "since2002": "Sliquid entwickelt seit 2002 körperverträgliche, pH-ausgeglichene Intimprodukte.",
+      "freeFrom": "Alle Produkte sind frei von Parabenen, Glycerin, DEA und Gluten.",
+      "lineup": "Das Sortiment umfasst über 40 Artikel in den Kollektionen Naturals, Organics, RIDE, Silver und Swirl.",
+      "countries": "Sliquid ist in über 40 Ländern weltweit erhältlich."
+    },
+    "sellQuestion": "Möchten Sie Sliquid in Ihrem Geschäft verkaufen?",
+    "register": "Als Sliquid Insider-Händler registrieren"
+  },
+  "upgrade": {
+    "title": "Sie haben {{tier}}-Zugriff",
+    "body": "Möchten Sie mehr vom Portal freischalten? Wenden Sie sich für ein Upgrade an Ihren Sliquid-Vertriebsmitarbeiter."
+  }
+}

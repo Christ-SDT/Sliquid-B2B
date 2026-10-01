@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "invalidCredentials": "E-Mail oder Passwort ungültig",
+    "credentialsRequired": "E-Mail und Passwort erforderlich",
+    "accountDeclined": "Ihre Registrierungsanfrage wurde abgelehnt. Bitte wenden Sie sich an support@sliquid.com.",
+    "loginRateLimited": "Zu viele Anmeldeversuche. Bitte versuchen Sie es in 15 Minuten erneut.",
+    "allFieldsRequired": "Alle Felder sind erforderlich",
+    "passwordTooShort": "Das Passwort muss mindestens 8 Zeichen lang sein",
+    "emailInUse": "Diese E-Mail-Adresse wird bereits verwendet",
+    "emailRequired": "E-Mail ist erforderlich",
+    "resetRateLimited": "Zu viele Anfragen zum Zurücksetzen des Passworts. Bitte versuchen Sie es in 15 Minuten erneut.",
+    "resetFieldsRequired": "Token und Passwort sind erforderlich",
+    "resetLinkInvalid": "Ungültiger oder abgelaufener Link zum Zurücksetzen",
+    "resetLinkExpired": "Der Link zum Zurücksetzen ist abgelaufen. Bitte fordern Sie einen neuen an."
+  },
+  "forms": {
+    "missingFields": "Pflichtfelder fehlen.",
+    "invalidEmail": "Ungültige E-Mail-Adresse.",
+    "nameRequired": "Name ist erforderlich.",
+    "sendFailed": "Senden fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "sendFailedRetry": "Beim Senden Ihrer Anfrage ist ein vorübergehendes Problem aufgetreten. Bitte versuchen Sie es gleich noch einmal – ein erneuter Versuch wird nicht blockiert.",
+    "cooldown_one": "Ihre Anfrage ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minute eine weitere senden.",
+    "cooldown_other": "Ihre Anfrage ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minuten eine weitere senden.",
+    "refused": "Wir konnten diese Anfrage nicht annehmen. Falls Sie das für einen Irrtum halten, schreiben Sie bitte direkt an sales@sliquid.com – wir kümmern uns dann darum."
+  }
+}

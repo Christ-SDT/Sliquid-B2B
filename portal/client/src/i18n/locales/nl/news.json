@@ -1,0 +1,16 @@
+{
+  "title": "Aankondigingen",
+  "subtitle": "Officiële persberichten en partnernieuws van Sliquid.",
+  "loadError": "Aankondigingen konden niet worden geladen",
+  "pinned": "Vastgezet",
+  "readMore": "Aankondiging lezen",
+  "emptyTitle": "Nog geen aankondigingen",
+  "emptyBody": "Kom binnenkort terug voor nieuws en persberichten van Sliquid.",
+  "source": "Persberichten worden gepubliceerd op sliquid.com",
+  "detail": {
+    "back": "Terug naar aankondigingen",
+    "notFoundTitle": "Aankondiging niet beschikbaar",
+    "notFoundBody": "Deze is mogelijk offline gehaald of de link is onjuist.",
+    "viewOnSliquid": "Bekijken op sliquid.com"
+  }
+}

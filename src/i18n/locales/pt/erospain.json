@@ -1,0 +1,56 @@
+{
+  "header": {
+    "eyebrow": "Erospain 2026",
+    "title": "Formulário de cadastro de parceiros",
+    "intro": "Preencha o formulário abaixo e entraremos em contato. Você receberá um e-mail de confirmação para concluir seu cadastro."
+  },
+  "success": {
+    "title": "Obrigado!",
+    "body": "Obrigado por preencher nosso formulário de cadastro. Verifique sua caixa de entrada: você receberá um e-mail de confirmação e precisará clicar no link para concluir o cadastro.",
+    "spam": "Se não encontrar, verifique sua pasta de spam.",
+    "reset_one": "Este formulário será reiniciado em <count>{{count}}</count> segundo…",
+    "reset_other": "Este formulário será reiniciado em <count>{{count}}</count> segundos…"
+  },
+  "gdprNotice": "<bold>Importante — confirmação dupla e RGPD (GDPR):</bold> Ao enviar este formulário, você manifesta interesse em receber comunicações da Sliquid. Você receberá um e-mail de confirmação separado, no qual <bold>deve clicar</bold> para concluir o cadastro. Você pode cancelar a inscrição a qualquer momento. Tratamos seus dados de acordo com o RGPD (GDPR). Nunca venderemos nem compartilharemos suas informações.",
+  "fields": {
+    "name": "Nome completo",
+    "namePlaceholder": "Ana Souza",
+    "email": "Endereço de e-mail",
+    "emailPlaceholder": "ana@suaempresa.com",
+    "businessName": "Nome da empresa",
+    "businessNamePlaceholder": "Sua Empresa Ltda.",
+    "businessType": "Tipo de negócio",
+    "businessTypePlaceholder": "Selecione o tipo…",
+    "storeNames": "Nome(s) da(s) loja(s)",
+    "storeNamesPlaceholder": "ex.: Boutique Rua Principal, Shopping Centro",
+    "storeCount": "Número de lojas",
+    "storeCountPlaceholder": "ex.: 3",
+    "websiteUrl": "URL do site",
+    "websiteUrlPlaceholder": "https://sualoja.com",
+    "contactName": "Nome do contato na empresa",
+    "contactNamePlaceholder": "Contato principal da sua empresa",
+    "contactPhone": "Telefone de contato da empresa + ramal",
+    "contactPhonePlaceholder": "ex.: +34 91 234 5678 ramal 101",
+    "consent": "Autorizo a Sliquid a armazenar e usar minhas informações para me enviar novidades de produtos e comunicações de marketing. Entendo que receberei um e-mail de confirmação para concluir meu cadastro e que posso cancelar a inscrição a qualquer momento clicando no link de descadastro em qualquer e-mail recebido."
+  },
+  "businessTypes": {
+    "Retailer": "Varejista",
+    "Distribution": "Distribuição",
+    "E-Commerce": "E-commerce",
+    "Other": "Outro"
+  },
+  "errors": {
+    "nameRequired": "O nome completo é obrigatório.",
+    "emailInvalid": "Informe um endereço de e-mail válido.",
+    "businessNameRequired": "O nome da empresa é obrigatório.",
+    "businessTypeRequired": "Selecione um tipo de negócio.",
+    "storeNamesRequired": "Informe o(s) nome(s) da(s) sua(s) loja(s).",
+    "websiteUrlRequired": "A URL do site é obrigatória para negócios de e-commerce.",
+    "contactNameRequired": "O nome do contato é obrigatório.",
+    "consentRequired": "Você precisa dar seu consentimento para continuar.",
+    "generic": "Algo deu errado. Tente novamente."
+  },
+  "submit": "Enviar",
+  "submitting": "Enviando…",
+  "copyright": "© {{year}} Sliquid, LLC · Todos os direitos reservados"
+}

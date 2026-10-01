@@ -1,0 +1,51 @@
+{
+  "header": {
+    "eyebrow": "Produktkatalog",
+    "title": "Körperverträgliche Produkte, <lineBreak/>transparent formuliert",
+    "body": "Entdecken Sie unser gesamtes Sortiment an Produkten für intimes Wohlbefinden. Jede Formel ist frei von Glycerin und Parabenen und auf Körperverträglichkeit ausgelegt. Großhandelspreise und Partnerbestellungen finden Sie im <portalLink>Partnerportal</portalLink>."
+  },
+  "filters": {
+    "brandGroup": "Nach Marke filtern",
+    "all": "Alle",
+    "searchLabel": "Produkte suchen",
+    "searchPlaceholder": "z. B. Naturals, Satin…"
+  },
+  "results": {
+    "count_one": "{{count}} Produkt",
+    "count_other": "{{count}} Produkte",
+    "loadError": "Der Produktkatalog konnte nicht geladen werden. Bitte versuchen Sie es später erneut.",
+    "empty": "Keine Produkte gefunden",
+    "clearSearch": "Suche zurücksetzen"
+  },
+  "product": {
+    "new": "Neu",
+    "inStock": "Auf Lager",
+    "outOfStock": "Nicht auf Lager",
+    "outShort": "Ausverkauft",
+    "msrp": "UVP",
+    "priceInPortal": "Preis im Portal verfügbar",
+    "close": "Schließen",
+    "category": "Kategorie",
+    "casePack": "Kartoninhalt",
+    "casePackUnits_one": "{{count}} Stück",
+    "casePackUnits_other": "{{count}} Stück",
+    "caseWeight": "Kartongewicht",
+    "unitDimensions": "Maße (Stück)",
+    "caseDimensions": "Maße (Karton)",
+    "effective": "Gültig ab 1. Januar 2026"
+  },
+  "retailerCta": {
+    "eyebrow": "Werden Sie Partner",
+    "title": "Werden Sie Sliquid-Händler",
+    "body": "Führen Sie die vertrauenswürdigste Marke für körperverträgliche Intimprodukte der Branche. Sliquid bietet engagierte Marketingunterstützung, sofort einsetzbares Verkaufsmaterial und ein Team, das Ihr Geschäft dabei unterstützt, gezielter zu verkaufen und mit Zuversicht zu wachsen.",
+    "benefits": {
+      "marketing": "Persönliche Marketingunterstützung",
+      "merchandising": "Verkaufsmaterial für den Laden",
+      "training": "Schulungsmaterial für Ihr Team",
+      "minimums": "Flexible Mindestbestellmengen",
+      "formulas": "Saubere, körperverträgliche Formeln",
+      "trust": "Über 20 Jahre Markenvertrauen"
+    },
+    "button": "Jetzt als Händler bewerben"
+  }
+}

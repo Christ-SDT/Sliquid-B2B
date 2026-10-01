@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "ariaLabel": "首页横幅",
+    "title": "Sliquid 零售商所需的一切，尽在一处。",
+    "body": "您的一站式中心：产品知识、员工培训、可下载资源和合作伙伴资料，全程助力您的业务发展。",
+    "becomeRetailer": "成为零售商",
+    "partnerPortal": "合作伙伴门户"
+  },
+  "strategy": {
+    "heading": "携手成长的更智慧之道",
+    "intro": "更智慧地携手成长，不仅意味着获得各种工具，更意味着让 Sliquid 的营销团队成为您团队的延伸，随时为您提供支持、制定策略，助您取得成果。",
+    "cards": {
+      "retailers": {
+        "title": "零售商",
+        "description": "简化您的工作流程，提升您的店内及线上形象，并与我们的营销团队直接对接，让您行动更快、销售更聪明、成长更有信心。",
+        "imageAlt": "置于洁净台面上的 Sliquid Organics Natural 润滑剂系列",
+        "linkLabel": "浏览我们的目录"
+      },
+      "health-practitioners": {
+        "title": "医疗从业者",
+        "description": "获取临床资源、教育资料和可直接提供给患者的试用装，为您的诊疗提供补充，帮助您更好地服务患者。",
+        "imageAlt": "带倒影的 Sliquid Soothe 亲密健康产品组合",
+        "linkLabel": "了解我们的计划"
+      },
+      "global-distributors": {
+        "title": "全球经销商",
+        "description": "为您的营销和销售团队提供可直接与客户分享的即用资源，推动更强劲的销售，同时加强与 Sliquid 营销团队的协作。",
+        "imageAlt": "RIDE Lube 水基润滑剂产品系列",
+        "linkLabel": "索取更多信息"
+      }
+    }
+  },
+  "stats": {
+    "heading": "真正一体化的健康与保健生态系统",
+    "body": "作为 Sliquid 大家庭的一员，您将接入一个覆盖零售和数字渠道、不断壮大的网络。我们的线下与线上布局与产品创新相辅相成，帮助您为客户带来真正健康、有意义的价值。",
+    "items": {
+      "years": "年行业深耕，是亲密健康领域为数不多的真正老牌之一。",
+      "skus": "个 SKU，覆盖多个系列，涵盖润滑剂、沐浴与身体护理及健康品类。",
+      "customers": "位客户信赖 Sliquid 的身体安全健康产品。",
+      "zero": "无多余成分理念：配方含 0 甘油、0 对羟基苯甲酸酯、0 糖类衍生物，这是本品类中的决定性差异化优势。"
+    }
+  },
+  "brands": {
+    "heading": "更多品牌，更广覆盖，更多机会。",
+    "body": "Sliquid 大家庭不止于此。凭借 RIDE Lube 面向 LGBTQ+ 群体的品牌定位和 Ride Rocco 招牌系列，我们的品牌组合为合作伙伴带来更广泛、更专业的健康产品选择。",
+    "cta": "探索我们的姐妹品牌",
+    "imageAlt": "Sliquid、RIDE Lube 和 Ride Rocco 产品系列",
+    "labelSubtitle": "高性能润滑剂与招牌系列"
+  },
+  "ceo": {
+    "heading": "首席执行官致辞",
+    "quote": "“欢迎来到 Sliquid HQ！很高兴您的到来。这个空间专为您——我们的零售和医疗合作伙伴——打造，让您轻松获取支持您工作的信息和资源。这里的一切都旨在帮助您在向客户和患者传递 Sliquid 使命时，更加自信、更加了解情况。”",
+    "role": "联合创始人兼首席执行官"
+  },
+  "cta": {
+    "heading": "及时了解 Sliquid 最新资讯",
+    "thanks": "感谢您的订阅！",
+    "emailLabel": "电子邮件地址",
+    "placeholder": "your@company.com",
+    "invalidEmail": "请输入有效的电子邮件地址。",
+    "subscribe": "订阅"
+  }
+}

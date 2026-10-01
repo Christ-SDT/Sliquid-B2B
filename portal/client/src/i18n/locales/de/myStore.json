@@ -1,0 +1,22 @@
+{
+  "title": "Mein Geschäft",
+  "subtitleCompany": "Bei {{company}} registrierte Mitglieder",
+  "subtitle": "In Ihrem Geschäft registrierte Mitglieder",
+  "loadError": "Mitglieder konnten nicht geladen werden",
+  "totalMembers": "Mitglieder gesamt",
+  "quizzesPassed": "Bestandene Quiz",
+  "avgPassed": "Ø bestandene Quiz",
+  "searchPlaceholder": "Nach Name oder E-Mail suchen…",
+  "searchLabel": "Mitglieder suchen",
+  "noMatch": "Keine Mitglieder entsprechen Ihrer Suche.",
+  "empty": "Noch keine Mitglieder registriert.",
+  "table": {
+    "name": "Name",
+    "email": "E-Mail",
+    "accountType": "Kontotyp",
+    "quizzesPassed": "Bestandene Quiz",
+    "joined": "Beigetreten"
+  },
+  "showing_one": "{{shown}} von {{count}} Mitglied",
+  "showing_other": "{{shown}} von {{count}} Mitgliedern"
+}

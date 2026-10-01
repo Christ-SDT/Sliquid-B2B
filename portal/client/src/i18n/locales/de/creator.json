@@ -1,0 +1,49 @@
+{
+  "loading": [
+    "Bild wird bearbeitet…",
+    "Ein Meisterwerk entsteht…",
+    "Details werden ergänzt…",
+    "Flasche wird korrigiert…",
+    "Beleuchtung wird perfektioniert…",
+    "Fast fertig…"
+  ],
+  "gallery": {
+    "title": "Referenzgalerie",
+    "close": "Schließen",
+    "searchPlaceholder": "Bilder suchen…",
+    "noMatch": "Keine Bilder entsprechen Ihrer Suche",
+    "empty": "Keine Referenzbilder – laden Sie welche in der Referenzgalerie hoch",
+    "selectUpTo": "Bis zu {{max}} auswählen",
+    "selectOne": "Ein Bild auswählen",
+    "selected_one": "{{count}} Bild ausgewählt",
+    "selected_other": "{{count}} Bilder ausgewählt",
+    "cancel": "Abbrechen",
+    "insert": "Auswahl einfügen"
+  },
+  "header": {
+    "subtitle": "Sliquid KI-Bildgenerator"
+  },
+  "chat": {
+    "dropHint": "Bild als Referenz ablegen",
+    "welcome": "Hallo! Ich bin <accent>Lampy</accent>, der KI-Bildgenerator von Sliquid. Klicken Sie zu Beginn unten links auf das Fotosymbol und wählen Sie das Produkt aus, das in Ihrem Bild zu sehen sein soll. Beschreiben Sie in Ihrer Eingabe Format, Ästhetik und Gesamtstimmung des gewünschten Bildes – so ausführlich wie möglich. Sie können auch <attach>ein Referenzbild anhängen</attach> oder eines in dieses Fenster ziehen, um den Stil vorzugeben. Ihre Kreationen werden in der Ressourcenbibliothek gespeichert.",
+    "referenceAlt": "Referenz",
+    "referenceBadge": "Referenz",
+    "download": "Herunterladen",
+    "delete": "Löschen"
+  },
+  "input": {
+    "attachedOne": "Referenzbild angehängt – Lampy nutzt es als visuelle Vorlage",
+    "attachedMany_one": "{{count}} Referenzbild angehängt – Lampy nutzt es als visuelle Vorlage",
+    "attachedMany_other": "{{count}} Referenzbilder angehängt – Lampy nutzt sie als visuelle Vorlage",
+    "removeReference": "Referenzbild entfernen",
+    "attachTitle": "Referenzbild aus der Galerie wählen",
+    "promptPlaceholder": "Beschreiben Sie das Produktbild, das Lampy erstellen soll…",
+    "promptLabel": "Beschreiben Sie Ihr Bild",
+    "send": "Bild erstellen"
+  },
+  "errors": {
+    "generateFailed": "Bild konnte nicht erstellt werden",
+    "deleteFailed": "Bild konnte nicht gelöscht werden",
+    "confirmDelete": "Dieses Bild löschen? Es wird auch aus der Ressourcenbibliothek entfernt."
+  }
+}

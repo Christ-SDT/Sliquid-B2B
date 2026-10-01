@@ -1,0 +1,49 @@
+{
+  "loading": [
+    "正在处理图片…",
+    "正在创作杰作…",
+    "正在添加细节…",
+    "正在修整瓶身…",
+    "正在优化光线…",
+    "马上就好…"
+  ],
+  "gallery": {
+    "title": "参考图库",
+    "close": "关闭",
+    "searchPlaceholder": "搜索图片…",
+    "noMatch": "没有与您的搜索匹配的图片",
+    "empty": "暂无参考图片——请在参考图库中上传",
+    "selectUpTo": "最多选择 {{max}} 张",
+    "selectOne": "请选择一张图片",
+    "selected_one": "已选择 {{count}} 张图片",
+    "selected_other": "已选择 {{count}} 张图片",
+    "cancel": "取消",
+    "insert": "插入所选图片"
+  },
+  "header": {
+    "subtitle": "Sliquid AI 图像创作工具"
+  },
+  "chat": {
+    "dropHint": "拖放图片作为参考",
+    "welcome": "您好！我是 <accent>Lampy</accent>，Sliquid 的 AI 图像创作工具。首先，请点击左下角的照片图标，选择您希望在图片中展示的产品。在提示词中，请说明您想要的尺寸、美学风格和整体基调，越详细越好。您也可以<attach>添加一张参考图片</attach>，或将图片拖到此窗口中来引导风格。您的作品将保存到资源库。",
+    "referenceAlt": "参考图片",
+    "referenceBadge": "参考",
+    "download": "下载",
+    "delete": "删除"
+  },
+  "input": {
+    "attachedOne": "已附加参考图片——Lampy 会将其作为视觉参考",
+    "attachedMany_one": "已附加 {{count}} 张参考图片——Lampy 会将其作为视觉参考",
+    "attachedMany_other": "已附加 {{count}} 张参考图片——Lampy 会将其作为视觉参考",
+    "removeReference": "移除参考图片",
+    "attachTitle": "从图库中选择参考图片",
+    "promptPlaceholder": "描述您希望 Lampy 创作的产品图片…",
+    "promptLabel": "描述您的图片",
+    "send": "生成图片"
+  },
+  "errors": {
+    "generateFailed": "图片生成失败",
+    "deleteFailed": "图片删除失败",
+    "confirmDelete": "确定删除此图片吗？它也将从资源库中移除。"
+  }
+}

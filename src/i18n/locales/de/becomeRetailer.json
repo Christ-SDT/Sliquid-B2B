@@ -1,0 +1,55 @@
+{
+  "hero": {
+    "eyebrow": "Partner von Sliquid werden",
+    "title": "Möchten Sie Sliquid-Händler oder -Vertriebspartner werden?",
+    "body": "Füllen Sie das folgende Formular aus, und ein Mitglied des Sliquid-Vertriebsteams meldet sich in Kürze bei Ihnen."
+  },
+  "form": {
+    "heading": "Händler oder Vertriebspartner werden",
+    "company": "Firma",
+    "name": "Name",
+    "first": "Vorname",
+    "last": "Nachname",
+    "address": "Adresse",
+    "street": "Straße und Hausnummer",
+    "addressLine2": "Adresszusatz",
+    "city": "Stadt",
+    "state": "Bundesland / Region",
+    "zip": "Postleitzahl",
+    "country": "Land",
+    "countryOther": "Sonstiges",
+    "phone": "Telefonnummer",
+    "email": "E-Mail",
+    "website": "Website",
+    "storeLocatorHeading": "Händlersuche",
+    "storeLocator": "Möchten Sie in unsere Händlersuche aufgenommen werden?",
+    "brandsHeading": "Marken, die Sie interessieren",
+    "comments": "Fragen / Anmerkungen?",
+    "mapHeading": "Bitte lesen Sie die Richtlinie",
+    "mapAgree": "Ich stimme der unten stehenden MAP-Richtlinie von Sliquid zu",
+    "mapLink": "Sliquid-Richtlinie zum Mindestwerbepreis (MAP)",
+    "submit": "Absenden",
+    "submitting": "Wird gesendet…"
+  },
+  "errors": {
+    "companyRequired": "Firma ist erforderlich.",
+    "firstNameRequired": "Vorname ist erforderlich.",
+    "lastNameRequired": "Nachname ist erforderlich.",
+    "streetRequired": "Straße und Hausnummer sind erforderlich.",
+    "cityRequired": "Stadt ist erforderlich.",
+    "stateRequired": "Bundesland / Region ist erforderlich.",
+    "zipRequired": "Postleitzahl ist erforderlich.",
+    "phoneRequired": "Telefonnummer ist erforderlich.",
+    "emailInvalid": "Eine gültige E-Mail-Adresse ist erforderlich.",
+    "brandsRequired": "Bitte wählen Sie mindestens eine Marke aus.",
+    "mapRequired": "Sie müssen der MAP-Richtlinie von Sliquid zustimmen.",
+    "alreadyApplied": "Sie haben sich kürzlich bereits beworben.",
+    "sendFailed": "Beim Senden Ihrer Bewerbung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder schreiben Sie direkt an sales@sliquid.com."
+  },
+  "thanks": {
+    "title": "Vielen Dank für Ihre Bewerbung!",
+    "body": "Wir haben Ihre Bewerbung als Sliquid-Händler oder -Vertriebspartner erhalten. Ein Mitglied unseres Vertriebsteams prüft Ihre Angaben und meldet sich in Kürze bei Ihnen.",
+    "questions": "Bei dringenden Fragen erreichen Sie uns jederzeit unter <email>sales@sliquid.com</email>.",
+    "done": "Fertig"
+  }
+}

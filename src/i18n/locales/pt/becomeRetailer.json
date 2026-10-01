@@ -1,0 +1,55 @@
+{
+  "hero": {
+    "eyebrow": "Seja parceiro da Sliquid",
+    "title": "Você quer se tornar varejista ou distribuidor Sliquid?",
+    "body": "Preencha o formulário abaixo e um membro da equipe de vendas da Sliquid entrará em contato em breve."
+  },
+  "form": {
+    "heading": "Torne-se varejista ou distribuidor",
+    "company": "Empresa",
+    "name": "Nome",
+    "first": "Nome",
+    "last": "Sobrenome",
+    "address": "Endereço",
+    "street": "Endereço",
+    "addressLine2": "Complemento",
+    "city": "Cidade",
+    "state": "Estado / Província / Região",
+    "zip": "CEP / Código postal",
+    "country": "País",
+    "countryOther": "Outro",
+    "phone": "Telefone",
+    "email": "E-mail",
+    "website": "Site",
+    "storeLocatorHeading": "Localizador de lojas",
+    "storeLocator": "Você gostaria de fazer parte do nosso Localizador de lojas?",
+    "brandsHeading": "Marcas de seu interesse",
+    "comments": "Dúvidas / Comentários?",
+    "mapHeading": "Você deve ler a política",
+    "mapAgree": "Concordo com a Política MAP da Sliquid abaixo",
+    "mapLink": "Política de Preço Mínimo Anunciado (MAP) da Sliquid",
+    "submit": "Enviar",
+    "submitting": "Enviando…"
+  },
+  "errors": {
+    "companyRequired": "A empresa é obrigatória.",
+    "firstNameRequired": "O nome é obrigatório.",
+    "lastNameRequired": "O sobrenome é obrigatório.",
+    "streetRequired": "O endereço é obrigatório.",
+    "cityRequired": "A cidade é obrigatória.",
+    "stateRequired": "O estado / província é obrigatório.",
+    "zipRequired": "O CEP / código postal é obrigatório.",
+    "phoneRequired": "O telefone é obrigatório.",
+    "emailInvalid": "Informe um endereço de e-mail válido.",
+    "brandsRequired": "Selecione pelo menos uma marca.",
+    "mapRequired": "Você deve concordar com a Política MAP da Sliquid.",
+    "alreadyApplied": "Você já enviou uma candidatura recentemente.",
+    "sendFailed": "Algo deu errado ao enviar sua candidatura. Tente novamente ou envie um e-mail diretamente para sales@sliquid.com."
+  },
+  "thanks": {
+    "title": "Obrigado pela sua candidatura!",
+    "body": "Recebemos sua candidatura para se tornar varejista ou distribuidor Sliquid. Um membro da nossa equipe de vendas analisará seu envio e entrará em contato em breve.",
+    "questions": "Se tiver alguma dúvida imediata, fale conosco pelo <email>sales@sliquid.com</email>.",
+    "done": "Concluir"
+  }
+}

@@ -32,7 +32,7 @@ describe('i18n setup', () => {
   })
 
   it('falls back to English for an unsupported language', async () => {
-    await i18n.changeLanguage('de')
+    await i18n.changeLanguage('ja')
     expect(i18n.resolvedLanguage).toBe('en')
     expect(document.documentElement.lang).toBe('en')
   })
@@ -70,6 +70,18 @@ describe('locale files', () => {
       const value = path.split('.').reduce<unknown>((o, k) => (o as Record<string, unknown>)[k], translated)
       expect(typeof value === 'string' && value.trim().length > 0, `${lng}/${file}: "${path}" is empty`).toBe(true)
     }
+  })
+
+  // New languages start as copies of English so the apps compile while they're
+  // translated. This stops one shipping untranslated: most strings must differ
+  // from English (some legitimately don't — brand names, a bare "{{title}}").
+  it.each(cases)('%s: %s/%s is actually translated into %s', (_app, dir, file, lng) => {
+    const english = load(dir, 'en', file)
+    const translated = load(dir, lng, file)
+    const paths = keyPaths(english)
+    const get = (o: Record<string, unknown>, path: string) => path.split('.').reduce<unknown>((x, k) => (x as Record<string, unknown>)[k], o)
+    const same = paths.filter(pth => get(english, pth) === get(translated, pth)).length
+    expect(same / paths.length, `${lng}/${file}: ${same} of ${paths.length} strings are still English`).toBeLessThanOrEqual(0.5)
   })
 
   it('no language has a namespace file English lacks', () => {

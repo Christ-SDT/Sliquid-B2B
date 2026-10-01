@@ -1,0 +1,149 @@
+{
+  "hero": {
+    "eyebrow": "Formuleringsnormen",
+    "title": "Ingrediënten die u kunt vertrouwen",
+    "body": "Wij houden onze formules aan een hogere standaard. Geen schadelijke toevoegingen, geen shortcuts, geen compromissen. Dit is precies wat dat betekent."
+  },
+  "philosophy": {
+    "title": "Onze visie op ingrediënten",
+    "p1": "Sliquid is opgericht vanuit de overtuiging dat intieme producten net zo zuiver en veilig moeten zijn als elk ander product dat u op uw lichaam gebruikt. In 2002 betekende dat ingaan tegen de norm in de branche door glycerine, parabenen en kunstmatige geuren af te wijzen, terwijl die overal werden gebruikt.",
+    "p2": "Vandaag is onze visie op ingrediënten onveranderd. Wij gebruiken natuurlijke en biologische ingrediënten van de hoogste kwaliteit, laten elke formule streng testen en vermelden elk bestanddeel op ons etiket, zonder uitzondering."
+  },
+  "standards": {
+    "title": "Waar wij voor staan",
+    "items": {
+      "glycerin-free": {
+        "title": "Glycerinevrij",
+        "description": "Geen van onze formules bevat glycerine, dat schimmels kan voeden en de pH-balans kan verstoren."
+      },
+      "paraben-free": {
+        "title": "Parabeenvrij",
+        "description": "Wij gebruiken nooit parabenen, een groep synthetische conserveermiddelen die in verband wordt gebracht met hormoonverstoring."
+      },
+      "body-safe": {
+        "title": "Veilig voor het lichaam",
+        "description": "Elke formule heeft een pH die is afgestemd op het lichaam en is hypoallergeen getest voor de gevoelige huid."
+      },
+      "vegan": {
+        "title": "Vegan en dierproefvrij",
+        "description": "Geen ingrediënten van dierlijke oorsprong en nooit dierproeven."
+      },
+      "made-in-usa": {
+        "title": "Gemaakt in de VS",
+        "description": "Elk Sliquid-product wordt in de VS geformuleerd en geproduceerd, voor een constante kwaliteit en controle van begin tot eind."
+      },
+      "transparent": {
+        "title": "Volledige transparantie",
+        "description": "Elk ingrediënt in elke formule wordt vermeld. Geen verborgen geuren, geen mysterieuze stoffen."
+      }
+    }
+  },
+  "key": {
+    "eyebrow": "Wat erin zit",
+    "title": "Belangrijkste ingrediënten die wij gebruiken",
+    "intro": "Elk ingrediënt wordt bewust gekozen op basis van zijn functie in de formule. Hieronder vindt u een overzicht van de kernbestanddelen in onze producten en hun voordelen.",
+    "items": {
+      "purified-water": {
+        "name": "Gezuiverd water",
+        "tag": "Basis",
+        "description": "De basis van alle formules op waterbasis. Gezuiverd met ons 9-traps omgekeerde-osmosefiltersysteem, inclusief een deïonisatiestap. Het vormt ongeveer 96% van Naturals H2O en dient als zuivere drager voor elke wateroplosbare formule."
+      },
+      "aloe-vera": {
+        "name": "Aloe Barbadensis Leaf Juice",
+        "tag": "Basis",
+        "description": "Het basisingrediënt van de Organics-lijn, rechtstreeks gewonnen uit de bladeren van de aloë vera-plant. Van nature glijdend en helend; al eeuwenlang gebruikt om de huid te verzachten en te beschermen. Ontstekingsremmend en pH-vriendelijk voor gevoelig weefsel."
+      },
+      "plant-cellulose": {
+        "name": "Plantaardige cellulose",
+        "tag": "Verdikkingsmiddel",
+        "description": "Een natuurlijk, vegan en glutenvrij verdikkingsmiddel. Het zorgt voor de kenmerkende zijdezachte glijding en een gladde consistentie zonder synthetische polymeren."
+      },
+      "agar-agar": {
+        "name": "Agar-agar",
+        "tag": "Verdikkingsmiddel",
+        "description": "Agar-agar wordt gewonnen uit rode algen en is een natuurlijk plantaardig materiaal dat de viscositeit van het glijmiddel bepaalt. Een zuiver, op zeewier gebaseerd alternatief voor synthetische geleermiddelen."
+      },
+      "guar-gum": {
+        "name": "Guargom (Cyamopsis)",
+        "tag": "Stabilisator",
+        "description": "Gewonnen uit de guarboon. Deze niet-giftige natuurlijke toevoeging zorgt ervoor dat plantaardige cellulosevezels soepel bewegen en heel glad aanvoelen, en stabiliseert de hele formule."
+      },
+      "vitamin-e": {
+        "name": "Natuurlijke tocoferolen (vitamine E)",
+        "tag": "Antioxidant",
+        "description": "Een natuurlijke huidhydrator en krachtige antioxidant. Verzorgt de huid, verlengt de houdbaarheid zonder synthetische conserveermiddelen en vormt een subtiele beschermlaag voor gevoelig slijmvlies."
+      },
+      "flax-extract": {
+        "name": "Lijnzaadextract",
+        "tag": "Hydrateert",
+        "description": "Gebruikt in de formules van Sliquid Organics als plantaardige hydrator en herstellend verzachtend middel. Rijk aan omega-vetzuren; helpt de elasticiteit van de huid te herstellen en ondersteunt langdurige hydratatie."
+      },
+      "hibiscus": {
+        "name": "Hibiscusextract",
+        "tag": "Verzachtend",
+        "description": "Toegevoegd aan Sliquid Organics als herstellend en helend verzachtend middel. Hibiscus staat erom bekend de elasticiteit en soepelheid van de huid te herstellen, wat vooral goed is voor gevoelig of geïrriteerd weefsel."
+      },
+      "green-tea": {
+        "name": "Groene-thee-extract",
+        "tag": "Ontstekingsremmend",
+        "description": "Een plantaardige ontstekingsremmer in de ingrediëntenlijst van Organics. Groene-thee-extract helpt irritatie te kalmeren en biedt antioxidantondersteuning, waardoor de gevoelige huid extra wordt beschermd tegen invloeden van buitenaf."
+      },
+      "sunflower-seed": {
+        "name": "Zonnebloempitextract",
+        "tag": "Huidtonic",
+        "description": "Gebruikt in Sliquid Organics als milde reinigende en kalmerende tonic. Zonnebloempitextract is rijk aan vitaminen en vetzuren die de huid voeden en kalmeren zonder de natuurlijke barrières te verstoren."
+      },
+      "citric-acid": {
+        "name": "Citroenzuur",
+        "tag": "pH-buffer",
+        "description": "Gebruikt in alle Sliquid-producten op waterbasis. Een mild organisch zuur uit de cassavewortel, gebruikt om de pH van elke formule af te stemmen op het natuurlijke bereik van het lichaam. Werkt als natuurlijk antisepticum en pH-buffer en verlengt samen met kaliumsorbaat veilig de houdbaarheid."
+      },
+      "potassium-sorbate": {
+        "name": "Kaliumsorbaat en natriumbenzoaat",
+        "tag": "Conserveermiddel",
+        "description": "Milde, lichaamsveilige, niet-giftige en niet-irriterende conserveermiddelen die veel worden gebruikt in cosmetica en voedingsmiddelen. Samen ondersteunen ze de houdbaarheid en bestrijden ze bacteriën en schimmels uit de omgeving."
+      },
+      "dimethicone": {
+        "name": "Cyclopentasiloxane, Dimethicone & Dimethiconol",
+        "tag": "Glijding",
+        "description": "Onze eigen mix van siliconen, die inert, niet-absorbeerbaar en hypoallergeen zijn. Ze zorgen voor een extreem langdurige glijding en zijn waterafstotend. Geschikt voor gebruik met latex, maar niet met siliconen speeltjes."
+      }
+    }
+  },
+  "avoided": {
+    "eyebrow": "Waar wij nee tegen zeggen",
+    "title": "Ingrediënten die wij nooit gebruiken, en waarom",
+    "intro": "Weten wat er niet in een product zit, is net zo belangrijk als weten wat er wel in zit. Dit zijn de ingrediënten die het vaakst voorkomen in formules van concurrenten en die Sliquid heeft afgewezen.",
+    "items": {
+      "glycerin": {
+        "name": "Glycerine",
+        "reason": "Een suikeralcohol die de Candida-schimmel kan voeden en het vaginale microbioom kan verstoren, waardoor het risico op infecties toeneemt. Aanwezig in de meeste glijmiddelen voor de massamarkt, maar in geen enkele Sliquid-formule."
+      },
+      "parabens": {
+        "name": "Parabenen",
+        "reason": "Synthetische conserveermiddelen (methylparaben, propylparaben enz.) die werken als xeno-oestrogenen en oestrogeen in het lichaam nabootsen. In verband gebracht met hormoonverstoring en in meerdere onderzoeken aangetroffen in borsttumorweefsel."
+      },
+      "propylene-glycol": {
+        "name": "Propyleenglycol",
+        "reason": "Een veelgebruikt oplosmiddel en vochtvasthoudend middel dat bij gevoelige personen contactdermatitis en irritatie kan veroorzaken."
+      },
+      "nonoxynol-9": {
+        "name": "Nonoxynol-9",
+        "reason": "Een zaaddodende oppervlakteactieve stof die bij herhaald gebruik het vaginale epitheel kan aantasten, waardoor de vatbaarheid voor soa's toeneemt. Ooit standaard in glijmiddelen voor \"veilige seks\", nu door zorgverleners breed afgeraden."
+      },
+      "benzocaine": {
+        "name": "Benzocaïne / verdovende middelen",
+        "reason": "Lokale verdovingsmiddelen maskeren pijnsignalen die er zijn om weefsel tegen letsel te beschermen. Sliquid gebruikt in geen enkel glijmiddel ongevoelig makende middelen."
+      },
+      "artificial-fragrance": {
+        "name": "Kunstmatige geurstoffen",
+        "reason": "Synthetische geuren kunnen onnodig agressief zijn, vooral voor de gevoelige huid. Daarom houden wij onze producten zo mild en lichaamsbewust mogelijk. Door te kiezen voor zuivere, eenvoudige ingrediënten zorgen wij voor een natuurlijkere ervaring die het lichaam ondersteunt in plaats van belast."
+      }
+    }
+  },
+  "cta": {
+    "title": "Hulp nodig bij het afstemmen van formules op uw klanten?",
+    "body": "Ons B2B-team neemt het volledige productoverzicht met u door — formules op waterbasis, op siliconenbasis en hybride — om de juiste SKU's aan te bevelen voor uw specifieke situatie in de detailhandel, distributie of zorg.",
+    "button": "Spreek met ons team"
+  }
+}

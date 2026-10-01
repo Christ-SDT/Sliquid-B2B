@@ -1,0 +1,49 @@
+{
+  "loading": [
+    "Bezig met afbeelding…",
+    "Een meesterwerk maken…",
+    "Details toevoegen…",
+    "De fles bijwerken…",
+    "De belichting perfectioneren…",
+    "Bijna klaar…"
+  ],
+  "gallery": {
+    "title": "Referentiegalerij",
+    "close": "Sluiten",
+    "searchPlaceholder": "Afbeeldingen zoeken…",
+    "noMatch": "Geen afbeeldingen gevonden",
+    "empty": "Geen referentieafbeeldingen — upload ze in de Referentiegalerij",
+    "selectUpTo": "Selecteer maximaal {{max}}",
+    "selectOne": "Selecteer een afbeelding",
+    "selected_one": "{{count}} afbeelding geselecteerd",
+    "selected_other": "{{count}} afbeeldingen geselecteerd",
+    "cancel": "Annuleren",
+    "insert": "Selectie invoegen"
+  },
+  "header": {
+    "subtitle": "Sliquid AI-beeldmaker"
+  },
+  "chat": {
+    "dropHint": "Sleep een afbeelding als referentie",
+    "welcome": "Hallo! Ik ben <accent>Lampy</accent>, de AI-beeldmaker van Sliquid. Klik om te beginnen op het foto-icoon linksonder en kies het product dat u in uw afbeelding wilt laten zien. Beschrijf in uw prompt het formaat, de esthetiek en de algehele sfeer die u zoekt. Wees zo uitgebreid mogelijk. U kunt ook <attach>een referentieafbeelding toevoegen</attach> of er een naar dit venster slepen om de stijl te sturen. Uw creaties worden opgeslagen in de Bestandsbibliotheek.",
+    "referenceAlt": "Referentie",
+    "referenceBadge": "referentie",
+    "download": "Downloaden",
+    "delete": "Verwijderen"
+  },
+  "input": {
+    "attachedOne": "Referentieafbeelding toegevoegd — Lampy gebruikt deze als visuele leidraad",
+    "attachedMany_one": "{{count}} referentieafbeelding toegevoegd — Lampy gebruikt deze als visuele leidraad",
+    "attachedMany_other": "{{count}} referentieafbeeldingen toegevoegd — Lampy gebruikt deze als visuele leidraad",
+    "removeReference": "Referentieafbeelding verwijderen",
+    "attachTitle": "Kies een referentieafbeelding uit de galerij",
+    "promptPlaceholder": "Beschrijf de productafbeelding die Lampy moet maken…",
+    "promptLabel": "Beschrijf uw afbeelding",
+    "send": "Afbeelding genereren"
+  },
+  "errors": {
+    "generateFailed": "Afbeelding genereren mislukt",
+    "deleteFailed": "Afbeelding verwijderen mislukt",
+    "confirmDelete": "Deze afbeelding verwijderen? Ze wordt ook uit de Bestandsbibliotheek verwijderd."
+  }
+}

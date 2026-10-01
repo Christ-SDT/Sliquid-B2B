@@ -1,0 +1,12 @@
+{
+  "title": "经销商",
+  "subtitle": "查找您所在地区的 Sliquid 授权经销合作伙伴。",
+  "searchPlaceholder": "按名称、城市、州或地区搜索…",
+  "searchLabel": "搜索经销商",
+  "regionFilter": "按地区筛选",
+  "allRegions": "所有地区",
+  "count_one": "找到 {{count}} 家经销商",
+  "count_other": "找到 {{count}} 家经销商",
+  "empty": "未找到经销商",
+  "contact": "联系人：<name>{{name}}</name>"
+}

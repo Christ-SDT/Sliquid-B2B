@@ -1,0 +1,29 @@
+{
+  "title": "Zertifikatsprüfung",
+  "subtitle": "Geben Sie eine Zertifikatsnummer ein, um ihre Echtheit zu prüfen.",
+  "label": "Zertifikatsnummer",
+  "placeholder": "z. B. SLQ-2025-A3F7B2",
+  "submit": "Prüfen",
+  "checking": "Wird geprüft…",
+  "serverError": "Der Prüfserver ist nicht erreichbar.",
+  "valid": {
+    "title": "Zertifikat bestätigt",
+    "subtitle": "Dies ist ein echtes Sliquid-Zertifikat",
+    "issuedTo": "Ausgestellt für",
+    "completed": "Abgeschlossen",
+    "number": "Zertifikat-Nr.",
+    "program": "Programm",
+    "issuedBy": "Ausgestellt von",
+    "status": "Status",
+    "statusValue": "✓ Gültig",
+    "note": "Diese Person hat alle erforderlichen Module des Sliquid Certified Expert Course abgeschlossen und Produktkenntnisse auf Expertenniveau nachgewiesen."
+  },
+  "invalid": {
+    "title": "Zertifikat nicht gefunden",
+    "subtitle": "Dieses Zertifikat konnte nicht bestätigt werden",
+    "statusValue": "✗ Nicht gefunden",
+    "note": "Zu dieser Nummer gibt es kein gültiges Zertifikat. Bitte prüfen Sie die Zertifikatsnummer und versuchen Sie es erneut."
+  },
+  "searchAgain": "Weiteres Zertifikat prüfen",
+  "signIn": "Beim Sliquid B2B-Portal anmelden →"
+}

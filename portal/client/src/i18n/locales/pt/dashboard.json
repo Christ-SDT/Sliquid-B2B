@@ -1,0 +1,42 @@
+{
+  "greeting": {
+    "morning": "Bom dia, {{name}}",
+    "afternoon": "Boa tarde, {{name}}",
+    "evening": "Boa noite, {{name}}"
+  },
+  "viewAll": "Ver tudo",
+  "assets": {
+    "title": "Ativos digitais",
+    "empty": "Nenhum ativo disponível"
+  },
+  "distributors": {
+    "title": "Distribuidores",
+    "empty": "Nenhum distribuidor disponível"
+  },
+  "trainings": {
+    "title": "Treinamentos",
+    "completed": "{{passed}} / {{total}} concluídos",
+    "minutesShort_one": "{{count}} min",
+    "minutesShort_other": "{{count}} min",
+    "passed": "Aprovado",
+    "retake": "Refazer",
+    "start": "Iniciar"
+  },
+  "pending": {
+    "badge": "Aguardando aprovação",
+    "body": "Seu cadastro foi enviado e está aguardando a análise de um administrador. Você terá acesso completo assim que for aprovado.",
+    "didYouKnow": "Você sabia?",
+    "facts": {
+      "since2002": "A Sliquid formula produtos íntimos seguros para o corpo e com pH equilibrado desde 2002.",
+      "freeFrom": "Todos os produtos são livres de parabenos, glicerina, DEA e glúten.",
+      "lineup": "A linha reúne mais de 40 SKUs nas coleções Naturals, Organics, RIDE, Silver e Swirl.",
+      "countries": "A Sliquid está disponível em mais de 40 países no mundo todo."
+    },
+    "sellQuestion": "Quer vender Sliquid na sua loja?",
+    "register": "Cadastre-se como varejista Sliquid Insider"
+  },
+  "upgrade": {
+    "title": "Você tem acesso de {{tier}}",
+    "body": "Quer liberar mais recursos do portal? Fale com seu representante de vendas da Sliquid sobre um upgrade."
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "card": {
+    "select": "Selecionar",
+    "selected": "✓ Selecionado",
+    "selectDesigns": "Selecionar modelos",
+    "editItem": "Editar item",
+    "deleteItem": "Excluir item",
+    "confirmDelete": "Excluir",
+    "cancelDelete": "Cancelar exclusão"
+  },
+  "success": {
+    "title": "Solicitação enviada!",
+    "body": "Obrigado, <bold>{{name}}</bold>! Recebemos sua solicitação de material de marketing para <bold>{{company}}</bold>. Nossa equipe entrará em contato em breve.",
+    "itemsRequested": "Itens solicitados",
+    "hostedBy": "Oferecido pela equipe Sliquid"
+  },
+  "header": {
+    "title": "Solicitar materiais de marketing físicos",
+    "intro": "Confira abaixo nossos itens de exposição para loja. Selecione os que você deseja para o seu ponto de venda, preencha seus dados e envie.",
+    "addItem": "Adicionar item"
+  },
+  "status": {
+    "approved": "Solicitação aprovada",
+    "declined": "Solicitação recusada",
+    "pending": "Solicitação em análise",
+    "declinedBody": "Sua solicitação anterior não foi atendida. Você pode enviar uma nova abaixo.",
+    "approvedBody": "Sua solicitação para {{business}} foi aprovada e está sendo processada.",
+    "pendingBody": "Sua solicitação para {{business}} está sendo analisada pela equipe Sliquid.",
+    "requested": "Solicitado:"
+  },
+  "catalog": {
+    "heading": "Itens disponíveis",
+    "hint": "Clique em <bold>Selecionar</bold> em qualquer item para adicioná-lo à sua solicitação."
+  },
+  "training": {
+    "heading": "Solicitação de treinamento",
+    "addOption": "Adicionar opção",
+    "intro": "Solicite uma sessão de treinamento com um representante da marca Sliquid. Escolha o formato que funciona melhor para sua equipe.",
+    "availability": "A disponibilidade não é garantida, pois a agenda da nossa equipe de vendas pode mudar. Entraremos em contato para confirmar a disponibilidade depois de recebermos sua solicitação."
+  },
+  "form": {
+    "heading": "Seus dados",
+    "intro": "Informe para onde devemos enviar os materiais.",
+    "selected": "Selecionados ({{count}})",
+    "selectFirst": "Selecione pelo menos um item ou opção de treinamento acima antes de enviar.",
+    "fullName": "Nome completo *",
+    "namePlaceholder": "Ana Souza",
+    "company": "Nome da empresa / do negócio *",
+    "companyPlaceholder": "Nome da sua loja ou empresa",
+    "location": "Endereço do ponto de venda / loja física *",
+    "locationPlaceholder": "Rua Principal, 123, Cidade, Estado, CEP",
+    "notes": "Observações adicionais",
+    "optional": "(opcional)",
+    "notesPlaceholder": "Algo mais que você gostaria que soubéssemos sobre sua solicitação…",
+    "submitting": "Enviando…",
+    "submit": "Enviar solicitação"
+  },
+  "errors": {
+    "selectAtLeastOne": "Selecione pelo menos um item ou serviço acima antes de enviar.",
+    "selectDesign": "Selecione pelo menos um modelo para \"{{name}}\".",
+    "submitFailed": "Não foi possível enviar. Tente novamente."
+  }
+}

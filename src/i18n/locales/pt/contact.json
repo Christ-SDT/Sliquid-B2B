@@ -1,0 +1,84 @@
+{
+  "hero": {
+    "eyebrow": "Fale conosco",
+    "title": "Vamos construir algo juntos",
+    "body": "Seja para abrir uma conta de atacado, explorar a distribuição ou buscar recomendações de nível clínico, nossa equipe B2B está pronta para ajudar."
+  },
+  "partnerships": {
+    "heading": "Com quem trabalhamos",
+    "retailer": {
+      "title": "Varejista",
+      "description": "Abra uma conta de atacado para vender Sliquid, RIDE Lube e Ride Rocco na loja física ou on-line. Tenha acesso a materiais de merchandising, suporte de planograma e faixas de preço de atacado competitivas."
+    },
+    "media": {
+      "title": "Marketing e mídia",
+      "description": "Contatos de imprensa, colaborações de marca, parcerias com influenciadores e pedidos editoriais. Envie seu mídia kit ou proposta e nossa equipe de marketing retornará o contato."
+    },
+    "distributor": {
+      "title": "Distribuidor",
+      "description": "Trabalhamos com parceiros de distribuição regionais e globais para ampliar o acesso em mercados onde não há atendimento direto. Conte-nos sobre seu território e sua capacidade logística."
+    },
+    "medical": {
+      "title": "Profissionais de saúde",
+      "description": "Somos parceiros de médicos, fisioterapeutas pélvicos, ginecologistas-obstetras, terapeutas sexuais e outros profissionais de saúde habilitados que recomendam produtos de bem-estar íntimo aos pacientes. Entre em contato para conhecer nosso Programa de Parceiros Médicos."
+    }
+  },
+  "steps": {
+    "heading": "Próximos passos",
+    "review": {
+      "title": "Analisamos seu contato",
+      "detail": "Nossa equipe B2B lê todas as mensagens e direciona seu contato à pessoa certa em vendas, distribuição ou parcerias clínicas."
+    },
+    "reply": {
+      "title": "Você recebe retorno em até 2 dias úteis",
+      "detail": "Entraremos em contato por e-mail (ou telefone, se você informou um número) para conversar sobre suas necessidades e os próximos passos."
+    },
+    "proposal": {
+      "title": "Enviamos uma proposta personalizada",
+      "detail": "Conforme o tipo de contato, você receberá uma tabela de preços de atacado, um contrato de distribuidor ou uma apresentação para parceiros clínicos."
+    },
+    "onboarding": {
+      "title": "Integração e suporte",
+      "detail": "Depois que a parceria for confirmada, seu contato de conta dedicado oferece treinamento de produtos, kits de materiais e suporte contínuo."
+    }
+  },
+  "info": {
+    "heading": "Informações de contato",
+    "location": "Dallas, TX (sede)",
+    "hours": "De segunda a sexta, das 9h30 às 18h (horário central dos EUA)",
+    "response": "Retorno em até 2 dias úteis"
+  },
+  "form": {
+    "heading": "Envie uma mensagem",
+    "name": "Nome completo",
+    "company": "Empresa",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "optional": "(opcional)",
+    "inquiryType": "Tipo de contato",
+    "message": "Mensagem",
+    "submit": "Enviar mensagem",
+    "submitting": "Enviando…",
+    "footnote": "Respondemos a todos os contatos B2B em até 2 dias úteis.",
+    "options": {
+      "placeholder": "Selecione o tipo de contato…",
+      "retailer": "Conta de varejista",
+      "media": "Marketing e mídia",
+      "distributor": "Parceria de distribuição",
+      "medical": "Profissional de saúde",
+      "general": "Assunto geral"
+    }
+  },
+  "errors": {
+    "nameRequired": "O nome completo é obrigatório.",
+    "companyRequired": "O nome da empresa é obrigatório.",
+    "emailInvalid": "Informe um endereço de e-mail válido.",
+    "subjectRequired": "Selecione um tipo de contato.",
+    "messageTooShort": "A mensagem deve ter pelo menos 20 caracteres.",
+    "sendFailed": "Não foi possível enviar sua mensagem agora. Tente novamente ou envie um e-mail diretamente para sales@sliquid.com."
+  },
+  "success": {
+    "title": "Mensagem enviada",
+    "body": "Nossa equipe B2B responderá em até 2 dias úteis."
+  }
+}

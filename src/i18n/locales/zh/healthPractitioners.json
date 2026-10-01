@@ -1,0 +1,151 @@
+{
+  "hero": {
+    "eyebrow": "医疗合作伙伴计划",
+    "title": "医疗服务提供者信赖的健康品牌",
+    "body": "Sliquid 为医疗服务提供者提供临床级资源、免费的患者试用装和教育资料，帮助您自信地给出建议，并在亲密健康领域与患者建立持久的信任。",
+    "cta": "申请加入计划"
+  },
+  "ingredients": {
+    "heading": "值得信赖的成分",
+    "body": "每一种成分都经过临床兼容性筛选。不含甘油、不含对羟基苯甲酸酯、不含人工香料，只有纯净的配方，安全到足以推荐给您最敏感的患者。",
+    "fullBreakdown": "想了解完整的成分说明？<cta>查看我们完整的配方标准 →</cta>",
+    "items": {
+      "purified-water": {
+        "name": "纯净水",
+        "tag": "基础成分",
+        "description": "每一款水基配方的基础。经过我们包含去离子步骤在内的 9 级反渗透过滤系统净化，是所有水溶性成分纯净、无污染的载体。"
+      },
+      "aloe-vera": {
+        "name": "有机 Aloe Barbadensis Leaf Juice",
+        "tag": "舒缓基础成分",
+        "description": "直接取自芦荟叶片，这种具有天然润滑和修复功效的成分具有抗炎作用，对敏感黏膜组织的 pH 值友好。"
+      },
+      "vitamin-e": {
+        "name": "天然生育酚（维生素 E）",
+        "tag": "抗氧化剂",
+        "description": "调理肌肤并提供抗氧化支持。以天然方式延长保质期，同时保护敏感组织，无需使用合成防腐剂。"
+      },
+      "citric-acid": {
+        "name": "柠檬酸",
+        "tag": "pH 平衡剂",
+        "description": "将每一款配方调节至与人体天然 pH 范围（3.8 至 4.5）相匹配。兼具天然抗菌和 pH 缓冲作用，对维护阴道微生物群健康至关重要。"
+      },
+      "potassium-sorbate": {
+        "name": "山梨酸钾和苯甲酸钠",
+        "tag": "防腐剂",
+        "description": "目前最温和的两种无毒防腐剂。它们可延长保质期、防止污染，且不存在对羟基苯甲酸酯相关的激素紊乱风险。"
+      },
+      "plant-cellulose": {
+        "name": "植物纤维素",
+        "tag": "天然增稠剂",
+        "description": "提取自棉花，完全纯素且不含麸质。无需合成聚合物或石化衍生物，即可带来 Sliquid 闻名的标志性丝滑润泽。"
+      }
+    }
+  },
+  "imageAlt": "为医疗从业者展示的 Sliquid 亲密健康产品",
+  "program": {
+    "heading": "计划详情",
+    "tabsLabel": "计划详情",
+    "tabRequirements": "申请条件",
+    "tabHow": "运作方式",
+    "requirements": {
+      "professional": "必须是可验证身份的医疗专业人士，或在正规机构任职的大学教育工作者 / 组织负责人。这包括代表学校行事的大学社团学生代表。",
+      "address": "必须提供与表格中所列医疗机构或大学校园明确关联的可验证邮寄地址。不接受住宅地址和邮政信箱地址，无一例外。",
+      "international": "美国境外的申请须承担免费试用装寄送所产生的运费和关税。",
+      "onePerPractice": "每个诊所或机构仅限申请一次。重复提交将被取消资格。"
+    },
+    "how": {
+      "approval": "您的诊所或机构必须满足所有列出的条件。在您提供的信息核实无误后，您的诊所/机构将获批一次性免费寄送 100 份一次性试用装及营销资料，资料中附有可供您的客户在我们网站使用的折扣码。审核最长可能需要 6 周。请只提交一次申请，并等待我们的工作人员与您联系。无论是否获批，我们都会与您联系。",
+      "shipping": "美国境内免运费，但所有国际合作伙伴须预先支付运费。所寄送的配方由 Sliquid 决定，并可能随时变更。",
+      "additional": "请注意，只有首批 100 份试用装是免费的。如需更多试用装，可享受医疗合作伙伴专属折扣价。请向您的 Sliquid 代表索取价格结构和订购表。",
+      "shippingNote": "*国际运费因地区而异，并以寄送时承运商的费率为准。Sliquid 代表将向国际合作伙伴提供该费率。"
+    }
+  },
+  "gate": {
+    "title": "申请前须知",
+    "body": "请确认您的诊所满足以下所有条件。不符合这些条件的申请将不予处理。",
+    "accept": "我满足所有条件——继续",
+    "decline": "我不符合条件",
+    "promptAria": "查看申请条件并开始申请",
+    "promptTitle": "申请前请先查看条件",
+    "promptBody": "填写申请表之前，请确认您的诊所满足所有计划条件。",
+    "promptCta": "查看条件并开始申请",
+    "declined": "感谢您查看申请条件。如果您的诊所目前不符合条件，如有任何问题，请<cta>联系我们</cta>。",
+    "reviewAgain": "再次查看条件"
+  },
+  "thanks": {
+    "title": "感谢您的报名！",
+    "body": "我们已收到您加入 Sliquid 医疗合作伙伴计划的申请。我们的团队成员将审核您的申请并与您联系——回复最长可能需要 <bold>6 周</bold>。",
+    "decision": "无论申请是否获批，我们都会与您联系。请勿重复提交申请。",
+    "done": "完成"
+  },
+  "already": {
+    "title": "您已提交过申请",
+    "body": "我们已收到您加入医疗合作伙伴计划的申请，并将尽快与您联系。无需再次提交申请。"
+  },
+  "submittedPanel": {
+    "title": "申请已提交",
+    "body": "我们已收到您加入 Sliquid 医疗合作伙伴计划的申请，并将尽快与您联系。无需再次提交申请。"
+  },
+  "form": {
+    "heading": "医疗合作伙伴计划申请表",
+    "intro": "请填写以下表格，申请免费试用装并加入我们的医疗合作伙伴名录。",
+    "practiceLegend": "您的诊所信息",
+    "practiceType": "诊所类型",
+    "practiceTypes": {
+      "obgyn": "妇产科",
+      "pelvicFloor": "盆底治疗",
+      "sexualHealth": "性健康与保健",
+      "gp": "全科医生",
+      "other": "其他（请在下方说明）"
+    },
+    "specify": "请说明",
+    "specifyPlaceholder": "请描述您的诊所类型",
+    "practiceName": "诊所名称",
+    "practiceAddress": "诊所地址",
+    "street": "街道地址",
+    "addressLine2": "地址第 2 行（套房、单元等）",
+    "city": "城市",
+    "state": "州 / 省 / 地区",
+    "zip": "邮政编码",
+    "country": "国家/地区",
+    "practicePhone": "诊所电话号码",
+    "practiceWebsite": "诊所网站",
+    "contactLegend": "您的联系信息",
+    "firstName": "名",
+    "lastName": "姓",
+    "relationship": "您与诊所的关系",
+    "relationshipPlaceholder": "例如：办公室经理、医生、学生代表",
+    "contactPhone": "电话号码",
+    "email": "电子邮件",
+    "preferredContact": "首选联系方式",
+    "contactMethods": {
+      "Email": "电子邮件",
+      "Phone": "电话",
+      "Either": "均可"
+    },
+    "directory": "是否将您的诊所添加到 Sliquid 医疗合作伙伴页面？",
+    "yes": "是",
+    "no": "否",
+    "optIn": "申请试用装即表示我同意作为医疗合作伙伴计划的一部分，接收来自 Sliquid 的电子邮件更新。",
+    "privacy": "您的信息仅用于处理您的申请和寄送试用装，绝不会被出售、共享或用于任何其他用途。",
+    "submit": "提交申请",
+    "submitting": "正在提交…"
+  },
+  "errors": {
+    "practiceTypeRequired": "请选择诊所类型。",
+    "practiceNameRequired": "请填写诊所名称。",
+    "streetRequired": "请填写街道地址。",
+    "cityRequired": "请填写城市。",
+    "stateRequired": "请填写州 / 省。",
+    "zipRequired": "请填写邮政编码。",
+    "practicePhoneRequired": "请填写诊所电话。",
+    "firstNameRequired": "请填写名字。",
+    "lastNameRequired": "请填写姓氏。",
+    "contactPhoneRequired": "请填写电话号码。",
+    "emailInvalid": "请填写有效的电子邮件地址。",
+    "optInRequired": "您必须同意接收医疗合作伙伴计划的电子邮件。",
+    "serverUnexpected": "服务器返回了意外错误，请重试。",
+    "network": "我们无法连接服务器。请检查您的网络连接后重试——您的信息尚未发送，因此可以放心重新提交；您也可以直接发送电子邮件至 erik@sliquid.com。"
+  }
+}

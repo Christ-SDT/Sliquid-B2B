@@ -1,0 +1,56 @@
+{
+  "header": {
+    "eyebrow": "Erospain 2026",
+    "title": "合作伙伴登记表",
+    "intro": "请填写以下表格，我们将与您联系。您将收到一封确认邮件，以完成注册。"
+  },
+  "success": {
+    "title": "谢谢您！",
+    "body": "感谢您填写我们的登记表。请查收您收件箱中的确认邮件——您需要点击其中的链接以完成注册。",
+    "spam": "如果没有看到，请检查您的垃圾邮件文件夹。",
+    "reset_one": "此表格将在 <count>{{count}}</count> 秒后重置…",
+    "reset_other": "此表格将在 <count>{{count}}</count> 秒后重置…"
+  },
+  "gdprNotice": "<bold>重要提示——双重确认与 GDPR：</bold>提交此表格即表示您有意接收 Sliquid 的通讯。您将收到一封单独的确认邮件，您<bold>必须点击</bold>其中的链接才能完成注册。您可以随时取消订阅。我们依照《通用数据保护条例》(GDPR) 处理您的数据，绝不会出售或共享您的信息。",
+  "fields": {
+    "name": "姓名",
+    "namePlaceholder": "张伟",
+    "email": "电子邮件地址",
+    "emailPlaceholder": "jane@yourbusiness.com",
+    "businessName": "企业名称",
+    "businessNamePlaceholder": "您的公司名称",
+    "businessType": "企业类型",
+    "businessTypePlaceholder": "选择类型…",
+    "storeNames": "门店名称",
+    "storeNamesPlaceholder": "例如 Main Street Boutique、City Plaza",
+    "storeCount": "门店数量",
+    "storeCountPlaceholder": "例如 3",
+    "websiteUrl": "网站网址",
+    "websiteUrlPlaceholder": "https://yourstore.com",
+    "contactName": "公司联系人姓名",
+    "contactNamePlaceholder": "贵公司的主要联系人",
+    "contactPhone": "公司联系电话及分机",
+    "contactPhonePlaceholder": "例如 +34 91 234 5678 分机 101",
+    "consent": "我同意 Sliquid 存储和使用我的信息，以向我发送产品更新和营销通讯。我了解我将收到一封确认邮件以完成注册，并且可以随时点击所收邮件中的退订链接取消订阅。"
+  },
+  "businessTypes": {
+    "Retailer": "零售商",
+    "Distribution": "经销",
+    "E-Commerce": "电子商务",
+    "Other": "其他"
+  },
+  "errors": {
+    "nameRequired": "请填写姓名。",
+    "emailInvalid": "请填写有效的电子邮件地址。",
+    "businessNameRequired": "请填写企业名称。",
+    "businessTypeRequired": "请选择企业类型。",
+    "storeNamesRequired": "请填写您的门店名称。",
+    "websiteUrlRequired": "电子商务企业须填写网站网址。",
+    "contactNameRequired": "请填写联系人姓名。",
+    "consentRequired": "您必须同意后才能继续。",
+    "generic": "出现问题，请重试。"
+  },
+  "submit": "提交",
+  "submitting": "正在提交…",
+  "copyright": "© {{year}} Sliquid, LLC · 保留所有权利"
+}

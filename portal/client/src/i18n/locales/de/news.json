@@ -1,0 +1,16 @@
+{
+  "title": "Ankündigungen",
+  "subtitle": "Offizielle Sliquid-Pressemitteilungen und Partnernews.",
+  "loadError": "Ankündigungen konnten nicht geladen werden",
+  "pinned": "Angeheftet",
+  "readMore": "Ankündigung lesen",
+  "emptyTitle": "Noch keine Ankündigungen",
+  "emptyBody": "Schauen Sie bald wieder vorbei – hier erscheinen Sliquid-News und Pressemitteilungen.",
+  "source": "Pressemitteilungen werden auf sliquid.com veröffentlicht",
+  "detail": {
+    "back": "Zurück zu den Ankündigungen",
+    "notFoundTitle": "Ankündigung nicht verfügbar",
+    "notFoundBody": "Sie wurde möglicherweise zurückgezogen, oder der Link ist fehlerhaft.",
+    "viewOnSliquid": "Auf sliquid.com ansehen"
+  }
+}

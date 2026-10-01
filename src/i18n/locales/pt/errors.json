@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "invalidCredentials": "E-mail ou senha inválidos",
+    "credentialsRequired": "Informe o e-mail e a senha",
+    "accountDeclined": "Sua solicitação de cadastro foi recusada. Entre em contato com support@sliquid.com.",
+    "loginRateLimited": "Muitas tentativas de login. Tente novamente em 15 minutos.",
+    "allFieldsRequired": "Todos os campos são obrigatórios",
+    "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+    "emailInUse": "Este e-mail já está em uso",
+    "emailRequired": "O e-mail é obrigatório",
+    "resetRateLimited": "Muitas solicitações de redefinição de senha. Tente novamente em 15 minutos.",
+    "resetFieldsRequired": "O token e a senha são obrigatórios",
+    "resetLinkInvalid": "Link de redefinição inválido ou expirado",
+    "resetLinkExpired": "O link de redefinição expirou. Solicite um novo."
+  },
+  "forms": {
+    "missingFields": "Faltam campos obrigatórios.",
+    "invalidEmail": "Endereço de e-mail inválido.",
+    "nameRequired": "O nome é obrigatório.",
+    "sendFailed": "Não foi possível enviar. Tente novamente.",
+    "sendFailedRetry": "Tivemos um problema temporário ao enviar seu formulário. Tente novamente em instantes — você não será impedido de tentar de novo.",
+    "cooldown_one": "Já recebemos seu envio — nossa equipe está cuidando disso. Você poderá enviar outro em cerca de {{count}} minuto.",
+    "cooldown_other": "Já recebemos seu envio — nossa equipe está cuidando disso. Você poderá enviar outro em cerca de {{count}} minutos.",
+    "refused": "Não foi possível aceitar este envio. Se você acredita que isso é um engano, envie um e-mail diretamente para sales@sliquid.com e daremos continuidade por lá."
+  }
+}

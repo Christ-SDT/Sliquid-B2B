@@ -1,0 +1,29 @@
+{
+  "title": "Certificaatverificatie",
+  "subtitle": "Voer een certificaatnummer in om de echtheid ervan te controleren.",
+  "label": "Certificaatnummer",
+  "placeholder": "bijv. SLQ-2025-A3F7B2",
+  "submit": "Verifiëren",
+  "checking": "Controleren…",
+  "serverError": "De verificatieserver is niet bereikbaar.",
+  "valid": {
+    "title": "Certificaat geverifieerd",
+    "subtitle": "Dit is een echt Sliquid-certificaat",
+    "issuedTo": "Uitgegeven aan",
+    "completed": "Voltooid",
+    "number": "Certificaatnr.",
+    "program": "Programma",
+    "issuedBy": "Uitgegeven door",
+    "status": "Status",
+    "statusValue": "✓ Geldig",
+    "note": "Deze persoon heeft alle verplichte modules van de Sliquid Certified Expert-cursus voltooid en productkennis op expertniveau aangetoond."
+  },
+  "invalid": {
+    "title": "Certificaat niet gevonden",
+    "subtitle": "Dit certificaat kon niet worden geverifieerd",
+    "statusValue": "✗ Niet gevonden",
+    "note": "Er is geen geldig certificaat met dat nummer. Controleer het certificaatnummer en probeer het opnieuw."
+  },
+  "searchAgain": "Een ander certificaat zoeken",
+  "signIn": "Inloggen op het Sliquid B2B-portaal →"
+}

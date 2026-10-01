@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "ariaLabel": "Hoofdbanner",
+    "title": "Alles wat Sliquid-detailhandelaars nodig hebben, op één plek.",
+    "body": "Uw centrale plek voor productkennis, personeelstraining, downloadbare bestanden en partnermateriaal dat uw bedrijf bij elke stap ondersteunt.",
+    "becomeRetailer": "Word detailhandelaar",
+    "partnerPortal": "Partnerportaal"
+  },
+  "strategy": {
+    "heading": "Slimmer samen groeien",
+    "intro": "Slimmer samen groeien betekent meer dan alleen toegang tot hulpmiddelen: het betekent dat het marketingteam van Sliquid als verlengstuk van uw eigen team klaarstaat om u te ondersteunen, mee te denken over strategie en u te helpen resultaten te behalen.",
+    "cards": {
+      "retailers": {
+        "title": "Detailhandelaars",
+        "description": "Stroomlijn uw werkwijze, versterk uw aanwezigheid in de winkel en online, en werk rechtstreeks samen met ons marketingteam om sneller te schakelen, slimmer te verkopen en met vertrouwen te groeien.",
+        "imageAlt": "Sliquid Organics Natural-glijmiddelcollectie op een strak oppervlak",
+        "linkLabel": "Bekijk onze catalogus"
+      },
+      "health-practitioners": {
+        "title": "Zorgverleners",
+        "description": "Ondersteun uw praktijk met klinisch materiaal, informatiebladen en patiëntklare monsters, ontworpen als aanvulling op uw zorg en om uw patiënten beter te helpen.",
+        "imageAlt": "Groep Sliquid Soothe-producten voor intieme wellness met reflecties",
+        "linkLabel": "Meer over ons programma"
+      },
+      "global-distributors": {
+        "title": "Wereldwijde distributeurs",
+        "description": "Rust uw marketing- en verkoopteams uit met kant-en-klaar materiaal om met klanten te delen, voor een sterkere doorverkoop en een betere samenwerking met het marketingteam van Sliquid.",
+        "imageAlt": "Assortiment RIDE Lube-glijmiddel op waterbasis",
+        "linkLabel": "Meer informatie aanvragen"
+      }
+    }
+  },
+  "stats": {
+    "heading": "Een volledig geïntegreerd ecosysteem voor gezondheid en wellness",
+    "body": "Als onderdeel van de Sliquid-familie krijgt u toegang tot een groeiend netwerk dat zowel detailhandel als digitale kanalen omvat. Onze fysieke en digitale aanwezigheid werkt samen met onze productinnovatie, zodat u uw klanten echt gezonde, waardevolle voordelen kunt bieden.",
+    "items": {
+      "years": "jaar in de branche, waarmee het een van de weinige echte traditiemerken in intieme wellness is.",
+      "skus": "SKU's in meerdere collecties, met glijmiddelen, bad- en lichaamsverzorging en wellness.",
+      "customers": "klanten vertrouwen op Sliquid voor lichaamsveilige wellness.",
+      "zero": "onnodige ingrediënten: onze filosofie, met 0 glycerine, 0 parabenen en 0 suikerderivaten — een bepalend onderscheid in de categorie."
+    }
+  },
+  "brands": {
+    "heading": "Meer merken. Meer bereik. Meer kansen.",
+    "body": "De Sliquid-familie houdt daar niet op. Met de op LGBTQ+ gerichte merkidentiteit van RIDE Lube en de signaturecollectie Ride Rocco biedt ons portfolio partners toegang tot een breder, meer gespecialiseerd assortiment wellnessproducten.",
+    "cta": "Ontdek onze zustermerken",
+    "imageAlt": "Productcollectie van Sliquid, RIDE Lube en Ride Rocco",
+    "labelSubtitle": "Performance-glijmiddelen en signaturecollecties"
+  },
+  "ceo": {
+    "heading": "Bericht van de CEO",
+    "quote": "\"Welkom bij Sliquid HQ! Wat fijn dat u er bent. Deze omgeving is speciaal voor u gemaakt, onze partners in de detailhandel en de zorg, zodat u eenvoudig toegang heeft tot informatie en materiaal dat uw werk ondersteunt. Alles hier is ontworpen om u zelfverzekerd en goed geïnformeerd te laten voelen wanneer u de missie van Sliquid deelt met uw klanten en patiënten.\"",
+    "role": "Medeoprichter en CEO"
+  },
+  "cta": {
+    "heading": "Blijf op de hoogte van het laatste Sliquid-nieuws",
+    "thanks": "Bedankt voor uw aanmelding!",
+    "emailLabel": "E-mailadres",
+    "placeholder": "u@bedrijf.nl",
+    "invalidEmail": "Voer een geldig e-mailadres in.",
+    "subscribe": "Aanmelden"
+  }
+}

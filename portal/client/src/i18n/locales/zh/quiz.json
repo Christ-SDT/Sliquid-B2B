@@ -1,0 +1,33 @@
+{
+  "notFound": "未找到该测验。",
+  "backToTraining": "← 返回数字培训",
+  "breadcrumb": "数字培训",
+  "video": {
+    "skip": "跳至测验",
+    "watchOr": "观看完整视频，或",
+    "start": "开始测验"
+  },
+  "quiz": {
+    "watchVideo": "观看视频",
+    "passScore": "及格线：{{score}}%"
+  },
+  "modal": {
+    "title": "{{title}} — 培训视频",
+    "close": "关闭视频"
+  },
+  "finish": {
+    "close": "关闭",
+    "passedTitle": "培训完成！",
+    "failedTitle": "继续练习",
+    "passedBody": "您已通过本培训，做得很好！",
+    "failedBody": "需要达到 {{score}}% 才能通过，请再试一次！",
+    "score": "得分",
+    "saving": "正在保存结果…",
+    "emailSent": "确认邮件已发送至 {{email}}。",
+    "next": "进入下一模块",
+    "done": "完成",
+    "backToTrainings": "返回培训",
+    "tryAgain": "重试",
+    "rewatch": "重新观看视频"
+  }
+}

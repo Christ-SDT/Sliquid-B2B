@@ -1,0 +1,29 @@
+{
+  "title": "Verificação de certificado",
+  "subtitle": "Digite o número de um certificado para verificar sua autenticidade.",
+  "label": "Número do certificado",
+  "placeholder": "ex.: SLQ-2025-A3F7B2",
+  "submit": "Verificar",
+  "checking": "Verificando…",
+  "serverError": "Não foi possível conectar ao servidor de verificação.",
+  "valid": {
+    "title": "Certificado verificado",
+    "subtitle": "Este é um certificado autêntico da Sliquid",
+    "issuedTo": "Emitido para",
+    "completed": "Concluído em",
+    "number": "Nº do certificado",
+    "program": "Programa",
+    "issuedBy": "Emitido por",
+    "status": "Status",
+    "statusValue": "✓ Válido",
+    "note": "Esta pessoa concluiu todos os módulos obrigatórios do Sliquid Certified Expert Course e demonstrou conhecimento especializado dos produtos."
+  },
+  "invalid": {
+    "title": "Certificado não encontrado",
+    "subtitle": "Não foi possível verificar este certificado",
+    "statusValue": "✗ Não encontrado",
+    "note": "Nenhum certificado válido corresponde a esse número. Confira o número do certificado e tente novamente."
+  },
+  "searchAgain": "Pesquisar outro certificado",
+  "signIn": "Entrar no Portal B2B da Sliquid →"
+}

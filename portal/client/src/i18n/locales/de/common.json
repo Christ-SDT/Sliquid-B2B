@@ -1,0 +1,96 @@
+{
+  "skipToContent": "Zum Hauptinhalt springen",
+  "language": {
+    "label": "Sprache"
+  },
+  "roles": {
+    "tier1": "Mitarbeiter im Einzelhandel",
+    "tier2": "Einzelhandelsleitung",
+    "tier3": "Vertriebspartner",
+    "tier4": "Interessent",
+    "tier5": "Administrator",
+    "tier6": "Medizinischer Partner",
+    "tier7": "Medien",
+    "tier8": "Recht (nur Lesen)"
+  },
+  "time": {
+    "justNow": "gerade eben"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "announcements": "Ankündigungen",
+    "assets": "Ressourcen",
+    "distributors": "Vertriebspartner",
+    "trainings": "Digitale Schulung",
+    "creator": "KI-Creator",
+    "retailer": "Ladenmarketing",
+    "medicalMarketing": "Medizin-Marketing",
+    "requests": "Partneranfragen",
+    "marketingRequests": "Marketinganfragen",
+    "media": "Mediathek",
+    "users": "Benutzerverwaltung",
+    "gdprRequests": "DSGVO-Anfragen",
+    "manageAnnouncements": "Ankündigungen verwalten"
+  },
+  "sidebar": {
+    "logoAlt": "Sliquid-Lotus",
+    "brand": "PARTNERPORTAL",
+    "closeMenu": "Menü schließen",
+    "readOnly": "Nur-Lese-Zugriff – Sie können hier alles ansehen, aber nichts ändern.",
+    "signOut": "Abmelden"
+  },
+  "theme": {
+    "wellnessMode": "Wellness-Modus",
+    "toggle": "Design wechseln"
+  },
+  "topbar": {
+    "openMenu": "Menü öffnen",
+    "notifications": "Benachrichtigungen",
+    "markAllRead": "Alle als gelesen markieren",
+    "empty": "Noch keine Benachrichtigungen",
+    "account": "Kontomenü",
+    "adminTools": "Admin-Tools",
+    "admin": {
+      "products": "Produkte",
+      "inventory": "Bestand",
+      "invoices": "Rechnungen",
+      "analytics": "Analysen",
+      "referenceGallery": "Referenzgalerie",
+      "myStore": "Mein Geschäft",
+      "serverLogs": "Server-Logs"
+    },
+    "newCount_one": "{{count}} neu",
+    "newCount_other": "{{count}} neu"
+  },
+  "titles": {
+    "dashboard": "Dashboard",
+    "announcements": "Ankündigungen",
+    "announcement": "Ankündigung",
+    "manageAnnouncements": "Ankündigungen verwalten",
+    "products": "Produkte",
+    "assets": "Produktbibliothek",
+    "inventory": "Bestand",
+    "invoices": "Rechnungen",
+    "stats": "Statistiken",
+    "distributors": "Vertriebspartner",
+    "retailer": "Werbematerial",
+    "trainings": "Schulungen",
+    "quiz": "Schulungsquiz",
+    "users": "Benutzer",
+    "requests": "Partneranfragen",
+    "marketingRequests": "Marketinganfragen",
+    "storeUsers": "Mein Geschäft",
+    "creator": "Creator",
+    "media": "Medien",
+    "referenceGallery": "Referenzgalerie",
+    "logs": "Logs",
+    "medicalMarketing": "Medizin-Marketing",
+    "gdprRequests": "DSGVO-Anfragen",
+    "login": "Anmelden",
+    "employeeLogin": "Mitarbeiter-Anmeldung",
+    "register": "Konto erstellen",
+    "forgotPassword": "Passwort vergessen",
+    "resetPassword": "Passwort zurücksetzen",
+    "verify": "Zertifikat prüfen"
+  }
+}

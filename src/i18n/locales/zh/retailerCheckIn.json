@@ -1,0 +1,83 @@
+{
+  "applyInstead": "申请成为零售商",
+  "gate": {
+    "eyebrow": "Sliquid 合作伙伴",
+    "title": "开始之前——您的门店是否已在销售 Sliquid？",
+    "body": "此页面仅面向已在销售我们产品的合作伙伴。如果您尚未经销我们的产品，我们仍然很乐意与您交流——我们会为您指引正确的表格。",
+    "yes": "是——我们是 Sliquid 现有零售商",
+    "no": "还没有——我们希望成为零售商"
+  },
+  "declined": {
+    "title": "我们先帮您完成入驻",
+    "body": "此页面面向已在销售 Sliquid 的门店。成为合作伙伴只需填写一份简短的表格——我们的销售团队通常会在 2–3 个工作日内回复。",
+    "back": "其实我们已在销售 Sliquid——返回上一页"
+  },
+  "thanks": {
+    "title": "谢谢您——我们已收到。",
+    "body": "感谢您的反馈，也感谢您多年来一直将 Sliquid 摆上货架。您的联系人将很快与您跟进。",
+    "reference": "您的参考编号",
+    "done": "完成"
+  },
+  "hero": {
+    "eyebrow": "致我们的现有合作伙伴",
+    "title": "感谢您一直以来的陪伴。",
+    "body": "您货架上的每一瓶产品，都是您选择支持身体安全型亲密健康的决定——二十年过去了，这依然是我们事业的全部意义。我们对此倍加珍惜。",
+    "newLook": "我们焕新了 Sliquid 的形象，也优化了与您的合作方式。<bold>那么——您喜欢我们的新形象吗？</bold>请在下方告诉我们，并让我们知道您接下来需要哪些支持。"
+  },
+  "brands": {
+    "heading": "您货架背后的品牌",
+    "body": "三个品牌，同一标准。三个品牌的每一款配方都遵循相同的身体安全规范——不含甘油、不含对羟基苯甲酸酯、不含糖类衍生物。",
+    "visit": "访问 {{name}} →"
+  },
+  "form": {
+    "heading": "与我们保持联系",
+    "intro": "我们真正需要的只有三个字段——其余信息只是帮助我们更快地为您服务。",
+    "company": "门店 / 公司名称",
+    "name": "您的姓名",
+    "email": "电子邮件",
+    "phone": "电话",
+    "pointOfContact": "您在 Sliquid 的联系人是谁？",
+    "selectContact": "选择联系人…",
+    "contactHelp": "没有错误答案——如果不确定，请选择最后一项，我们会为您转接。",
+    "contacts": {
+      "michelle": "Michelle Marcus — 销售副总裁",
+      "colin": "Colin Roy — 高级副总裁",
+      "erik": "Erik Vasquez — 营销副总裁",
+      "distributor": "我的经销商代表",
+      "notSure": "不确定 / 我没有联系人"
+    },
+    "brandsCarried": "您销售哪些品牌？",
+    "interestsHeading": "我们现在能为您提供什么帮助？",
+    "interests": {
+      "reorder": "补货 / 下订单",
+      "launches": "新品及发布信息",
+      "inStore": "店内营销物料",
+      "training": "员工培训与认证",
+      "images": "更新的产品图片和文案",
+      "storeLocator": "门店查询列表登记",
+      "pricing": "MAP 或价格问题"
+    },
+    "feedbackHeading": "您喜欢我们的新形象吗？",
+    "feedback": {
+      "love": "非常喜欢",
+      "good": "看起来不错",
+      "notYet": "还没看过",
+      "notes": "有一些建议"
+    },
+    "comments": "还有其他想告诉我们的吗？",
+    "commentsPlaceholder": "对新形象的反馈、畅销产品、您希望我们改进的地方…",
+    "submit": "发送",
+    "submitting": "正在发送…"
+  },
+  "errors": {
+    "companyRequired": "请填写门店或公司名称。",
+    "nameRequired": "请填写您的姓名。",
+    "emailInvalid": "请填写有效的电子邮件地址。",
+    "alreadyCheckedIn": "您最近已提交过。",
+    "sendFailed": "发送时出现问题。请重试，或直接发送电子邮件至 sales@sliquid.com。"
+  },
+  "notRetailer": {
+    "title": "来到这里，但还没有销售 Sliquid？",
+    "body": "可能是有人将此链接转发给了您——我们很高兴他们这样做了。我们的零售商和经销商申请只需几分钟即可完成。"
+  }
+}

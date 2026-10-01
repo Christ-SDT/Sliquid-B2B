@@ -1,0 +1,84 @@
+{
+  "hero": {
+    "eyebrow": "Kontakt",
+    "title": "Lassen Sie uns gemeinsam etwas aufbauen",
+    "body": "Ob Sie ein Großhandelskonto eröffnen, den Vertrieb ausloten oder Empfehlungen in klinischer Qualität suchen – unser B2B-Team hilft Ihnen gern."
+  },
+  "partnerships": {
+    "heading": "Mit wem wir zusammenarbeiten",
+    "retailer": {
+      "title": "Händler",
+      "description": "Eröffnen Sie ein Großhandelskonto, um Sliquid, RIDE Lube und Ride Rocco im Laden oder online zu führen. Sie erhalten Verkaufsmaterial, Planogramm-Unterstützung und wettbewerbsfähige Großhandelspreisstufen."
+    },
+    "media": {
+      "title": "Marketing & Medien",
+      "description": "Presseanfragen, Markenkooperationen, Influencer-Partnerschaften und redaktionelle Anfragen. Senden Sie uns Ihr Mediakit oder Ihren Vorschlag, und unser Marketingteam meldet sich."
+    },
+    "distributor": {
+      "title": "Vertriebspartner",
+      "description": "Wir arbeiten mit regionalen und internationalen Vertriebspartnern zusammen, um Märkte zu erschließen, in denen keine Direktbelieferung möglich ist. Erzählen Sie uns von Ihrem Gebiet und Ihren logistischen Möglichkeiten."
+    },
+    "medical": {
+      "title": "Medizinisches Fachpersonal",
+      "description": "Wir arbeiten mit Ärztinnen und Ärzten, Beckenbodentherapeuten, Gynäkologen, Sexualtherapeuten und anderen zugelassenen Gesundheitsfachkräften zusammen, die ihren Patienten Produkte für intimes Wohlbefinden empfehlen. Melden Sie sich, um mehr über unser Programm für medizinische Partner zu erfahren."
+    }
+  },
+  "steps": {
+    "heading": "So geht es weiter",
+    "review": {
+      "title": "Wir prüfen Ihre Anfrage",
+      "detail": "Unser B2B-Team liest jede Nachricht und leitet Ihre Anfrage an die richtige Person in Vertrieb, Distribution oder klinischen Partnerschaften weiter."
+    },
+    "reply": {
+      "title": "Sie hören innerhalb von 2 Werktagen von uns",
+      "detail": "Wir melden uns per E-Mail (oder telefonisch, falls Sie eine Nummer angegeben haben), um Ihre Anforderungen und die nächsten Schritte zu besprechen."
+    },
+    "proposal": {
+      "title": "Wir senden Ihnen ein individuelles Angebot",
+      "detail": "Je nach Art Ihrer Anfrage erhalten Sie eine Großhandelspreisliste, einen Vertriebsvertrag oder eine Übersicht für klinische Partner."
+    },
+    "onboarding": {
+      "title": "Onboarding & Betreuung",
+      "detail": "Sobald eine Partnerschaft bestätigt ist, bietet Ihnen Ihr persönlicher Ansprechpartner Produktschulungen, Materialpakete und laufende Unterstützung."
+    }
+  },
+  "info": {
+    "heading": "Kontaktinformationen",
+    "location": "Dallas, TX (Hauptsitz)",
+    "hours": "Montag bis Freitag, 9:30 bis 18:00 Uhr CT",
+    "response": "Antwort innerhalb von 2 Werktagen"
+  },
+  "form": {
+    "heading": "Schreiben Sie uns",
+    "name": "Vollständiger Name",
+    "company": "Firma",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "optional": "(optional)",
+    "inquiryType": "Art der Anfrage",
+    "message": "Nachricht",
+    "submit": "Nachricht senden",
+    "submitting": "Wird gesendet…",
+    "footnote": "Wir beantworten alle B2B-Anfragen innerhalb von 2 Werktagen.",
+    "options": {
+      "placeholder": "Art der Anfrage wählen…",
+      "retailer": "Händlerkonto",
+      "media": "Marketing & Medien",
+      "distributor": "Vertriebspartnerschaft",
+      "medical": "Medizinisches Fachpersonal",
+      "general": "Allgemeine Anfrage"
+    }
+  },
+  "errors": {
+    "nameRequired": "Der vollständige Name ist erforderlich.",
+    "companyRequired": "Der Firmenname ist erforderlich.",
+    "emailInvalid": "Eine gültige E-Mail-Adresse ist erforderlich.",
+    "subjectRequired": "Bitte wählen Sie die Art der Anfrage aus.",
+    "messageTooShort": "Die Nachricht muss mindestens 20 Zeichen lang sein.",
+    "sendFailed": "Ihre Nachricht konnte gerade nicht gesendet werden. Bitte versuchen Sie es erneut oder schreiben Sie direkt an sales@sliquid.com."
+  },
+  "success": {
+    "title": "Nachricht gesendet",
+    "body": "Unser B2B-Team antwortet innerhalb von 2 Werktagen."
+  }
+}

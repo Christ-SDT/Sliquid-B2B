@@ -1,0 +1,54 @@
+{
+  "header": {
+    "eyebrow": "RGPD (GDPR)",
+    "title": "Seus direitos sobre seus dados",
+    "body": "De acordo com o Regulamento Geral sobre a Proteção de Dados — RGPD (GDPR), você tem o direito de acessar os dados pessoais que mantemos sobre você e o direito de solicitar sua exclusão. Use os formulários abaixo para exercer qualquer um desses direitos."
+  },
+  "holding": {
+    "heading": "Como mantemos seus dados",
+    "mailchimp": "A Sliquid usa o <bold>Mailchimp</bold> (operado pela The Rocket Science Group, LLC) como plataforma de e-mail marketing. Quando você se cadastra para receber nossas comunicações pelo site, em uma feira ou por outro canal, seu nome, endereço de e-mail e preferências associadas são armazenados nos sistemas do Mailchimp. O Mailchimp trata esses dados em nosso nome, sob um contrato de tratamento de dados em conformidade com o RGPD (GDPR).",
+    "database": "Além do Mailchimp, podemos armazenar dados de envios (como candidaturas de varejistas, mensagens do formulário de contato e formulários de cadastro em estandes) em nosso próprio banco de dados seguro, hospedado na infraestrutura da Railway, para atender à sua solicitação e manter um registro do consentimento.",
+    "noSale": "Não vendemos seus dados pessoais a terceiros. Para mais detalhes, consulte nossa <cta>Política de Privacidade</cta>."
+  },
+  "tabs": {
+    "groupLabel": "Tipo de solicitação",
+    "access": "Solicitar meus dados",
+    "deletion": "Solicitar exclusão"
+  },
+  "access": {
+    "heading": "Solicitar acesso aos seus dados",
+    "body": "De acordo com o Artigo 15 do RGPD (GDPR), você tem o direito de obter a confirmação de que tratamos seus dados pessoais e de receber uma cópia deles. Responderemos em até <bold>30 dias</bold>. Sua solicitação também será encaminhada ao Mailchimp para recuperar quaisquer dados mantidos lá em seu nome."
+  },
+  "deletion": {
+    "heading": "Solicitar a exclusão dos seus dados",
+    "body": "De acordo com o Artigo 17 do RGPD (GDPR) (\"direito ao esquecimento\"), você pode solicitar que apaguemos seus dados pessoais. Processaremos sua solicitação em até <bold>30 dias</bold> e confirmaremos quando for concluída.",
+    "whatGetsDeleted": "<bold>O que é excluído:</bold> seus dados serão removidos do nosso público no Mailchimp e do nosso banco de dados interno. Observe que podemos ser obrigados a manter certos registros por obrigações legais ou contratuais (por exemplo, histórico de pedidos); nesse caso, informaremos o que não pode ser excluído e por quê."
+  },
+  "form": {
+    "name": "Nome completo",
+    "email": "Endereço de e-mail",
+    "details": "Detalhes adicionais",
+    "optional": "(opcional)",
+    "accessPlaceholder": "Descreva quais dados você gostaria de acessar…",
+    "deletionPlaceholder": "Qualquer contexto adicional para sua solicitação de exclusão…",
+    "submitting": "Enviando…",
+    "submitAccess": "Enviar solicitação de dados",
+    "submitDeletion": "Enviar solicitação de exclusão"
+  },
+  "errors": {
+    "nameRequired": "O nome completo é obrigatório.",
+    "emailInvalid": "Informe um endereço de e-mail válido.",
+    "alreadyReceived": "Já recebemos esta solicitação.",
+    "generic": "Algo deu errado. Tente novamente."
+  },
+  "success": {
+    "title": "Solicitação recebida",
+    "access": "Recebemos sua solicitação de acesso aos dados. Responderemos em até 30 dias, conforme o Artigo 15 do RGPD (GDPR).",
+    "deletion": "Recebemos sua solicitação de exclusão. Vamos processá-la em até 30 dias, conforme o Artigo 17 do RGPD (GDPR). Isso inclui remover seus dados do Mailchimp e dos nossos sistemas.",
+    "another": "Enviar outra solicitação"
+  },
+  "questions": {
+    "heading": "Dúvidas sobre seus dados?",
+    "body": "Se tiver dúvidas sobre como tratamos seus dados ou precisar escalar uma solicitação, entre em contato diretamente pelo <email>sales@sliquid.com</email>. Você também tem o direito de apresentar uma reclamação à autoridade de proteção de dados local."
+  }
+}

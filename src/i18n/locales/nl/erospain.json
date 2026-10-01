@@ -1,0 +1,56 @@
+{
+  "header": {
+    "eyebrow": "Erospain 2026",
+    "title": "Intakeformulier voor partners",
+    "intro": "Vul het onderstaande formulier in, dan nemen wij contact met u op. U ontvangt een bevestigingsmail om uw aanmelding te voltooien."
+  },
+  "success": {
+    "title": "Bedankt!",
+    "body": "Bedankt voor het invullen van ons intakeformulier. Controleer uw inbox op een bevestigingsmail — klik op de link om uw aanmelding te voltooien.",
+    "spam": "Ziet u hem niet? Controleer dan uw spammap.",
+    "reset_one": "Dit formulier wordt over <count>{{count}}</count> seconde gereset…",
+    "reset_other": "Dit formulier wordt over <count>{{count}}</count> seconden gereset…"
+  },
+  "gdprNotice": "<bold>Belangrijk — dubbele opt-in en AVG:</bold> Door dit formulier te verzenden geeft u aan communicatie van Sliquid te willen ontvangen. U ontvangt een aparte bevestigingsmail waarop u <bold>moet klikken</bold> om uw aanmelding te voltooien. U kunt zich op elk moment afmelden. Wij verwerken uw gegevens in overeenstemming met de AVG. Wij verkopen of delen uw gegevens nooit.",
+  "fields": {
+    "name": "Volledige naam",
+    "namePlaceholder": "Jan de Vries",
+    "email": "E-mailadres",
+    "emailPlaceholder": "jan@uwbedrijf.nl",
+    "businessName": "Bedrijfsnaam",
+    "businessNamePlaceholder": "Uw Bedrijf B.V.",
+    "businessType": "Type bedrijf",
+    "businessTypePlaceholder": "Kies een type…",
+    "storeNames": "Winkelnaam/-namen",
+    "storeNamesPlaceholder": "bijv. Winkel Hoofdstraat, City Plaza",
+    "storeCount": "Aantal winkels",
+    "storeCountPlaceholder": "bijv. 3",
+    "websiteUrl": "Website-URL",
+    "websiteUrlPlaceholder": "https://uwwinkel.nl",
+    "contactName": "Contactpersoon bedrijf",
+    "contactNamePlaceholder": "Primaire contactpersoon van uw bedrijf",
+    "contactPhone": "Telefoonnummer bedrijf + toestel",
+    "contactPhonePlaceholder": "bijv. +34 91 234 5678 toestel 101",
+    "consent": "Ik geef Sliquid toestemming mijn gegevens op te slaan en te gebruiken om mij productupdates en marketingcommunicatie te sturen. Ik begrijp dat ik een bevestigingsmail ontvang om mijn aanmelding te voltooien en dat ik me op elk moment kan afmelden via de afmeldlink in elke e-mail die ik ontvang."
+  },
+  "businessTypes": {
+    "Retailer": "Detailhandel",
+    "Distribution": "Distributie",
+    "E-Commerce": "E-commerce",
+    "Other": "Anders"
+  },
+  "errors": {
+    "nameRequired": "Volledige naam is verplicht.",
+    "emailInvalid": "Een geldig e-mailadres is verplicht.",
+    "businessNameRequired": "Bedrijfsnaam is verplicht.",
+    "businessTypeRequired": "Kies een type bedrijf.",
+    "storeNamesRequired": "Vul uw winkelnaam/-namen in.",
+    "websiteUrlRequired": "Een website-URL is verplicht voor e-commercebedrijven.",
+    "contactNameRequired": "Contactpersoon is verplicht.",
+    "consentRequired": "U moet toestemming geven om door te gaan.",
+    "generic": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "submit": "Verzenden",
+  "submitting": "Verzenden…",
+  "copyright": "© {{year}} Sliquid, LLC · Alle rechten voorbehouden"
+}

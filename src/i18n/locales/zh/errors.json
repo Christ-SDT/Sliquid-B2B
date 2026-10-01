@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "invalidCredentials": "电子邮件或密码无效",
+    "credentialsRequired": "请输入电子邮件和密码",
+    "accountDeclined": "您的注册申请未获批准。请联系 support@sliquid.com。",
+    "loginRateLimited": "登录尝试次数过多，请 15 分钟后再试。",
+    "allFieldsRequired": "所有字段均为必填项",
+    "passwordTooShort": "密码长度至少为 8 个字符",
+    "emailInUse": "该电子邮件已被使用",
+    "emailRequired": "请输入电子邮件",
+    "resetRateLimited": "密码重置请求过多，请 15 分钟后再试。",
+    "resetFieldsRequired": "需要提供令牌和密码",
+    "resetLinkInvalid": "重置链接无效或已过期",
+    "resetLinkExpired": "重置链接已过期，请重新申请。"
+  },
+  "forms": {
+    "missingFields": "缺少必填字段。",
+    "invalidEmail": "电子邮件地址无效。",
+    "nameRequired": "请填写姓名。",
+    "sendFailed": "发送失败，请重试。",
+    "sendFailedRetry": "发送您的提交时遇到临时问题。请稍后重试——您不会因重试而被阻止。",
+    "cooldown_one": "我们已收到您的提交，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "cooldown_other": "我们已收到您的提交，团队正在处理。您可在约 {{count}} 分钟后再次提交。",
+    "refused": "我们无法受理此提交。如果您认为这是误判，请直接发送电子邮件至 sales@sliquid.com，我们会从那里跟进处理。"
+  }
+}

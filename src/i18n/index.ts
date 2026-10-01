@@ -5,7 +5,7 @@ import resourcesToBackend from 'i18next-resources-to-backend'
 
 // Keep in step with SUPPORTED_LANGUAGES in portal/server/src/routes/auth.ts and
 // portal/client/src/i18n/index.ts.
-export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr'] as const
+export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'de', 'nl', 'pt', 'zh'] as const
 export type Language = (typeof SUPPORTED_LANGUAGES)[number]
 
 // Each language's own name for itself — never translated, so a visitor who
@@ -14,6 +14,10 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
   en: 'English',
   es: 'Español',
   fr: 'Français',
+  de: 'Deutsch',
+  nl: 'Nederlands',
+  pt: 'Português',
+  zh: '中文',
 }
 
 export const LANGUAGE_STORAGE_KEY = 'sliquid_language'
@@ -33,8 +37,15 @@ export function setLanguage(lng: Language) {
 }
 
 // WCAG 3.1.1 Language of Page — screen readers pick pronunciation from <html lang>.
+// BCP 47 tags for `lang` attributes. Portuguese is Brazilian and Chinese is
+// Simplified (decided): a bare `pt`/`zh` would leave screen readers and font
+// selection guessing which variant this is.
+export const HTML_LANG: Record<Language, string> = {
+  en: 'en', es: 'es', fr: 'fr', de: 'de', nl: 'nl', pt: 'pt-BR', zh: 'zh-Hans',
+}
+
 function syncHtmlLang(lng: string | undefined) {
-  document.documentElement.lang = isSupportedLanguage(lng) ? lng : 'en'
+  document.documentElement.lang = isSupportedLanguage(lng) ? HTML_LANG[lng] : 'en'
 }
 i18n.on('languageChanged', () => syncHtmlLang(i18n.resolvedLanguage))
 

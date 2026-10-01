@@ -39,9 +39,18 @@ export interface CaptionCapablePlayer {
   setOption?: (module: string, option: string, value: unknown) => void
 }
 
+// YouTube's caption language codes, where they differ from our UI codes (read
+// from the live player's translationLanguages, Oct 2026): Simplified Chinese is
+// `zh-Hans` (`zh-Hant` is Traditional); `pt` is Brazilian (`pt-PT` is European).
+const YT_CAPTION_CODE: Record<string, string> = { zh: 'zh-Hans' }
+// The player's own UI language (`hl`) takes a region tag for Chinese.
+const YT_UI_LANG: Record<string, string> = { zh: 'zh-CN', pt: 'pt-BR' }
+
+const captionCode = (lang: string) => YT_CAPTION_CODE[lang] ?? lang
+
 /** playerVars additions: captions on, and the player's own UI in the viewer's language. */
 export function captionPlayerVars(lang: string): Record<string, unknown> {
-  return { cc_load_policy: 1, hl: lang }
+  return { cc_load_policy: 1, hl: YT_UI_LANG[lang] ?? lang }
 }
 
 /**
@@ -60,17 +69,19 @@ export function applyCaptionLanguage(player: CaptionCapablePlayer | null | undef
     return // captions module not loaded yet
   }
 
+  const code = captionCode(lang)
+
   // 1. A real (uploaded) track in the viewer's language beats any machine translation.
-  const native = uploaded.find(t => t.languageCode === lang)
+  const native = uploaded.find(t => t.languageCode === code)
   if (native) {
-    player.setOption('captions', 'track', { languageCode: lang })
+    player.setOption('captions', 'track', { languageCode: code })
     return
   }
   if (lang === 'en') return // cc_load_policy already shows the default English track
 
   // 2. Otherwise auto-translate from English — an uploaded English track if
   //    there is one, else YouTube's auto-generated (ASR) English captions.
-  const target = translations.find(l => l.languageCode === lang)
+  const target = translations.find(l => l.languageCode === code)
   if (!target) return
   const english = uploaded.find(t => t.languageCode === 'en') ?? { languageCode: 'en', kind: 'asr' }
   player.setOption('captions', 'track', { ...english, translationLanguage: target })

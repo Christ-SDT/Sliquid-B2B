@@ -1,0 +1,33 @@
+{
+  "notFound": "Questionário não encontrado.",
+  "backToTraining": "← Voltar ao Treinamento digital",
+  "breadcrumb": "Treinamento digital",
+  "video": {
+    "skip": "Pular para o questionário",
+    "watchOr": "Assista ao vídeo completo ou",
+    "start": "Iniciar questionário"
+  },
+  "quiz": {
+    "watchVideo": "Assistir ao vídeo",
+    "passScore": "Aprovação: {{score}}%"
+  },
+  "modal": {
+    "title": "{{title}} — Vídeo de treinamento",
+    "close": "Fechar vídeo"
+  },
+  "finish": {
+    "close": "Fechar",
+    "passedTitle": "Treinamento concluído!",
+    "failedTitle": "Continue praticando",
+    "passedBody": "Você foi aprovado neste treinamento. Ótimo trabalho!",
+    "failedBody": "É necessária uma pontuação de {{score}}% para ser aprovado. Tente novamente!",
+    "score": "Pontuação",
+    "saving": "Salvando resultado…",
+    "emailSent": "Um e-mail de confirmação foi enviado para {{email}}.",
+    "next": "Ir para o próximo módulo",
+    "done": "Concluir",
+    "backToTrainings": "Voltar aos treinamentos",
+    "tryAgain": "Tentar novamente",
+    "rewatch": "Assistir ao vídeo novamente"
+  }
+}

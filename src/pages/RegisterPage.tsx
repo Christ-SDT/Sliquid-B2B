@@ -219,7 +219,7 @@ export default function RegisterPage() {
                 {t('register.roleLabel')} <span className="text-text-light-gray font-normal">{t('register.optional')}</span>
               </label>
               <p className="text-text-light-gray text-xs mb-2">{t('register.roleHelp')}</p>
-              <div className="flex gap-5">
+              <div className="flex flex-wrap gap-x-5 gap-y-2">
                 <label className="flex items-center gap-2 text-text-dark text-sm cursor-pointer">
                   <input
                     type="checkbox"

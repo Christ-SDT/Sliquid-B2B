@@ -1,0 +1,42 @@
+{
+  "greeting": {
+    "morning": "早上好，{{name}}",
+    "afternoon": "下午好，{{name}}",
+    "evening": "晚上好，{{name}}"
+  },
+  "viewAll": "查看全部",
+  "assets": {
+    "title": "数字资源",
+    "empty": "暂无可用资源"
+  },
+  "distributors": {
+    "title": "经销商",
+    "empty": "暂无可用经销商"
+  },
+  "trainings": {
+    "title": "培训",
+    "completed": "已完成 {{passed}} / {{total}}",
+    "minutesShort_one": "{{count}} 分钟",
+    "minutesShort_other": "{{count}} 分钟",
+    "passed": "已通过",
+    "retake": "重新参加",
+    "start": "开始"
+  },
+  "pending": {
+    "badge": "待审批",
+    "body": "您的账户已提交，正在等待管理员审核。获批后您将获得完整访问权限。",
+    "didYouKnow": "您知道吗？",
+    "facts": {
+      "since2002": "自 2002 年起，Sliquid 一直致力于研制对身体安全、pH 平衡的亲密护理产品。",
+      "freeFrom": "所有产品均不含对羟基苯甲酸酯、甘油、DEA 和麸质。",
+      "lineup": "产品线涵盖 Naturals、Organics、RIDE、Silver 和 Swirl 系列，共 40 多个 SKU。",
+      "countries": "Sliquid 产品行销全球 40 多个国家。"
+    },
+    "sellQuestion": "想在您的门店销售 Sliquid 吗？",
+    "register": "注册成为 Sliquid Insider 零售商"
+  },
+  "upgrade": {
+    "title": "您拥有 {{tier}} 访问权限",
+    "body": "想解锁门户的更多功能？请联系您的 Sliquid 销售代表了解升级事宜。"
+  }
+}

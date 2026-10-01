@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "ariaLabel": "Titelbanner",
+    "title": "Alles, was Sliquid-Händler brauchen, an einem Ort.",
+    "body": "Ihre zentrale Anlaufstelle für Produktwissen, Mitarbeiterschulungen, herunterladbare Ressourcen und Partnermaterialien, die Ihr Geschäft bei jedem Schritt unterstützen.",
+    "becomeRetailer": "Händler werden",
+    "partnerPortal": "Partnerportal"
+  },
+  "strategy": {
+    "heading": "Gemeinsam klüger wachsen",
+    "intro": "Gemeinsam klüger wachsen heißt mehr als nur Zugang zu Werkzeugen: Das Marketingteam von Sliquid wird zur Erweiterung Ihres eigenen Teams – bereit, Sie zu unterstützen, Strategien zu entwickeln und Ergebnisse voranzutreiben.",
+    "cards": {
+      "retailers": {
+        "title": "Händler",
+        "description": "Vereinfachen Sie Ihre Abläufe, stärken Sie Ihre Präsenz im Laden und online und arbeiten Sie direkt mit unserem Marketingteam zusammen – so kommen Sie schneller voran, verkaufen gezielter und wachsen mit Zuversicht.",
+        "imageAlt": "Sliquid Organics Natural Gleitmittel-Kollektion auf einer hellen Fläche",
+        "linkLabel": "Katalog ansehen"
+      },
+      "health-practitioners": {
+        "title": "Medizinisches Fachpersonal",
+        "description": "Unterstützen Sie Ihre Praxis mit klinischen Ressourcen, Informationsblättern und Mustern für Patienten – entwickelt, um Ihre Behandlung zu ergänzen und Ihre Patienten noch besser zu betreuen.",
+        "imageAlt": "Sliquid Soothe Produktgruppe für intimes Wohlbefinden mit Spiegelungen",
+        "linkLabel": "Mehr über das Programm"
+      },
+      "global-distributors": {
+        "title": "Internationale Vertriebspartner",
+        "description": "Statten Sie Ihre Marketing- und Vertriebsteams mit sofort einsetzbaren Ressourcen für Ihre Kunden aus – für einen stärkeren Abverkauf und eine engere Zusammenarbeit mit dem Marketingteam von Sliquid.",
+        "imageAlt": "Produktreihe der wasserbasierten Gleitmittel von RIDE Lube",
+        "linkLabel": "Mehr Infos anfordern"
+      }
+    }
+  },
+  "stats": {
+    "heading": "Ein wirklich integriertes Ökosystem für Gesundheit & Wohlbefinden",
+    "body": "Als Teil der Sliquid-Familie erhalten Sie Zugang zu einem wachsenden Netzwerk aus Einzelhandel und digitalen Kanälen. Unsere physische und digitale Präsenz wirkt mit unserer Produktinnovation zusammen, damit Sie Ihren Kunden echte, spürbare Vorteile für ihre Gesundheit bieten können.",
+    "items": {
+      "years": "Jahre in der Branche – damit eine der wenigen echten Traditionsmarken für intimes Wohlbefinden.",
+      "skus": "Artikel in mehreren Kollektionen, von Gleitmitteln über Bad & Körper bis zu Wellness.",
+      "customers": "Kunden vertrauen Sliquid für körperverträgliches Wohlbefinden.",
+      "zero": "unnötige Inhaltsstoffe – unsere Philosophie: Formeln mit 0 Glycerin, 0 Parabenen und 0 Zuckerderivaten, ein entscheidendes Alleinstellungsmerkmal in der Kategorie."
+    }
+  },
+  "brands": {
+    "heading": "Mehr Marken. Mehr Reichweite. Mehr Chancen.",
+    "body": "Doch die Sliquid-Familie geht noch weiter. Mit dem auf die LGBTQ+-Community ausgerichteten Markenauftritt von RIDE Lube und der Ride Rocco Signature-Kollektion bietet unser Portfolio Partnern Zugang zu einem breiteren, spezialisierteren Sortiment an Wellnessprodukten.",
+    "cta": "Unsere Schwestermarken entdecken",
+    "imageAlt": "Produktkollektion von Sliquid, RIDE Lube und Ride Rocco",
+    "labelSubtitle": "Performance-Gleitmittel & Signature-Kollektionen"
+  },
+  "ceo": {
+    "heading": "Botschaft der CEO",
+    "quote": "„Willkommen bei Sliquid HQ! Wir freuen uns sehr, dass Sie hier sind. Dieser Bereich wurde für Sie geschaffen – unsere Partner im Einzelhandel und im medizinischen Bereich –, damit Sie einfach auf Informationen und Ressourcen zugreifen können, die Ihre Arbeit unterstützen. Alles hier soll Ihnen helfen, sich sicher und gut informiert zu fühlen, wenn Sie die Mission von Sliquid an Ihre Kunden und Patienten weitergeben.“",
+    "role": "Mitgründerin & CEO"
+  },
+  "cta": {
+    "heading": "Bleiben Sie über die neuesten Sliquid-News informiert",
+    "thanks": "Vielen Dank für Ihr Abonnement!",
+    "emailLabel": "E-Mail-Adresse",
+    "placeholder": "sie@firma.de",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+    "subscribe": "Abonnieren"
+  }
+}

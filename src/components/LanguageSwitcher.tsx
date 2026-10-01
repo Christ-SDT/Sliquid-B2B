@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES, isSupportedLanguage, setLanguage } from '@/i18n'
+import { HTML_LANG, LANGUAGE_NAMES, SUPPORTED_LANGUAGES, isSupportedLanguage, setLanguage } from '@/i18n'
 
 // A native <select>: keyboard, screen-reader and mobile-picker behaviour for free.
 // Styled for the dark TopBar (bg-footer); gray-500 border is 3.04:1 there (≥3:1).
@@ -23,7 +23,7 @@ export default function LanguageSwitcher() {
                    hover:text-white focus:outline-none focus:ring-2 focus:ring-sliquid-blue-on-dark"
       >
         {SUPPORTED_LANGUAGES.map((lng) => (
-          <option key={lng} value={lng} lang={lng}>{LANGUAGE_NAMES[lng]}</option>
+          <option key={lng} value={lng} lang={HTML_LANG[lng]}>{LANGUAGE_NAMES[lng]}</option>
         ))}
       </select>
     </div>

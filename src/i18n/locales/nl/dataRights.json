@@ -1,0 +1,54 @@
+{
+  "header": {
+    "eyebrow": "AVG",
+    "title": "Uw rechten over uw gegevens",
+    "body": "Op grond van de Algemene Verordening Gegevensbescherming (AVG) heeft u het recht om de persoonsgegevens die wij over u bewaren in te zien en het recht om verwijdering ervan te verzoeken. Gebruik de onderstaande formulieren om een van beide rechten uit te oefenen."
+  },
+  "holding": {
+    "heading": "Hoe wij uw gegevens bewaren",
+    "mailchimp": "Sliquid gebruikt <bold>Mailchimp</bold> (beheerd door The Rocket Science Group, LLC) als platform voor e-mailmarketing. Wanneer u zich via onze website, een beurs of een ander kanaal aanmeldt voor onze communicatie, worden uw naam, e-mailadres en eventuele bijbehorende voorkeuren opgeslagen in de systemen van Mailchimp. Mailchimp verwerkt deze gegevens namens ons op basis van een verwerkersovereenkomst die voldoet aan de AVG.",
+    "database": "Naast Mailchimp kunnen wij inzendingen (zoals aanvragen van detailhandelaars, contactformulieren en intakeformulieren van beurzen) opslaan in onze eigen beveiligde database op de infrastructuur van Railway, om uw verzoek uit te voeren en een registratie van uw toestemming bij te houden.",
+    "noSale": "Wij verkopen uw persoonsgegevens niet aan derden. Zie ons <cta>privacybeleid</cta> voor alle details."
+  },
+  "tabs": {
+    "groupLabel": "Type verzoek",
+    "access": "Mijn gegevens opvragen",
+    "deletion": "Verwijdering aanvragen"
+  },
+  "access": {
+    "heading": "Inzage in uw gegevens aanvragen",
+    "body": "Op grond van artikel 15 van de AVG heeft u het recht om te vernemen of wij uw persoonsgegevens verwerken en om een kopie daarvan te ontvangen. Wij reageren binnen <bold>30 dagen</bold>. Uw verzoek wordt ook doorgestuurd naar Mailchimp om de gegevens op te halen die daar namens u zijn opgeslagen."
+  },
+  "deletion": {
+    "heading": "Verwijdering van uw gegevens aanvragen",
+    "body": "Op grond van artikel 17 van de AVG (\"recht op vergetelheid\") kunt u verzoeken dat wij uw persoonsgegevens wissen. Wij verwerken uw verzoek binnen <bold>30 dagen</bold> en bevestigen zodra dit is afgerond.",
+    "whatGetsDeleted": "<bold>Wat wordt verwijderd:</bold> Uw gegevens worden verwijderd uit ons Mailchimp-publiek en uit onze interne database. Houd er rekening mee dat wij bepaalde gegevens mogelijk moeten bewaren vanwege wettelijke of contractuele verplichtingen (bijv. bestelgeschiedenis). In dat geval laten wij u weten wat niet kan worden verwijderd en waarom."
+  },
+  "form": {
+    "name": "Volledige naam",
+    "email": "E-mailadres",
+    "details": "Aanvullende informatie",
+    "optional": "(optioneel)",
+    "accessPlaceholder": "Beschrijf welke gegevens u wilt inzien…",
+    "deletionPlaceholder": "Eventuele aanvullende context voor uw verwijderingsverzoek…",
+    "submitting": "Verzenden…",
+    "submitAccess": "Gegevensverzoek verzenden",
+    "submitDeletion": "Verwijderingsverzoek verzenden"
+  },
+  "errors": {
+    "nameRequired": "Volledige naam is verplicht.",
+    "emailInvalid": "Een geldig e-mailadres is verplicht.",
+    "alreadyReceived": "Wij hebben dit verzoek al ontvangen.",
+    "generic": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "success": {
+    "title": "Verzoek ontvangen",
+    "access": "Wij hebben uw verzoek om inzage ontvangen. Wij reageren binnen 30 dagen, in overeenstemming met artikel 15 van de AVG.",
+    "deletion": "Wij hebben uw verwijderingsverzoek ontvangen. Wij verwerken het binnen 30 dagen, in overeenstemming met artikel 17 van de AVG. Dit omvat het verwijderen van uw gegevens uit Mailchimp en onze systemen.",
+    "another": "Nog een verzoek indienen"
+  },
+  "questions": {
+    "heading": "Vragen over uw gegevens?",
+    "body": "Heeft u vragen over hoe wij uw gegevens verwerken of wilt u een verzoek escaleren? Neem dan rechtstreeks contact met ons op via <email>sales@sliquid.com</email>. U heeft ook het recht een klacht in te dienen bij uw nationale toezichthouder voor gegevensbescherming."
+  }
+}

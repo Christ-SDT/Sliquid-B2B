@@ -1,0 +1,84 @@
+{
+  "hero": {
+    "eyebrow": "联系我们",
+    "title": "携手共创未来",
+    "body": "无论您是想开设批发账户、探索经销合作，还是寻求临床级的产品建议，我们的 B2B 团队都随时准备为您提供帮助。"
+  },
+  "partnerships": {
+    "heading": "我们的合作对象",
+    "retailer": {
+      "title": "零售商",
+      "description": "开设批发账户，在门店或线上销售 Sliquid、RIDE Lube 和 Ride Rocco。获取陈列物料、货架陈列图支持以及有竞争力的批发价格档位。"
+    },
+    "media": {
+      "title": "营销与媒体",
+      "description": "媒体咨询、品牌合作、网红合作及编辑约稿。请发送您的媒体资料包或合作提案，我们的营销团队将跟进联系。"
+    },
+    "distributor": {
+      "title": "经销商",
+      "description": "我们与区域及全球经销合作伙伴携手，在无法直接配送的市场扩大覆盖范围。请告诉我们您的业务区域和物流能力。"
+    },
+    "medical": {
+      "title": "医疗专业人士",
+      "description": "我们与医生、盆底治疗师、妇产科医生、性治疗师及其他向患者推荐亲密健康产品的持证医疗服务提供者合作。欢迎联系我们，了解我们的医疗合作伙伴计划。"
+    }
+  },
+  "steps": {
+    "heading": "后续流程",
+    "review": {
+      "title": "我们审核您的咨询",
+      "detail": "我们的 B2B 团队会阅读每一条消息，并将您的咨询转交给销售、经销或临床合作方面的合适人员。"
+    },
+    "reply": {
+      "title": "2 个工作日内回复您",
+      "detail": "我们将通过电子邮件（如您提供了号码，也可能致电）与您联系，讨论您的需求和后续步骤。"
+    },
+    "proposal": {
+      "title": "我们发送定制方案",
+      "detail": "根据您的咨询类型，您将收到批发价格表、经销协议或临床合作概览。"
+    },
+    "onboarding": {
+      "title": "入驻与支持",
+      "detail": "合作确认后，您的专属客户联系人将提供产品培训、物料套件及持续支持。"
+    }
+  },
+  "info": {
+    "heading": "联系信息",
+    "location": "德克萨斯州达拉斯（总部）",
+    "hours": "周一至周五，美国中部时间上午 9:30 至下午 6:00",
+    "response": "2 个工作日内回复"
+  },
+  "form": {
+    "heading": "给我们留言",
+    "name": "姓名",
+    "company": "公司",
+    "email": "电子邮件",
+    "phone": "电话",
+    "optional": "（选填）",
+    "inquiryType": "咨询类型",
+    "message": "留言",
+    "submit": "发送留言",
+    "submitting": "正在发送…",
+    "footnote": "我们会在 2 个工作日内回复所有 B2B 咨询。",
+    "options": {
+      "placeholder": "选择咨询类型…",
+      "retailer": "零售商账户",
+      "media": "营销与媒体",
+      "distributor": "经销合作",
+      "medical": "医疗专业人士",
+      "general": "一般咨询"
+    }
+  },
+  "errors": {
+    "nameRequired": "请填写姓名。",
+    "companyRequired": "请填写公司名称。",
+    "emailInvalid": "请填写有效的电子邮件地址。",
+    "subjectRequired": "请选择咨询类型。",
+    "messageTooShort": "留言至少需要 20 个字符。",
+    "sendFailed": "暂时无法发送您的留言。请重试，或直接发送电子邮件至 sales@sliquid.com。"
+  },
+  "success": {
+    "title": "留言已发送",
+    "body": "我们的 B2B 团队将在 2 个工作日内回复您。"
+  }
+}

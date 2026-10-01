@@ -51,7 +51,7 @@ describe('registration', () => {
   })
 
   it('stores NULL for an unsupported language and sends English', async () => {
-    await request(app).post('/api/auth/register').send({ ...body, language: 'de' })
+    await request(app).post('/api/auth/register').send({ ...body, language: 'ja' })
     const row = db.prepare('SELECT preferred_language FROM users WHERE email = ?').get(body.email) as { preferred_language: string | null }
     expect(row.preferred_language).toBeNull()
     expect((await paramsFor('portal_register_confirm')).lang).toBe('en')

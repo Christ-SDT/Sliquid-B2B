@@ -1,0 +1,28 @@
+{
+  "productLibraryItem": {
+    "title": "产品库新增内容",
+    "message": "{{name}}（{{brand}}）已添加到产品库。"
+  },
+  "productLibraryBulk": {
+    "title": "产品库新增内容",
+    "message_one": "{{count}} 个新文件（{{brand}}）已添加到产品库。",
+    "message_other": "{{count}} 个新文件（{{brand}}）已添加到产品库。"
+  },
+  "mediaItem": {
+    "title": "新增媒体",
+    "message": "{{name}} 已添加到媒体库。"
+  },
+  "mediaBulk": {
+    "title": "新增媒体",
+    "message_one": "{{count}} 个新文件已添加到媒体库。",
+    "message_other": "{{count}} 个新文件已添加到媒体库。"
+  },
+  "announcement": {
+    "title": "新公告",
+    "message": "{{title}}"
+  },
+  "accountApproved": {
+    "title": "您的账户已获批准！",
+    "message": "欢迎使用 Sliquid 合作伙伴门户。您现在可以登录并访问您的账户。"
+  }
+}

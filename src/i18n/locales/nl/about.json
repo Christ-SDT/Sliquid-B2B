@@ -1,0 +1,76 @@
+{
+  "hero": {
+    "eyebrow": "Ons verhaal",
+    "title": "Gezonder doen we samen.",
+    "body": "Al ruim twintig jaar herdefinieert Sliquid hoe zuivere, lichaamsveilige intieme producten eruitzien, en bouwen we aan een wereldwijde gemeenschap van partners die die visie delen."
+  },
+  "mission": {
+    "title": "Onze missie",
+    "p1": "De missie van Sliquid is het maken van zuivere, veilige en inclusieve producten voor intieme wellness die ieder lichaam versterken, met transparantie, innovatie en compromisloze zorg als uitgangspunt. Wij ontwikkelen producten die zowel veiligheid als plezier ondersteunen, met zorgvuldig geselecteerde, hoogwaardige natuurlijke ingrediënten en een zeer bewuste aanpak van formulering. Door eenvoudige, toegankelijke oplossingen te bieden die aansluiten bij persoonlijke behoeften, willen wij het taboe doorbreken en opnieuw bepalen wat intieme wellness voor iedereen betekent.",
+    "p2": "Onze B2B-partners zijn een verlengstuk van die missie. Wanneer u Sliquid verkoopt, biedt u uw klanten en cliënten echt betere producten, zorgvuldig geformuleerd zonder shortcuts.",
+    "p3": "Dat vertrouwen verdienen wij door volledige transparantie over ingrediënten, strenge tests door onafhankelijke partijen en een team dat elk partnerschap ziet als een langdurige relatie, niet als een transactie."
+  },
+  "numbers": {
+    "title": "In cijfers",
+    "founded": "Opgericht in",
+    "skus": "Product-SKU's",
+    "countries": "Landen",
+    "years": "Jaar expertise"
+  },
+  "foundation": {
+    "eyebrow": "Het fundament",
+    "title": "Een visie geworteld in doelgerichtheid",
+    "p1": "Cynthia Wielgosz Elliott richtte Sliquid in 2002 mede op vanuit een heldere en persoonlijke overtuiging: intieme wellness moet gebaseerd zijn op zorg, toegankelijkheid en een diep begrip van vrouwengezondheid. In een tijd waarin shortcuts de categorie bepaalden, hielp zij een andere weg in te slaan door een merk op te bouwen dat draait om zuivere formules, inclusiviteit en betekenis.",
+    "p2": "Als voorvechter van vrouwengezondheid en pleitbezorger van betekenisvolle partnerschappen heeft Cynthia de retail-, medische en distributiepartners van Sliquid centraal gesteld in de groei van het merk, omdat hun succes onlosmakelijk verbonden is met dat van Sliquid. De missie is onveranderd. De normen zijn even precies. Wat is gegroeid, is de schaal van de visie. Een visie die wereldwijd uitbreidt, elk kanaal versterkt — van groothandel tot e-commerce en de medische sector — en Sliquid onder haar leiding klaarmaakt voor een nieuw tijdperk van bewuste, inclusieve groei.",
+    "brands": "Merken in het portfolio",
+    "customers": "Klanten die Sliquid vertrouwen"
+  },
+  "values": {
+    "eyebrow": "Wat ons drijft",
+    "title": "Onze kernwaarden",
+    "clean": {
+      "title": "Zuiver uit overtuiging",
+      "description": "Sliquid heeft nooit glycerine, parabenen of kunstmatige geuren of smaken gebruikt. Ons uitgangspunt is eenvoudig: wat u op uw lichaam gebruikt, is net zo belangrijk als wat u erin stopt. Die norm is al ruim twintig jaar onveranderd."
+    },
+    "inclusive": {
+      "title": "Inclusief vanaf het ontwerp",
+      "description": "Intimiteit is voor ieder lichaam. Onze formules zijn ontwikkeld voor alle genders, geaardheden en lichaamschemieën. Van glycerinevrije glijmiddelen met een uitgebalanceerde pH voor vaginale gezondheid tot de T-Collection, speciaal geformuleerd voor transgender personen: inclusiviteit is geen marketingpositie, het is onze bedrijfscultuur."
+    },
+    "transparent": {
+      "title": "Altijd transparant",
+      "description": "Elk ingrediënt in elke formule staat op het etiket en op onze website. Zoals wij altijd zeggen: \"Staat het niet op het etiket, dan zit het niet in de fles.\" Onze partners kunnen elke klantvraag over de inhoud van de fles beantwoorden, omdat wij die informatie gemakkelijk vindbaar maken."
+    },
+    "partnership": {
+      "title": "Partners in de ware zin van het woord",
+      "description": "Wij leveren niet alleen producten. Wij ondersteunen onze retail- en zorgpartners met trainingsmateriaal, merchandisingmateriaal en een B2B-team dat oprecht betrokken is bij uw doorverkoop. Wanneer u Sliquid verkoopt, biedt u uw klanten iets beters — en wij zorgen dat u kunt uitleggen waarom."
+    }
+  },
+  "team": {
+    "eyebrow": "Leiding",
+    "title": "Directieteam",
+    "intro": "De mensen achter de missie van Sliquid voor intieme wellness",
+    "executives": {
+      "cynthia-elliott": {
+        "title": "Medeoprichter en CEO",
+        "imageAlt": "Cynthia Elliott, medeoprichter en CEO van Sliquid"
+      },
+      "colin-roy": {
+        "title": "Senior Vice President",
+        "imageAlt": "Colin Roy, Senior Vice President van Sliquid"
+      },
+      "michelle-marcus": {
+        "title": "Vice President Sales",
+        "imageAlt": "Michelle Marcus, Vice President Sales bij Sliquid"
+      },
+      "erik-vasquez": {
+        "title": "Vice President Marketing",
+        "imageAlt": "Erik Vasquez, Vice President Marketing bij Sliquid"
+      }
+    }
+  },
+  "cta": {
+    "title": "Klaar om Sliquid-partner te worden?",
+    "body": "Of u nu detailhandelaar, zorgverlener of wereldwijde distributeur bent: ons B2B-team staat klaar om een partnerschap op te bouwen dat bij uw bedrijf past.",
+    "button": "Neem contact op"
+  }
+}

@@ -14,7 +14,9 @@ function parseServerDate(value: string): Date {
 
 // Intl locale per UI language. English stays en-US so existing output is unchanged;
 // French uses Canadian conventions to match our French audience.
-const INTL_LOCALE: Record<string, string> = { en: 'en-US', es: 'es', fr: 'fr-CA' }
+const INTL_LOCALE: Record<string, string> = {
+  en: 'en-US', es: 'es', fr: 'fr-CA', de: 'de-DE', nl: 'nl-NL', pt: 'pt-BR', zh: 'zh-CN',
+}
 
 /**
  * "June 30, 2026" / "30 de junio de 2026" / "30 juin 2026". Defaults to the

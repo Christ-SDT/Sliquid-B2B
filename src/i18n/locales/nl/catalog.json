@@ -1,0 +1,51 @@
+{
+  "header": {
+    "eyebrow": "Productcatalogus",
+    "title": "Veilig voor het lichaam, <lineBreak/>transparant geformuleerd",
+    "body": "Bekijk ons volledige assortiment intieme wellnessproducten. Elke formule is vrij van glycerine en parabenen en ontwikkeld met het oog op lichaamsveiligheid. Groothandelsprijzen en bestellen voor partners via het <portalLink>partnerportaal</portalLink>."
+  },
+  "filters": {
+    "brandGroup": "Filteren op merk",
+    "all": "Alle",
+    "searchLabel": "Producten zoeken",
+    "searchPlaceholder": "bijv. Naturals, Satin…"
+  },
+  "results": {
+    "count_one": "{{count}} product",
+    "count_other": "{{count}} producten",
+    "loadError": "De productcatalogus kon niet worden geladen. Probeer het later opnieuw.",
+    "empty": "Geen producten gevonden",
+    "clearSearch": "Zoekopdracht wissen"
+  },
+  "product": {
+    "new": "Nieuw",
+    "inStock": "Op voorraad",
+    "outOfStock": "Niet op voorraad",
+    "outShort": "Uitverkocht",
+    "msrp": "Adviesprijs",
+    "priceInPortal": "Prijs beschikbaar in het portaal",
+    "close": "Sluiten",
+    "category": "Categorie",
+    "casePack": "Doosinhoud",
+    "casePackUnits_one": "{{count}} stuk",
+    "casePackUnits_other": "{{count}} stuks",
+    "caseWeight": "Doosgewicht",
+    "unitDimensions": "Afmetingen per stuk",
+    "caseDimensions": "Afmetingen doos",
+    "effective": "Geldig vanaf 1 jan. 2026"
+  },
+  "retailerCta": {
+    "eyebrow": "Werk met ons samen",
+    "title": "Word Sliquid-detailhandelaar",
+    "body": "Verkoop het meest vertrouwde merk voor lichaamsveilige intieme producten in de branche. Sliquid biedt specifieke marketingondersteuning, kant-en-klare merchandisingmaterialen en een team dat uw winkel helpt slimmer te verkopen en met vertrouwen te groeien.",
+    "benefits": {
+      "marketing": "Specifieke marketingondersteuning",
+      "merchandising": "Merchandisingmateriaal voor in de winkel",
+      "training": "Trainingsmateriaal voor personeel",
+      "minimums": "Flexibele minimale bestelhoeveelheden",
+      "formulas": "Zuivere, lichaamsveilige formules",
+      "trust": "Ruim 20 jaar merkvertrouwen"
+    },
+    "button": "Aanmelden als detailhandelaar"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "header": {
+    "eyebrow": "产品目录",
+    "title": "对身体安全的产品，<lineBreak/>配方透明公开",
+    "body": "浏览我们完整的亲密健康产品系列。每一款配方均不含甘油和对羟基苯甲酸酯，并以身体安全为本精心研制。批发价格及合作伙伴订购服务可通过<portalLink>合作伙伴门户</portalLink>获取。"
+  },
+  "filters": {
+    "brandGroup": "按品牌筛选",
+    "all": "全部",
+    "searchLabel": "搜索产品",
+    "searchPlaceholder": "例如 Naturals、Satin…"
+  },
+  "results": {
+    "count_one": "{{count}} 款产品",
+    "count_other": "{{count}} 款产品",
+    "loadError": "无法加载产品目录，请稍后再试。",
+    "empty": "未找到产品",
+    "clearSearch": "清除搜索"
+  },
+  "product": {
+    "new": "新品",
+    "inStock": "有货",
+    "outOfStock": "缺货",
+    "outShort": "缺货",
+    "msrp": "建议零售价",
+    "priceInPortal": "价格请在门户中查看",
+    "close": "关闭",
+    "category": "类别",
+    "casePack": "每箱数量",
+    "casePackUnits_one": "{{count}} 件",
+    "casePackUnits_other": "{{count}} 件",
+    "caseWeight": "每箱重量",
+    "unitDimensions": "单件尺寸",
+    "caseDimensions": "整箱尺寸",
+    "effective": "自 2026 年 1 月 1 日起生效"
+  },
+  "retailerCta": {
+    "eyebrow": "与我们合作",
+    "title": "成为 Sliquid 零售商",
+    "body": "经销业内最受信赖的身体安全型亲密护理品牌。Sliquid 提供专属营销支持、即用型陈列物料，以及一支致力于帮助您的门店更高效销售、稳健成长的团队。",
+    "benefits": {
+      "marketing": "专属营销支持",
+      "merchandising": "店内陈列物料",
+      "training": "员工培训资源",
+      "minimums": "灵活的最低起订量",
+      "formulas": "纯净、对身体安全的配方",
+      "trust": "20 余年品牌信誉"
+    },
+    "button": "申请成为零售商"
+  }
+}

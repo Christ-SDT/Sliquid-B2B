@@ -1,0 +1,96 @@
+{
+  "actions": {
+    "back": "Zurück",
+    "close": "Schließen",
+    "view": "Ansehen",
+    "download": "Herunterladen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirmDelete": "Löschen bestätigen",
+    "cancel": "Abbrechen",
+    "cancelDelete": "Löschen abbrechen"
+  },
+  "sections": {
+    "logos": "Logos",
+    "banners": "Banner",
+    "socialMedia": "Social Media",
+    "documents": "Dokumente",
+    "emailTemplates": "E-Mail-Vorlagen",
+    "campaignMaterials": "Kampagnenmaterial",
+    "videos": "Videos",
+    "generatedImages": "Generierte Bilder",
+    "other": "Sonstiges"
+  },
+  "types": {
+    "logo": "Logo",
+    "banner": "Banner",
+    "social": "Social",
+    "document": "Dokument",
+    "socialMedia": "Social Media",
+    "email": "E-Mail",
+    "print": "Druck",
+    "multi": "Mehrfach",
+    "video": "Video",
+    "aiGenerated": "KI-generiert"
+  },
+  "brands": {
+    "userGenerated": "Nutzergenerierte Inhalte"
+  },
+  "detail": {
+    "createdBy": "Erstellt von {{name}}",
+    "closeViewer": "Ansicht schließen",
+    "previewUnavailable": "Für diesen Dateityp ist keine Vorschau verfügbar.",
+    "openInNewTab": "In neuem Tab öffnen"
+  },
+  "explorer": {
+    "allItems": "Alle Elemente",
+    "files_one": "({{count}} Datei)",
+    "files_other": "({{count}} Dateien)",
+    "empty": "Keine Dateien in diesem Bereich"
+  },
+  "brand": {
+    "items_one": "{{count}} Element",
+    "items_other": "{{count}} Elemente",
+    "browse": "Nach Kategorie durchsuchen",
+    "viewAll": "Alle {{brand}} ansehen ({{count}})",
+    "all": "Alle ({{count}})",
+    "showingOf": "8 von {{total}} Dateien",
+    "files_one": "{{count}} Datei",
+    "files_other": "{{count}} Dateien",
+    "showAllBrand": "Alle {{brand}} anzeigen",
+    "showAllSection": "Alle {{section}} anzeigen",
+    "featured": "Empfohlen",
+    "feature": "Als empfohlen markieren",
+    "unfeature": "Aus Empfehlungen entfernen"
+  },
+  "shots": {
+    "title": "Produktfotos",
+    "subtitle": "Hochauflösende Produktfotos für alle Marken",
+    "viewAll": "Alle Produktfotos ansehen ({{count}})",
+    "badge": "Produktfoto",
+    "images_one": "({{count}} Bild)",
+    "images_other": "({{count}} Bilder)",
+    "select": "Auswählen",
+    "searchPlaceholder": "Produktfotos suchen…",
+    "deselectAll": "Auswahl aufheben",
+    "selectAll": "Alle auswählen ({{count}})",
+    "selectedCount": "{{count}} ausgewählt",
+    "preparing": "Wird vorbereitet…",
+    "downloadZip": "Als ZIP herunterladen ({{count}})",
+    "downloadN": "Herunterladen ({{count}})",
+    "clear": "Leeren",
+    "noMatch": "Keine Bilder entsprechen Ihrer Suche",
+    "empty": "Noch keine Produktfotos",
+    "rename": "Umbenennen",
+    "closeViewer": "Ansicht schließen"
+  },
+  "page": {
+    "title": "Ressourcenbibliothek",
+    "searchPlaceholder": "Bibliothek durchsuchen…",
+    "addItem": "Element hinzufügen",
+    "noMatch": "Keine Elemente entsprechen Ihrer Suche",
+    "empty": "Noch keine Elemente in der Bibliothek",
+    "addFirst": "Erstes Element hinzufügen",
+    "deleteFailed": "Element konnte nicht gelöscht werden"
+  }
+}

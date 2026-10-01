@@ -1,0 +1,102 @@
+{
+  "skipToContent": "Zum Hauptinhalt springen",
+  "language": {
+    "label": "Sprache"
+  },
+  "brands": {
+    "sliquid": {
+      "tagline": "Die ursprüngliche Marke für körperverträgliche Intimpflege",
+      "description": "Sliquid ist seit 2002 Vorreiter für sauberes intimes Wohlbefinden. Jede Formel ist frei von Glycerin und Parabenen und wird mit körperverträglichen Inhaltsstoffen hergestellt – vom meistverkauften wasserbasierten Gleitmittel H2O bis zu unserer preisgekrönten Bad- und Körperpflegelinie. Mit über 100 Artikeln aus Gleitmitteln, Reinigungsprodukten und Massageölen ist Sliquid der vertrauenswürdige Standard für Händler und medizinisches Fachpersonal weltweit.",
+      "imageAlt": "Sliquid H2O aus der Naturals-Kollektion körperverträglicher Gleitmittel"
+    },
+    "ride-lube": {
+      "tagline": "Hochleistungsprodukte für Männer",
+      "description": "RIDE Lube ist auf Leistung ausgelegt. Das Sortiment umfasst wasserbasierte, silikonbasierte, Hybrid- und Spezialformeln – jede auf Konsistenz, Gleitfähigkeit und Ausdauer ausgelegt, mit Inhaltsstoffen, die sich für empfindliche Haut eignen. RIDE Lube ist von Grund auf inklusiv, spricht ein breites Publikum einschließlich der LGBTQ+-Community an und bietet die T-Collection, die speziell für trans Personen entwickelt wurde. Ein schnell drehender Artikel für Erotikfachhändler, die eine treue, leistungsorientierte Kundschaft suchen.",
+      "imageAlt": "Produktgruppe der wasserbasierten Gleitmittel von RIDE Lube"
+    },
+    "ride-rocco": {
+      "tagline": "Der Goldstandard unter den Gleitmitteln",
+      "description": "Ride Rocco wurde in Zusammenarbeit mit der Ikone der Erwachsenenbranche Rocco Steele entwickelt und ist eine Premium-Gleitmittelkollektion mit starker Regalpräsenz. Erhältlich als wasserbasierte und silikonbasierte Variante sowie als einzigartige Hybridformel Seed, bietet jedes Produkt die langanhaltende Ausdauer, die Roccos Publikum erwartet – hergestellt nach denselben Standards für Körperverträglichkeit wie RIDE Lube. Die gemeinsam gebrandete Verpackung fördert Impulskäufe und verbindet Händler mit einer treuen, begeisterten Fangemeinde, die Rocco auf allen Plattformen folgt.",
+      "imageAlt": "Wasserbasierte Signature-Gleitmittelkollektion von Ride Rocco"
+    }
+  },
+  "nav": {
+    "ourBrands": "Unsere Marken",
+    "ingredients": "Inhaltsstoffe",
+    "about": "Über uns",
+    "announcements": "Ankündigungen",
+    "mapPolicy": "MAP-Richtlinie",
+    "contact": "Kontakt",
+    "partnerPortal": "Partnerportal",
+    "productCatalog": "Produktkatalog",
+    "healthPractitioners": "Medizinisches Fachpersonal"
+  },
+  "header": {
+    "homeLink": "Startseite Sliquid HQ",
+    "mainNav": "Hauptnavigation",
+    "mobileNav": "Mobile Navigation",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "search": "Suchen",
+    "searchPlaceholder": "Suchen"
+  },
+  "footer": {
+    "logoAlt": "Sliquid-Lotus",
+    "tagline": "Gesünder geht gemeinsam. Sliquid bietet Händlern und Gesundheitsdienstleistern weltweit die saubersten und sichersten Intimprodukte.",
+    "quickLinks": "Schnellzugriff",
+    "otherSites": "Weitere Websites",
+    "contactHeading": "Kontakt",
+    "about": "Über uns",
+    "careers": "Karriere",
+    "contactUs": "Kontakt ›",
+    "copyright": "Copyright © {{year}} Sliquid, LLC. Alle Rechte vorbehalten.",
+    "accessibility": "Barrierefreiheit",
+    "dataRights": "Ihre Datenschutzrechte",
+    "privacy": "Datenschutzerklärung",
+    "terms": "Nutzungsbedingungen"
+  },
+  "titles": {
+    "home": "B2B-Partnerportal",
+    "ourBrands": "Unsere Marken",
+    "ingredients": "Inhaltsstoffe",
+    "about": "Über uns",
+    "announcements": "Ankündigungen",
+    "insights": "Insights",
+    "contact": "Kontakt",
+    "partnerLogin": "Partner-Login",
+    "forgotPassword": "Passwort vergessen",
+    "resetPassword": "Passwort zurücksetzen",
+    "healthPractitioners": "Medizinisches Fachpersonal",
+    "becomeRetailer": "Händler werden",
+    "retailerCheckIn": "Händler-Rückmeldung",
+    "catalog": "Produktkatalog",
+    "mapPolicy": "MAP-Richtlinie",
+    "privacyPolicy": "Datenschutzerklärung",
+    "accessibility": "Barrierefreiheit",
+    "dataRights": "Ihre Datenschutzrechte",
+    "terms": "Nutzungsbedingungen",
+    "erospain": "Erospain 2026",
+    "register": "Konto erstellen",
+    "announcement": "Ankündigung",
+    "notFound": "Seite nicht gefunden"
+  },
+  "notFound": {
+    "heading": "Seite nicht gefunden",
+    "body": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+    "backHome": "Zur Startseite"
+  },
+  "cooldown": {
+    "heading": "Bereits erhalten – vielen Dank.",
+    "submission_one": "Ihre Einsendung ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minute eine weitere senden.",
+    "submission_other": "Ihre Einsendung ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minuten eine weitere senden.",
+    "message_one": "Ihre Nachricht ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minute eine weitere senden.",
+    "message_other": "Ihre Nachricht ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minuten eine weitere senden.",
+    "application_one": "Ihre Bewerbung ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minute eine weitere senden.",
+    "application_other": "Ihre Bewerbung ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minuten eine weitere senden.",
+    "request_one": "Ihre Anfrage ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minute eine weitere senden.",
+    "request_other": "Ihre Anfrage ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minuten eine weitere senden.",
+    "checkIn_one": "Ihre Rückmeldung ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minute eine weitere senden.",
+    "checkIn_other": "Ihre Rückmeldung ist bereits bei uns eingegangen – unser Team kümmert sich darum. Sie können in etwa {{count}} Minuten eine weitere senden.",
+    "urgent": "Benötigen Sie in der Zwischenzeit dringend etwas? Schreiben Sie an <email>sales@sliquid.com</email>."
+  }
+}

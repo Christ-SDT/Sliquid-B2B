@@ -1,0 +1,83 @@
+{
+  "applyInstead": "Als Händler bewerben",
+  "gate": {
+    "eyebrow": "Sliquid-Partner",
+    "title": "Bevor wir beginnen: Führt Ihr Geschäft bereits Sliquid?",
+    "body": "Diese Seite ist nur für Partner, die uns bereits im Sortiment haben. Falls Sie uns noch nicht führen, sprechen wir trotzdem gern mit Ihnen – wir zeigen Ihnen das richtige Formular.",
+    "yes": "Ja – wir sind bereits Sliquid-Händler",
+    "no": "Noch nicht – wir möchten Händler werden"
+  },
+  "declined": {
+    "title": "Richten wir zuerst Ihr Konto ein",
+    "body": "Diese Seite ist für Geschäfte, die Sliquid bereits führen. Um Partner zu werden, genügt ein kurzes Formular – unser Vertriebsteam antwortet in der Regel innerhalb von 2–3 Werktagen.",
+    "back": "Doch, wir führen Sliquid – zurück"
+  },
+  "thanks": {
+    "title": "Vielen Dank – ist angekommen.",
+    "body": "Danke, dass Sie sich gemeldet haben, und danke für die Jahre, in denen Sie Sliquid in Ihren Regalen geführt haben. Ihr Ansprechpartner meldet sich in Kürze.",
+    "reference": "Ihre Referenznummer",
+    "done": "Fertig"
+  },
+  "hero": {
+    "eyebrow": "Für unsere aktuellen Partner",
+    "title": "Danke, dass Sie immer für uns da sind.",
+    "body": "Jede Flasche in Ihrem Regal ist eine Entscheidung für körperverträgliches intimes Wohlbefinden – und nach zwanzig Jahren ist genau das noch immer der Kern unseres Geschäfts. Das nehmen wir nicht auf die leichte Schulter.",
+    "newLook": "Wir haben das Erscheinungsbild von Sliquid und unsere Zusammenarbeit mit Ihnen erneuert. <bold>Wie gefällt Ihnen der neue Look?</bold> Sagen Sie es uns unten und lassen Sie uns wissen, was Sie als Nächstes von uns brauchen."
+  },
+  "brands": {
+    "heading": "Die Marken in Ihrem Regal",
+    "body": "Drei Marken, ein Standard. Jede Formel aller drei Marken folgt denselben Vorgaben für Körperverträglichkeit – ohne Glycerin, ohne Parabene, ohne Zuckerderivate.",
+    "visit": "{{name}} besuchen →"
+  },
+  "form": {
+    "heading": "Melden Sie sich bei uns",
+    "intro": "Nur drei Felder sind wirklich nötig – der Rest hilft uns, Ihnen schneller zu helfen.",
+    "company": "Name des Geschäfts / der Firma",
+    "name": "Ihr Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "pointOfContact": "Wer ist Ihr Ansprechpartner bei Sliquid?",
+    "selectContact": "Ansprechpartner wählen…",
+    "contactHelp": "Es gibt keine falsche Antwort – wenn Sie unsicher sind, wählen Sie die letzte Option, und wir leiten Sie weiter.",
+    "contacts": {
+      "michelle": "Michelle Marcus – VP Vertrieb",
+      "colin": "Colin Roy – Senior Vice President",
+      "erik": "Erik Vasquez – VP Marketing",
+      "distributor": "Mein Ansprechpartner beim Vertriebspartner",
+      "notSure": "Unsicher / Ich habe keinen"
+    },
+    "brandsCarried": "Welche Marken führen Sie?",
+    "interestsHeading": "Wie können wir Ihnen jetzt helfen?",
+    "interests": {
+      "reorder": "Nachbestellen / Bestellung aufgeben",
+      "launches": "Infos zu neuen Produkten & Markteinführungen",
+      "inStore": "Marketingmaterial für den Laden",
+      "training": "Mitarbeiterschulung & Zertifizierung",
+      "images": "Aktuelle Produktbilder und -texte",
+      "storeLocator": "Eintrag in der Händlersuche",
+      "pricing": "Frage zu MAP oder Preisen"
+    },
+    "feedbackHeading": "Wie gefällt Ihnen unser neuer Look?",
+    "feedback": {
+      "love": "Super",
+      "good": "Sieht gut aus",
+      "notYet": "Noch nicht angesehen",
+      "notes": "Ich habe Anmerkungen"
+    },
+    "comments": "Möchten Sie uns sonst noch etwas sagen?",
+    "commentsPlaceholder": "Feedback zum neuen Look, was sich gut verkauft, was wir anders machen sollten…",
+    "submit": "Rückmeldung senden",
+    "submitting": "Wird gesendet…"
+  },
+  "errors": {
+    "companyRequired": "Name des Geschäfts oder der Firma ist erforderlich.",
+    "nameRequired": "Ihr Name ist erforderlich.",
+    "emailInvalid": "Eine gültige E-Mail-Adresse ist erforderlich.",
+    "alreadyCheckedIn": "Sie haben sich kürzlich bereits gemeldet.",
+    "sendFailed": "Beim Senden Ihrer Rückmeldung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder schreiben Sie direkt an sales@sliquid.com."
+  },
+  "notRetailer": {
+    "title": "Hier gelandet, aber Sie führen Sliquid noch nicht?",
+    "body": "Vermutlich hat Ihnen jemand diesen Link weitergeleitet – und darüber freuen wir uns. Die Bewerbung als Händler oder Vertriebspartner dauert nur ein paar Minuten."
+  }
+}

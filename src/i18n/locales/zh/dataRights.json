@@ -1,0 +1,54 @@
+{
+  "header": {
+    "eyebrow": "GDPR",
+    "title": "您的数据权利",
+    "body": "根据《通用数据保护条例》(GDPR)，您有权访问我们所持有的关于您的个人数据，并有权要求删除这些数据。请使用以下表格行使上述任一权利。"
+  },
+  "holding": {
+    "heading": "我们如何保存您的数据",
+    "mailchimp": "Sliquid 使用 <bold>Mailchimp</bold>（由 The Rocket Science Group, LLC 运营）作为我们的电子邮件营销平台。当您通过我们的网站、展会或其他渠道注册接收我们的通讯时，您的姓名、电子邮件地址及相关偏好设置将存储在 Mailchimp 的系统中。Mailchimp 依据符合 GDPR 的数据处理协议代表我们处理这些数据。",
+    "database": "除 Mailchimp 外，我们还可能将提交的数据（例如零售商申请、联系表单内容和展位登记表）存储在托管于 Railway 基础设施上的自有安全数据库中，以便处理您的请求并保留同意记录。",
+    "noSale": "我们不会向任何第三方出售您的个人数据。详情请参阅我们的<cta>隐私政策</cta>。"
+  },
+  "tabs": {
+    "groupLabel": "请求类型",
+    "access": "申请获取我的数据",
+    "deletion": "申请删除"
+  },
+  "access": {
+    "heading": "申请访问您的数据",
+    "body": "根据 GDPR 第 15 条，您有权确认我们是否处理您的个人数据，并获取一份副本。我们将在 <bold>30 天</bold>内作出答复。您的请求还将转交给 Mailchimp，以检索其代表我们保存的任何数据。"
+  },
+  "deletion": {
+    "heading": "申请删除您的数据",
+    "body": "根据 GDPR 第 17 条（“被遗忘权”），您可以要求我们删除您的个人数据。我们将在 <bold>30 天</bold>内处理您的请求，并在完成后予以确认。",
+    "whatGetsDeleted": "<bold>将删除的内容：</bold>您的数据将从我们的 Mailchimp 受众和内部数据库中移除。请注意，出于法律或合同义务（例如订单记录），我们可能需要保留某些记录；如有此类情况，我们会告知您哪些数据无法删除及其原因。"
+  },
+  "form": {
+    "name": "姓名",
+    "email": "电子邮件地址",
+    "details": "补充信息",
+    "optional": "（选填）",
+    "accessPlaceholder": "请描述您希望访问的数据…",
+    "deletionPlaceholder": "关于您的删除请求的任何补充说明…",
+    "submitting": "正在提交…",
+    "submitAccess": "提交数据请求",
+    "submitDeletion": "提交删除请求"
+  },
+  "errors": {
+    "nameRequired": "请填写姓名。",
+    "emailInvalid": "请填写有效的电子邮件地址。",
+    "alreadyReceived": "我们已收到此请求。",
+    "generic": "出现问题，请重试。"
+  },
+  "success": {
+    "title": "已收到请求",
+    "access": "我们已收到您的数据访问请求，将依照 GDPR 第 15 条在 30 天内作出答复。",
+    "deletion": "我们已收到您的删除请求，将依照 GDPR 第 17 条在 30 天内处理，包括从 Mailchimp 和我们的系统中移除您的数据。",
+    "another": "提交其他请求"
+  },
+  "questions": {
+    "heading": "对您的数据有疑问？",
+    "body": "如果您对我们如何处理您的数据有疑问，或需要升级某项请求，请直接通过 <email>sales@sliquid.com</email> 与我们联系。您也有权向当地的数据保护机构提出投诉。"
+  }
+}

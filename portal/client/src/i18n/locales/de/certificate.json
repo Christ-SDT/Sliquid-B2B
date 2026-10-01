@@ -1,0 +1,34 @@
+{
+  "reward": {
+    "congrats": "Herzlichen Glückwunsch, {{name}}!",
+    "intro": "Für den Abschluss des Sliquid Certified Expert Course erhalten Sie ein <bold>kostenloses Sliquid-Produkt</bold> und ein <bold>T-Shirt</bold>. Füllen Sie die Angaben unten aus, und wir senden beides an Ihr Geschäft.",
+    "name": "Ihr Name",
+    "product": "Kostenloses Produkt Ihrer Wahl",
+    "productPlaceholder": "Zum Suchen tippen oder die Liste durchblättern…",
+    "productEmpty": "Keine passenden Produkte",
+    "productHelp": "Ein Sliquid-Produkt Ihrer Wahl – auf unsere Kosten.",
+    "shirtSize": "T-Shirt-Größe",
+    "shirtSizePlaceholder": "Größe wählen…",
+    "address": "Geschäftsadresse für die Lieferung",
+    "addressHelp": "Die Belohnungen werden an Ihre Geschäfts- oder Firmenadresse geschickt – bitte keine Privatadresse angeben.",
+    "street": "Straße und Hausnummer des Geschäfts",
+    "suite": "Zusatz, Etage (optional)",
+    "city": "Stadt",
+    "state": "Bundesland",
+    "zip": "PLZ",
+    "privacy": "Ihre Angaben werden <bold>ausschließlich für den Versand Ihrer Belohnungen an Ihr Geschäft</bold> verwendet und niemals verkauft, weitergegeben oder für andere Zwecke genutzt.",
+    "submit": "Absenden & Zertifikat ansehen",
+    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "panel": {
+    "loading": "Ihr Zertifikat wird abgerufen…",
+    "loadFailed": "Zertifikat konnte nicht geladen werden",
+    "recipient": "Empfänger",
+    "completed": "Abgeschlossen",
+    "certNumber": "Zertifikat-Nr.",
+    "status": "Status",
+    "verified": "✓ Bestätigt",
+    "building": "PDF wird erstellt…",
+    "download": "⬇  Zertifikat als PDF herunterladen"
+  }
+}

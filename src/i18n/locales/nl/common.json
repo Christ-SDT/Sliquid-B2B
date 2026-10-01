@@ -1,0 +1,102 @@
+{
+  "skipToContent": "Naar hoofdinhoud",
+  "language": {
+    "label": "Taal"
+  },
+  "brands": {
+    "sliquid": {
+      "tagline": "Het originele merk voor lichaamsveilige intimiteit",
+      "description": "Sliquid is sinds 2002 pionier in zuivere intieme wellness. Elke formule is vrij van glycerine en parabenen en gemaakt met lichaamsveilige ingrediënten, van het bestverkochte glijmiddel op waterbasis H2O tot onze bekroonde bad- en lichaamslijn. Met meer dan 100 SKU's aan glijmiddelen, reinigers en massageoliën is Sliquid de vertrouwde standaard voor detailhandelaars en zorgverleners wereldwijd.",
+      "imageAlt": "Sliquid H2O uit de Naturals-collectie van lichaamsveilige glijmiddelen"
+    },
+    "ride-lube": {
+      "tagline": "Producten met topprestaties voor mannen",
+      "description": "RIDE Lube is ontwikkeld voor prestaties. Het assortiment omvat formules op waterbasis, op siliconenbasis, hybride en speciale formules, elk ontworpen voor dikte, glijdend vermogen en uithoudingsvermogen met ingrediënten die geschikt zijn voor de gevoelige huid. RIDE Lube is inclusief vanaf het ontwerp, richt zich op een breed publiek, waaronder de LGBTQ+-gemeenschap, en biedt de T-Collection, speciaal ontwikkeld voor transgender personen. Een snellopende SKU voor erotiekwinkels die een trouwe, prestatiegerichte klantenkring zoeken.",
+      "imageAlt": "Groep RIDE Lube-glijmiddelen op waterbasis"
+    },
+    "ride-rocco": {
+      "tagline": "De gouden standaard in glijmiddel",
+      "description": "Ride Rocco is ontwikkeld in samenwerking met icoon uit de volwassenenindustrie Rocco Steele en is een premium glijmiddelcollectie die opvalt in het schap. Verkrijgbaar op waterbasis, op siliconenbasis en in de unieke hybride formule Seed. Elk product biedt het langdurige uithoudingsvermogen dat het publiek van Rocco verwacht, gemaakt volgens dezelfde lichaamsveilige normen als RIDE Lube. De verpakking met dubbele branding stimuleert impulsaankopen en verbindt detailhandelaars met een toegewijde, gepassioneerde fanbase die Rocco op alle platforms volgt.",
+      "imageAlt": "Ride Rocco-signaturecollectie glijmiddel op waterbasis"
+    }
+  },
+  "nav": {
+    "ourBrands": "Onze merken",
+    "ingredients": "Ingrediënten",
+    "about": "Over ons",
+    "announcements": "Nieuws",
+    "mapPolicy": "MAP-beleid",
+    "contact": "Contact",
+    "partnerPortal": "Partnerportaal",
+    "productCatalog": "Productcatalogus",
+    "healthPractitioners": "Zorgverleners"
+  },
+  "header": {
+    "homeLink": "Sliquid HQ-startpagina",
+    "mainNav": "Hoofdnavigatie",
+    "mobileNav": "Mobiele navigatie",
+    "openMenu": "Menu openen",
+    "closeMenu": "Menu sluiten",
+    "search": "Zoeken",
+    "searchPlaceholder": "Zoeken"
+  },
+  "footer": {
+    "logoAlt": "Sliquid-lotus",
+    "tagline": "Gezonder doen we samen. Sliquid zet zich in om detailhandelaars en zorgverleners wereldwijd de zuiverste en veiligste intieme producten te bieden.",
+    "quickLinks": "Snelle links",
+    "otherSites": "Andere sites",
+    "contactHeading": "Contact",
+    "about": "Over ons",
+    "careers": "Vacatures",
+    "contactUs": "Neem contact op ›",
+    "copyright": "Copyright © {{year}} Sliquid, LLC. Alle rechten voorbehouden.",
+    "accessibility": "Toegankelijkheid",
+    "dataRights": "Uw gegevensrechten",
+    "privacy": "Privacybeleid",
+    "terms": "Gebruiksvoorwaarden"
+  },
+  "titles": {
+    "home": "B2B-partnerportaal",
+    "ourBrands": "Onze merken",
+    "ingredients": "Ingrediënten",
+    "about": "Over ons",
+    "announcements": "Aankondigingen",
+    "insights": "Inzichten",
+    "contact": "Contact",
+    "partnerLogin": "Inloggen partners",
+    "forgotPassword": "Wachtwoord vergeten",
+    "resetPassword": "Wachtwoord herstellen",
+    "healthPractitioners": "Zorgverleners",
+    "becomeRetailer": "Word detailhandelaar",
+    "retailerCheckIn": "Check-in detailhandelaars",
+    "catalog": "Productcatalogus",
+    "mapPolicy": "MAP-beleid",
+    "privacyPolicy": "Privacybeleid",
+    "accessibility": "Toegankelijkheid",
+    "dataRights": "Uw gegevensrechten",
+    "terms": "Gebruiksvoorwaarden",
+    "erospain": "Erospain 2026",
+    "register": "Account aanmaken",
+    "announcement": "Aankondiging",
+    "notFound": "Pagina niet gevonden"
+  },
+  "notFound": {
+    "heading": "Pagina niet gevonden",
+    "body": "De pagina die u zoekt bestaat niet of is verplaatst.",
+    "backHome": "Terug naar home"
+  },
+  "cooldown": {
+    "heading": "Al ontvangen — bedankt.",
+    "submission_one": "We hebben uw inzending al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuut een nieuwe versturen.",
+    "submission_other": "We hebben uw inzending al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuten een nieuwe versturen.",
+    "message_one": "We hebben uw bericht al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuut een nieuw versturen.",
+    "message_other": "We hebben uw bericht al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuten een nieuw versturen.",
+    "application_one": "We hebben uw aanvraag al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuut een nieuwe versturen.",
+    "application_other": "We hebben uw aanvraag al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuten een nieuwe versturen.",
+    "request_one": "We hebben uw verzoek al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuut een nieuw versturen.",
+    "request_other": "We hebben uw verzoek al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuten een nieuw versturen.",
+    "checkIn_one": "We hebben uw check-in al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuut een nieuwe versturen.",
+    "checkIn_other": "We hebben uw check-in al ontvangen — ons team gaat ermee aan de slag. U kunt over ongeveer {{count}} minuten een nieuwe versturen.",
+    "urgent": "Heeft u in de tussentijd iets dringends nodig? Mail naar <email>sales@sliquid.com</email>."
+  }
+}

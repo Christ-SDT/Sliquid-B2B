@@ -1,0 +1,54 @@
+{
+  "header": {
+    "eyebrow": "DSGVO",
+    "title": "Ihre Datenschutzrechte",
+    "body": "Nach der Datenschutz-Grundverordnung (DSGVO) haben Sie das Recht, Auskunft über die personenbezogenen Daten zu erhalten, die wir über Sie speichern, und deren Löschung zu verlangen. Nutzen Sie die folgenden Formulare, um eines dieser Rechte auszuüben."
+  },
+  "holding": {
+    "heading": "Wie wir Ihre Daten speichern",
+    "mailchimp": "Sliquid nutzt <bold>Mailchimp</bold> (betrieben von The Rocket Science Group, LLC) als E-Mail-Marketing-Plattform. Wenn Sie sich über unsere Website, auf einer Messe oder über einen anderen Kanal für unsere Mitteilungen anmelden, werden Ihr Name, Ihre E-Mail-Adresse und zugehörige Präferenzen in den Systemen von Mailchimp gespeichert. Mailchimp verarbeitet diese Daten in unserem Auftrag auf Grundlage eines DSGVO-konformen Auftragsverarbeitungsvertrags.",
+    "database": "Zusätzlich zu Mailchimp können wir übermittelte Daten (etwa Händlerbewerbungen, Kontaktformulare und Messe-Anmeldungen) in unserer eigenen gesicherten Datenbank auf der Infrastruktur von Railway speichern, um Ihre Anfrage zu bearbeiten und einen Nachweis Ihrer Einwilligung zu führen.",
+    "noSale": "Wir verkaufen Ihre personenbezogenen Daten nicht an Dritte. Alle Einzelheiten finden Sie in unserer <cta>Datenschutzerklärung</cta>."
+  },
+  "tabs": {
+    "groupLabel": "Art der Anfrage",
+    "access": "Meine Daten anfordern",
+    "deletion": "Löschung beantragen"
+  },
+  "access": {
+    "heading": "Auskunft über Ihre Daten anfordern",
+    "body": "Nach Art. 15 DSGVO haben Sie das Recht auf eine Bestätigung, ob wir Ihre personenbezogenen Daten verarbeiten, und auf eine Kopie dieser Daten. Wir antworten innerhalb von <bold>30 Tagen</bold>. Ihre Anfrage wird außerdem an Mailchimp weitergeleitet, um dort in unserem Auftrag gespeicherte Daten abzurufen."
+  },
+  "deletion": {
+    "heading": "Löschung Ihrer Daten beantragen",
+    "body": "Nach Art. 17 DSGVO („Recht auf Vergessenwerden“) können Sie verlangen, dass wir Ihre personenbezogenen Daten löschen. Wir bearbeiten Ihre Anfrage innerhalb von <bold>30 Tagen</bold> und bestätigen Ihnen den Abschluss.",
+    "whatGetsDeleted": "<bold>Was gelöscht wird:</bold> Ihre Daten werden aus unserer Mailchimp-Zielgruppe und aus unserer internen Datenbank entfernt. Bitte beachten Sie, dass wir bestimmte Unterlagen aufgrund gesetzlicher oder vertraglicher Pflichten aufbewahren müssen (z. B. Bestellhistorie). In diesem Fall teilen wir Ihnen mit, was nicht gelöscht werden kann und warum."
+  },
+  "form": {
+    "name": "Vollständiger Name",
+    "email": "E-Mail-Adresse",
+    "details": "Weitere Angaben",
+    "optional": "(optional)",
+    "accessPlaceholder": "Beschreiben Sie, auf welche Daten Sie zugreifen möchten…",
+    "deletionPlaceholder": "Weitere Hinweise zu Ihrem Löschantrag…",
+    "submitting": "Wird gesendet…",
+    "submitAccess": "Datenanfrage senden",
+    "submitDeletion": "Löschantrag senden"
+  },
+  "errors": {
+    "nameRequired": "Der vollständige Name ist erforderlich.",
+    "emailInvalid": "Eine gültige E-Mail-Adresse ist erforderlich.",
+    "alreadyReceived": "Diese Anfrage liegt uns bereits vor.",
+    "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "success": {
+    "title": "Anfrage eingegangen",
+    "access": "Wir haben Ihre Anfrage auf Datenauskunft erhalten. Wir antworten gemäß Art. 15 DSGVO innerhalb von 30 Tagen.",
+    "deletion": "Wir haben Ihren Löschantrag erhalten. Wir bearbeiten ihn gemäß Art. 17 DSGVO innerhalb von 30 Tagen. Dazu gehört auch die Entfernung Ihrer Daten aus Mailchimp und unseren Systemen.",
+    "another": "Weitere Anfrage senden"
+  },
+  "questions": {
+    "heading": "Fragen zu Ihren Daten?",
+    "body": "Wenn Sie Fragen zur Verarbeitung Ihrer Daten haben oder eine Anfrage eskalieren möchten, kontaktieren Sie uns direkt unter <email>sales@sliquid.com</email>. Sie haben außerdem das Recht, Beschwerde bei Ihrer zuständigen Datenschutzaufsichtsbehörde einzulegen."
+  }
+}

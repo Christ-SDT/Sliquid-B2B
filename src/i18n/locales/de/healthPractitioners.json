@@ -1,0 +1,151 @@
+{
+  "hero": {
+    "eyebrow": "Programm für medizinische Partner",
+    "title": "Die Wellnessmarke, der Gesundheitsfachkräfte vertrauen",
+    "body": "Sliquid stattet Gesundheitsfachkräfte mit Ressourcen in klinischer Qualität, kostenlosen Patientenmustern und Informationsmaterial aus – damit Sie sicher Empfehlungen geben und dauerhaftes Vertrauen Ihrer Patienten im Bereich intimes Wohlbefinden aufbauen können.",
+    "cta": "Für das Programm bewerben"
+  },
+  "ingredients": {
+    "heading": "Inhaltsstoffe, denen Sie vertrauen können",
+    "body": "Jeder Inhaltsstoff wird nach klinischer Verträglichkeit ausgewählt. Kein Glycerin, keine Parabene, keine künstlichen Duftstoffe – nur saubere Formeln, sicher genug, um sie auch Ihren empfindlichsten Patienten zu empfehlen.",
+    "fullBreakdown": "Möchten Sie die vollständige Übersicht der Inhaltsstoffe? <cta>Alle Formulierungsstandards ansehen →</cta>",
+    "items": {
+      "purified-water": {
+        "name": "Gereinigtes Wasser",
+        "tag": "Basis",
+        "description": "Die Grundlage jeder wasserbasierten Formel. Gereinigt in unserem neunstufigen Umkehrosmose-Filtersystem einschließlich Entionisierung, dient es als reiner, schadstofffreier Träger für alle wasserlöslichen Inhaltsstoffe."
+      },
+      "aloe-vera": {
+        "name": "Organic Aloe Barbadensis Leaf Juice",
+        "tag": "Beruhigende Basis",
+        "description": "Direkt aus Aloe-vera-Blättern gewonnen, ist dieser von Natur aus gleitfähige und heilende Inhaltsstoff entzündungshemmend und pH-freundlich für empfindliche Schleimhäute."
+      },
+      "vitamin-e": {
+        "name": "Natürliche Tocopherole (Vitamin E)",
+        "tag": "Antioxidans",
+        "description": "Pflegt die Haut und wirkt antioxidativ. Verlängert die Haltbarkeit auf natürliche Weise und schützt empfindliches Gewebe, ohne dass synthetische Konservierungsstoffe nötig sind."
+      },
+      "citric-acid": {
+        "name": "Zitronensäure",
+        "tag": "pH-Regulator",
+        "description": "Stimmt jede Formel auf den natürlichen pH-Bereich des Körpers von 3,8 bis 4,5 ab. Wirkt als natürliches Antiseptikum und pH-Puffer – entscheidend für ein gesundes vaginales Mikrobiom."
+      },
+      "potassium-sorbate": {
+        "name": "Kaliumsorbat & Natriumbenzoat",
+        "tag": "Konservierungsmittel",
+        "description": "Zwei der sanftesten ungiftigen Konservierungsmittel überhaupt. Sie verlängern die Haltbarkeit und verhindern Verunreinigungen – ohne die mit Parabenen verbundenen Risiken hormoneller Störungen."
+      },
+      "plant-cellulose": {
+        "name": "Pflanzliche Cellulose",
+        "tag": "Natürliches Verdickungsmittel",
+        "description": "Aus Baumwolle gewonnen, vollständig vegan und glutenfrei. Sorgt für das seidige Gleiten, für das Sliquid bekannt ist – ohne synthetische Polymere oder petrochemische Derivate."
+      }
+    }
+  },
+  "imageAlt": "Sliquid-Produkte für intimes Wohlbefinden für Gesundheitsfachkräfte präsentiert",
+  "program": {
+    "heading": "Programmdetails",
+    "tabsLabel": "Programmdetails",
+    "tabRequirements": "Voraussetzungen",
+    "tabHow": "So funktioniert es",
+    "requirements": {
+      "professional": "Sie müssen eine nachweisbare medizinische Fachkraft oder Lehrkraft / Organisationsleitung an einer Hochschule mit aktueller Anstellung in einer etablierten Einrichtung sein. Dazu zählen auch studentische Vertreter von Hochschulorganisationen, die im Namen einer Hochschule handeln.",
+      "address": "Sie müssen eine nachweisbare Postanschrift angeben, die eindeutig der im Formular genannten medizinischen Einrichtung oder dem Hochschulcampus zugeordnet ist. Privatadressen und Postfächer werden nicht akzeptiert. Keine Ausnahmen.",
+      "international": "Bei Anfragen außerhalb der USA müssen die Versand- und Zollkosten für die kostenlose Musterlieferung selbst getragen werden.",
+      "onePerPractice": "Nur eine Anfrage pro Praxis oder Organisation. Doppelte Einsendungen werden ausgeschlossen."
+    },
+    "how": {
+      "approval": "Ihre Praxis oder Organisation MUSS alle genannten Voraussetzungen erfüllen. Nach erfolgreicher Prüfung Ihrer Angaben wird Ihre Praxis/Organisation für eine einmalige, kostenlose Lieferung von 100 Einmalmustern und Marketingmaterial freigegeben, das Ihren Patienten einen Rabattcode für unseren Shop bietet. Die Prüfung kann bis zu 6 Wochen dauern. Senden Sie NUR EINE ANFRAGE und warten Sie, bis sich unser Team bei Ihnen meldet. Sie werden in jedem Fall kontaktiert – ob Ihre Anfrage genehmigt oder abgelehnt wird.",
+      "shipping": "Der Versand innerhalb der USA ist kostenlos, muss von allen internationalen Partnern jedoch im Voraus bezahlt werden. Welche Formeln versendet werden, bestimmt Sliquid; Änderungen sind jederzeit möglich.",
+      "additional": "Bitte beachten Sie, dass NUR Ihre erste Lieferung von 100 Mustern kostenlos ist. Weitere Muster erhalten Sie zu einem speziellen Rabatt für medizinische Partner. Fragen Sie Ihren Sliquid-Ansprechpartner nach der Preisstruktur und dem Bestellformular.",
+      "shippingNote": "*Die Kosten für den internationalen Versand richten sich nach dem Zielort und dem zum Versandzeitpunkt gültigen Tarif des Transportunternehmens. Ein Sliquid-Ansprechpartner teilt internationalen Partnern diesen Tarif mit."
+    }
+  },
+  "gate": {
+    "title": "Bevor Sie sich bewerben",
+    "body": "Bitte bestätigen Sie, dass Ihre Praxis alle folgenden Voraussetzungen erfüllt. Einsendungen, die diese Kriterien nicht erfüllen, werden nicht bearbeitet.",
+    "accept": "Ich erfülle alle Voraussetzungen – weiter",
+    "decline": "Ich erfülle sie nicht",
+    "promptAria": "Voraussetzungen prüfen und Bewerbung beginnen",
+    "promptTitle": "Voraussetzungen vor der Bewerbung prüfen",
+    "promptBody": "Bitte bestätigen Sie vor dem Ausfüllen der Bewerbung, dass Ihre Praxis alle Programmvoraussetzungen erfüllt.",
+    "promptCta": "Voraussetzungen ansehen & Bewerbung beginnen",
+    "declined": "Danke, dass Sie die Voraussetzungen geprüft haben. Falls Ihre Praxis derzeit nicht teilnahmeberechtigt ist, <cta>kontaktieren Sie uns</cta> gern bei Fragen.",
+    "reviewAgain": "Voraussetzungen erneut prüfen"
+  },
+  "thanks": {
+    "title": "Vielen Dank für Ihre Anmeldung!",
+    "body": "Wir haben Ihre Bewerbung für das Sliquid-Programm für medizinische Partner erhalten. Ein Mitglied unseres Teams prüft Ihre Angaben und meldet sich – bitte rechnen Sie mit bis zu <bold>6 Wochen</bold> bis zu einer Antwort.",
+    "decision": "Sie werden in jedem Fall kontaktiert – ob Ihre Bewerbung genehmigt oder abgelehnt wird. Bitte senden Sie nicht mehr als eine Anfrage.",
+    "done": "Fertig"
+  },
+  "already": {
+    "title": "Sie haben sich bereits beworben",
+    "body": "Wir haben Ihre Bewerbung für das Programm für medizinische Partner erhalten und melden uns so schnell wie möglich. Eine weitere Anfrage ist nicht nötig."
+  },
+  "submittedPanel": {
+    "title": "Bewerbung eingereicht",
+    "body": "Wir haben Ihre Bewerbung für das Sliquid-Programm für medizinische Partner erhalten und melden uns so schnell wie möglich. Eine weitere Anfrage ist nicht nötig."
+  },
+  "form": {
+    "heading": "Bewerbung für das Programm für medizinische Partner",
+    "intro": "Füllen Sie das folgende Formular aus, um kostenlose Muster anzufordern und in unser Verzeichnis medizinischer Partner aufgenommen zu werden.",
+    "practiceLegend": "Angaben zu Ihrer Praxis",
+    "practiceType": "Art der Praxis",
+    "practiceTypes": {
+      "obgyn": "Gynäkologie",
+      "pelvicFloor": "Beckenbodentherapie",
+      "sexualHealth": "Sexuelle Gesundheit & Wohlbefinden",
+      "gp": "Allgemeinmedizin",
+      "other": "Sonstiges (bitte unten angeben)"
+    },
+    "specify": "Bitte angeben",
+    "specifyPlaceholder": "Beschreiben Sie die Art Ihrer Praxis",
+    "practiceName": "Name der Praxis",
+    "practiceAddress": "Adresse der Praxis",
+    "street": "Straße und Hausnummer",
+    "addressLine2": "Adresszusatz (Etage, Einheit usw.)",
+    "city": "Stadt",
+    "state": "Bundesland / Region",
+    "zip": "Postleitzahl",
+    "country": "Land",
+    "practicePhone": "Telefonnummer der Praxis",
+    "practiceWebsite": "Website der Praxis",
+    "contactLegend": "Ihre Kontaktdaten",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "relationship": "Ihre Funktion in der Praxis",
+    "relationshipPlaceholder": "z. B. Praxismanagement, Ärztin/Arzt, studentische Vertretung",
+    "contactPhone": "Telefonnummer",
+    "email": "E-Mail",
+    "preferredContact": "Bevorzugter Kontaktweg",
+    "contactMethods": {
+      "Email": "E-Mail",
+      "Phone": "Telefon",
+      "Either": "Beides"
+    },
+    "directory": "Möchten Sie Ihre Praxis auf der Seite der medizinischen Partner von Sliquid eintragen lassen?",
+    "yes": "Ja",
+    "no": "Nein",
+    "optIn": "Mit der Anforderung von Mustern stimme ich zu, im Rahmen des Programms für medizinische Partner E-Mail-Updates von Sliquid zu erhalten.",
+    "privacy": "Ihre Angaben werden ausschließlich zur Bearbeitung Ihrer Bewerbung und zum Versand Ihrer Muster verwendet. Sie werden niemals verkauft, weitergegeben oder für andere Zwecke genutzt.",
+    "submit": "Bewerbung senden",
+    "submitting": "Wird gesendet…"
+  },
+  "errors": {
+    "practiceTypeRequired": "Bitte wählen Sie die Art der Praxis aus.",
+    "practiceNameRequired": "Der Name der Praxis ist erforderlich.",
+    "streetRequired": "Straße und Hausnummer sind erforderlich.",
+    "cityRequired": "Stadt ist erforderlich.",
+    "stateRequired": "Bundesland / Region ist erforderlich.",
+    "zipRequired": "Postleitzahl ist erforderlich.",
+    "practicePhoneRequired": "Die Telefonnummer der Praxis ist erforderlich.",
+    "firstNameRequired": "Vorname ist erforderlich.",
+    "lastNameRequired": "Nachname ist erforderlich.",
+    "contactPhoneRequired": "Telefonnummer ist erforderlich.",
+    "emailInvalid": "Eine gültige E-Mail-Adresse ist erforderlich.",
+    "optInRequired": "Sie müssen dem Erhalt von E-Mails zum Programm für medizinische Partner zustimmen.",
+    "serverUnexpected": "Der Server hat einen unerwarteten Fehler gemeldet. Bitte versuchen Sie es erneut.",
+    "network": "Wir konnten unseren Server nicht erreichen. Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut – Ihre Angaben wurden noch nicht gesendet, Sie können sie also gefahrlos erneut absenden oder direkt an erik@sliquid.com schreiben."
+  }
+}

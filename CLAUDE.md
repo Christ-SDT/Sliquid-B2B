@@ -1783,7 +1783,10 @@ write, and that an unapproved primary never reaches the public catalog.
 
 ## Internationalization (i18n)
 
-Languages: **English (default), Spanish, French.** Stack: `i18next` + `react-i18next` +
+Languages: **English (default), Spanish, French, German, Dutch, Brazilian Portuguese,
+Simplified Chinese** (`en es fr de nl pt zh`). Portuguese is **Brazilian** and Chinese is
+**Simplified** — decided; `HTML_LANG` maps them to `pt-BR` / `zh-Hans` for `lang` attributes
+(clients and email `<html lang>`), and Intl uses `de-DE nl-NL pt-BR zh-CN`. Stack: `i18next` + `react-i18next` +
 `i18next-browser-languagedetector` + `i18next-resources-to-backend`, set up separately in each
 app (`src/i18n/` and `portal/client/src/i18n/`, near-identical copies — edit both).
 
@@ -1884,6 +1887,25 @@ app (`src/i18n/` and `portal/client/src/i18n/`, near-identical copies — edit b
   captions ✓, Phase 5 emails/notifications/errors ✓ (emails pending the EmailJS re-paste).
   Remaining English by design: legal pages, admin UI, DB/WordPress content, certificate PDF. Captivate SCORM quizzes can't be
   translated from code (text is compiled into `project.js`); they need per-language re-exports.
+
+### Adding a language (checklist)
+1. Add the code to `SUPPORTED_LANGUAGES` in **all three**: `src/i18n/index.ts`,
+   `portal/client/src/i18n/index.ts`, `portal/server/src/languages.ts`; plus `LANGUAGE_NAMES`
+   (its own name for itself), `HTML_LANG` (client ×2 + server), and the Intl maps
+   (`INTL_LOCALES` portal, `INTL_LOCALE` in `src/utils/date.ts` and server `languages.ts`).
+2. Copy every `locales/en/*.json` in both apps to the new language folder, then translate.
+3. Add `portal/server/src/email-copy/<lng>.ts` (typed `LanguageEmailCopy`) and register it in
+   `BY_LANGUAGE` in `emailCopy.ts`.
+4. YouTube captions: check the live player's `translationLanguages` code — it can differ from
+   ours (`zh` → `zh-Hans`); map it in `YT_CAPTION_CODE` in `lib/youtubeCaptions.ts`.
+5. Tests catch the rest: key parity, no empty strings, and a guard that **fails if a
+   language's file is still mostly English** (≥50% of strings identical) — both
+   `src/__tests__/i18n.test.ts` and `emailCopy.test.ts`. Never use a newly supported code as a
+   test's "unsupported language" example (`de` was, in three tests).
+- Inter has no CJK glyphs; both Tailwind `sans` stacks name the Simplified Chinese system fonts
+  (PingFang SC, Hiragino Sans GB, Microsoft YaHei, Noto Sans SC).
+- Email copy is **one file per language** in `portal/server/src/email-copy/` (en.ts is the
+  source of truth); `emailCopy.ts` assembles them, so translators never edit a shared file.
 
 ⚠️ Node 26 (this machine's default) ships an experimental global `localStorage` that shadows
 jsdom's and is undefined in tests; `src/__tests__/setup.ts` installs an in-memory shim when that

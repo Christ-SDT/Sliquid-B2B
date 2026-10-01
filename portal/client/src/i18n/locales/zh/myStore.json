@@ -1,0 +1,22 @@
+{
+  "title": "我的门店",
+  "subtitleCompany": "在 {{company}} 名下注册的成员",
+  "subtitle": "在您门店注册的成员",
+  "loadError": "门店成员加载失败",
+  "totalMembers": "成员总数",
+  "quizzesPassed": "已通过测验",
+  "avgPassed": "平均通过测验数",
+  "searchPlaceholder": "按姓名或电子邮件搜索…",
+  "searchLabel": "搜索成员",
+  "noMatch": "没有与您的搜索匹配的成员。",
+  "empty": "尚无成员注册。",
+  "table": {
+    "name": "姓名",
+    "email": "电子邮件",
+    "accountType": "账户类型",
+    "quizzesPassed": "已通过测验",
+    "joined": "加入时间"
+  },
+  "showing_one": "显示 {{shown}} / {{count}} 名成员",
+  "showing_other": "显示 {{shown}} / {{count}} 名成员"
+}

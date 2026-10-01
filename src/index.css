@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Long compound words (German/Dutch: "Feuchtigkeitsspender",
+ * "Einzelhandelsleitung") don't fit a 320px screen and pushed pages wider than
+ * the viewport (WCAG 1.4.10 Reflow). break-word only kicks in when a word
+ * cannot fit, so normal text — English included — is unaffected. Hyphenation
+ * is limited to de/nl so English rendering doesn't change; it relies on the
+ * correct <html lang>, which i18n keeps in step.
+ */
+@layer base {
+  body { overflow-wrap: break-word; }
+  :lang(de), :lang(nl) { hyphens: auto; -webkit-hyphens: auto; }
+}
+
 @layer base {
   html {
     @apply font-sans antialiased scroll-smooth;

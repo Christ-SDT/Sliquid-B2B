@@ -1,0 +1,22 @@
+{
+  "title": "Minha loja",
+  "subtitleCompany": "Membros cadastrados em {{company}}",
+  "subtitle": "Membros cadastrados na sua loja",
+  "loadError": "Não foi possível carregar os membros da loja",
+  "totalMembers": "Total de membros",
+  "quizzesPassed": "Questionários aprovados",
+  "avgPassed": "Média de questionários aprovados",
+  "searchPlaceholder": "Pesquise por nome ou e-mail…",
+  "searchLabel": "Pesquisar membros",
+  "noMatch": "Nenhum membro corresponde à sua pesquisa.",
+  "empty": "Ainda não há membros cadastrados.",
+  "table": {
+    "name": "Nome",
+    "email": "E-mail",
+    "accountType": "Tipo de conta",
+    "quizzesPassed": "Questionários aprovados",
+    "joined": "Cadastro"
+  },
+  "showing_one": "{{shown}} de {{count}} membro",
+  "showing_other": "{{shown}} de {{count}} membros"
+}

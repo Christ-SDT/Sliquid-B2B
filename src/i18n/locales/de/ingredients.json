@@ -1,0 +1,149 @@
+{
+  "hero": {
+    "eyebrow": "Formulierungsstandards",
+    "title": "Inhaltsstoffe, denen Sie vertrauen können",
+    "body": "Wir legen an unsere Formulierungen einen höheren Maßstab an. Keine schädlichen Zusätze, keine Abkürzungen, keine Kompromisse. Hier sehen Sie genau, was das bedeutet."
+  },
+  "philosophy": {
+    "title": "Unsere Philosophie bei den Inhaltsstoffen",
+    "p1": "Sliquid wurde mit der Überzeugung gegründet, dass Intimprodukte genauso sauber und sicher sein sollten wie jedes andere Produkt, das Sie auf Ihren Körper auftragen. 2002 hieß das, gegen den Branchenstandard zu handeln und auf Glycerin, Parabene und künstliche Duftstoffe zu verzichten – zu einer Zeit, als sie allgegenwärtig waren.",
+    "p2": "Unsere Philosophie bei den Inhaltsstoffen ist bis heute unverändert. Wir beziehen hochwertigste natürliche und biologische Inhaltsstoffe, unterziehen jede Formel strengen Tests und geben jeden Bestandteil auf dem Etikett an – ohne Ausnahme."
+  },
+  "standards": {
+    "title": "Wofür wir stehen",
+    "items": {
+      "glycerin-free": {
+        "title": "Glycerinfrei",
+        "description": "Keine unserer Formeln enthält Glycerin, das Hefepilze nähren und das pH-Gleichgewicht stören kann."
+      },
+      "paraben-free": {
+        "title": "Parabenfrei",
+        "description": "Wir verwenden niemals Parabene, eine Gruppe synthetischer Konservierungsstoffe, die mit hormonellen Störungen in Verbindung gebracht werden."
+      },
+      "body-safe": {
+        "title": "Körperverträglich",
+        "description": "Jede Formulierung ist auf den pH-Wert des Körpers abgestimmt und auf Hypoallergenität für empfindliche Haut getestet."
+      },
+      "vegan": {
+        "title": "Vegan & tierversuchsfrei",
+        "description": "Keine tierischen Inhaltsstoffe und niemals Tierversuche."
+      },
+      "made-in-usa": {
+        "title": "Hergestellt in den USA",
+        "description": "Jedes Sliquid-Produkt wird in den USA entwickelt und hergestellt – für gleichbleibende Qualität und Kontrolle von Anfang bis Ende."
+      },
+      "transparent": {
+        "title": "Volle Transparenz",
+        "description": "Jeder Inhaltsstoff jeder Formel wird offengelegt. Keine versteckten Duftstoffe, keine unbekannten Verbindungen."
+      }
+    }
+  },
+  "key": {
+    "eyebrow": "Was drin ist",
+    "title": "Unsere wichtigsten Inhaltsstoffe",
+    "intro": "Jeder Inhaltsstoff wird gezielt nach seiner Funktion in der Formulierung ausgewählt. Nachfolgend ein Überblick über die zentralen Bestandteile unserer Produkte und ihre jeweiligen Vorteile.",
+    "items": {
+      "purified-water": {
+        "name": "Gereinigtes Wasser",
+        "tag": "Basis",
+        "description": "Die Grundlage aller wasserbasierten Formeln. Gereinigt in unserem neunstufigen Umkehrosmose-Filtersystem einschließlich Entionisierung, macht es etwa 96 % von Naturals H2O aus und dient als reiner Träger für jede wasserlösliche Formel."
+      },
+      "aloe-vera": {
+        "name": "Aloe Barbadensis Leaf Juice",
+        "tag": "Basis",
+        "description": "Der Basisinhaltsstoff der Organics-Linie, gewonnen direkt aus den Blättern der Aloe-vera-Pflanze. Von Natur aus gleitfähig und heilend, wird sie seit Jahrhunderten zur Beruhigung und zum Schutz der Haut verwendet. Entzündungshemmend und pH-freundlich für empfindliches Gewebe."
+      },
+      "plant-cellulose": {
+        "name": "Pflanzliche Cellulose",
+        "tag": "Verdickungsmittel",
+        "description": "Ein natürliches, veganes und glutenfreies Verdickungsmittel. Es sorgt für das typische seidige Gleiten und eine glatte Konsistenz ohne synthetische Polymere."
+      },
+      "agar-agar": {
+        "name": "Agar-Agar",
+        "tag": "Verdickungsmittel",
+        "description": "Agar-Agar wird aus Rotalgen gewonnen und ist ein natürlich vorkommender pflanzlicher Stoff, der dem Gleitmittel seine Viskosität verleiht. Eine saubere Alternative aus Meeresalgen zu synthetischen Geliermitteln."
+      },
+      "guar-gum": {
+        "name": "Guarkernmehl (Cyamopsis)",
+        "tag": "Stabilisator",
+        "description": "Dieser ungiftige natürliche Zusatz aus der Guarbohne sorgt dafür, dass sich die pflanzlichen Cellulosefasern bewegen und sich besonders gleitfähig anfühlen, und stabilisiert zugleich die gesamte Formel."
+      },
+      "vitamin-e": {
+        "name": "Natürliche Tocopherole (Vitamin E)",
+        "tag": "Antioxidans",
+        "description": "Eine natürliche Feuchtigkeitspflege und ein starkes Antioxidans. Pflegt die Haut, verlängert die Haltbarkeit ohne synthetische Konservierungsstoffe und bildet eine feine Schutzbarriere für empfindliche Schleimhäute."
+      },
+      "flax-extract": {
+        "name": "Leinsamenextrakt",
+        "tag": "Feuchtigkeitsspender",
+        "description": "In den Sliquid Organics-Formeln als pflanzlicher Feuchtigkeitsspender und regenerierender Weichmacher eingesetzt. Reich an Omega-Fettsäuren, hilft er, die Elastizität der Haut wiederherzustellen, und unterstützt eine langanhaltende Feuchtigkeit."
+      },
+      "hibiscus": {
+        "name": "Hibiskusextrakt",
+        "tag": "Weichmacher",
+        "description": "In Sliquid Organics als regenerierender und heilender Weichmacher enthalten. Hibiskus ist dafür bekannt, der Haut Elastizität und Geschmeidigkeit zurückzugeben – besonders wohltuend für empfindliches oder gereiztes Gewebe."
+      },
+      "green-tea": {
+        "name": "Grüntee-Extrakt",
+        "tag": "Entzündungshemmend",
+        "description": "Ein pflanzlicher Entzündungshemmer in der Inhaltsstoffliste von Organics. Grüntee-Extrakt hilft, Reizungen zu beruhigen, wirkt antioxidativ und schützt empfindliche Haut zusätzlich vor Umweltbelastungen."
+      },
+      "sunflower-seed": {
+        "name": "Sonnenblumenkernextrakt",
+        "tag": "Hauttonikum",
+        "description": "In Sliquid Organics als sanft reinigendes und beruhigendes Tonikum eingesetzt. Sonnenblumenkernextrakt ist reich an Vitaminen und Fettsäuren, die die Haut nähren und beruhigen, ohne ihre natürliche Barriere zu stören."
+      },
+      "citric-acid": {
+        "name": "Zitronensäure",
+        "tag": "pH-Puffer",
+        "description": "In allen wasserbasierten Sliquid-Produkten enthalten. Eine milde organische Säure aus der Maniokwurzel, mit der der pH-Wert jeder Formel an den natürlichen Bereich des Körpers angepasst wird. Sie wirkt als natürliches Antiseptikum und pH-Puffer und verlängert zusammen mit Kaliumsorbat sicher die Haltbarkeit."
+      },
+      "potassium-sorbate": {
+        "name": "Kaliumsorbat & Natriumbenzoat",
+        "tag": "Konservierungsmittel",
+        "description": "Sanfte, körperverträgliche, ungiftige und nicht reizende Konservierungsmittel, die häufig in Kosmetik- und Lebensmittelprodukten verwendet werden. Gemeinsam eingesetzt, unterstützen sie die Haltbarkeit und wirken Bakterien und Schimmel aus der Umgebung entgegen."
+      },
+      "dimethicone": {
+        "name": "Cyclopentasiloxane, Dimethicone & Dimethiconol",
+        "tag": "Gleitwirkung",
+        "description": "Unsere eigene Silikonmischung – inert, nicht absorbierbar und hypoallergen. Sie bietet extrem langanhaltende Gleitfähigkeit und wasserabweisende Eigenschaften. Mit Latex verträglich, jedoch nicht mit Silikonspielzeug."
+      }
+    }
+  },
+  "avoided": {
+    "eyebrow": "Ein klares Nein",
+    "title": "Inhaltsstoffe, die wir nie verwenden – und warum",
+    "intro": "Zu wissen, was nicht in einem Produkt steckt, ist genauso wichtig wie zu wissen, was drin ist. Diese Inhaltsstoffe finden sich am häufigsten in Konkurrenzprodukten – Sliquid verzichtet bewusst darauf.",
+    "items": {
+      "glycerin": {
+        "name": "Glycerin",
+        "reason": "Ein Zuckeralkohol, der Candida-Hefepilze nähren und das vaginale Mikrobiom stören kann, wodurch das Infektionsrisiko steigt. In den meisten Massenmarkt-Gleitmitteln enthalten, in keiner Sliquid-Formel."
+      },
+      "parabens": {
+        "name": "Parabene",
+        "reason": "Synthetische Konservierungsstoffe (Methylparaben, Propylparaben usw.), die als Xenoöstrogene wirken und im Körper Östrogen nachahmen. Sie werden mit hormonellen Störungen in Verbindung gebracht und wurden in mehreren Studien in Brusttumorgewebe nachgewiesen."
+      },
+      "propylene-glycol": {
+        "name": "Propylenglykol",
+        "reason": "Ein gängiges Lösungs- und Feuchthaltemittel, das bei empfindlichen Personen Kontaktdermatitis und Reizungen verursachen kann."
+      },
+      "nonoxynol-9": {
+        "name": "Nonoxinol-9",
+        "reason": "Ein spermizides Tensid, das bei wiederholter Anwendung das Vaginalepithel angreifen und die Anfälligkeit für sexuell übertragbare Infektionen erhöhen kann. Früher Standard in Gleitmitteln für „Safer Sex“, wird es heute von Gesundheitsfachkräften weitgehend abgelehnt."
+      },
+      "benzocaine": {
+        "name": "Benzocain / Betäubungsmittel",
+        "reason": "Lokalanästhetika überdecken Schmerzsignale, die das Gewebe vor Verletzungen schützen sollen. Sliquid verwendet in keinem Gleitmittel desensibilisierende Wirkstoffe."
+      },
+      "artificial-fragrance": {
+        "name": "Künstliche Duftstoffe",
+        "reason": "Synthetische Düfte können unnötig aggressiv sein, besonders für empfindliche Haut. Deshalb halten wir unsere Produkte so sanft und körperbewusst wie möglich. Mit sauberen, unkomplizierten Inhaltsstoffen sorgen wir für ein natürlicheres Erlebnis, das den Körper unterstützt, statt ihn zu überfordern."
+      }
+    }
+  },
+  "cta": {
+    "title": "Brauchen Sie Hilfe bei der Auswahl der passenden Formeln für Ihre Kunden?",
+    "body": "Unser B2B-Team führt Sie durch das gesamte Sortiment aus wasserbasierten, silikonbasierten und Hybridformeln und empfiehlt Ihnen die richtigen Artikel für Ihren Einzelhandel, Vertrieb oder klinischen Bedarf.",
+    "button": "Mit unserem Team sprechen"
+  }
+}

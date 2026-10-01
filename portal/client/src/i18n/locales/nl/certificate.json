@@ -1,0 +1,34 @@
+{
+  "reward": {
+    "congrats": "Gefeliciteerd, {{name}}!",
+    "intro": "U heeft een <bold>gratis Sliquid-product</bold> en een <bold>T-shirt</bold> verdiend voor het voltooien van de Sliquid Certified Expert-cursus. Vul hieronder de gegevens in, dan sturen wij ze naar uw winkel.",
+    "name": "Uw naam",
+    "product": "Gratis product naar keuze",
+    "productPlaceholder": "Typ om te zoeken of scrol door de lijst…",
+    "productEmpty": "Geen producten gevonden",
+    "productHelp": "Eén Sliquid-product naar keuze, van ons.",
+    "shirtSize": "T-shirtmaat",
+    "shirtSizePlaceholder": "Kies een maat…",
+    "address": "Winkellocatie voor levering",
+    "addressHelp": "Beloningen worden naar uw winkel- of bedrijfsadres verzonden — gebruik geen thuisadres.",
+    "street": "Straat en huisnummer van de winkel",
+    "suite": "Unit, verdieping (optioneel)",
+    "city": "Plaats",
+    "state": "Staat/provincie",
+    "zip": "Postcode",
+    "privacy": "Uw gegevens worden <bold>uitsluitend gebruikt om uw beloningen naar uw winkellocatie te verzenden</bold> en worden nooit verkocht, gedeeld of voor een ander doel gebruikt.",
+    "submit": "Verzenden en certificaat bekijken",
+    "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "panel": {
+    "loading": "Uw certificaat wordt opgehaald…",
+    "loadFailed": "Certificaat kon niet worden geladen",
+    "recipient": "Ontvanger",
+    "completed": "Voltooid",
+    "certNumber": "Certificaatnr.",
+    "status": "Status",
+    "verified": "✓ Geverifieerd",
+    "building": "PDF wordt gemaakt…",
+    "download": "⬇  Certificaat downloaden (PDF)"
+  }
+}

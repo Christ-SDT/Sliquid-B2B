@@ -1,0 +1,33 @@
+{
+  "notFound": "Quiz nicht gefunden.",
+  "backToTraining": "← Zurück zur digitalen Schulung",
+  "breadcrumb": "Digitale Schulung",
+  "video": {
+    "skip": "Zum Quiz",
+    "watchOr": "Sehen Sie sich das ganze Video an, oder",
+    "start": "Quiz starten"
+  },
+  "quiz": {
+    "watchVideo": "Video ansehen",
+    "passScore": "Bestehen: {{score}} %"
+  },
+  "modal": {
+    "title": "{{title}} – Schulungsvideo",
+    "close": "Video schließen"
+  },
+  "finish": {
+    "close": "Schließen",
+    "passedTitle": "Schulung abgeschlossen!",
+    "failedTitle": "Weiter üben",
+    "passedBody": "Sie haben diese Schulung bestanden. Sehr gut!",
+    "failedBody": "Zum Bestehen sind {{score}} % erforderlich. Versuchen Sie es noch einmal!",
+    "score": "Ergebnis",
+    "saving": "Ergebnis wird gespeichert…",
+    "emailSent": "Eine Bestätigung wurde an {{email}} gesendet.",
+    "next": "Zum nächsten Modul",
+    "done": "Fertig",
+    "backToTrainings": "Zurück zu den Schulungen",
+    "tryAgain": "Erneut versuchen",
+    "rewatch": "Video erneut ansehen"
+  }
+}

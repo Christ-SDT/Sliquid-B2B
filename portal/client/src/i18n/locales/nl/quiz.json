@@ -1,0 +1,33 @@
+{
+  "notFound": "Quiz niet gevonden.",
+  "backToTraining": "← Terug naar Digitale training",
+  "breadcrumb": "Digitale training",
+  "video": {
+    "skip": "Naar de quiz",
+    "watchOr": "Bekijk de volledige video, of",
+    "start": "Quiz starten"
+  },
+  "quiz": {
+    "watchVideo": "Video bekijken",
+    "passScore": "Geslaagd: {{score}}%"
+  },
+  "modal": {
+    "title": "{{title}} — trainingsvideo",
+    "close": "Video sluiten"
+  },
+  "finish": {
+    "close": "Sluiten",
+    "passedTitle": "Training voltooid!",
+    "failedTitle": "Blijf oefenen",
+    "passedBody": "U bent geslaagd voor deze training. Goed gedaan!",
+    "failedBody": "Een score van {{score}}% is nodig om te slagen. Probeer het nog eens!",
+    "score": "Score",
+    "saving": "Resultaat opslaan…",
+    "emailSent": "Er is een bevestigingsmail verzonden naar {{email}}.",
+    "next": "Naar volgende module",
+    "done": "Klaar",
+    "backToTrainings": "Terug naar trainingen",
+    "tryAgain": "Opnieuw proberen",
+    "rewatch": "Video opnieuw bekijken"
+  }
+}

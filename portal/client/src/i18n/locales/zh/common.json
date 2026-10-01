@@ -1,0 +1,96 @@
+{
+  "skipToContent": "跳至主要内容",
+  "language": {
+    "label": "语言"
+  },
+  "roles": {
+    "tier1": "零售门店员工",
+    "tier2": "零售管理人员",
+    "tier3": "经销商",
+    "tier4": "潜在客户",
+    "tier5": "管理员",
+    "tier6": "医疗合作伙伴",
+    "tier7": "媒体",
+    "tier8": "法务（只读）"
+  },
+  "time": {
+    "justNow": "刚刚"
+  },
+  "nav": {
+    "dashboard": "仪表板",
+    "announcements": "公告",
+    "assets": "资源库",
+    "distributors": "经销商",
+    "trainings": "数字培训",
+    "creator": "AI 创作工具",
+    "retailer": "店内营销",
+    "medicalMarketing": "医疗营销",
+    "requests": "合作伙伴申请",
+    "marketingRequests": "营销申请",
+    "media": "媒体库",
+    "users": "用户管理",
+    "gdprRequests": "GDPR 请求",
+    "manageAnnouncements": "管理公告"
+  },
+  "sidebar": {
+    "logoAlt": "Sliquid 莲花标志",
+    "brand": "合作伙伴门户",
+    "closeMenu": "关闭菜单",
+    "readOnly": "只读权限——您可以查看此处的所有内容，但无法进行更改。",
+    "signOut": "退出登录"
+  },
+  "theme": {
+    "wellnessMode": "健康模式",
+    "toggle": "切换主题"
+  },
+  "topbar": {
+    "openMenu": "打开菜单",
+    "notifications": "通知",
+    "markAllRead": "全部标为已读",
+    "empty": "暂无通知",
+    "account": "账户菜单",
+    "adminTools": "管理工具",
+    "admin": {
+      "products": "产品",
+      "inventory": "库存",
+      "invoices": "发票",
+      "analytics": "数据分析",
+      "referenceGallery": "参考图库",
+      "myStore": "我的门店",
+      "serverLogs": "服务器日志"
+    },
+    "newCount_one": "{{count}} 条新通知",
+    "newCount_other": "{{count}} 条新通知"
+  },
+  "titles": {
+    "dashboard": "仪表板",
+    "announcements": "公告",
+    "announcement": "公告详情",
+    "manageAnnouncements": "管理公告",
+    "products": "产品",
+    "assets": "产品库",
+    "inventory": "库存",
+    "invoices": "发票",
+    "stats": "统计",
+    "distributors": "经销商",
+    "retailer": "营销物料",
+    "trainings": "培训",
+    "quiz": "培训测验",
+    "users": "用户",
+    "requests": "合作伙伴申请",
+    "marketingRequests": "营销申请",
+    "storeUsers": "我的门店",
+    "creator": "创作工具",
+    "media": "媒体",
+    "referenceGallery": "参考图库",
+    "logs": "日志",
+    "medicalMarketing": "医疗营销",
+    "gdprRequests": "GDPR 请求",
+    "login": "登录",
+    "employeeLogin": "员工登录",
+    "register": "创建账户",
+    "forgotPassword": "忘记密码",
+    "resetPassword": "重置密码",
+    "verify": "验证证书"
+  }
+}
