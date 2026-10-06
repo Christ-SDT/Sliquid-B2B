@@ -120,3 +120,21 @@ describe('public forms', () => {
     expect(p.t_subject).toMatch(/^Merci pour votre suivi, Anne — SRC-\d{4}$/)
   })
 })
+
+describe('in-store marketing request (admin email)', () => {
+  it('carries the ship-to name and the address typed on the form', async () => {
+    const { id: userId } = db.prepare("SELECT id FROM users WHERE email = 'tier2@test.com'").get() as { id: number }
+    const address = '123 Main St\nSuite 4\nDallas, TX 75201'
+    const res = await request(app)
+      .post('/api/retailer/apply')
+      .set('Authorization', bearerToken(userId, 'tier2'))
+      .send({ contact_name: 'Jamie Receiver', business_name: 'Demo Store', address, requested_items: 'Retractable Banner' })
+    expect(res.status).toBe(201)
+
+    const p = await paramsFor('portal_marketing_admin')
+    expect(p.ship_to_name).toBe('Jamie Receiver')
+    // Line breaks are kept — the template renders them with white-space: pre-line.
+    expect(p.shipping_address).toBe(address)
+    expect(p.requested_items).toBe('Retractable Banner')
+  })
+})

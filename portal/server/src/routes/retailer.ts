@@ -28,13 +28,15 @@ router.post('/apply', requireAuth, (req, res) => {
     'marketing_request',
     'New Marketing Request',
     `${contact_name} (${business_name}) submitted a request: ${requested_items}`,
-    '/users',
+    '/marketing-requests',
   )
 
   sendMarketingRequestEmails({
     name: req.user!.name,
     email: req.user!.email,
     company: business_name,
+    shipToName: contact_name,
+    shippingAddress: address,
     requestedItems: requested_items,
     notes: request_notes ?? '',
     language: preferredLanguageOf(req.user!.id),

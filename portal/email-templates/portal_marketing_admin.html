@@ -7,7 +7,8 @@
 </head>
 <!--
   Template ID : portal_marketing_admin
-  Variables   : {{user_name}}, {{user_email}}, {{company}}, {{requested_items}}, {{notes}}
+  Variables   : {{user_name}}, {{user_email}}, {{company}}, {{ship_to_name}}, {{shipping_address}},
+                {{requested_items}}, {{notes}}
   Recipient   : admin (to_email hardcoded in EmailJS template settings)
 -->
 <body style="margin:0;padding:0;background-color:#f7efe3;font-family:Inter,Arial,sans-serif;">
@@ -69,6 +70,19 @@
                 </tr>
               </table>
 
+              <!-- Ship to — the name + address typed on the request form. pre-line keeps
+                   the line breaks the partner entered in the multi-line address box. -->
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#a08060;">Ship To</p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;border:1px solid #ddc9ae;border-radius:8px;">
+                <tr>
+                  <td style="padding:16px 20px;background-color:#fefaf4;border-radius:8px;">
+                    <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#2c1a0a;">{{ship_to_name}}</p>
+                    <p style="margin:0 0 4px;font-size:14px;color:#2c1a0a;">{{company}}</p>
+                    <p style="margin:0;font-size:14px;color:#2c1a0a;line-height:1.7;white-space:pre-line;">{{shipping_address}}</p>
+                  </td>
+                </tr>
+              </table>
+
               <!-- Requested items -->
               <p style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#a08060;">Requested Items</p>
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;border:1px solid #ddc9ae;border-radius:8px;">
@@ -93,7 +107,7 @@
               <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="background-color:#0A84C0;border-radius:6px;">
-                    <a href="https://portal.sliquid.com/users" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">View in Portal →</a>
+                    <a href="https://portal.sliquid.com/marketing-requests" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">View in Portal →</a>
                   </td>
                 </tr>
               </table>

@@ -73,6 +73,15 @@ function matchesSearch(r: MarketingRequest, q: string): boolean {
   )
 }
 
+// Reward claims have their own shape, so they need their own matcher — the
+// Rewards tab used to receive the unfiltered list and ignore the search box.
+function matchesRewardSearch(r: RewardClaim, q: string): boolean {
+  if (!q) return true
+  const s = q.toLowerCase()
+  return [r.full_name, r.email, r.product, r.certificate_number, r.address1, r.city, r.state, r.zip]
+    .some(v => (v ?? '').toLowerCase().includes(s))
+}
+
 const STATUS_BADGE: Record<string, string> = {
   pending:  'bg-amber-500/15 text-amber-400 border border-amber-500/30',
   approved: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
@@ -244,11 +253,14 @@ function RewardsList({
   loading,
   onToggle,
   canEdit,
+  searching,
 }: {
   rewards: RewardClaim[]
   loading: boolean
   onToggle: (id: number, fulfilled: boolean) => void
   canEdit: boolean
+  /** True when the list is narrowed by the page's search box (changes the empty-state copy). */
+  searching: boolean
 }) {
   const [expanded, setExpanded] = useState<number | null>(null)
   const [toggling, setToggling] = useState<number | null>(null)
@@ -303,7 +315,8 @@ function RewardsList({
         <div className="p-10 text-center">
           <GraduationCap className="w-8 h-8 text-on-canvas-muted/30 mx-auto mb-3" />
           <p className="text-on-canvas-muted text-sm">
-            {rewards.length === 0 ? 'No reward claims submitted yet.' : `No ${rewardFilter} reward claims.`}
+            {searching ? 'No reward claims match your search.'
+              : rewards.length === 0 ? 'No reward claims submitted yet.' : `No ${rewardFilter} reward claims.`}
           </p>
         </div>
       ) : (
@@ -521,6 +534,12 @@ export default function MarketingRequestsPage() {
 
   const visibleRequests = applyFilters(requests, activeTab === 'medical' || activeTab === 'rewards' ? undefined : activeTab)
   const visibleMedical  = applyFilters(medicalRequests)
+  const visibleRewards  = rewards
+    .filter(r => matchesRewardSearch(r, search))
+    .sort((a, b) => {
+      const diff = new Date(a.submitted_at).getTime() - new Date(b.submitted_at).getTime()
+      return filterSort === 'newest' ? -diff : diff
+    })
 
   const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
     { key: 'pending',  label: 'Pending',  icon: <Clock className="w-3.5 h-3.5" /> },
@@ -582,7 +601,10 @@ export default function MarketingRequestsPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted pointer-events-none" />
           <input
             type="text"
-            placeholder="Search by name, business, practice, or email…"
+            placeholder={activeTab === 'rewards'
+              ? 'Search by name, email, product, certificate #, or city…'
+              : 'Search by name, business, practice, or email…'}
+            aria-label="Search requests"
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-surface border border-portal-border
@@ -591,21 +613,25 @@ export default function MarketingRequestsPage() {
           />
         </div>
 
-        <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-canvas-muted pointer-events-none" />
-          <select
-            value={filterStatus}
-            onChange={e => setFilterStatus(e.target.value)}
-            className="pl-8 pr-8 py-2.5 rounded-xl bg-surface border border-portal-border
-                       text-on-canvas text-sm focus:outline-none focus:border-portal-accent
-                       transition-colors appearance-none cursor-pointer"
-          >
-            <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="declined">Declined</option>
-          </select>
-        </div>
+        {/* Rewards have their own Pending/Completed pills; this filter doesn't apply there. */}
+        {activeTab !== 'rewards' && (
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-canvas-muted pointer-events-none" />
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
+              aria-label="Filter by status"
+              className="pl-8 pr-8 py-2.5 rounded-xl bg-surface border border-portal-border
+                         text-on-canvas text-sm focus:outline-none focus:border-portal-accent
+                         transition-colors appearance-none cursor-pointer"
+            >
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="declined">Declined</option>
+            </select>
+          </div>
+        )}
 
         <select
           value={filterSort}
@@ -622,7 +648,7 @@ export default function MarketingRequestsPage() {
       {/* Requests list */}
       <div className="bg-surface border border-portal-border rounded-xl overflow-hidden">
         {activeTab === 'rewards' ? (
-          <RewardsList rewards={rewards} loading={rewardsLoading} onToggle={handleToggleFulfilled} canEdit={canEdit} />
+          <RewardsList rewards={visibleRewards} loading={rewardsLoading} onToggle={handleToggleFulfilled} canEdit={canEdit} searching={!!search} />
         ) : activeTab === 'medical' ? (
           <RequestList
             requests={visibleMedical}

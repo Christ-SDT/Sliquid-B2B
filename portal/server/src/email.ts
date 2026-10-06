@@ -210,11 +210,14 @@ export async function sendMarketingRequestEmails(opts: {
   name: string
   email: string
   company: string
+  /** Name and address typed on the request form — where the materials ship. */
+  shipToName: string
+  shippingAddress: string
   requestedItems: string
   notes: string
   language?: Language
 }): Promise<void> {
-  const { name, email, company, requestedItems, notes } = opts
+  const { name, email, company, shipToName, shippingAddress, requestedItems, notes } = opts
   // User confirmation (template 11)
   const sent = await sendEmail('portal_marketing_user', {
     user_name: name,
@@ -227,6 +230,8 @@ export async function sendMarketingRequestEmails(opts: {
     user_name: name,
     user_email: email,
     company,
+    ship_to_name: shipToName,
+    shipping_address: shippingAddress,
     requested_items: requestedItems,
     notes: notes || '—',
   })
