@@ -30,7 +30,8 @@
     "media": "媒体库",
     "users": "用户管理",
     "gdprRequests": "GDPR 请求",
-    "manageAnnouncements": "管理公告"
+    "manageAnnouncements": "管理公告",
+    "adminDashboard": "管理仪表板"
   },
   "sidebar": {
     "logoAlt": "Sliquid 莲花标志",
@@ -67,6 +68,7 @@
     "announcements": "公告",
     "announcement": "公告详情",
     "manageAnnouncements": "管理公告",
+    "adminDashboard": "管理仪表板",
     "products": "产品",
     "assets": "产品库",
     "inventory": "库存",

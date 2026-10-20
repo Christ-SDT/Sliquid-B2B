@@ -1,5 +1,7 @@
 import { Router } from 'express'
 import multer from 'multer'
+import { Readable } from 'stream'
+import { pipeline } from 'stream/promises'
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { randomUUID } from 'crypto'
 import path from 'path'
@@ -7,13 +9,15 @@ import { db } from '../database.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { notifyUsers } from '../notifications.js'
 import { sendBroadcastEmail } from '../email.js'
+import { canViewAdmin } from '../roles.js'
+import { thumbKeyFor } from '../collections.js'
 
 const router = Router()
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 750_000_000 } })
 
 // ─── S3 helpers ───────────────────────────────────────────────────────────────
 
-function getS3Client() {
+export function getS3Client() {
   return new S3Client({
     region: process.env.AWS_REGION ?? 'us-east-1',
     credentials: {
@@ -23,21 +27,50 @@ function getS3Client() {
   })
 }
 
-function buildS3Url(bucket: string, region: string, key: string) {
+export function buildS3Url(bucket: string, region: string, key: string) {
   return `https://${bucket}.s3.${region}.amazonaws.com/${key}`
 }
 
-async function deleteS3Object(key: string) {
+export async function deleteS3Object(key: string) {
   try {
     await getS3Client().send(new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET!, Key: key }))
   } catch { /* continue even if S3 delete fails */ }
 }
 
+/** Same check every upload route uses before touching S3. */
+export function s3Configured(): boolean {
+  return !!(process.env.S3_BUCKET && process.env.AWS_ACCESS_KEY_ID)
+}
+
+/** "12.3 KB" / "4.5 MB" — the human string stored in assets.file_size. */
+export function formatFileSize(bytes: number): string {
+  return bytes < 1024 * 1024
+    ? `${(bytes / 1024).toFixed(1)} KB`
+    : `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+/** "launch_hero-shot.jpg" → "Launch hero shot". */
+export function nameFromFilename(filename: string): string {
+  const baseName = filename.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
+  return baseName.charAt(0).toUpperCase() + baseName.slice(1)
+}
+
+/**
+ * Collection photos (assets.collection_id IS NOT NULL) are served ONLY through
+ * /api/collections, which applies the draft/scheduled/released gate. Every
+ * plain read below carries this predicate — dropping it leaks unreleased
+ * launch photos into every partner's brand sections.
+ */
+const NOT_IN_COLLECTION = 'collection_id IS NULL'
+
+/** Wall-clock cap on the download fetch's connection + headers. */
+const DOWNLOAD_TIMEOUT_MS = 30_000
+
 // ─── GET / ────────────────────────────────────────────────────────────────────
 
 router.get('/', requireAuth, (req, res) => {
   const { brand, type, search } = req.query
-  let sql = 'SELECT * FROM assets WHERE 1=1'
+  let sql = `SELECT * FROM assets WHERE ${NOT_IN_COLLECTION}`
   const params: any[] = []
   if (brand) { sql += ' AND brand = ?'; params.push(brand) }
   if (type) { sql += ' AND type = ?'; params.push(type) }
@@ -46,10 +79,69 @@ router.get('/', requireAuth, (req, res) => {
   res.json(db.prepare(sql).all(...params))
 })
 
+// ─── GET /:id/download — stream the original as an attachment ────────────────
+//
+// ⚠️ The source URL is built ONLY from env S3_BUCKET + AWS_REGION + the row's
+// s3_key — never from the DB file_url, which would make this an SSRF sink (see
+// GET /api/media/proxy-download). Public HTTPS rather than a signed GetObject,
+// because the server's IAM principal can PutObject but not GetObject (see
+// src/mcp/bytes.ts). `redirect: 'error'` keeps the fetch on that one host.
+
+router.get('/:id/download', requireAuth, async (req, res) => {
+  const row = db.prepare(`
+    SELECT a.name, a.s3_key, a.collection_id, c.status AS collection_status
+    FROM assets a LEFT JOIN asset_collections c ON c.id = a.collection_id
+    WHERE a.id = ?
+  `).get(req.params.id) as
+    | { name: string; s3_key: string | null; collection_id: number | null; collection_status: string | null }
+    | undefined
+  // An unreleased collection photo is indistinguishable from a missing one for partners.
+  const visible = !!row && (row.collection_id === null || row.collection_status === 'released' || canViewAdmin(req.user?.role))
+  if (!row || !visible || !row.s3_key) { res.status(404).json({ message: 'Not found' }); return }
+
+  const bucket = process.env.S3_BUCKET
+  if (!bucket) { res.status(503).json({ message: 'File storage not configured' }); return }
+  const region = process.env.AWS_REGION ?? 'us-east-1'
+  const encodedKey = row.s3_key.split('/').map(encodeURIComponent).join('/')
+  const url = `https://${bucket}.s3.${region}.amazonaws.com/${encodedKey}`
+
+  let upstream: globalThis.Response
+  try {
+    upstream = await fetch(url, { redirect: 'error', signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS) })
+  } catch (err) {
+    console.error('[assets] download fetch failed:', (err as Error)?.message)
+    res.status(502).json({ message: 'Failed to fetch file' }); return
+  }
+  if (!upstream.ok || !upstream.body) {
+    res.status(upstream.status === 404 ? 404 : 502).json({ message: 'Failed to fetch file' }); return
+  }
+
+  const ext = path.extname(row.s3_key)
+  const rawName = !ext || row.name.toLowerCase().endsWith(ext.toLowerCase()) ? row.name : `${row.name}${ext}`
+  const asciiName = (rawName
+    .replace(/[\r\n"\\]/g, '')
+    .replace(/[^\x20-\x7E]/g, '_')
+    .replace(/\s+/g, ' ')
+    .trim()) || 'download'
+  const encodedName = encodeURIComponent(rawName).replace(/['()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase())
+  res.setHeader('Content-Disposition', `attachment; filename="${asciiName}"; filename*=UTF-8''${encodedName}`)
+  res.setHeader('Content-Type', upstream.headers.get('content-type') ?? 'application/octet-stream')
+  const length = upstream.headers.get('content-length')
+  if (length) res.setHeader('Content-Length', length)
+
+  try {
+    await pipeline(Readable.fromWeb(upstream.body as any), res)
+  } catch (err) {
+    console.error('[assets] download stream failed:', (err as Error)?.message)
+    if (!res.headersSent) res.status(502).json({ message: 'Download failed' })
+    else res.destroy()
+  }
+})
+
 // ─── GET /:id ─────────────────────────────────────────────────────────────────
 
 router.get('/:id', requireAuth, (req, res) => {
-  const asset = db.prepare('SELECT * FROM assets WHERE id = ?').get(req.params.id)
+  const asset = db.prepare(`SELECT * FROM assets WHERE id = ? AND ${NOT_IN_COLLECTION}`).get(req.params.id)
   if (!asset) { res.status(404).json({ message: 'Not found' }); return }
   res.json(asset)
 })
@@ -158,11 +250,8 @@ router.post('/bulk-upload', requireAuth, requireRole('tier5', 'admin'), upload.a
         }))
         thumbUrl = buildS3Url(bucket, region, thumbKey)
       }
-      const baseName = file.originalname.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
-      const name = baseName.charAt(0).toUpperCase() + baseName.slice(1)
-      const fileSize = file.size < 1024 * 1024
-        ? `${(file.size / 1024).toFixed(1)} KB`
-        : `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+      const name = nameFromFilename(file.originalname)
+      const fileSize = formatFileSize(file.size)
 
       const { lastInsertRowid } = db.prepare(
         'INSERT INTO assets (name, brand, type, file_url, thumbnail_url, file_size, s3_key) VALUES (?, ?, ?, ?, ?, ?, ?)'
@@ -189,6 +278,10 @@ router.put('/:id/file', requireAuth, requireRole('tier5', 'admin'), upload.singl
   const id = Number(req.params.id)
   const row = db.prepare('SELECT * FROM assets WHERE id = ?').get(id) as any
   if (!row) { res.status(404).json({ message: 'Not found' }); return }
+  if (row.collection_id !== null) {
+    // Its webp thumbnail would go stale; collection photos are replaced by delete + re-upload.
+    res.status(400).json({ message: 'Collection photos cannot be replaced here — delete it and upload again to the collection' }); return
+  }
 
   const file = req.file
   if (!file) { res.status(400).json({ message: 'No file uploaded' }); return }
@@ -260,10 +353,15 @@ router.post('/', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
 // ─── DELETE /:id ──────────────────────────────────────────────────────────────
 
 router.delete('/:id', requireAuth, requireRole('tier5', 'admin'), async (req, res) => {
-  const row = db.prepare('SELECT s3_key FROM assets WHERE id = ?').get(req.params.id) as any
+  const row = db.prepare('SELECT s3_key, collection_id FROM assets WHERE id = ?').get(req.params.id) as any
   if (!row) { res.status(404).json({ message: 'Not found' }); return }
   if (row.s3_key) await deleteS3Object(row.s3_key)
+  // A collection photo's webp thumbnail lives beside the original (derivable key).
+  if (row.s3_key && row.collection_id !== null) await deleteS3Object(thumbKeyFor(row.s3_key))
   db.prepare('DELETE FROM assets WHERE id = ?').run(req.params.id)
+  if (row.collection_id !== null) {
+    db.prepare("UPDATE asset_collections SET updated_at = datetime('now') WHERE id = ?").run(row.collection_id)
+  }
   res.json({ ok: true })
 })
 

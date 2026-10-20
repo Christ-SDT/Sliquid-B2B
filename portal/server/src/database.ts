@@ -1356,6 +1356,116 @@ const migrations: Migration[] = [
       if (!cols.includes('i18n_params')) db.exec('ALTER TABLE notifications ADD COLUMN i18n_params TEXT')
     },
   },
+  {
+    version: 64,
+    name: 'reward_orders_and_reward_skus',
+    // Certification rewards become free WooCommerce orders. `cert_rewards.product`
+    // was only ever a display label ("Naturals Silk (4.2 oz)") that omits the
+    // brand, so new claims also store the SKU; older claims are matched to a SKU
+    // when their order draft is built, and an admin picks one if no match is
+    // certain. One reward_orders row per claim (UNIQUE) — the push is idempotent
+    // on it, and Woo carries `_sliquid_reward_id` meta for crash recovery.
+    up: () => {
+      const cols = (
+        db.prepare("SELECT name FROM pragma_table_info('cert_rewards')").all() as { name: string }[]
+      ).map(c => c.name)
+      if (!cols.includes('product_sku')) db.exec('ALTER TABLE cert_rewards ADD COLUMN product_sku TEXT')
+
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS reward_orders (
+          id               INTEGER PRIMARY KEY AUTOINCREMENT,
+          cert_reward_id   INTEGER NOT NULL UNIQUE REFERENCES cert_rewards(id) ON DELETE CASCADE,
+          state            TEXT NOT NULL DEFAULT 'draft',   -- draft | pushing | pushed | failed | deleted
+          lines            TEXT NOT NULL DEFAULT '[]',      -- JSON RewardOrderLine[]
+          shipping         TEXT NOT NULL DEFAULT '{}',      -- JSON RewardOrderShipping (Woo field names)
+          customer_note    TEXT,
+          woo_order_id     INTEGER,
+          woo_order_number TEXT,
+          woo_status       TEXT,
+          last_error       TEXT,
+          created_by       INTEGER REFERENCES users(id) ON DELETE SET NULL,
+          pushed_by        INTEGER REFERENCES users(id) ON DELETE SET NULL,
+          pushed_at        TEXT,
+          last_synced_at   TEXT,
+          created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+          updated_at       TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_reward_orders_state ON reward_orders(state);
+
+        CREATE TABLE IF NOT EXISTS reward_order_events (
+          id              INTEGER PRIMARY KEY AUTOINCREMENT,
+          reward_order_id INTEGER NOT NULL REFERENCES reward_orders(id) ON DELETE CASCADE,
+          action          TEXT NOT NULL,   -- drafted | edited | pushed | push_failed | status | refreshed | emailed | deleted
+          detail          TEXT,
+          actor_id        INTEGER REFERENCES users(id) ON DELETE SET NULL,
+          created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_reward_order_events_order ON reward_order_events(reward_order_id);
+      `)
+    },
+  },
+  {
+    version: 65,
+    name: 'notification_outbox',
+    // Durable relay of admin notifications to the Sliquid SSO portal. Events are
+    // enqueued in the same request that creates them and drained by an interval
+    // with backoff, so an SSO outage never blocks or loses a portal event.
+    // `event_id` is the idempotency key the SSO intake dedupes on.
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS notification_outbox (
+          id              INTEGER PRIMARY KEY AUTOINCREMENT,
+          event_id        TEXT NOT NULL UNIQUE,
+          type            TEXT NOT NULL,
+          payload         TEXT NOT NULL,   -- JSON SsoNotificationPayload
+          attempts        INTEGER NOT NULL DEFAULT 0,
+          next_attempt_at TEXT NOT NULL DEFAULT (datetime('now')),
+          delivered_at    TEXT,
+          last_error      TEXT,
+          created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_notification_outbox_due ON notification_outbox(delivered_at, next_attempt_at);
+      `)
+    },
+  },
+  {
+    version: 66,
+    name: 'asset_collections',
+    // A named, releasable group of Product Library photos (e.g. a 50-photo
+    // launch). Photos are ordinary `assets` rows with collection_id set; they are
+    // NEVER returned by the plain GET /api/assets feed, only through
+    // /api/collections, so a draft cannot leak into the brand sections.
+    // status: draft | scheduled | released. A scheduled collection is released
+    // by the 5-minute sweep once release_at <= now; notified_at makes the single
+    // release notification idempotent across "Release now" and the sweep.
+    up: () => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS asset_collections (
+          id             INTEGER PRIMARY KEY AUTOINCREMENT,
+          name           TEXT NOT NULL,
+          brand          TEXT NOT NULL,
+          description    TEXT,
+          cover_asset_id INTEGER REFERENCES assets(id) ON DELETE SET NULL,
+          status         TEXT NOT NULL DEFAULT 'draft',
+          release_at     TEXT,
+          released_at    TEXT,
+          notified_at    TEXT,
+          created_by     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+          created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+          updated_at     TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_asset_collections_status ON asset_collections(status, release_at);
+      `)
+      const cols = (
+        db.prepare("SELECT name FROM pragma_table_info('assets')").all() as { name: string }[]
+      ).map(c => c.name)
+      if (!cols.includes('collection_id')) {
+        db.exec('ALTER TABLE assets ADD COLUMN collection_id INTEGER REFERENCES asset_collections(id) ON DELETE SET NULL')
+      }
+      if (!cols.includes('sort_order')) db.exec('ALTER TABLE assets ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0')
+      db.exec('CREATE INDEX IF NOT EXISTS idx_assets_collection ON assets(collection_id, sort_order)')
+    },
+  },
 ]
 
 function runMigrations(): void {

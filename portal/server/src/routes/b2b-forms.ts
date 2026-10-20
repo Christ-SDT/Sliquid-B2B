@@ -8,7 +8,7 @@ const router = Router()
 
 // ─── Mailchimp helper ─────────────────────────────────────────────────────────
 
-const MAILCHIMP_LIST_ID = '88a27ac60c'
+export const MAILCHIMP_LIST_ID = '88a27ac60c'
 
 async function addToMailchimp(data: {
   email: string

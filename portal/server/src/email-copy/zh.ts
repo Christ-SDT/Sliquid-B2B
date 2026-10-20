@@ -81,6 +81,18 @@ export const zh: LanguageEmailCopy = {
       "t_footer_sent": "此邮件由 Sliquid B2B 合作伙伴门户发送。",
       "t_footer_questions": "有疑问？请联系"
     },
+    "portal_reward_order_update": {
+      "t_subject": "您的 Sliquid 奖励订单 #{order_number} 有新动态",
+      "t_tagline": "B2B 合作伙伴门户",
+      "t_badge": "订单更新",
+      "t_heading": "{user_name}，您的奖励订单有新动态",
+      "t_intro": "以下是您申领的 Sliquid 认证专家奖励的最新进展。",
+      "t_label_order": "订单号",
+      "t_label_status": "状态",
+      "t_help": "对订单有疑问？请联系",
+      "t_footer_sent": "此邮件由 Sliquid B2B 合作伙伴门户发送。",
+      "t_footer_questions": "有疑问？请联系"
+    },
     "portal_marketing_user": {
       "t_subject": "我们已收到您的营销物料申请",
       "t_tagline": "B2B 合作伙伴门户",
@@ -197,5 +209,14 @@ export const zh: LanguageEmailCopy = {
   "defaults": {
     "pointOfContact": "我们销售团队的一名成员",
     "interests": "未选择"
+  },
+  "orderStatuses": {
+    "pending": "待处理",
+    "processing": "处理中",
+    "on-hold": "暂缓",
+    "completed": "已完成",
+    "cancelled": "已取消",
+    "refunded": "已退款",
+    "failed": "失败"
   }
 }

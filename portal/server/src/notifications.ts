@@ -1,4 +1,5 @@
 import { db } from './database.js'
+import { enqueueSsoNotification } from './ssoNotify.js'
 
 /**
  * Lets the client show a notification in the viewer's language: `key` names an
@@ -29,6 +30,12 @@ export function notifyAdmins(type: string, title: string, message: string, link?
     "SELECT id FROM users WHERE role IN ('tier5', 'admin')"
   ).all() as { id: number }[]
   insertForUsers(rows.map(r => r.id), type, title, message, link, i18n)
+  // Relay to the SSO portal: one local INSERT into notification_outbox when the
+  // relay is enabled and this type is routed. No network here — the interval in
+  // index.ts drains the outbox. Must never break the portal notification.
+  try {
+    enqueueSsoNotification(type, title, message, link)
+  } catch { /* enqueue already swallows its own errors; belt and braces */ }
 }
 
 /** Notify all non-admin users (tier1–tier4) — e.g. new product library items. */

@@ -5,6 +5,7 @@ import { requireAuth, requireRole, requireAdminViewer } from '../middleware/auth
 import { sendRewardConfirmEmail, sendRewardAdminEmail } from '../email.js'
 import { notifyAdmins } from '../notifications.js'
 import { preferredLanguageOf } from '../languages.js'
+import { setRewardFulfilled } from '../rewardOrders.js'
 import {
   getRewardOptions,
   deriveRewardProducts,
@@ -53,14 +54,31 @@ router.get('/mine', requireAuth, (req, res) => {
 // POST /api/certificates/reward — save reward claim (one per user)
 router.post('/reward', requireAuth, (req, res) => {
   const user = req.user!
-  const { product, shirtSize, address1, address2, city, state, zip } = req.body as {
+  const { shirtSize, address1, address2, city, state, zip, productSku } = req.body as {
     product?: string
+    productSku?: unknown
     shirtSize?: string
     address1?: string
     address2?: string
     city?: string
     state?: string
     zip?: string
+  }
+
+  let { product } = req.body as { product?: string }
+  // New clients send the SKU they picked; the stored label is then the catalog's
+  // own label for it. Old clients send only the label, which still works.
+  let sku: string | null = null
+  if (productSku !== undefined && productSku !== null && productSku !== '') {
+    const match = typeof productSku === 'string'
+      ? getRewardOptions().products.find(p => p.sku === productSku.trim())
+      : undefined
+    if (!match) {
+      res.status(400).json({ message: 'That product is not one of the available rewards' })
+      return
+    }
+    sku = match.sku
+    product = match.label
   }
 
   if (!product?.trim() || !shirtSize || !address1?.trim() || !city?.trim() || !state?.trim() || !zip?.trim()) {
@@ -81,11 +99,12 @@ router.post('/reward', requireAuth, (req, res) => {
   }
 
   db.prepare(
-    'INSERT INTO cert_rewards (user_id, full_name, product, shirt_size, address1, address2, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    'INSERT INTO cert_rewards (user_id, full_name, product, product_sku, shirt_size, address1, address2, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
   ).run(
     user.id,
     user.name,
     product.trim(),
+    sku,
     shirtSize,
     address1.trim(),
     address2?.trim() || null,
@@ -147,13 +166,18 @@ router.get('/rewards', requireAuth, requireAdminViewer, (req, res) => {
       cr.submitted_at,
       cr.fulfilled,
       cr.fulfilled_at,
+      cr.product_sku,
       u.email,
       c.certificate_number,
-      ROUND(AVG(qr.score)) as avg_score
+      ROUND(AVG(qr.score)) as avg_score,
+      ro.state AS order_state,
+      ro.woo_status,
+      ro.woo_order_number
     FROM cert_rewards cr
     JOIN users u ON u.id = cr.user_id
     JOIN certificates c ON c.user_id = cr.user_id AND c.is_valid = 1
     LEFT JOIN quiz_results qr ON qr.user_id = cr.user_id AND qr.passed = 1
+    LEFT JOIN reward_orders ro ON ro.cert_reward_id = cr.id
     GROUP BY cr.id
     ORDER BY cr.fulfilled ASC, cr.submitted_at DESC
   `).all()
@@ -166,16 +190,11 @@ router.get('/rewards', requireAuth, requireAdminViewer, (req, res) => {
 router.put('/rewards/:id/fulfilled', requireAuth, requireRole('tier5', 'admin'), (req, res) => {
   const id = Number(req.params.id)
   const { fulfilled } = req.body as { fulfilled: boolean }
-  const exists = db.prepare('SELECT id FROM cert_rewards WHERE id = ?').get(id)
-  if (!exists) { res.status(404).json({ message: 'Reward claim not found' }); return }
-
-  const sentAt = fulfilled ? new Date().toISOString() : null
-  db.prepare(`
-    UPDATE cert_rewards
-    SET fulfilled = ?, fulfilled_at = ?
-    WHERE id = ?
-  `).run(fulfilled ? 1 : 0, sentAt, id)
-  res.json({ ok: true, id, fulfilled: fulfilled ? 1 : 0, fulfilled_at: sentAt })
+  // setRewardFulfilled is the single writer of this flag — the Woo order status
+  // rule in rewardOrders.ts goes through it too.
+  const row = setRewardFulfilled(id, !!fulfilled)
+  if (!row) { res.status(404).json({ message: 'Reward claim not found' }); return }
+  res.json(row)
 })
 
 // GET /api/certificates/reward-options — what the reward form renders.

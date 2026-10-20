@@ -92,5 +92,27 @@
     "empty": "Noch keine Elemente in der Bibliothek",
     "addFirst": "Erstes Element hinzufügen",
     "deleteFailed": "Element konnte nicht gelöscht werden"
+  },
+  "collections": {
+    "title": "Kollektionen",
+    "subtitle": "Fotosets zum Launch, bereit zum Herunterladen",
+    "open": "Kollektion {{name}} öffnen",
+    "new": "Neu",
+    "photos_one": "{{count}} Foto",
+    "photos_other": "{{count}} Fotos",
+    "releasedOn": "Veröffentlicht am {{date}}",
+    "downloadAll": "Alle herunterladen",
+    "preparingZip": "ZIP wird erstellt… {{done}}/{{total}}",
+    "zipFailed_one": "{{count}} Foto konnte nicht zur ZIP-Datei hinzugefügt werden:",
+    "zipFailed_other": "{{count}} Fotos konnten nicht zur ZIP-Datei hinzugefügt werden:",
+    "zipEmpty": "Keines der Fotos konnte heruntergeladen werden. Bitte versuche es erneut.",
+    "downloadFailed": "Download fehlgeschlagen. Bitte versuche es erneut.",
+    "notFound": "Diese Kollektion ist nicht verfügbar.",
+    "loadFailed": "Diese Kollektion konnte nicht geladen werden. Bitte versuche es erneut.",
+    "empty": "Diese Kollektion enthält noch keine Fotos.",
+    "viewPhoto": "{{name}} ansehen",
+    "photoOf": "Foto {{index}} von {{total}}",
+    "previous": "Vorheriges Foto",
+    "next": "Nächstes Foto"
   }
 }

@@ -92,5 +92,27 @@
     "empty": "La bibliothèque ne contient encore aucun élément",
     "addFirst": "Ajouter le premier élément",
     "deleteFailed": "Impossible de supprimer l’élément"
+  },
+  "collections": {
+    "title": "Collections",
+    "subtitle": "Séries de photos de lancement, prêtes à télécharger",
+    "open": "Ouvrir la collection {{name}}",
+    "new": "Nouveau",
+    "photos_one": "{{count}} photo",
+    "photos_other": "{{count}} photos",
+    "releasedOn": "Publiée le {{date}}",
+    "downloadAll": "Tout télécharger",
+    "preparingZip": "Préparation du ZIP… {{done}}/{{total}}",
+    "zipFailed_one": "{{count}} photo n'a pas pu être ajoutée au ZIP :",
+    "zipFailed_other": "{{count}} photos n'ont pas pu être ajoutées au ZIP :",
+    "zipEmpty": "Aucune photo n'a pu être téléchargée. Veuillez réessayer.",
+    "downloadFailed": "Le téléchargement a échoué. Veuillez réessayer.",
+    "notFound": "Cette collection n'est pas disponible.",
+    "loadFailed": "Impossible de charger cette collection. Veuillez réessayer.",
+    "empty": "Cette collection ne contient encore aucune photo.",
+    "viewPhoto": "Voir {{name}}",
+    "photoOf": "Photo {{index}} sur {{total}}",
+    "previous": "Photo précédente",
+    "next": "Photo suivante"
   }
 }

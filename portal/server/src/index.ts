@@ -3,6 +3,9 @@ import { app } from './app.js'
 import { woo, runWooSync } from './woocommerce.js'
 import { wp, runAnnouncementSync } from './wordpress.js'
 import { sweepScheduledAnnouncements } from './announcements.js'
+import { syncRewardOrderStatuses } from './rewardOrders.js'
+import { drainNotificationOutbox } from './ssoNotify.js'
+import { sweepScheduledCollections } from './collections.js'
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10)
 
@@ -23,8 +26,18 @@ app.listen(PORT, () => {
     if (woo.isConfigured()) {
       console.log('[woo] Running scheduled stock pull…')
       runWooSync().catch(console.error)
+      // Pick up reward-order status changes made in Woo admin.
+      syncRewardOrderStatuses()
+        .then(n => { if (n > 0) console.log(`[reward-orders] Refreshed ${n} order status(es)`) })
+        .catch(console.error)
     }
   }, 10 * 60 * 1000)
+
+  // Relay admin notifications to the SSO portal. The drain is a no-op when the
+  // relay is disabled or unconfigured; failures back off per row.
+  setInterval(() => {
+    drainNotificationOutbox().catch(console.error)
+  }, 60 * 1000)
 
   // ─── Announcements ─────────────────────────────────────────────────────────
   // Two separate intervals on purpose: the sweep is a single indexed SELECT over
@@ -51,6 +64,10 @@ app.listen(PORT, () => {
       const n = sweepScheduledAnnouncements()
       if (n > 0) console.log(`[announcements] Announced ${n} scheduled item(s)`)
     } catch (e) { console.error('[announcements] sweep failed:', e) }
+    try {
+      const c = sweepScheduledCollections()
+      if (c > 0) console.log(`[collections] Released ${c} scheduled collection(s)`)
+    } catch (e) { console.error('[collections] sweep failed:', e) }
   }, 5 * 60 * 1000)
 
   // Pull new press releases from WordPress every 30 min.

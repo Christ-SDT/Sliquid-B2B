@@ -81,6 +81,18 @@ export const de: LanguageEmailCopy = {
       "t_footer_sent": "Diese E-Mail wurde vom Sliquid B2B-Partnerportal gesendet.",
       "t_footer_questions": "Fragen? Kontakt:"
     },
+    "portal_reward_order_update": {
+      "t_subject": "Neuigkeiten zu Ihrer Sliquid-Belohnungsbestellung Nr. {order_number}",
+      "t_tagline": "B2B-Partnerportal",
+      "t_badge": "Bestellstatus",
+      "t_heading": "Es gibt Neuigkeiten zu Ihrer Belohnungsbestellung, {user_name}",
+      "t_intro": "Hier ist der aktuelle Stand Ihrer Belohnung als Sliquid Certified Expert.",
+      "t_label_order": "Bestellnummer",
+      "t_label_status": "Status",
+      "t_help": "Fragen zu Ihrer Bestellung? Schreiben Sie uns an",
+      "t_footer_sent": "Diese E-Mail wurde vom Sliquid B2B-Partnerportal gesendet.",
+      "t_footer_questions": "Fragen? Kontakt:"
+    },
     "portal_marketing_user": {
       "t_subject": "Ihre Anfrage nach Werbematerial ist eingegangen",
       "t_tagline": "B2B-Partnerportal",
@@ -197,5 +209,14 @@ export const de: LanguageEmailCopy = {
   "defaults": {
     "pointOfContact": "Ein Mitglied unseres Vertriebsteams",
     "interests": "Keine Auswahl"
+  },
+  "orderStatuses": {
+    "pending": "Ausstehend",
+    "processing": "In Bearbeitung",
+    "on-hold": "Zurückgestellt",
+    "completed": "Abgeschlossen",
+    "cancelled": "Storniert",
+    "refunded": "Erstattet",
+    "failed": "Fehlgeschlagen"
   }
 }

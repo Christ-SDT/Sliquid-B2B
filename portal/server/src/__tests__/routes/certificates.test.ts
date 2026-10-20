@@ -7,6 +7,7 @@ import {
   seedTestUsers,
   seedCertificate,
   seedCertReward,
+  seedProduct,
 } from '../helpers/db.js'
 import { bearerToken } from '../helpers/auth.js'
 
@@ -588,5 +589,68 @@ describe('PUT /api/certificates/rewards/:id/fulfilled', () => {
     const row = db.prepare('SELECT fulfilled, fulfilled_at FROM cert_rewards WHERE id = ?').get(rewardId) as any
     expect(row.fulfilled).toBe(1)
     expect(row.fulfilled_at).toBeTruthy()
+  })
+})
+
+// ─── Reward SKU capture + order badge (reward orders, stream A) ──────────────
+
+describe('POST /api/certificates/reward — productSku', () => {
+  const { product: _p, ...base } = VALID_REWARD
+
+  it('stores the picked SKU and uses the catalog label as the product', async () => {
+    seedCertificate(tier1Id, tier1Name)
+    seedProduct({ name: 'Naturals Silk', sku: 'SLK-4', unit_size: '4.2 oz' })
+    const res = await request(app)
+      .post('/api/certificates/reward')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send({ ...base, productSku: 'SLK-4', product: 'whatever the client typed' })
+    expect(res.status).toBe(201)
+    const row = db.prepare('SELECT product, product_sku FROM cert_rewards WHERE user_id = ?').get(tier1Id) as any
+    expect(row).toEqual({ product: 'Naturals Silk (4.2 oz)', product_sku: 'SLK-4' })
+  })
+
+  it('400s a SKU that is not an available reward (and stores nothing)', async () => {
+    seedCertificate(tier1Id, tier1Name)
+    seedProduct({ name: 'Allowed', sku: 'OK-1' })
+    seedProduct({ name: 'Curated out', sku: 'NO-1' })
+    db.prepare("INSERT INTO woo_settings (key, value) VALUES ('reward_allowed_products', ?)").run(JSON.stringify(['OK-1']))
+    for (const productSku of ['NOPE', 'NO-1', 42]) {
+      const res = await request(app)
+        .post('/api/certificates/reward')
+        .set('Authorization', bearerToken(tier1Id, 'tier1'))
+        .send({ ...base, productSku })
+      expect(res.status).toBe(400)
+    }
+    expect(db.prepare('SELECT COUNT(*) AS n FROM cert_rewards').get()).toEqual({ n: 0 })
+  })
+
+  it('without productSku keeps the legacy label-only behaviour', async () => {
+    seedCertificate(tier1Id, tier1Name)
+    const res = await request(app)
+      .post('/api/certificates/reward')
+      .set('Authorization', bearerToken(tier1Id, 'tier1'))
+      .send(VALID_REWARD)
+    expect(res.status).toBe(201)
+    const row = db.prepare('SELECT product, product_sku FROM cert_rewards WHERE user_id = ?').get(tier1Id) as any
+    expect(row).toEqual({ product: 'Sliquid H2O', product_sku: null })
+  })
+})
+
+describe('GET /api/certificates/rewards — order badge', () => {
+  it('adds order_state / woo_status / woo_order_number (null until an order exists)', async () => {
+    seedCertificate(tier1Id, tier1Name)
+    const rewardId = seedCertReward(tier1Id)
+    const get = () => request(app).get('/api/certificates/rewards').set('Authorization', bearerToken(adminId, 'tier5'))
+
+    let res = await get()
+    expect(res.body[0]).toMatchObject({ id: rewardId, order_state: null, woo_status: null, woo_order_number: null })
+    expect(res.body[0].address1).toBe('123 Main St') // existing fields unchanged
+
+    db.prepare(
+      "INSERT INTO reward_orders (cert_reward_id, state, woo_order_id, woo_order_number, woo_status) VALUES (?, 'pushed', 5001, '5001', 'processing')"
+    ).run(rewardId)
+    res = await get()
+    expect(res.body).toHaveLength(1)
+    expect(res.body[0]).toMatchObject({ order_state: 'pushed', woo_status: 'processing', woo_order_number: '5001' })
   })
 })

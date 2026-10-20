@@ -81,6 +81,18 @@ export const nl: LanguageEmailCopy = {
       "t_footer_sent": "Deze e-mail is verzonden door het Sliquid B2B-partnerportaal.",
       "t_footer_questions": "Vragen? Neem contact op met"
     },
+    "portal_reward_order_update": {
+      "t_subject": "Update over uw Sliquid-beloningsbestelling nr. {order_number}",
+      "t_tagline": "B2B-partnerportaal",
+      "t_badge": "Bestelupdate",
+      "t_heading": "Er is nieuws over uw beloningsbestelling, {user_name}",
+      "t_intro": "Dit is de laatste stand van zaken rond de Sliquid Certified Expert-beloning die u heeft aangevraagd.",
+      "t_label_order": "Bestelnummer",
+      "t_label_status": "Status",
+      "t_help": "Vragen over uw bestelling? Neem contact op via",
+      "t_footer_sent": "Deze e-mail is verzonden door het Sliquid B2B-partnerportaal.",
+      "t_footer_questions": "Vragen? Neem contact op met"
+    },
     "portal_marketing_user": {
       "t_subject": "Uw aanvraag voor marketingmateriaal is ontvangen",
       "t_tagline": "B2B-partnerportaal",
@@ -197,5 +209,14 @@ export const nl: LanguageEmailCopy = {
   "defaults": {
     "pointOfContact": "Een medewerker van ons verkoopteam",
     "interests": "Niets geselecteerd"
+  },
+  "orderStatuses": {
+    "pending": "In afwachting",
+    "processing": "In behandeling",
+    "on-hold": "In de wacht",
+    "completed": "Afgerond",
+    "cancelled": "Geannuleerd",
+    "refunded": "Terugbetaald",
+    "failed": "Mislukt"
   }
 }

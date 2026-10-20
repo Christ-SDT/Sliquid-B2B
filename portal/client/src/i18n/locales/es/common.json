@@ -30,7 +30,8 @@
     "media": "Biblioteca de medios",
     "users": "Gestión de usuarios",
     "gdprRequests": "Solicitudes RGPD",
-    "manageAnnouncements": "Gestionar anuncios"
+    "manageAnnouncements": "Gestionar anuncios",
+    "adminDashboard": "Panel de administración"
   },
   "sidebar": {
     "logoAlt": "Loto de Sliquid",
@@ -67,6 +68,7 @@
     "announcements": "Anuncios",
     "announcement": "Anuncio",
     "manageAnnouncements": "Gestionar anuncios",
+    "adminDashboard": "Panel de administración",
     "products": "Productos",
     "assets": "Biblioteca de productos",
     "inventory": "Inventario",

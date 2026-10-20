@@ -11,4 +11,6 @@ export interface LanguageEmailCopy {
   templates: Record<EmailTemplateId, Record<string, string>>
   roleLabels: Record<string, string>
   defaults: { pointOfContact: string; interests: string }
+  /** Partner-facing names for WooCommerce's core order statuses, keyed by slug. */
+  orderStatuses: Record<string, string>
 }

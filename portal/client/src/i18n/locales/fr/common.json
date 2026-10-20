@@ -30,7 +30,8 @@
     "media": "Médiathèque",
     "users": "Gestion des utilisateurs",
     "gdprRequests": "Demandes RGPD",
-    "manageAnnouncements": "Gérer les annonces"
+    "manageAnnouncements": "Gérer les annonces",
+    "adminDashboard": "Tableau de bord admin"
   },
   "sidebar": {
     "logoAlt": "Lotus Sliquid",
@@ -67,6 +68,7 @@
     "announcements": "Annonces",
     "announcement": "Annonce",
     "manageAnnouncements": "Gérer les annonces",
+    "adminDashboard": "Tableau de bord admin",
     "products": "Produits",
     "assets": "Bibliothèque de produits",
     "inventory": "Inventaire",

@@ -18,7 +18,14 @@ export function setToken(token: string) {
  * let a page translate the error via serverErrorText().
  */
 export class ApiError extends Error {
-  constructor(message: string, public status: number, public code?: string, public params?: Record<string, unknown>) {
+  constructor(
+    message: string,
+    public status: number,
+    public code?: string,
+    public params?: Record<string, unknown>,
+    /** The parsed error body, e.g. an upload's per-file `errors[]`. */
+    public body?: unknown,
+  ) {
     super(message)
     this.name = 'ApiError'
   }
@@ -63,7 +70,7 @@ async function requestForm<T>(path: string, method: 'POST' | 'PUT', formData: Fo
   }
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: 'Request failed' }))
-    throw new Error(err.message ?? err.error ?? 'Request failed')
+    throw new ApiError(err.message ?? err.error ?? 'Request failed', res.status, err.code, err.params, err)
   }
   return res.json()
 }

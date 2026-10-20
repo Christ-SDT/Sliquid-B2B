@@ -30,7 +30,8 @@
     "media": "Biblioteca de mídia",
     "users": "Gestão de usuários",
     "gdprRequests": "Solicitações de RGPD",
-    "manageAnnouncements": "Gerenciar comunicados"
+    "manageAnnouncements": "Gerenciar comunicados",
+    "adminDashboard": "Painel de administração"
   },
   "sidebar": {
     "logoAlt": "Lótus Sliquid",
@@ -67,6 +68,7 @@
     "announcements": "Comunicados",
     "announcement": "Comunicado",
     "manageAnnouncements": "Gerenciar comunicados",
+    "adminDashboard": "Painel de administração",
     "products": "Produtos",
     "assets": "Biblioteca de produtos",
     "inventory": "Estoque",
