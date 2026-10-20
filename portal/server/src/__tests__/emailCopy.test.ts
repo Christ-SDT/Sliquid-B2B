@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { EMAIL_COPY, ROLE_LABELS, DEFAULTS, emailVars, interpolate, type EmailTemplateId } from '../emailCopy.js'
+import { EMAIL_COPY, ROLE_LABELS, DEFAULTS, ORDER_STATUS_LABELS, orderStatusLabel, emailVars, interpolate, type EmailTemplateId } from '../emailCopy.js'
 import { SUPPORTED_LANGUAGES } from '../languages.js'
 
 const TEMPLATE_DIR = resolve(__dirname, '../../../email-templates')
@@ -12,6 +12,7 @@ const COMPUTED: Partial<Record<EmailTemplateId, string[]>> = {
   portal_approved: ['t_role_label'],
   portal_cert_issued: ['t_completion_date'],
   b2b_retailer_checkin_confirm: ['t_point_of_contact', 't_interests'],
+  portal_reward_order_update: ['t_status_label'],
 }
 
 const placeholders = (s: string) => [...s.matchAll(/\{(\w+)\}/g)].map(m => m[1]).sort()
@@ -79,6 +80,18 @@ describe('email copy', () => {
     expect(v.t_subject).toBe('Aprobó Satin: 92%')
     expect(v.t_heading).toBe('¡Buen trabajo, Ana!')
     expect(Object.keys(v).every(k => k === 'lang' || k.startsWith('t_'))).toBe(true)
+  })
+
+  it('order status labels: every language translates the core Woo statuses; unknown slugs fall back to the Woo name', () => {
+    const slugs = Object.keys(ORDER_STATUS_LABELS.en).sort()
+    expect(slugs).toEqual(['cancelled', 'completed', 'failed', 'on-hold', 'pending', 'processing', 'refunded'])
+    for (const lng of SUPPORTED_LANGUAGES) {
+      expect(Object.keys(ORDER_STATUS_LABELS[lng]).sort(), lng).toEqual(slugs)
+      for (const v of Object.values(ORDER_STATUS_LABELS[lng])) expect(v.trim().length).toBeGreaterThan(0)
+    }
+    expect(orderStatusLabel('completed', 'es')).toBe('Completado')
+    expect(orderStatusLabel('wc-shipped-plugin', 'fr', 'Shipped')).toBe('Shipped')
+    expect(orderStatusLabel('mystery', 'de')).toBe('mystery')
   })
 
   it('interpolate leaves unknown placeholders alone', () => {

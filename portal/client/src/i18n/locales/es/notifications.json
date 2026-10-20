@@ -8,6 +8,11 @@
     "message_one": "Se agregó {{count}} archivo nuevo ({{brand}}) a la Biblioteca de productos.",
     "message_other": "Se agregaron {{count}} archivos nuevos ({{brand}}) a la Biblioteca de productos."
   },
+  "collectionReleased": {
+    "title": "Nueva colección publicada",
+    "message_one": "{{name}} ({{brand}}) — {{count}} foto nueva en la Biblioteca de productos.",
+    "message_other": "{{name}} ({{brand}}) — {{count}} fotos nuevas en la Biblioteca de productos."
+  },
   "mediaItem": {
     "title": "Nuevo contenido multimedia",
     "message": "Se agregó {{name}} a la Biblioteca de medios."

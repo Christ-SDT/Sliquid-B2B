@@ -30,7 +30,8 @@
     "media": "Media Library",
     "users": "User Management",
     "gdprRequests": "GDPR Requests",
-    "manageAnnouncements": "Manage Announcements"
+    "manageAnnouncements": "Manage Announcements",
+    "adminDashboard": "Admin Dashboard"
   },
   "sidebar": {
     "logoAlt": "Sliquid lotus",
@@ -67,6 +68,7 @@
     "announcements": "Announcements",
     "announcement": "Announcement",
     "manageAnnouncements": "Manage Announcements",
+    "adminDashboard": "Admin Dashboard",
     "products": "Products",
     "assets": "Product Library",
     "inventory": "Inventory",

@@ -83,6 +83,18 @@ export const en = {
       "t_footer_sent": "This email was sent by the Sliquid B2B Partner Portal.",
       "t_footer_questions": "Questions? Contact"
     },
+    "portal_reward_order_update": {
+      "t_subject": "Update on your Sliquid reward order #{order_number}",
+      "t_tagline": "B2B Partner Portal",
+      "t_badge": "Order Update",
+      "t_heading": "Your reward order has an update, {user_name}",
+      "t_intro": "Here is the latest on the Sliquid Certified Expert reward you claimed.",
+      "t_label_order": "Order Number",
+      "t_label_status": "Status",
+      "t_help": "Questions about your order? Reach out at",
+      "t_footer_sent": "This email was sent by the Sliquid B2B Partner Portal.",
+      "t_footer_questions": "Questions? Contact"
+    },
     "portal_marketing_user": {
       "t_subject": "Your marketing asset request was received",
       "t_tagline": "B2B Partner Portal",
@@ -199,5 +211,14 @@ export const en = {
   "defaults": {
     "pointOfContact": "a member of our sales team",
     "interests": "None selected"
+  },
+  "orderStatuses": {
+    "pending": "Pending",
+    "processing": "Processing",
+    "on-hold": "On hold",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded",
+    "failed": "Failed"
   }
 } as const

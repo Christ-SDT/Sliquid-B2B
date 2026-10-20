@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { TIER_LABEL, isAdmin, isReadOnlyAdmin } from '@/types'
+import type { RewardOrderDetail, RewardOrderState } from '@/types'
 import ReadOnlyNotice from '@/components/ReadOnlyNotice'
+import RewardOrderModal from '@/components/RewardOrderModal'
 import {
-  Search, Users, RefreshCw, CheckCircle, XCircle, Loader2, Cpu,
-  X, Award, GraduationCap, ExternalLink, ShieldCheck, Trash2, Clock, PackageCheck, Package,
+  Search, Users, RefreshCw, CheckCircle, XCircle, Loader2,
+  X, Award, GraduationCap, ExternalLink, ShieldCheck, Trash2, Clock, PackageCheck, Package, ShoppingCart,
 } from 'lucide-react'
 
 interface PortalUser {
@@ -25,12 +28,6 @@ interface PortalUser {
   reward_shirt_size?: string | null
   reward_sent?: number | null
   reward_sent_at?: string | null
-}
-
-interface WooStatus {
-  configured: boolean
-  lastPull: { synced_at: string; status: string; products_updated: number; message?: string } | null
-  lastPush: { synced_at: string; status: string; products_updated: number; message?: string } | null
 }
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
@@ -78,6 +75,8 @@ function UserDetailModal({
   onApprove,
   onDecline,
   onRewardSentChange,
+  orderState,
+  onOpenOrder,
 }: {
   user: PortalUser
   stores: Store[]
@@ -89,6 +88,9 @@ function UserDetailModal({
   onApprove: (id: number, role: string) => Promise<void>
   onDecline: (id: number) => Promise<void>
   onRewardSentChange: (id: number, sent: boolean) => Promise<void>
+  /** The claim's WooCommerce order state: undefined while unknown, null when there is none. */
+  orderState: RewardOrderState | null | undefined
+  onOpenOrder: (rewardId: number) => void
 }) {
   const [selectedRole, setSelectedRole]       = useState(user.role)
   const [roleSaveState, setRoleSaveState]     = useState<SaveState>('idle')
@@ -487,6 +489,22 @@ function UserDetailModal({
                     </p>
                   )}
                   {sentError && <p className="text-red-400 text-xs mt-2">{sentError}</p>}
+
+                  {/* WooCommerce order for this claim — the same review modal as Marketing Requests. */}
+                  {(orderState || canEdit) && (
+                    <div className="mt-3 pl-8">
+                      <button
+                        type="button"
+                        onClick={() => onOpenOrder(user.reward_id!)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-portal-accent/40
+                                   bg-portal-accent/10 text-portal-accent hover:bg-portal-accent/20 text-xs font-medium
+                                   transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-portal-accent"
+                      >
+                        <ShoppingCart className="w-3 h-3" aria-hidden />
+                        {orderState === undefined ? 'Order' : orderState ? 'View order' : 'Create order'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p className="text-on-canvas-muted text-xs mt-2 px-1">
@@ -692,332 +710,6 @@ function CertifiedUsersModal({
 
 // ─── AI Model Panel ───────────────────────────────────────────────────────────
 
-const AI_MODELS = [
-  {
-    id: 'imagen-4.0-generate-001',
-    label: 'Imagen 4',
-    description: 'Current generation · Best quality · ~$0.04/image · Recommended',
-  },
-  {
-    id: 'gemini-2.5-flash-image',
-    label: 'Gemini 2.5 Flash — Nano Banana',
-    description: 'Text & image-to-image · Conversational editing · May be geo-restricted on Railway',
-  },
-  {
-    id: 'gemini-3.1-flash-image-preview',
-    label: 'Gemini 3.1 Flash',
-    description: 'Google Search grounded · 2K resolution · May be geo-restricted on Railway',
-  },
-]
-
-function AiModelPanel({ canEdit }: { canEdit: boolean }) {
-  const [activeModel, setActiveModel] = useState('imagen-4.0-generate-001')
-  const [selected, setSelected] = useState('imagen-4.0-generate-001')
-  const [loading, setLoading] = useState(true)
-  const [saveState, setSaveState] = useState<SaveState>('idle')
-
-  useEffect(() => {
-    api.get<{ model: string }>('/creator/settings')
-      .then(r => { setActiveModel(r.model); setSelected(r.model) })
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [])
-
-  async function handleSave() {
-    setSaveState('saving')
-    try {
-      await api.post('/creator/settings', { model: selected })
-      setActiveModel(selected)
-      setSaveState('saved')
-      setTimeout(() => setSaveState('idle'), 2500)
-    } catch {
-      setSaveState('error')
-    }
-  }
-
-  const isDirty = selected !== activeModel
-
-  return (
-    <div className="bg-surface border border-portal-border rounded-xl p-6 space-y-5">
-      <div className="flex items-center gap-3">
-        <Cpu className="w-5 h-5 text-portal-accent flex-shrink-0" />
-        <div>
-          <h2 className="text-on-canvas font-bold text-lg">AI Image Model</h2>
-          <p className="text-on-canvas-muted text-sm mt-0.5">Select which model powers the AI Creator</p>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex items-center gap-2 text-on-canvas-muted text-sm">
-          <Loader2 className="w-4 h-4 animate-spin" /> Loading…
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {AI_MODELS.map(m => (
-            <button
-              key={m.id}
-              type="button"
-              disabled={!canEdit}
-              onClick={() => setSelected(m.id)}
-              className={`w-full text-left px-4 py-3.5 rounded-xl border transition-colors ${!canEdit ? 'cursor-default' : ''} ${
-                selected === m.id
-                  ? 'border-portal-accent bg-portal-accent/10'
-                  : 'border-portal-border hover:border-slate-500 bg-portal-bg'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-semibold ${selected === m.id ? 'text-portal-accent' : 'text-on-canvas'}`}>
-                    {m.label}
-                  </p>
-                  <p className="text-on-canvas-muted text-xs mt-0.5">{m.description}</p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-                  {activeModel === m.id && (
-                    <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">
-                      Active
-                    </span>
-                  )}
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                    selected === m.id ? 'border-portal-accent' : 'border-portal-border'
-                  }`}>
-                    {selected === m.id && <div className="w-2 h-2 rounded-full bg-portal-accent" />}
-                  </div>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {canEdit && (
-        <div className="flex items-center gap-3 pt-1">
-          <button
-            onClick={handleSave}
-            disabled={!isDirty || saveState === 'saving'}
-            className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90
-                       disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            {saveState === 'saving' && <Loader2 className="w-4 h-4 animate-spin" />}
-            {saveState === 'saving' ? 'Saving…' : 'Apply Model'}
-          </button>
-          {saveState === 'saved' && (
-            <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-medium">
-              <CheckCircle className="w-4 h-4" /> Saved
-            </span>
-          )}
-          {saveState === 'error' && (
-            <span className="flex items-center gap-1.5 text-red-400 text-sm">
-              <XCircle className="w-4 h-4" /> Failed to save
-            </span>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── WooCommerce Panel ────────────────────────────────────────────────────────
-
-function WooPanel({ canEdit }: { canEdit: boolean }) {
-  const [wooStatus, setWooStatus] = useState<WooStatus | null>(null)
-  const [wooLoading, setWooLoading] = useState(true)
-
-  const [url, setUrl] = useState('')
-  const [consumerKey, setConsumerKey] = useState('')
-  const [consumerSecret, setConsumerSecret] = useState('')
-  const [credSaveState, setCredSaveState] = useState<SaveState>('idle')
-  const [credError, setCredError] = useState('')
-
-  const [testing, setTesting] = useState(false)
-  const [testResult, setTestResult] = useState<{ ok: boolean; error?: string } | null>(null)
-
-  const [syncing, setSyncing] = useState(false)
-  const [syncMsg, setSyncMsg] = useState('')
-
-  function fetchStatus() {
-    setWooLoading(true)
-    api.get<WooStatus>('/woo/status')
-      .then(setWooStatus)
-      .catch(console.error)
-      .finally(() => setWooLoading(false))
-  }
-
-  useEffect(fetchStatus, [])
-
-  async function handleSaveCreds() {
-    setCredSaveState('saving')
-    setCredError('')
-    try {
-      await api.post('/woo/settings', {
-        url: url.trim(),
-        consumer_key: consumerKey.trim(),
-        consumer_secret: consumerSecret.trim(),
-      })
-      setCredSaveState('saved')
-      setTimeout(() => setCredSaveState('idle'), 2500)
-      fetchStatus()
-    } catch (e: any) {
-      setCredError(e.message ?? 'Failed to save')
-      setCredSaveState('error')
-    }
-  }
-
-  async function handleTest() {
-    setTesting(true)
-    setTestResult(null)
-    try {
-      const result = await api.post<{ ok: boolean; error?: string }>('/woo/test', {})
-      setTestResult(result)
-    } catch (e: any) {
-      setTestResult({ ok: false, error: e.message ?? 'Test failed' })
-    } finally {
-      setTesting(false)
-    }
-  }
-
-  async function handleSync() {
-    setSyncing(true)
-    setSyncMsg('')
-    try {
-      const result = await api.post<{ products_updated: number; status: string }>('/woo/sync', {})
-      setSyncMsg(
-        result.status === 'ok'
-          ? `Pulled ${result.products_updated} product${result.products_updated !== 1 ? 's' : ''} from WooCommerce`
-          : 'Sync completed with errors'
-      )
-      fetchStatus()
-    } catch (e: any) {
-      setSyncMsg(e.message ?? 'Sync failed')
-    } finally {
-      setSyncing(false)
-    }
-  }
-
-  function wooRelativeTime(isoStr: string): string {
-    const diff = Math.floor((Date.now() - new Date(isoStr).getTime()) / 1000)
-    if (diff < 60) return `${diff}s ago`
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
-    return `${Math.floor(diff / 86400)}d ago`
-  }
-
-  return (
-    <div className="bg-surface border border-portal-border rounded-xl p-6 space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-on-canvas font-bold text-lg">WooCommerce Sync</h2>
-          <p className="text-on-canvas-muted text-sm mt-0.5">Connect your WooCommerce store to sync inventory</p>
-        </div>
-        {!wooLoading && wooStatus && (
-          <div className="flex items-center gap-2">
-            {wooStatus.configured ? (
-              <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-medium">
-                <CheckCircle className="w-4 h-4" /> Connected
-              </span>
-            ) : (
-              <span className="flex items-center gap-1.5 text-on-canvas-muted text-sm">
-                <XCircle className="w-4 h-4" /> Not Configured
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-
-      {wooStatus?.lastPull && (
-        <div className="bg-portal-bg rounded-lg px-4 py-3 flex items-center justify-between">
-          <div>
-            <p className="text-on-canvas-subtle text-xs">Last pull</p>
-            <p className="text-on-canvas text-sm font-medium mt-0.5">
-              {wooRelativeTime(wooStatus.lastPull.synced_at)}
-              {' · '}
-              <span className={wooStatus.lastPull.status === 'ok' ? 'text-emerald-400' : 'text-red-400'}>
-                {wooStatus.lastPull.status}
-              </span>
-              {' · '}
-              <span className="text-on-canvas-subtle">{wooStatus.lastPull.products_updated} updated</span>
-            </p>
-          </div>
-        </div>
-      )}
-
-      {canEdit && (
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={handleTest}
-            disabled={testing || !wooStatus?.configured}
-            className="flex items-center gap-2 px-4 py-2 border border-portal-border text-on-canvas-subtle
-                       hover:text-on-canvas hover:border-slate-500 disabled:opacity-40 rounded-lg text-sm transition-colors"
-          >
-            {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            Test Connection
-          </button>
-          <button
-            onClick={handleSync}
-            disabled={syncing || !wooStatus?.configured}
-            className="flex items-center gap-2 px-4 py-2 bg-portal-accent hover:bg-portal-accent/90
-                       disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-            {syncing ? 'Syncing…' : 'Sync Now'}
-          </button>
-          {syncMsg && <p className="text-on-canvas-subtle text-sm self-center">{syncMsg}</p>}
-        </div>
-      )}
-
-      {testResult && (
-        <div className={`rounded-lg px-4 py-3 text-sm ${testResult.ok ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-          {testResult.ok ? '✓ Connection successful' : `✗ ${testResult.error}`}
-        </div>
-      )}
-
-      {canEdit && (
-        <div className="border-t border-portal-border pt-5 space-y-4">
-          <p className="text-on-canvas-subtle text-sm font-medium">
-            {wooStatus?.configured ? 'Update Credentials' : 'Enter Credentials'}
-          </p>
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <label className="text-on-canvas-muted text-xs mb-1.5 block">WooCommerce Store URL</label>
-              <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://your-store.com"
-                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors" />
-            </div>
-            <div>
-              <label className="text-on-canvas-muted text-xs mb-1.5 block">Consumer Key</label>
-              <input type="text" value={consumerKey} onChange={e => setConsumerKey(e.target.value)} placeholder="ck_xxxxxxxxxxxxxxxxxxxx"
-                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono" />
-            </div>
-            <div>
-              <label className="text-on-canvas-muted text-xs mb-1.5 block">Consumer Secret</label>
-              <input type="password" value={consumerSecret} onChange={e => setConsumerSecret(e.target.value)} placeholder="cs_xxxxxxxxxxxxxxxxxxxx"
-                className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                           placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors font-mono" />
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleSaveCreds}
-              disabled={credSaveState === 'saving' || !url || !consumerKey || !consumerSecret}
-              className="px-5 py-2.5 bg-portal-accent hover:bg-portal-accent/90 disabled:opacity-40
-                         text-white rounded-lg text-sm font-medium transition-colors"
-            >
-              {credSaveState === 'saving' ? 'Saving…' : 'Save Credentials'}
-            </button>
-            {credSaveState === 'saved' && (
-              <span className="text-emerald-400 text-sm flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4" /> Saved
-              </span>
-            )}
-            {credSaveState === 'error' && <span className="text-red-400 text-sm">{credError}</span>}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function UsersPage() {
@@ -1035,6 +727,9 @@ export default function UsersPage() {
   const [filterCert, setFilterCert] = useState('')
   const [selectedUser, setSelectedUser] = useState<PortalUser | null>(null)
   const [showCertified, setShowCertified] = useState(false)
+  const [orderRewardId, setOrderRewardId] = useState<number | null>(null)
+  /** reward_id → order state (null = no order); filled lazily when a user is opened. */
+  const [orderStates, setOrderStates] = useState<Record<number, RewardOrderState | null>>({})
 
   useEffect(() => {
     Promise.all([
@@ -1045,6 +740,24 @@ export default function UsersPage() {
       .catch(err => setError(err.message ?? 'Failed to load users'))
       .finally(() => setLoading(false))
   }, [])
+
+  const selectedRewardId = selectedUser?.reward_id ?? null
+  useEffect(() => {
+    if (!selectedRewardId || selectedRewardId in orderStates) return
+    api.get<RewardOrderDetail>(`/reward-orders/${selectedRewardId}`)
+      .then(d => setOrderStates(prev => ({ ...prev, [selectedRewardId]: d.order?.state ?? null })))
+      // Unknown is fine: the button still opens the modal, which reports its own error.
+      .catch(() => {})
+  }, [selectedRewardId, orderStates])
+
+  // The order modal can flip `fulfilled` (a Woo status of completed marks the reward
+  // sent), so mirror the server's value onto the row.
+  function handleOrderChanged(d: RewardOrderDetail) {
+    setOrderStates(prev => ({ ...prev, [d.request.reward_id]: d.order?.state ?? null }))
+    const patch = { reward_sent: d.request.fulfilled ? 1 : 0, reward_sent_at: d.request.fulfilled_at }
+    setUsers(prev => prev.map(u => u.reward_id === d.request.reward_id ? { ...u, ...patch } : u))
+    setSelectedUser(prev => prev?.reward_id === d.request.reward_id ? { ...prev, ...patch } : prev)
+  }
 
   function handleRoleChange(id: number, role: string) {
     setUsers(prev => prev.map(u => u.id === id ? { ...u, role } : u))
@@ -1233,11 +946,17 @@ export default function UsersPage() {
         {' · '}Click any row to view details
       </p>
 
-      {/* WooCommerce Panel */}
-      <WooPanel canEdit={canEdit} />
-
-      {/* AI Model Panel */}
-      <AiModelPanel canEdit={canEdit} />
+      {/* WooCommerce + AI model settings moved to the Admin Dashboard. */}
+      <Link
+        to="/admin/dashboard"
+        className="flex items-center justify-between bg-surface border border-portal-border rounded-xl px-6 py-4
+                   text-on-canvas-subtle hover:text-on-canvas hover:border-portal-accent transition-colors"
+      >
+        <span className="text-sm">
+          WooCommerce sync and AI model settings now live on the <span className="font-semibold text-on-canvas">Admin Dashboard</span>.
+        </span>
+        <ExternalLink className="w-4 h-4 flex-shrink-0" />
+      </Link>
 
       {/* Certified Users Modal */}
       {showCertified && (
@@ -1261,6 +980,18 @@ export default function UsersPage() {
           onApprove={handleApprove}
           onDecline={handleDecline}
           onRewardSentChange={handleRewardSentChange}
+          orderState={selectedUser.reward_id ? orderStates[selectedUser.reward_id] : null}
+          onOpenOrder={setOrderRewardId}
+        />
+      )}
+
+      {/* Stacked above the user modal (z-[60] over z-50). */}
+      {orderRewardId !== null && (
+        <RewardOrderModal
+          rewardId={orderRewardId}
+          canEdit={canEdit}
+          onClose={() => setOrderRewardId(null)}
+          onChanged={handleOrderChanged}
         />
       )}
     </div>

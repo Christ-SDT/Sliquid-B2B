@@ -7,6 +7,9 @@ export function resetDb(): void {
   db.exec(`
     DELETE FROM announcement_sync_log;
     DELETE FROM announcements;
+    DELETE FROM reward_order_events;
+    DELETE FROM reward_orders;
+    DELETE FROM notification_outbox;
     DELETE FROM cert_rewards;
     DELETE FROM certificates;
     DELETE FROM notifications;
@@ -20,6 +23,7 @@ export function resetDb(): void {
     DELETE FROM woo_settings;
     DELETE FROM creatives;
     DELETE FROM assets;
+    DELETE FROM asset_collections;
     DELETE FROM invoices;
     DELETE FROM distributors;
     DELETE FROM products;

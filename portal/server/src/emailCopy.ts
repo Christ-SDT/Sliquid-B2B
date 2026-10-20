@@ -46,6 +46,19 @@ export const DEFAULTS = Object.fromEntries(
   (Object.keys(BY_LANGUAGE) as Language[]).map(lng => [lng, BY_LANGUAGE[lng].defaults]),
 ) as Record<Language, { pointOfContact: string; interests: string }>
 
+/**
+ * Partner-facing labels for WooCommerce's core order statuses (pending,
+ * processing, on-hold, completed, cancelled, refunded, failed). A plugin status
+ * is absent here, and orderStatusLabel() falls back to the name Woo gives it.
+ */
+export const ORDER_STATUS_LABELS = Object.fromEntries(
+  (Object.keys(BY_LANGUAGE) as Language[]).map(lng => [lng, BY_LANGUAGE[lng].orderStatuses]),
+) as Record<Language, Record<string, string>>
+
+export function orderStatusLabel(slug: string, lang: Language, fallbackName?: string | null): string {
+  return ORDER_STATUS_LABELS[lang][slug] ?? ORDER_STATUS_LABELS.en[slug] ?? (fallbackName || slug)
+}
+
 /** Replace `{name}` placeholders; unknown placeholders are left as-is. */
 export function interpolate(text: string, vars: Record<string, string>): string {
   return text.replace(/\{(\w+)\}/g, (whole, name: string) => (name in vars ? vars[name] : whole))

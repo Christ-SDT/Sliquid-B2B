@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { isAdmin, isReadOnlyAdmin } from '@/types'
+import type { RewardOrderBadge } from '@/types'
 import ReadOnlyNotice from '@/components/ReadOnlyNotice'
-import { Megaphone, ChevronDown, Loader2, Mail, CheckCircle, XCircle, Clock, Stethoscope, Search, Filter, GraduationCap } from 'lucide-react'
+import RewardOrderModal from '@/components/RewardOrderModal'
+import { TONE, rewardOrderBadge } from '@/components/rewardOrder/badge'
+import { Megaphone, ChevronDown, Loader2, Mail, CheckCircle, XCircle, Clock, Stethoscope, Search, Filter, GraduationCap, ShoppingCart } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,7 +26,7 @@ type MarketingRequest = {
 
 type TabKey = 'pending' | 'approved' | 'declined' | 'rewards' | 'medical'
 
-type RewardClaim = {
+type RewardClaim = Partial<RewardOrderBadge> & {
   id: number
   full_name: string
   product: string
@@ -78,7 +81,7 @@ function matchesSearch(r: MarketingRequest, q: string): boolean {
 function matchesRewardSearch(r: RewardClaim, q: string): boolean {
   if (!q) return true
   const s = q.toLowerCase()
-  return [r.full_name, r.email, r.product, r.certificate_number, r.address1, r.city, r.state, r.zip]
+  return [r.full_name, r.email, r.product, r.certificate_number, r.address1, r.city, r.state, r.zip, r.woo_order_number]
     .some(v => (v ?? '').toLowerCase().includes(s))
 }
 
@@ -252,12 +255,15 @@ function RewardsList({
   rewards,
   loading,
   onToggle,
+  onOpenOrder,
   canEdit,
   searching,
 }: {
   rewards: RewardClaim[]
   loading: boolean
   onToggle: (id: number, fulfilled: boolean) => void
+  /** Opens the WooCommerce order review modal for this claim. */
+  onOpenOrder: (id: number) => void
   canEdit: boolean
   /** True when the list is narrowed by the page's search box (changes the empty-state copy). */
   searching: boolean
@@ -333,6 +339,12 @@ function RewardsList({
                     <p className="text-on-canvas font-medium text-sm">{r.full_name}</p>
                     <span className="text-on-canvas-muted text-xs">·</span>
                     <p className="text-on-canvas-muted text-xs">{r.email}</p>
+                    {(() => {
+                      const b = rewardOrderBadge(r)
+                      return b && (
+                        <span className={`px-2 py-0.5 rounded-md border text-xs font-medium ${TONE[b.tone]}`}>{b.label}</span>
+                      )
+                    })()}
                   </div>
                   <p className="text-on-canvas-muted text-xs mt-1">{fmt(r.submitted_at)}</p>
                   <div className="flex items-center gap-3 mt-2 flex-wrap">
@@ -348,7 +360,7 @@ function RewardsList({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
                   <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                     Cert: {r.certificate_number}
                   </span>
@@ -366,6 +378,19 @@ function RewardsList({
                     <Mail className="w-3 h-3" />
                     Email
                   </a>
+                  {/* A claim with no order yet shows "Create order" only to someone who can create one. */}
+                  {(r.order_state || canEdit) && (
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); onOpenOrder(r.id) }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-portal-accent/40 bg-portal-accent/10
+                                 text-portal-accent hover:bg-portal-accent/20 text-xs font-medium transition-colors
+                                 focus:outline-none focus-visible:ring-2 focus-visible:ring-portal-accent"
+                    >
+                      <ShoppingCart className="w-3 h-3" aria-hidden />
+                      {r.order_state ? 'View order' : 'Create order'}
+                    </button>
+                  )}
                   {canEdit ? (
                     <button
                       onClick={() => handleToggle(r.id, !!r.fulfilled)}
@@ -395,6 +420,8 @@ function RewardsList({
                   )}
                   <button
                     onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+                    aria-expanded={expanded === r.id}
+                    aria-label={expanded === r.id ? 'Hide claim details' : 'Show claim details'}
                     className="text-on-canvas-muted hover:text-on-canvas transition-colors"
                   >
                     <ChevronDown className={`w-4 h-4 transition-transform ${expanded === r.id ? 'rotate-180' : ''}`} />
@@ -455,6 +482,7 @@ export default function MarketingRequestsPage() {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
   const [filterSort, setFilterSort] = useState('newest')
+  const [orderRewardId, setOrderRewardId] = useState<number | null>(null)
 
   useEffect(() => {
     api.get<MarketingRequest[]>('/retailer/applications')
@@ -467,11 +495,19 @@ export default function MarketingRequestsPage() {
       .catch(console.error)
       .finally(() => setMedicalLoading(false))
 
-    api.get<RewardClaim[]>('/certificates/rewards')
+    loadRewards()
+  }, [])
+
+  function loadRewards() {
+    return api.get<RewardClaim[]>('/certificates/rewards')
       .then(setRewards)
       .catch(console.error)
       .finally(() => setRewardsLoading(false))
-  }, [])
+  }
+
+  // An order change can flip `fulfilled` too (Woo status → completed), so take the
+  // server's rows rather than patching the badge fields locally.
+  const handleOrderChanged = useCallback(() => { void loadRewards() }, [])
 
   async function handleStatusChange(id: number, status: string) {
     setUpdating(id)
@@ -648,7 +684,7 @@ export default function MarketingRequestsPage() {
       {/* Requests list */}
       <div className="bg-surface border border-portal-border rounded-xl overflow-hidden">
         {activeTab === 'rewards' ? (
-          <RewardsList rewards={visibleRewards} loading={rewardsLoading} onToggle={handleToggleFulfilled} canEdit={canEdit} searching={!!search} />
+          <RewardsList rewards={visibleRewards} loading={rewardsLoading} onToggle={handleToggleFulfilled} onOpenOrder={setOrderRewardId} canEdit={canEdit} searching={!!search} />
         ) : activeTab === 'medical' ? (
           <RequestList
             requests={visibleMedical}
@@ -673,6 +709,15 @@ export default function MarketingRequestsPage() {
           />
         )}
       </div>
+
+      {orderRewardId !== null && (
+        <RewardOrderModal
+          rewardId={orderRewardId}
+          canEdit={canEdit}
+          onClose={() => setOrderRewardId(null)}
+          onChanged={handleOrderChanged}
+        />
+      )}
     </div>
   )
 }

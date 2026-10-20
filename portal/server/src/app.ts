@@ -35,6 +35,10 @@ import productShotsRouter from './routes/product-shots.js'
 import b2bFormsRouter from './routes/b2b-forms.js'
 import gdprRouter from './routes/gdpr.js'
 import announcementsRouter from './routes/announcements.js'
+import rewardOrdersRouter from './routes/rewardOrders.js'
+import adminIntegrationsRouter from './routes/adminIntegrations.js'
+import ssoNotificationsRouter from './routes/ssoNotifications.js'
+import collectionsRouter from './routes/collections.js'
 import wellKnownRouter from './routes/wellKnown.js'
 import { createMcpRouter } from './mcp/server.js'
 
@@ -67,6 +71,8 @@ const strictCors = cors({
       callback(new Error(`CORS: origin ${origin} not allowed`))
     }
   },
+  // Lets the client read the filename on GET /api/assets/:id/download.
+  exposedHeaders: ['Content-Disposition'],
 })
 
 app.use((req, res, next) => {
@@ -94,6 +100,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/user', authRouter)
 app.use('/api/products', productsRouter)
 app.use('/api/assets', assetsRouter)
+app.use('/api/collections', collectionsRouter)
 app.use('/api/distributors', distributorsRouter)
 app.use('/api/invoices', invoicesRouter)
 app.use('/api/inventory', inventoryRouter)
@@ -101,6 +108,8 @@ app.use('/api/stats', statsRouter)
 app.use('/api/retailer', retailerRouter)
 app.use('/api/creatives', creativesRouter)
 app.use('/api/quiz', quizRouter)
+app.use('/api/admin/integrations', adminIntegrationsRouter)
+app.use('/api/admin/sso-notifications', ssoNotificationsRouter)
 app.use('/api/admin', adminRouter)
 app.use('/api/woo', wooRouter)
 app.use('/api/stores', storesRouter)
@@ -118,6 +127,7 @@ app.use('/api/product-shots', productShotsRouter)
 app.use('/api/b2b', b2bFormsRouter)
 app.use('/api/gdpr', gdprRouter)
 app.use('/api/announcements', announcementsRouter)
+app.use('/api/reward-orders', rewardOrdersRouter)
 app.use('/api/logs', logsRouter)
 
 // ─── MCP ──────────────────────────────────────────────────────────────────────

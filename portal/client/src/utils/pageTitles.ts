@@ -11,6 +11,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   dashboard: 'dashboard',
   announcements: 'announcements',
   'admin/announcements': 'manageAnnouncements',
+  'admin/dashboard': 'adminDashboard',
   products: 'products',
   assets: 'assets',
   inventory: 'inventory',

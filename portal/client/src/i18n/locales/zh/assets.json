@@ -92,5 +92,27 @@
     "empty": "资源库中暂无项目",
     "addFirst": "添加第一个项目",
     "deleteFailed": "项目删除失败"
+  },
+  "collections": {
+    "title": "合集",
+    "subtitle": "新品发布图集，可直接下载",
+    "open": "打开合集 {{name}}",
+    "new": "新",
+    "photos_one": "{{count}} 张照片",
+    "photos_other": "{{count}} 张照片",
+    "releasedOn": "发布于 {{date}}",
+    "downloadAll": "全部下载",
+    "preparingZip": "正在准备 ZIP… {{done}}/{{total}}",
+    "zipFailed_one": "有 {{count}} 张照片无法添加到 ZIP：",
+    "zipFailed_other": "有 {{count}} 张照片无法添加到 ZIP：",
+    "zipEmpty": "所有照片均无法下载，请重试。",
+    "downloadFailed": "下载失败，请重试。",
+    "notFound": "此合集不可用。",
+    "loadFailed": "无法加载此合集，请重试。",
+    "empty": "此合集中还没有照片。",
+    "viewPhoto": "查看 {{name}}",
+    "photoOf": "第 {{index}} 张，共 {{total}} 张",
+    "previous": "上一张",
+    "next": "下一张"
   }
 }

@@ -1,7 +1,7 @@
 import emailjs from '@emailjs/nodejs'
 import { db } from './database.js'
 import { resolveLanguage, type Language } from './languages.js'
-import { emailVars, ROLE_LABELS, DEFAULTS } from './emailCopy.js'
+import { emailVars, ROLE_LABELS, DEFAULTS, orderStatusLabel } from './emailCopy.js'
 
 const PORTAL_URL = process.env.PORTAL_URL ?? 'https://portal.sliquid.com'
 const SUPPORT_EMAIL = 'support@sliquid.com'
@@ -202,6 +202,43 @@ export async function sendRewardConfirmEmail(opts: {
     ...emailVars('portal_reward_confirm', resolveLanguage(opts.language), { user_name: toName }),
   })
   if (sent) console.log(`[email] Reward confirmation email sent to ${toEmail}`)
+}
+
+// ─── Reward order update ──────────────────────────────────────────────────────
+
+/**
+ * "Email the user" from the reward-order modal: the WooCommerce order number,
+ * its status in the partner's language (`statusLabel` is the Woo name, used for
+ * a plugin status the copy does not translate) and an optional admin message.
+ * Returns whether EmailJS actually sent it (false = not configured).
+ */
+export async function sendRewardOrderUpdateEmail(opts: {
+  toName: string
+  toEmail: string
+  orderNumber: string
+  /** Woo status slug, e.g. 'processing'. */
+  status: string
+  /** Woo's display name for the status — fallback for slugs the copy lacks. */
+  statusLabel?: string | null
+  message?: string | null
+  language?: Language
+}): Promise<boolean> {
+  const { toName, toEmail, orderNumber, status } = opts
+  const lang = resolveLanguage(opts.language)
+  const label = orderStatusLabel(status, lang, opts.statusLabel)
+  const sent = await sendEmail('portal_reward_order_update', {
+    user_name: toName,
+    order_number: orderNumber,
+    status,
+    status_label: label,
+    message: opts.message?.trim() ?? '',
+    portal_url: PORTAL_URL,
+    to_email: toEmail,
+    ...emailVars('portal_reward_order_update', lang, { user_name: toName, order_number: orderNumber }),
+    t_status_label: label,
+  })
+  if (sent) console.log(`[email] Reward order update (#${orderNumber}) sent to ${toEmail}`)
+  return sent
 }
 
 // ─── Marketing request ────────────────────────────────────────────────────────

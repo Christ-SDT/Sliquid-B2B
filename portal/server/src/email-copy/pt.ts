@@ -81,6 +81,18 @@ export const pt: LanguageEmailCopy = {
       "t_footer_sent": "Este e-mail foi enviado pelo Portal de Parceiros B2B da Sliquid.",
       "t_footer_questions": "Dúvidas? Fale com"
     },
+    "portal_reward_order_update": {
+      "t_subject": "Atualização do seu pedido de recompensa Sliquid nº {order_number}",
+      "t_tagline": "Portal de Parceiros B2B",
+      "t_badge": "Atualização do pedido",
+      "t_heading": "Há novidades sobre seu pedido de recompensa, {user_name}",
+      "t_intro": "Confira as informações mais recentes sobre a recompensa de Especialista Certificado Sliquid que você solicitou.",
+      "t_label_order": "Número do pedido",
+      "t_label_status": "Situação",
+      "t_help": "Dúvidas sobre seu pedido? Fale conosco pelo",
+      "t_footer_sent": "Este e-mail foi enviado pelo Portal de Parceiros B2B da Sliquid.",
+      "t_footer_questions": "Dúvidas? Fale com"
+    },
     "portal_marketing_user": {
       "t_subject": "Recebemos sua solicitação de materiais de marketing",
       "t_tagline": "Portal de Parceiros B2B",
@@ -197,5 +209,14 @@ export const pt: LanguageEmailCopy = {
   "defaults": {
     "pointOfContact": "Um membro da nossa equipe de vendas",
     "interests": "Nenhum selecionado"
+  },
+  "orderStatuses": {
+    "pending": "Pendente",
+    "processing": "Em processamento",
+    "on-hold": "Em espera",
+    "completed": "Concluído",
+    "cancelled": "Cancelado",
+    "refunded": "Reembolsado",
+    "failed": "Falhou"
   }
 }

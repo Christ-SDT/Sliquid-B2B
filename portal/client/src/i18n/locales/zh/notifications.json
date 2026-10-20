@@ -8,6 +8,11 @@
     "message_one": "{{count}} 个新文件（{{brand}}）已添加到产品库。",
     "message_other": "{{count}} 个新文件（{{brand}}）已添加到产品库。"
   },
+  "collectionReleased": {
+    "title": "新系列已发布",
+    "message_one": "{{name}}（{{brand}}）— 产品库新增 {{count}} 张照片。",
+    "message_other": "{{name}}（{{brand}}）— 产品库新增 {{count}} 张照片。"
+  },
   "mediaItem": {
     "title": "新增媒体",
     "message": "{{name}} 已添加到媒体库。"

@@ -22,7 +22,7 @@ here renders those instead of hardcoded English.
 
 | Template ID | Language comes from |
 |---|---|
-| `portal_quiz_pass`, `portal_cert_issued`, `portal_approved`, `portal_declined`, `portal_reward_confirm`, `portal_marketing_user`, `portal_medical_user` | the user's saved `users.preferred_language` |
+| `portal_quiz_pass`, `portal_cert_issued`, `portal_approved`, `portal_declined`, `portal_reward_confirm`, `portal_reward_order_update`, `portal_marketing_user`, `portal_medical_user` | the user's saved `users.preferred_language` |
 | `portal_asset_broadcast` | each recipient's own saved language |
 | `portal_register_confirm` | the language the user registered in (also saved as their preference) |
 | `portal_password_reset` | the page's language; else the saved preference |
@@ -47,6 +47,15 @@ sending English exactly as today. Order:
 3. Send yourself one test in each language (switch the portal language, or pass `language`
    to a public form) before announcing it.
 
+### New template — `portal_reward_order_update`
+
+Unlike the 13 above, this one is **new**, so there is no English fallback to keep working:
+until it exists in EmailJS the **Email user** button in the reward-order modal fails.
+Create it with Template ID `portal_reward_order_update`, To Email `{{to_email}}`, Subject
+`{{t_subject}}`, and paste `portal_reward_order_update.html`. Order statuses are translated
+by `orderStatuses` in each `portal/server/src/email-copy/<lng>.ts` (core Woo statuses only;
+a plugin status arrives under the name WooCommerce gives it).
+
 Never change a `{{t_*}}` to triple braces — double braces HTML-escape, and several of these
 values contain user-typed names.
 
@@ -67,6 +76,7 @@ translation changes the `{placeholders}`.
 | `portal_approved.html` | `portal_approved` | Admin approves a user | `user_name`, `role_label`, `portal_url`, `to_email` |
 | `portal_declined.html` | `portal_declined` | Admin declines a user | `user_name`, `support_email`, `to_email` |
 | `portal_reward_confirm.html` | `portal_reward_confirm` | Certified user claims reward | `user_name`, `product`, `shirt_size`, `address`, `to_email` |
+| `portal_reward_order_update.html` | `portal_reward_order_update` | Admin clicks **Email user** on a pushed reward order (Marketing Requests → reward order modal) | `user_name`, `order_number`, `status`, `status_label`, `message` (optional, admin-typed), `portal_url`, `to_email` — plus `t_status_label`, the status in the partner's language |
 | `portal_marketing_user.html` | `portal_marketing_user` | User submits marketing asset request | `user_name`, `requested_items`, `to_email` |
 | `portal_marketing_admin.html` | `portal_marketing_admin` | Marketing request (admin copy) | `user_name`, `user_email`, `company`, `requested_items`, `notes` |
 | `portal_asset_broadcast.html` | `portal_asset_broadcast` | Admin adds a new asset | `user_name`, `asset_name`, `brand`, `portal_url`, `to_email` |
@@ -87,6 +97,7 @@ translation changes the `{placeholders}`.
 | `portal_approved` | `Your Sliquid B2B Portal account is approved` |
 | `portal_declined` | `An update on your Sliquid B2B Portal application` |
 | `portal_reward_confirm` | `Your Sliquid reward is on its way!` |
+| `portal_reward_order_update` | `Update on your Sliquid reward order #{{order_number}}` |
 | `portal_marketing_user` | `Your marketing asset request was received` |
 | `portal_marketing_admin` | `[Portal] Marketing request: {{user_name}}` |
 | `portal_asset_broadcast` | `New in the Sliquid Product Library: {{asset_name}}` |

@@ -5,11 +5,17 @@ import { api } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { isAdmin, isReadOnlyAdmin } from '@/types'
 import ReadOnlyNotice from '@/components/ReadOnlyNotice'
-import { Asset, Creative, AiImage } from '@/types'
+import { Asset, Creative, AiImage, canViewAdmin } from '@/types'
+import type { AssetCollection, AssetCollectionDetail } from '@/types'
+import { useSearchParams } from 'react-router-dom'
+import { BRAND_OPTIONS, BrandSelect, displayBrand, toBrandOpt } from '@/components/collections/shared'
+import CollectionsSection from '@/components/collections/CollectionsSection'
+import CollectionModal from '@/components/collections/CollectionModal'
+import CollectionEditorModal from '@/components/collections/CollectionEditorModal'
 import {
   Search, FolderOpen, Download, ExternalLink, Eye,
   FileImage, FileText, Share2, Image, Video, Mail, Printer, Megaphone, BookOpen,
-  Plus, Trash2, X, Loader2, Pencil, ChevronDown, ChevronRight, Folder, ArrowLeft, LayoutGrid, Sparkles, Upload, Star,
+  Plus, Trash2, X, Loader2, Pencil, ChevronDown, ChevronRight, Folder, ArrowLeft, LayoutGrid, Sparkles, Upload, Star, Images,
 } from 'lucide-react'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -39,15 +45,8 @@ function triggerDownload(url: string, name: string) {
 
 // ─── Brand constants ──────────────────────────────────────────────────────────
 
-const BRAND_OPTIONS = ['Sliquid', 'RIDE', 'Ride Rocco', 'Sliquid Science']
-// Display names (maps DB value → human label)
-const BRAND_DISPLAY: Record<string, string> = { 'RIDE': 'Ride Lube' }
 // Preferred sort order (by DB value)
 const BRAND_ORDER = ['Sliquid', 'RIDE', 'Ride Rocco', 'Sliquid Science', 'User Generated Content']
-
-function displayBrand(brand: string): string {
-  return BRAND_DISPLAY[brand] ?? brand
-}
 
 function sortBrands(brands: string[]): string[] {
   return [...brands].sort((a, b) => {
@@ -154,53 +153,8 @@ function groupByBrand(items: LibraryItem[]): Map<string, Map<string, LibraryItem
   return map
 }
 
-// ─── Brand select field (shared by Add + Edit modals) ─────────────────────────
-
-interface BrandSelectProps {
-  value: string          // DB value or '__custom__'
-  customValue: string
-  onChangeValue: (v: string) => void
-  onChangeCustom: (v: string) => void
-  datalistId: string
-}
-
-function BrandSelect({ value, customValue, onChangeValue, onChangeCustom, datalistId }: BrandSelectProps) {
-  const isCustom = value === '__custom__'
-  return (
-    <div className="space-y-2">
-      <select
-        value={value}
-        onChange={e => onChangeValue(e.target.value)}
-        className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm focus:outline-none focus:border-portal-accent transition-colors"
-      >
-        {BRAND_OPTIONS.map(b => (
-          <option key={b} value={b}>{displayBrand(b)}</option>
-        ))}
-        <option value="__custom__">Other (type a new brand…)</option>
-      </select>
-      {isCustom && (
-        <input
-          type="text"
-          value={customValue}
-          onChange={e => onChangeCustom(e.target.value)}
-          placeholder="Enter brand name"
-          required
-          list={datalistId}
-          className="w-full bg-portal-bg border border-portal-border rounded-lg px-4 py-2.5 text-on-canvas text-sm
-                     placeholder:text-on-canvas-muted focus:outline-none focus:border-portal-accent transition-colors"
-        />
-      )}
-      <datalist id={datalistId}>
-        {BRAND_OPTIONS.map(b => <option key={b} value={b}>{displayBrand(b)}</option>)}
-      </datalist>
-    </div>
-  )
-}
-
-// Helper: convert a brand DB value to the select state (option value or '__custom__')
-function toBrandOpt(brand: string): string {
-  return BRAND_OPTIONS.includes(brand) ? brand : '__custom__'
-}
+// Brand select field + brand helpers live in components/collections/shared.tsx
+// (shared by Add/Edit modals and the collection editor).
 
 // ─── Video thumbnail helper ───────────────────────────────────────────────────
 
@@ -232,9 +186,11 @@ interface AddItemModalProps {
   onClose: () => void
   onAdded: (item: LibraryItem) => void
   onBulkAdded?: (items: LibraryItem[]) => void
+  /** Large batches belong in a collection; offered as a hint, never forced. */
+  onSuggestCollection?: () => void
 }
 
-function AddItemModal({ onClose, onAdded, onBulkAdded }: AddItemModalProps) {
+function AddItemModal({ onClose, onAdded, onBulkAdded, onSuggestCollection }: AddItemModalProps) {
   const [sectionOpt, setSectionOpt] = useState<SectionOption>(SECTION_OPTIONS[0])
   const [customSection, setCustomSection] = useState('')
   const [nameTitle, setNameTitle] = useState('')
@@ -584,6 +540,22 @@ function AddItemModal({ onClose, onAdded, onBulkAdded }: AddItemModalProps) {
                 </div>
               )}
             </div>
+            {selectedFiles.length > 15 && onSuggestCollection && (
+              <div className="mt-2 px-3 py-2 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs text-on-canvas flex flex-wrap items-center gap-2">
+                <span className="flex-1 min-w-[12rem]">
+                  {selectedFiles.length} files is a lot for one upload. A collection uploads them a few at a time,
+                  stays hidden as a draft, and notifies partners once when you release it.
+                </span>
+                <button
+                  type="button"
+                  onClick={onSuggestCollection}
+                  className="px-2.5 py-1 rounded-md bg-portal-accent hover:bg-portal-accent/90 text-white font-medium
+                             focus:outline-none focus-visible:ring-2 focus-visible:ring-portal-accent focus-visible:ring-offset-1"
+                >
+                  Create a collection instead
+                </button>
+              </div>
+            )}
           </div>
 
           {/* URL divider */}
@@ -2491,6 +2463,46 @@ export default function AssetsPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingItem, setEditingItem] = useState<LibraryItem | null>(null)
 
+  // ── Collections ──
+  // Staff (admin + Legal) see every status; the server only sends partners released ones.
+  const canSeeAllCollections = canViewAdmin(user?.role ?? '')
+  const [collections, setCollections] = useState<AssetCollection[]>([])
+  const [searchParams, setSearchParams] = useSearchParams()
+  const openCollectionId = Number(searchParams.get('collection')) || null
+  // undefined = editor closed; null = creating; detail = editing
+  const [editorFor, setEditorFor] = useState<AssetCollectionDetail | null | undefined>(undefined)
+
+  useEffect(() => {
+    api.get<AssetCollection[]>('/collections')
+      .then(list => setCollections(Array.isArray(list) ? list : []))
+      .catch(err => { console.error('[collections]', err); setCollections([]) })
+  }, [])
+
+  function openCollection(c: AssetCollection) {
+    // Admins land in the editor for anything partners can't see yet.
+    if (canEdit && c.status !== 'released') {
+      api.get<AssetCollectionDetail>(`/collections/${c.id}`)
+        .then(d => setEditorFor(d))
+        .catch(() => setEditorFor({ ...c, photos: [] }))
+      return
+    }
+    setSearchParams(prev => { const next = new URLSearchParams(prev); next.set('collection', String(c.id)); return next })
+  }
+
+  function closeCollection() {
+    setSearchParams(prev => { const next = new URLSearchParams(prev); next.delete('collection'); return next }, { replace: true })
+  }
+
+  function upsertCollection(c: AssetCollection) {
+    setCollections(prev => {
+      const i = prev.findIndex(x => x.id === c.id)
+      if (i === -1) return [c, ...prev]
+      const next = [...prev]
+      next[i] = { ...prev[i], ...c }
+      return next
+    })
+  }
+
   useEffect(() => {
     setLoading(true)
     Promise.all([
@@ -2499,7 +2511,10 @@ export default function AssetsPage() {
       api.get<AiImage[]>('/creator/images').catch(err => { console.error('[creator]', err); return [] as AiImage[] }),
     ])
       .then(([assets, creatives, aiImages]) => {
-        const assetItems: LibraryItem[] = assets.map(a => ({
+        // Collection photos live in their collection, not in the brand sections.
+        const assetItems: LibraryItem[] = assets
+          .filter(a => (a as Asset & { collection_id?: number | null }).collection_id == null)
+          .map(a => ({
           ...a, _source: 'asset' as const, displayName: a.name,
         }))
         const creativeItems: LibraryItem[] = creatives.map(c => ({
@@ -2586,6 +2601,14 @@ export default function AssetsPage() {
       })
     : allItems
 
+  const visibleCollections = search
+    ? collections.filter(c => {
+        const q = search.toLowerCase()
+        return c.name.toLowerCase().includes(q) || c.brand.toLowerCase().includes(q) ||
+          displayBrand(c.brand).toLowerCase().includes(q)
+      })
+    : collections
+
   const brandMap = groupByBrand(filteredItems)
   const sortedBrandKeys = sortBrands(Array.from(brandMap.keys()))
 
@@ -2611,7 +2634,7 @@ export default function AssetsPage() {
           <BookOpen className="w-6 h-6 text-portal-accent" />
           <h1 className="text-on-canvas text-2xl font-bold">{t('page.title')}</h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-canvas-muted" />
             <input
@@ -2634,8 +2657,26 @@ export default function AssetsPage() {
               {t('page.addItem')}
             </button>
           )}
+          {canEdit && (
+            <button
+              onClick={() => setEditorFor(null)}
+              className="flex items-center gap-2 px-4 py-2 bg-surface border border-portal-border hover:border-portal-accent/50
+                         text-on-canvas rounded-lg text-sm font-medium transition-colors
+                         focus:outline-none focus-visible:ring-2 focus-visible:ring-portal-accent"
+            >
+              <Images className="w-4 h-4" />
+              New collection
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Collections — launch sets, released to partners as one unit */}
+      <CollectionsSection
+        collections={visibleCollections}
+        showStatus={canSeeAllCollections}
+        onOpen={openCollection}
+      />
 
       {/* Product Shots — always visible, independent of brand sections */}
       <ProductShotsSection isAdmin={canEdit} />
@@ -2715,6 +2756,7 @@ export default function AssetsPage() {
       {showAddModal && (
         <AddItemModal
           onClose={() => setShowAddModal(false)}
+          onSuggestCollection={() => { setShowAddModal(false); setEditorFor(null) }}
           onAdded={handleAdded}
           onBulkAdded={items => {
             setAllItems(prev => {
@@ -2732,6 +2774,29 @@ export default function AssetsPage() {
           item={editingItem}
           onClose={closeAll}
           onSaved={updated => { handleSaved(updated); setEditingItem(null) }}
+        />
+      )}
+
+      {/* CollectionModal — deep-linkable via /assets?collection=<id> */}
+      {openCollectionId !== null && (
+        <CollectionModal
+          key={openCollectionId}
+          collectionId={openCollectionId}
+          summary={collections.find(c => c.id === openCollectionId) ?? null}
+          showStatus={canSeeAllCollections}
+          onEdit={canEdit ? detail => { closeCollection(); setEditorFor(detail) } : undefined}
+          onClose={closeCollection}
+        />
+      )}
+
+      {/* CollectionEditorModal — admin only */}
+      {canEdit && editorFor !== undefined && (
+        <CollectionEditorModal
+          key={editorFor?.id ?? 'new'}
+          initial={editorFor}
+          onSaved={upsertCollection}
+          onDeleted={id => setCollections(prev => prev.filter(c => c.id !== id))}
+          onClose={() => setEditorFor(undefined)}
         />
       )}
     </div>

@@ -50,7 +50,12 @@ export default function CertRewardForm({ userName, onComplete }: Props) {
     setError('')
     setLoading(true)
     try {
-      await api.post('/certificates/reward', { product, shirtSize, address1, address2, city, state, zip })
+      // The label is what the partner saw; the SKU is what fulfilment needs. Labels
+      // omit the brand and can collide, so a label shared by two products sends no
+      // SKU and the admin resolves it in the order review instead of us guessing.
+      const matches = productOptions.filter(p => p.label === product)
+      const productSku = matches.length === 1 ? matches[0].sku : undefined
+      await api.post('/certificates/reward', { product, productSku, shirtSize, address1, address2, city, state, zip })
       onComplete()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : t('reward.errorGeneric'))

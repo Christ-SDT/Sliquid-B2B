@@ -64,6 +64,12 @@ The project has two top-level parts:
 | `portal/server/src/routes/woo.ts` | WooCommerce API routes |
 | `portal/server/src/routes/stores.ts` | Public GET /api/stores + admin POST/DELETE |
 | `portal/server/src/routes/store.ts` | GET /api/store/members — tier2 sees own company; admin sees all |
+| `portal/server/src/contracts.ts` | Wire types for reward orders, integrations and the SSO relay — mirrored at the bottom of `client/src/types/index.ts`; change both |
+| `portal/server/src/rewardOrders.ts` + `routes/rewardOrders.ts` | Certification reward → $0 WooCommerce order. See [Reward Orders](#reward-orders--certification-rewards--woocommerce) |
+| `portal/server/src/integrations.ts` + `routes/adminIntegrations.ts` | Admin Dashboard connection status/tests — never returns a secret |
+| `portal/server/src/ssoNotify.ts` + `routes/ssoNotifications.ts` | Outbox relay of admin notifications to the SSO portal |
+| `portal/client/src/pages/AdminDashboardPage.tsx` | `/admin/dashboard` — connections, Woo, reward items, WordPress, AI model, SSO relay |
+| `portal/client/src/components/RewardOrderModal.tsx` | Side-by-side claim ↔ order review modal |
 
 ---
 
@@ -93,6 +99,9 @@ EMAILJS_PRIVATE_KEY=your_private_key
 EMAILJS_SERVICE_ID=your_service_id
 # Optional — override portal URL used in email links (default: https://sliquid-portal.pages.dev)
 PORTAL_URL=https://your-portal-url.pages.dev
+# Optional — SSO notification relay. Defaults to ${SSO_ISSUER}/integrations/notifications
+# and reuses SSO_CLIENT_ID / SSO_CLIENT_SECRET. Turned on from /admin/dashboard.
+# SSO_NOTIFICATIONS_URL=http://localhost:4000/integrations/notifications
 # Optional — Announcements / WordPress press-release sync. All optional: the sync
 # falls back to sliquid.com + category 245 + cutoff 2025-01-01, so it works unset.
 # Can also be set at runtime from /admin/announcements (stored in woo_settings).
@@ -392,7 +401,12 @@ Managed in `portal/server/src/database.ts`. Rules:
 | 62 | `add_preferred_language_to_users` | Adds `preferred_language TEXT` to `users` (`en`/`es`/`fr`, NULL = never chose). See [Internationalization](#internationalization-i18n) |
 | 63 | `add_i18n_to_notifications` | Adds `i18n_key TEXT` + `i18n_params TEXT` (JSON) to `notifications` so partner-facing notifications render in the viewer's language; stored English stays the fallback |
 
-**Next migration version: 64**
+| 64 | `reward_orders_and_reward_skus` | Adds `cert_rewards.product_sku`; creates `reward_orders` (one per claim, UNIQUE `cert_reward_id`) and `reward_order_events`. See [Reward Orders](#reward-orders--certification-rewards--woocommerce) |
+| 65 | `notification_outbox` | Creates `notification_outbox` (`event_id` UNIQUE) — durable SSO relay queue. See [SSO Notification Relay](#sso-notification-relay) |
+
+| 66 | `asset_collections` | Creates `asset_collections` (draft/scheduled/released); adds `assets.collection_id` + `assets.sort_order`. See [Collections](#collections--releasable-photo-sets) |
+
+**Next migration version: 67**
 
 ### Seed Users (new DB only)
 | Email | Password | Role |
@@ -492,8 +506,8 @@ Mounted at the app root (NOT under `/api`) so the OIDC callback is `/auth/google
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | GET | `/mine` | requireAuth | Returns `{ firstName, lastName, completionDate, certificateNumber, rewardSubmitted }` for current user; 404 if no cert |
-| POST | `/reward` | requireAuth | Save reward claim (product, shirtSize, address1, address2, city, state, zip); 400 if missing fields; 403 if no valid cert; no-op if already submitted |
-| GET | `/rewards` | tier5/admin only | All reward claims joined with `users.email` + `certificates.certificate_number` + `avg_score`; unfulfilled first. Backs `MarketingRequestsPage` |
+| POST | `/reward` | requireAuth | Save reward claim (product, shirtSize, address1, address2, city, state, zip, optional `productSku`); 400 if missing fields or `productSku` is not in `getRewardOptions()`; 403 if no valid cert; no-op if already submitted. With `productSku` the stored label is the catalog's own; without it the legacy label-only path still works |
+| GET | `/rewards` | tier5/admin only | All reward claims joined with `users.email` + `certificates.certificate_number` + `avg_score`, plus `product_sku` and the order badge `order_state` / `woo_status` / `woo_order_number` (LEFT JOIN `reward_orders`); unfulfilled first. Backs `MarketingRequestsPage` |
 | PUT | `/rewards/:id/fulfilled` | tier5/admin only | `{ fulfilled: boolean }` — sets `fulfilled` + `fulfilled_at`; 404 if the claim does not exist. Returns the stored row (`{ ok, id, fulfilled, fulfilled_at }`) so callers apply the server's timestamp instead of guessing one. Shared by **Marketing Requests** and the per-user switch in **User Management** |
 | GET | `/reward-options` | requireAuth | `{ products, shirtSizes }` — what the reward form renders. Any tier: it drives the partner picker |
 | GET | `/reward-options/all` | tier5/admin only | Full derived catalog + `allowedSkus` (null = no curation saved) + `shirtSizes` + `defaultShirtSizes`. Backs `RewardOptionsModal` |
@@ -583,6 +597,97 @@ All endpoints require `requireAuth + requireRole('tier5', 'admin')`.
 | POST | `/test` | Test WC connection; returns `{ ok, error? }` |
 | POST | `/sync` | Trigger manual full pull via `runWooSync()` |
 | POST | `/sync-product` | Body: `{ sku }` — push portal stock for that SKU to WooCommerce |
+
+WooCommerce credentials and sync now live on the **Admin Dashboard** (`/admin/dashboard`); `UsersPage` only links there.
+
+---
+
+## Admin Dashboard (`/admin/dashboard`)
+
+`AdminDashboardPage.tsx`, sidebar "Admin Dashboard" (`adminOnly`). Legal (tier8) sees it read-only.
+
+| Section | Backed by |
+|---|---|
+| Connections — a card per integration: status, source (env / saved / default / mixed), non-secret details, last activity, Test | `GET /api/admin/integrations`, `POST /api/admin/integrations/:id/test` |
+| WooCommerce — credentials + sync (`WooPanel`), reward orders summary, **Reward items** (which Woo products are the T-shirt and pin) | `/api/woo/*`, `GET /api/reward-orders/meta/summary`, `GET/PUT /api/admin/integrations/reward-items` |
+| WordPress announcements — the settings form that previously had no UI | `/api/announcements/admin/sync/status`, `PUT /admin/settings`, `POST /admin/test`, `POST /admin/sync` |
+| AI image model (`AiModelPanel`) | `woo_settings.ai_model` |
+| SSO notifications (`SsoNotificationsPanel`) | `/api/admin/sso-notifications/*` |
+
+Integrations: woocommerce, wordpress, emailjs, sso, sso_notifications, mcp, s3, gemini, mailchimp.
+
+⚠️ **`GET /api/admin/integrations` is readable by Legal and must never return a secret** — presence booleans only, URLs reduced to origin, and a final scrub of every string against the known secret values. `admin-integrations.test.ts` plants sentinel secrets in env and `woo_settings` and asserts none appear in any body, success or error. EmailJS, Gemini and MCP are config-only checks (`testable: false`) — there is no free live call to make.
+
+---
+
+## Reward Orders — certification rewards → WooCommerce
+
+A certified partner's reward claim (`cert_rewards`) becomes a **free $0 WooCommerce order** that an admin reviews before it is created. Opened from **Marketing Requests → Rewards** ("Create order" / "View order") and from the reward block in User Management.
+
+`RewardOrderModal.tsx` is side by side: **left** = the claim exactly as submitted (read-only); **right** = the order to be created (editable while `draft`/`failed`: line items, product picker, shirt size → variation, pin on/off, ship-to, customer note). Push has a confirmation step. Once pushed: Woo status dropdown (every status Woo reports, incl. plugin ones), Refresh, Email user, Move to trash, and an activity list.
+
+### Lines
+| Kind | Woo product |
+|---|---|
+| `product` | the claimed product, by SKU (`products?sku=` may return a variation → parent id + variation id) |
+| `shirt` | `reward_shirt_product_id` (variable) + `reward_shirt_size_variations[size]` |
+| `pin` | `reward_pin_product_id` (simple) |
+
+Mapping lives in `woo_settings` via `rewardItemSettings.ts`, edited on the Admin Dashboard. Every line is `subtotal/total '0.00'`, plus one `$0` `shipping_lines` entry (default `free_shipping`). `status: 'processing'`, `set_paid: false`, `payment_method: 'sliquid_reward'`, billing email = the partner's (guest order unless a Woo customer has that email), `meta_data` `_sliquid_reward_id` + `_sliquid_certificate`. WooCommerce sends its own customer emails for the order — by decision.
+
+⚠️ **Older claims stored only a label** ("Naturals Silk (4.2 oz)", no brand). The draft matches it against `deriveRewardProducts()`; exactly one match → that SKU is persisted to `cert_rewards.product_sku`; zero/many → the line carries an `issue` and the admin picks the product. Push is blocked while `issues` is non-empty.
+
+### States
+`draft` → `pushing` → `pushed` | `failed` → (`deleted`). One `reward_orders` row per claim (UNIQUE). `pushing` is taken in a transaction so a double click cannot create two Woo orders; a `pushing` row older than 5 minutes may be pushed again. Before creating, the push searches Woo for an order with this partner's email **and** matching `_sliquid_certificate` and adopts it — crash recovery that cannot adopt a stranger's order. A Woo failure returns **200** with `state: 'failed'` + scrubbed `last_error` and notifies admins (`reward_order_failed`); a draft with issues returns 400 `{ message, issues }`.
+
+Deleting: a draft/failed order is discarded; a pushed order is **trashed in Woo** (never force-deleted) and kept as `deleted` for history. A new draft can then be built.
+
+### Fulfilment — still ONE writer
+`setRewardFulfilled()` in `rewardOrders.ts` is the only writer of `cert_rewards.fulfilled` / `fulfilled_at`. `PUT /certificates/rewards/:id/fulfilled` calls it, and so does the Woo status rule: **completed → fulfilled**, **cancelled / refunded / failed → not fulfilled**, anything else unchanged. Status changes made in Woo admin are pulled by the 10-minute Woo interval (`syncRewardOrderStatuses()`) or the modal's Refresh.
+
+### API — `/api/reward-orders`
+`/meta/*` is registered before `/:rewardId`. Reads are `requireAdminViewer`, writes `requireRole('tier5','admin')`. Every write returns a fresh `RewardOrderDetail`.
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/meta/statuses` | Woo statuses (`/reports/orders/totals`), core list on failure |
+| GET | `/meta/summary` | `RewardOrderSummary` for the dashboard |
+| GET | `/meta/products?q=` | Woo product search (≥2 chars); 503 if Woo not configured |
+| GET | `/meta/products/:id/variations` | Variations of a variable product |
+| GET | `/:rewardId` | `{ request, order, events, woo_customer_id }` |
+| POST | `/:rewardId/draft` | Build / rebuild the draft from the claim (resets edits) |
+| PUT | `/:rewardId` | `RewardOrderPatch` — only in `draft`/`failed` |
+| DELETE | `/:rewardId` | Discard draft, or trash the pushed Woo order |
+| POST | `/:rewardId/push` | Create the Woo order |
+| PUT | `/:rewardId/status` | `{ status }` → Woo + fulfilment rule |
+| POST | `/:rewardId/refresh` | Pull the Woo status now |
+| POST | `/:rewardId/email` | `{ message? }` → `portal_reward_order_update` email; only once pushed (409 otherwise) |
+
+⚠️ **`portal_reward_order_update` is a NEW EmailJS template** — until it is created in the EmailJS dashboard (Subject `{{t_subject}}`, To `{{to_email}}`), "Email user" fails. See `portal/email-templates/README.md`.
+
+---
+
+## SSO Notification Relay
+
+Admin notifications are relayed to the Sliquid SSO portal, where staff see them in a bell, **routed by event type to SSO roles**.
+
+- `notifyAdmins()` inserts the portal rows as before, then enqueues one `notification_outbox` row — only when the relay is **enabled** and the type has ≥1 routed role. A single INSERT inside try/catch: the relay can never break or slow a portal request.
+- A 1-minute interval in `index.ts` drains the outbox: `POST {SSO_NOTIFICATIONS_URL}` (default `${SSO_ISSUER}/integrations/notifications`) with HTTP Basic `SSO_CLIENT_ID:SSO_CLIENT_SECRET` — the portal's existing SSO client — and a `SsoNotificationPayload` body (`contracts.ts`).
+- 2xx (202 stored / 200 duplicate `event_id`) → delivered. 400 → stopped permanently. 401/403 → full 6h backoff (configuration problem). 429/5xx/network → `min(60s·2^attempts, 6h)`. Rows still failing after 7 days stop retrying.
+- Settings in `woo_settings`: `sso_notify_enabled` (`'1'`/`'0'`, default off) and `sso_notify_routing` (JSON type → roles). Edited on the Admin Dashboard; roles must be from `SSO_ROLES` (`sliquid_*`).
+
+Default routing: `new_registration` → super_admin, owner, development, sales · `reward_claim` → sales, warehouse_manager · `reward_order_failed` → sales, warehouse_manager, development · `marketing_request` → marketing, sales · `cert_issued` → sales · `low_stock` / `out_of_stock` → warehouse_manager · `announcement_review` → marketing.
+
+⚠️ **The SSO side must enable this client first.** In the SSO portal (Admin → Apps, Super Admin/Owner) tick **"Can post notifications"** on the partner portal's confidential client; until then every delivery is 403. The SSO side also refuses clients without a secret. Its intake contract is documented in that repo's CLAUDE.md ("Notifications intake").
+
+### API — `/api/admin/sso-notifications`
+| Method | Path | Guard | Description |
+|---|---|---|---|
+| GET | `/` | viewer | `SsoNotifySettings` incl. counts, last 25 outbox rows, and the names (never values) of missing env vars |
+| PUT | `/settings` | admin | `{ enabled?, routing? }` — 400 on an unknown type or role |
+| POST | `/test` | admin | Sends one synthetic `portal_test` event directly |
+| POST | `/retry/:id` | admin | Makes one undelivered row due and drains |
+| POST | `/drain` | admin | Drains now |
 
 ---
 
@@ -1309,6 +1414,21 @@ FileDetailModal  (z-[60], stacked over explorer)
 
 Brand sort order: Sliquid → Ride Lube (RIDE) → Ride Rocco → Sliquid Science → alphabetical for unknowns.
 
+### Collections — releasable photo sets
+A named group of photos (e.g. a 50-photo launch) shown as a card in a **Collections** section at the top of the Product Library. Admins build it as a hidden **draft**, then **Release now** or **Schedule** it; partners then see it and get **one** notification (portal bell + the existing `portal_asset_broadcast` email), not one per photo.
+
+| Path | Purpose |
+|---|---|
+| `portal/server/src/collections.ts` | Queries, `releaseCollection()`, `notifyRelease()`, `sweepScheduledCollections()` (5-min interval in `index.ts`) |
+| `portal/server/src/routes/collections.ts` | `/api/collections` — list/detail, CRUD, `POST /:id/photos`, `PUT /:id/order`, `PUT /:id/schedule`, `POST /:id/release`, `POST /:id/unrelease` |
+| `portal/client/src/components/collections/` | `CollectionsSection` (cards), `CollectionModal` (grid, preview, Download all → ZIP), `CollectionEditorModal` (upload queue, cover, order, release) |
+
+- **Photos are ordinary `assets` rows with `collection_id` set.** ⚠️ Plain `GET /api/assets` and `GET /api/assets/:id` exclude them for **every** role (`collection_id IS NULL`) — that is the leak guard that keeps a draft out of the brand sections and the dashboard widget. They are served only through `/api/collections`, where anyone who is not `canViewAdmin` sees `status = 'released'` only (404 otherwise). The admin Media gallery also excludes them.
+- **Upload:** the editor sends 3 files per request, 2 requests in flight (server cap: 10 files/request), so a 50-photo set never becomes one giant multipart body. Each photo gets an 800px webp thumbnail via sharp at `${s3_key}-thumb.webp`. **HEIC is not supported** by the bundled sharp — the editor rejects it up front. After the queue drains, the editor restores natural **filename order** (`PUT /order`), because parallel requests finish out of order.
+- **One notification, ever:** `notifyRelease()` claims `notified_at` with a conditional UPDATE, so "Release now", the sweep and a re-release after Unpublish can never double-send. The bell goes only to **active** accounts whose tier can open `/assets` (tier1/2/3/6/7/8) — Prospects and pending users would be bounced to the dashboard. Brand is shown by display name ("Ride Lube", not `RIDE`).
+- **Delete** removes the photo rows **before** the collection: `assets.collection_id` is `ON DELETE SET NULL`, so deleting the collection first would turn its draft photos into public assets.
+- **Download:** `GET /api/assets/:id/download` streams a file, building the URL **only** from `S3_BUCKET` + `AWS_REGION` + `s3_key`, never from `file_url` (SSRF). "Download all" zips in the browser with jszip (STORE, 4 at a time). `Content-Disposition` is in `exposedHeaders` so the client can read the filename.
+
 ### Admin CRUD (tier5/admin only)
 - **Add** button → `AddItemModal`: Section dropdown (maps to type + source); Brand dropdown with "Other (type a new brand…)" fallback text input; POSTs to `/api/assets` or `/api/creatives`
 - **Edit** → `EditItemModal`: same brand dropdown; `PUT /api/assets/:id` or `PUT /api/creatives/:id`
@@ -1370,6 +1490,9 @@ of every non-admin feed, with no error anywhere.
 | New creative added (`POST /api/creatives`) | `new_asset` | All non-admin users |
 | Announcement crosses its publish time | `new_announcement` | Everyone (pending users only if it is also public) |
 | Sync imports new hidden press releases | `announcement_review` | Admins only |
+| A reward order push to WooCommerce fails | `reward_order_failed` | Admins only |
+
+Every `notifyAdmins()` call is also enqueued for the SSO portal when the relay is on and the type is routed — see [SSO Notification Relay](#sso-notification-relay).
 
 **Status-change-only rule:** Inventory notifications fire only when `oldStatus !== newStatus`. Prevents spam when admins repeatedly update already-low items.
 
@@ -1505,7 +1628,7 @@ src/__tests__/fixtures/announcement-shape-a.html  # the REAL body of WP post 126
   - `POST /reward`: 401 no auth; 403 no cert; 400 for each missing required field (product, shirtSize, address1, city, state, zip); 201 + DB row verified; address2 optional; idempotent (second call returns 200, no duplicate); per-user isolation; round-trip confirms `rewardSubmitted` flips to `true`
   - `GET /verify/:certNumber`: unknown 404; revoked 404; valid 200 + full shape; public (no auth); case-sensitive lookup
 
-**Total: 760 tests passing across 30 test files** (1 known pre-existing failure in
+**Total: 1096 tests passing across 42 test files** (Oct 2026) (1 known pre-existing failure in
 `admin.test.ts` — it asserts tier3 is rejected on approve, which is no longer true).
 
 `certificates.test.ts` is now 42 tests — it additionally locks in the admin-only guards on
@@ -1529,7 +1652,7 @@ that reset leaves the `certificates` row intact and never touches another user's
 - Config: `portal/server/railway.toml` — `builder = "dockerfile"` only (no healthcheckPath)
 - Volume: mount at `/data`, set `DB_PATH=/data/portal.db`
 - Required env vars: `JWT_SECRET`, `ALLOWED_ORIGINS` (comma-separated Cloudflare URLs)
-- Optional env vars: `EMAILJS_PUBLIC_KEY`, `EMAILJS_PRIVATE_KEY`, `EMAILJS_SERVICE_ID`, `PORTAL_URL`, `WC_URL`, `WC_CONSUMER_KEY`, `WC_CONSUMER_SECRET`, `WP_BASE_URL`, `WP_ANNOUNCEMENTS_CATEGORY_ID`, `WP_ANNOUNCEMENTS_CUTOFF`
+- Optional env vars: `EMAILJS_PUBLIC_KEY`, `EMAILJS_PRIVATE_KEY`, `EMAILJS_SERVICE_ID`, `PORTAL_URL`, `WC_URL`, `WC_CONSUMER_KEY`, `WC_CONSUMER_SECRET`, `WP_BASE_URL`, `WP_ANNOUNCEMENTS_CATEGORY_ID`, `WP_ANNOUNCEMENTS_CUTOFF`, `SSO_NOTIFICATIONS_URL`
 - Employee SSO env vars (all required to enable the `/api/auth/sso` flow):
   - `SSO_ENABLED=true`, `SSO_ISSUER`, `SSO_AUTHORIZE_URL`, `SSO_TOKEN_URL`, `SSO_JWKS_URL` (all `https://sso-api.sliquid.com/...`)
   - `SSO_CLIENT_ID`, `SSO_CLIENT_SECRET` (from registering the app at `https://sso.sliquid.com` → Admin → Apps)
@@ -1569,7 +1692,7 @@ assertion isn't vacuous. **Never merge `requireMcpAuth` into `requireAuth`, neve
 audience check, and keep `MCP_SCOPES_SUPPORTED` in step with the scope the router enforces.**
 
 ### The IdP side lives in a different repo
-`~/Desktop/sliquid-sso` (`Christ-SDT/Sliquid-SSO-Portal`) is the OIDC provider that both employee
+`~/Desktop/Sliquid/Sliquid_SSO_Portal/Sliquid_SSOPortal` (`Christ-SDT/Sliquid-SSO-Portal`) is the OIDC provider that both employee
 login and `/mcp` trust. MCP auth changes routinely need edits in **both** repos — this one alone is
 never the whole picture. Facts that the portal side depends on:
 
@@ -1917,7 +2040,7 @@ happens.
 - **Icons:** `lucide-react` exclusively.
 - **API calls:** Always use `api.get/post/put/delete` from `@/api/client` — never raw `fetch`. Exception: binary downloads (CSV export), public pre-auth calls (e.g., `/api/stores` from RegisterPage), and the public certificate verify page use raw `fetch`.
 - **Auth guard:** `requireAuth` for any authenticated endpoint; `requireRole('tier5', 'admin')` for admin-only write endpoints (includes legacy `admin` role for backward compat). **Never use `'tier4'` alone for admin checks** — that is now the Prospect role.
-- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **64**.
+- **Migrations:** Additive only. Never drop/rename columns. Always increment version number. Next version: **67**.
 - **Types:** Keep shared types in `portal/client/src/types/index.ts`. Server types are inlined where needed.
 - **No auto-commit:** Never commit unless explicitly asked.
 - **`AnnouncementBody.tsx` is duplicated** in `src/components/` and `portal/client/src/components/`.

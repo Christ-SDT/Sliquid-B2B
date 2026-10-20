@@ -92,5 +92,27 @@
     "empty": "Nog geen items in de bibliotheek",
     "addFirst": "Voeg het eerste item toe",
     "deleteFailed": "Item verwijderen mislukt"
+  },
+  "collections": {
+    "title": "Collecties",
+    "subtitle": "Fotosets van lanceringen, klaar om te downloaden",
+    "open": "Collectie {{name}} openen",
+    "new": "Nieuw",
+    "photos_one": "{{count}} foto",
+    "photos_other": "{{count}} foto's",
+    "releasedOn": "Gepubliceerd op {{date}}",
+    "downloadAll": "Alles downloaden",
+    "preparingZip": "ZIP voorbereiden… {{done}}/{{total}}",
+    "zipFailed_one": "{{count}} foto kon niet aan de ZIP worden toegevoegd:",
+    "zipFailed_other": "{{count}} foto's konden niet aan de ZIP worden toegevoegd:",
+    "zipEmpty": "Geen van de foto's kon worden gedownload. Probeer het opnieuw.",
+    "downloadFailed": "Downloaden mislukt. Probeer het opnieuw.",
+    "notFound": "Deze collectie is niet beschikbaar.",
+    "loadFailed": "Deze collectie kon niet worden geladen. Probeer het opnieuw.",
+    "empty": "Deze collectie bevat nog geen foto's.",
+    "viewPhoto": "{{name}} bekijken",
+    "photoOf": "Foto {{index}} van {{total}}",
+    "previous": "Vorige foto",
+    "next": "Volgende foto"
   }
 }

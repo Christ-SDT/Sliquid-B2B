@@ -92,5 +92,27 @@
     "empty": "No items in the library yet",
     "addFirst": "Add the first item",
     "deleteFailed": "Failed to delete item"
+  },
+  "collections": {
+    "title": "Collections",
+    "subtitle": "Launch photo sets, ready to download",
+    "open": "Open collection {{name}}",
+    "new": "New",
+    "photos_one": "{{count}} photo",
+    "photos_other": "{{count}} photos",
+    "releasedOn": "Released {{date}}",
+    "downloadAll": "Download all",
+    "preparingZip": "Preparing ZIP… {{done}}/{{total}}",
+    "zipFailed_one": "{{count}} photo couldn't be added to the ZIP:",
+    "zipFailed_other": "{{count}} photos couldn't be added to the ZIP:",
+    "zipEmpty": "None of the photos could be downloaded. Please try again.",
+    "downloadFailed": "Download failed. Please try again.",
+    "notFound": "This collection isn't available.",
+    "loadFailed": "Couldn't load this collection. Please try again.",
+    "empty": "No photos in this collection yet.",
+    "viewPhoto": "View {{name}}",
+    "photoOf": "Photo {{index}} of {{total}}",
+    "previous": "Previous photo",
+    "next": "Next photo"
   }
 }

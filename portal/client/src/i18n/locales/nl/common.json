@@ -30,7 +30,8 @@
     "media": "Mediabibliotheek",
     "users": "Gebruikersbeheer",
     "gdprRequests": "AVG-verzoeken",
-    "manageAnnouncements": "Aankondigingen beheren"
+    "manageAnnouncements": "Aankondigingen beheren",
+    "adminDashboard": "Beheerdashboard"
   },
   "sidebar": {
     "logoAlt": "Sliquid-lotus",
@@ -67,6 +68,7 @@
     "announcements": "Aankondigingen",
     "announcement": "Aankondiging",
     "manageAnnouncements": "Aankondigingen beheren",
+    "adminDashboard": "Beheerdashboard",
     "products": "Producten",
     "assets": "Productbibliotheek",
     "inventory": "Voorraad",

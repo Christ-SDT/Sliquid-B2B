@@ -74,6 +74,7 @@ router.get('/', requireAuth, requireAdminViewer, (_req, res) => {
            file_url, thumbnail_url, file_size, dimensions, s3_key, NULL as description,
            NULL as subtitle, NULL as campaign, NULL as mime_type, NULL as uploaded_by, created_at
     FROM assets WHERE s3_key IS NOT NULL AND s3_key NOT LIKE 'ai-images/%'
+      AND collection_id IS NULL -- collection photos are managed in their collection (thumbnail + order)
   `).all() as Record<string, unknown>[]
 
   const creatives = db.prepare(`

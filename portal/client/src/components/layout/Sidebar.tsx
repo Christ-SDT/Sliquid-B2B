@@ -8,7 +8,7 @@ import { canViewAdmin, isReadOnlyAdmin } from '@/types'
 import {
   LayoutDashboard, BookOpen,
   MapPin, Megaphone, GraduationCap, LogOut, X, Users, Moon, Sun, Sparkles,
-  Image as ImageIcon, Stethoscope, ShieldCheck, Newspaper, Eye,
+  Image as ImageIcon, Stethoscope, ShieldCheck, Newspaper, Eye, Gauge,
 } from 'lucide-react'
 
 // restricted: tier1/2/3/6  |  tier23: tier2+tier3 only  |  prospectVisible: tier4  |  adminOnly: tier5 only  |  medicalOnly: admin only  |  hideTier3: hidden from tier3 (Distributor)
@@ -21,6 +21,7 @@ const NAV = [
   { to: '/creator',            icon: Sparkles,        labelKey: 'creator', restricted: true,  tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
   { to: '/retailer',           icon: Megaphone,       labelKey: 'retailer', restricted: false, tier23: true,  prospectVisible: true,  managerOnly: false, adminOnly: false, medicalOnly: false, hideTier3: false, badgeType: undefined },
   { to: '/medical-marketing',  icon: Stethoscope,     labelKey: 'medicalMarketing', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: false, medicalOnly: true,  hideTier3: false, badgeType: undefined },
+  { to: '/admin/dashboard',    icon: Gauge,           labelKey: 'adminDashboard', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
   { to: '/requests',           icon: Users,           labelKey: 'requests', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: 'new_registration' },
   { to: '/marketing-requests', icon: Megaphone,       labelKey: 'marketingRequests', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: 'marketing_request' },
   { to: '/media',              icon: ImageIcon,       labelKey: 'media', restricted: false, tier23: false, prospectVisible: false, managerOnly: false, adminOnly: true,  medicalOnly: false, hideTier3: false, badgeType: undefined },
