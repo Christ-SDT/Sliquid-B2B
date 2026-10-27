@@ -1473,7 +1473,7 @@
 "type":"graded",
 "interactionType":"choice",
 "ramdomized":false,
-"correctAnswers":["si36226"],
+"correctAnswers":["si36218"],
 "score":{
 "weight":10,
 "penalty":0
